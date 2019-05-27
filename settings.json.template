@@ -1,0 +1,196 @@
+/*
+  This file must be valid JSON. But comments are allowed
+
+  Please edit settings.json, not settings.json.template
+*/
+{
+  // name your instance!
+  "title": "eIquidus",
+
+  "address": "127.0.0.1:3001",
+
+  // coin name
+  "coin": "Exor",
+
+  // coin symbol
+  "symbol": "EXOR",
+
+  // logo
+  "logo": "/images/logo.png",
+
+  // favicon
+  "favicon": "public/favicon.ico",
+  
+  // home link (valid options are: title, coin, logo)
+  "homelink":  "coin",
+  
+  // home link logo height (value in px, only valid if using homelink = 'logo')
+  "logoheight":  50,
+
+  // Uses bootswatch themes (http://bootswatch.com/)
+  // Valid options:
+  //     Cerulean, Cosmo, Cyborg, Darkly, Exor, Flatly, Journal, Lumen, Paper,
+  //     Readable, Sandstone, Simplex, Slate, Spacelab, Superhero, United, Yeti
+  // theme (see /public/themes for available themes)
+  "theme": "Exor",
+
+  // port to listen for requests on.
+  "port" : 3001,
+
+  // database settings (MongoDB)
+  "dbsettings": {
+    "user": "eiquidus",
+    "password": "Nd^p2d77ceBX!L",
+    "database": "explorerdb",
+    "address": "localhost",
+    "port": 27017
+  },
+
+  //update script settings
+  "update_timeout": 10,
+  "check_timeout": 250,
+
+  // wallet settings
+  "wallet": {
+    "host": "localhost",
+    "port": 51573,
+    "user": "exorrpc",
+    "pass": "sSTLyCkrD94Y8&9mr^m6W^Mk367Vr!!K"
+  },
+
+  // confirmations
+  "confirmations": 40,
+
+  // language settings
+  "locale": "locale/en.json",
+
+  // menu and panel settings
+  // set a number to pnl variables to change the panel display order. lowest # = far left panel, highest # = far right panel, 0 = do not show panel
+  "display": {
+    "api": true,
+    "markets": true,
+    "richlist": true,
+    "twitter": false,
+    "facebook": false,
+    "googleplus": false,
+    "bitcointalk": false,
+    "website": false,
+    "slack": false,
+    "github": false,
+    "discord": false,
+    "telegram": false,
+    "reddit": false,
+    "youtube": false,
+    "search": true,
+    "movement": true,
+    "network": true,
+    "networkpnl": 1,
+    "difficultypnl": 2,
+    "masternodespnl": 3,
+    "coinsupplypnl": 4,
+    "pricepnl": 5
+  },
+
+  // index page (valid options for difficulty are POW, POS or Hybrid)
+  "index": {
+    "show_hashrate": true,
+    "difficulty": "POS",
+    "last_txs": 100
+  },
+
+  // ensure links on API page are valid
+  "api": {
+    "blockindex": 6415,
+    "blockhash": "dd17105f9e3d79c553b3670001e0243dd21378f4f90a340d87c0e5eb0b44dfd4",
+    "txhash": "2af5cc842d18814b45db44b62411c8a47987fc3c56294af38572989de5c1f7d5",
+    "address": "EaqHssmmgEPCxaeczbZnoqM6vutv9xmhrZ"
+  },
+
+  // market settings
+  //supported markets: bittrex, poloniex, yobit, empoex, bleutrade, cryptopia, ccex, coinexchange
+  //default market is loaded by default and determines last price in header
+  "markets": {
+    "coin": "EXOR",
+    "exchange": "BTC",
+    "enabled": [],
+    "cryptopia_id": "",
+    "ccex_key" : "Get-Your-Own-Key",
+    "coinexchange_id": "",
+    "default": ""
+  },
+
+  // richlist/top100 settings
+  "richlist": {
+    "distribution": true,
+    "received": true,
+    "balance": true
+  },
+  // movement page settings
+  // min amount: show transactions greater than this value
+  // low flag: greater than this value flagged yellow
+  // high flag: greater than this value flagged red
+  "movement": {
+    "min_amount": 100,
+    "low_flag": 1000,
+    "high_flag": 5000
+  },
+
+  // twitter, facebook, googleplus, bitcointalk, github, slack, discord, telegram, reddit, youtube, website
+  "twitter": "your-twitter-username",
+  "facebook": "your-facebook-username",
+  "googleplus": "your-google-plus-username",
+  "bitcointalk": "your-bitcointalk-topic-value",
+  "github": "your-github-username/your-github-repo",
+  "slack": "your-full-slack-invite-url",
+  "discord": "your-full-discord-invite-url",
+  "telegram": "your-telegram-group-or-channel-name",
+  "reddit": "your-subreddit-name",
+  "youtube": "your-full-youtube-url",
+  "website": "your-full-website-url",
+
+  //genesis
+  "genesis_tx": "dd1d332ad2d8d8f49195056d482ae3c96fd2d16e9d166413b27ca7f19775644c",
+  "genesis_block": "0000860fcf946b44df0e7d85d6757d45f8de6f4c9aacc5c7b6abc13db1f68819",
+
+  //heavy (enable/disable additional heavy features)
+  "heavy": false,
+
+  //amount of txs to index per address (stores latest n txs)
+  "txcount": 100,
+
+  //show total sent & received on address page (set false if PoS)
+  "show_sent_received": true,
+
+  // how to calculate current coin supply
+  // COINBASE : total sent from coinbase (PoW)
+  // GETINFO : retreive from getinfo api call (PoS)
+  // HEAVY: retreive from heavys getsupply api call
+  // BALANCES : total of all address balances
+  // TXOUTSET : retreive from gettxoutsetinfo api call
+  "supply": "TXOUTSET",
+
+  // how to acquire network hashrate
+  // getnetworkhashps: uses getnetworkhashps api call, returns in GH/s
+  // netmhashps: uses getmininginfo.netmhashpsm returns in MH/s
+  "nethash": "getnetworkhashps",
+
+  // nethash unitd: sets nethash API return units
+  // valid options: "P" (PH/s), "T" (TH/s), "G" (GH/s), "M" (MH/s), "K" (KH/s)
+  "nethash_units": "G",
+  
+  // simple Cross-Origin Resource Sharing (CORS) support
+  // enabling this feature will add a new output header to all requests like this: Access-Control-Allow-Origin: <corsorigin>
+  // corsorigin "*" will allow any origin to access the requested resource while specifying any other value for corsorigin will allow cross-origin requests only when the request is made from a source that matches the corsorigin filter
+  "usecors": false,
+  "corsorigin": "*",
+
+  // Address labels
+  // example : "CGTta3M4t3yXu8uRgkKvaWd2d8DQvDPnpL": {"label": "This is a burn address", "type":"danger", "url":"http://example.com"}
+  // label (required) = test to display
+  // type (optional) = class of label, valid types: default, primary, warning, danger, success
+  // url (optional) = url to link to for more information
+  "labels": {
+  //  "CLkWg5YSLod772uLzsFRxHgHiWVGAJSezm": {"label": "Donation Address", "type":"primary", "url":"http://example.com"},
+  //  "CaxX1HVWzbQ516w61XbtHR63vNmp2mvLMZ": {"label": "Max Lee War Chest"}
+  }
+}

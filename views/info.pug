@@ -1,0 +1,182 @@
+extends layout
+
+block content
+  .col-md-12.col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong #{settings.locale.api_title}
+      .panel-body
+        img(src=settings.logo, style='margin:0;height:128px;')
+        p
+          em #{settings.locale.api_message}
+        hr
+        h3 #{settings.locale.api_calls}
+        p
+          em Return data from coind
+        ul
+          li
+            p
+              div(style='font-weight:bold;') getdifficulty
+              div
+                em #{settings.locale.api_getdifficulty}
+              a(href='/api/getdifficulty') #{address}/api/getdifficulty
+          li
+            p
+              div(style='font-weight:bold;') getconnectioncount
+              div
+                em #{settings.locale.api_getconnectioncount}
+              a(href='/api/getconnectioncount') #{address}/api/getconnectioncount
+          li
+            p
+              div(style='font-weight:bold;') getmasternodecount
+              div
+                em #{settings.locale.api_getmasternodecount}
+              a(href='/api/getmasternodecount') #{address}/api/getmasternodecount
+          li
+            p
+              div(style='font-weight:bold;') getblockcount
+              div
+                em #{settings.locale.api_getblockcount}
+              a(href='/api/getblockcount') #{address}/api/getblockcount
+          li
+            p
+              div(style='font-weight:bold;') getblockhash [index]
+              div
+                em #{settings.locale.api_getblockhash}
+              a(href='/api/getblockhash?index=' + hashes.blockindex) #{address}/api/getblockhash?index=#{hashes.blockindex}
+          li
+            p
+              div(style='font-weight:bold;') getblock [hash]
+              div
+                em #{settings.locale.api_getblock}
+              a(href='/api/getblock?hash=' + hashes.blockhash) #{address}/api/getblock?hash=#{hashes.blockhash}
+          li
+            p
+              div(style='font-weight:bold;') getrawtransaction [txid] [decrypt]
+              div
+                em #{settings.locale.api_getrawtransaction}
+              div
+                a(href='/api/getrawtransaction?txid=' + hashes.txhash + '&decrypt=0') #{address}/api/getrawtransaction?txid=#{hashes.txhash}&decrypt=0
+              div
+                a(href='/api/getrawtransaction?txid=' + hashes.txhash + '&decrypt=1') #{address}/api/getrawtransaction?txid=#{hashes.txhash}&decrypt=1
+          if settings.index.show_hashrate == true
+            li
+              p
+                div(style='font-weight:bold;') getnetworkhashps
+                div
+                  em #{settings.locale.api_getnetworkhashps}
+                a(href='/api/getnetworkhashps') #{address}/api/getnetworkhashps
+          if settings.heavy == true
+            li
+              p
+                div(style='font-weight:bold;') getmaxmoney
+                div
+                  em #{settings.locale.api_getmaxmoney}
+                a(href='/api/getmaxmoney') #{address}/api/getmaxmoney
+            li
+              p
+                div(style='font-weight:bold;') getmaxvote
+                div
+                  em #{settings.locale.api_getmaxvote}
+                a(href='/api/getmaxvote') #{address}/api/getmaxvote
+            li
+              p
+                div(style='font-weight:bold;') getvote
+                div
+                  em #{settings.locale.api_getvote}
+                a(href='/api/getvote') #{address}/api/getvote
+            li
+              p
+                div(style='font-weight:bold;') getphase
+                div
+                  em #{settings.locale.api_getphase}
+                a(href='/api/getphase') #{address}/api/getphase
+            li
+              p
+                div(style='font-weight:bold;') getreward
+                div
+                  em #{settings.locale.api_getreward}
+                a(href='/api/getreward') #{address}/api/getreward
+            li
+              p
+                div(style='font-weight:bold;') getsupply
+                div
+                  em #{settings.locale.api_getsupply}
+                a(href='/api/getsupply') #{address}/api/getsupply
+            li
+              p
+                div(style='font-weight:bold;') getnextrewardestimate
+                div
+                  em #{settings.locale.api_getnextrewardestimate}
+                a(href='/api/getnextrewardestimate') #{address}/api/getnextrewardestimate
+            li
+              p
+                div(style='font-weight:bold;') getnextrewardwhenstr
+                div
+                  em #{settings.locale.api_getnextrewardwhenstr}
+                a(href='/api/getnextrewardwhenstr') #{address}/api/getnextrewardwhenstr
+        hr
+        h3 Extended API
+        p
+          em Return data from local indexes
+        ul
+            li
+              p
+                div(style='font-weight:bold;') getmoneysupply
+                div
+                  em Returns current money supply
+                a(href='/ext/getmoneysupply') #{address}/ext/getmoneysupply
+            li
+              p
+                div(style='font-weight:bold;') getdistribution
+                div
+                  em Returns wealth distribution stats
+                a(href='/ext/getdistribution') #{address}/ext/getdistribution
+            li
+              p
+                div(style='font-weight:bold;') getaddress (/ext/getaddress/hash)
+                div
+                  em Returns information for given address
+                a(href='/ext/getaddress/' + hashes.address) #{address}/ext/getaddress/#{hashes.address}
+            li
+              p
+                div(style='font-weight:bold;') getbalance (/ext/getbalance/hash)
+                div
+                  em Returns current balance of given address
+                a(href='/ext/getbalance/' + hashes.address) #{address}/ext/getbalance/#{hashes.address}
+            li
+              p
+                div(style='font-weight:bold;') getlasttxs (/ext/getlasttxs/count/min)
+                div
+                  em Returns last [count] transactions greater than [min]
+                div
+                  em Note: returned values are in satoshis
+                a(href='/ext/getlasttxs/10/100') #{address}/ext/getlasttxs/10/100
+            li
+              p
+                div(style='font-weight:bold;') getcurrentprice
+                div
+                  em Returns last known exchange price
+                a(href='/ext/getcurrentprice') #{address}/ext/getcurrentprice
+        hr
+        h3 Linking (GET)
+        p
+          em Linking to the block explorer
+        ul
+            li
+              p
+                div(style='font-weight:bold;') transaction (/tx/txid)
+                a(href='/tx/' + hashes.txhash) #{address}/tx/#{hashes.txhash}
+            li
+              p
+                div(style='font-weight:bold;') block (/block/hash)
+                a(href='/block/' + hashes.blockhash) #{address}/block/#{hashes.blockhash}
+            li
+              p
+                div(style='font-weight:bold;') address (/address/hash)
+                a(href='/address/' + hashes.address) #{address}/address/#{hashes.address}
+            li
+              p
+                div(style='font-weight:bold;') qrcode (/qr/hash)
+                a(href='/qr/' + hashes.address) #{address}/qr/#{hashes.address}
+    .footer-padding
