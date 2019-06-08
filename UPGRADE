@@ -1,4 +1,10 @@
 NOTE: All updates require the explorer to be restarted
 
-1.0.0
+1.0.1 [June 7, 2019]
+-Added stex.com market support
+-Added a new public api /ext/getbasicstats
+-Fixed all depreciation warnings regarding mongo db.update statements
+-Updated outdated mongodb and mongoose references
+
+1.0.0 [May 27, 2019]
 -Initial release

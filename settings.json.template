@@ -107,7 +107,7 @@
   },
 
   // market settings
-  //supported markets: bittrex, poloniex, yobit, empoex, bleutrade, cryptopia, ccex, coinexchange
+  //supported markets: bittrex, poloniex, yobit, empoex, bleutrade, cryptopia, ccex, coinexchange, stex
   //default market is loaded by default and determines last price in header
   "markets": {
     "coin": "EXOR",
@@ -116,6 +116,7 @@
     "cryptopia_id": "",
     "ccex_key" : "Get-Your-Own-Key",
     "coinexchange_id": "",
+    "stex_id": "",
     "default": ""
   },
 

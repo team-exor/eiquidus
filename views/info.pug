@@ -158,6 +158,12 @@ block content
                 div
                   em Returns last known exchange price
                 a(href='/ext/getcurrentprice') #{address}/ext/getcurrentprice
+            li
+              p
+                div(style='font-weight:bold;') getbasicstats
+                div
+                  em Returns basic statistics about the coin including: block count, circulating supply, USD price, BTC price and # of masternodes
+                a(href='/ext/getbasicstats') #{address}/ext/getbasicstats
         hr
         h3 Linking (GET)
         p

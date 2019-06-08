@@ -117,6 +117,19 @@ app.use('/ext/getcurrentprice', function(req,res){
   });
 });
 
+app.use('/ext/getbasicstats', function(req,res){
+  lib.get_blockcount(function(blockcount){
+    lib.get_supply(function(supply){
+      db.get_stats(settings.coin, function (stats){
+		lib.get_masternodecount(function(masternodestotal){  
+          eval('var p_ext = { "block_count": blockcount, "money_supply": supply, "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, "masternode_count": masternodestotal.total }');
+          res.send(p_ext);
+        });
+	  });
+    });
+  });
+});
+
 app.use('/ext/connections', function(req,res){
   db.get_peers(function(peers){
     res.send({data: peers});

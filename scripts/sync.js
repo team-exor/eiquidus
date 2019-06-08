@@ -146,11 +146,11 @@ is_locked(function (exists) {
                   if (mode == 'reindex') {
                     Tx.remove({}, function(err) { 
                       Address.remove({}, function(err2) { 
-                        Richlist.update({coin: settings.coin}, {
+                        Richlist.updateOne({coin: settings.coin}, {
                           received: [],
                           balance: [],
                         }, function(err3) { 
-                          Stats.update({coin: settings.coin}, { 
+                          Stats.updateOne({coin: settings.coin}, { 
                             last: 0,
                           }, function() {
                             console.log('index cleared (reindex)');
@@ -203,21 +203,30 @@ is_locked(function (exists) {
                   if (!err) {
                     console.log('%s market data updated successfully.', mkt);
                     complete++;
+                    if (complete == markets.length)
+                      get_last_usd_price();
                   } else {
                     console.log('%s: %s', mkt, err);
                     complete++;
+                    if (complete == markets.length)
+                      get_last_usd_price();
                   }
                 });
               } else {
                 console.log('error: entry for %s does not exists in markets db.', mkt);
                 complete++;
+                if (complete == markets.length)
+                  get_last_usd_price();
               }
             });
           }
-		  // Get the last usd price for coinstats
-		  db.get_last_usd_price(function(retVal) { exit(); });
         }
       });
     });
   }
 });
+
+function get_last_usd_price() {
+  // Get the last usd price for coinstats
+  db.get_last_usd_price(function(retVal) { exit(); });
+}

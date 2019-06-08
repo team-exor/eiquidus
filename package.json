@@ -17,8 +17,8 @@
     "pug": "~2.0.3",
     "request": "2.88.0",
     "jsonminify": "0.4.1",
-    "mongodb": "3.2.6",
-    "mongoose": "5.5.11",
+    "mongodb": "3.2.7",
+    "mongoose": "5.5.13",
     "qr-image": "~3.2.0"
   },
   "devDependencies": {
