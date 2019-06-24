@@ -299,21 +299,23 @@ router.get('/ext/summary', function(req, res) {
         lib.get_masternodecount(function(masternodestotal){
           lib.get_blockcount(function(blockcount) {
             db.get_stats(settings.coin, function (stats) {
-              if (hashrate == 'There was an error. Check your console.') {
-                hashrate = 0;
-              }
-			  var masternodesoffline = Math.floor(masternodestotal.total - masternodestotal.enabled);
-              res.send({ data: [{
-                difficulty: difficulty,
-                difficultyHybrid: difficultyHybrid,
-                supply: stats.supply,
-                hashrate: hashrate,
-                lastPrice: stats.last_price,
-                connections: connections,
-                masternodeCountOnline: masternodestotal.enabled,
-                masternodeCountOffline: masternodesoffline,
-                blockcount: blockcount
-              }]});
+              lib.get_supply( function (supply){
+                if (hashrate == 'There was an error. Check your console.') {
+                  hashrate = 0;
+                }
+			    var masternodesoffline = Math.floor(masternodestotal.total - masternodestotal.enabled);
+                res.send({ data: [{
+                  difficulty: difficulty,
+                  difficultyHybrid: difficultyHybrid,
+                  supply: supply,
+                  hashrate: hashrate,
+                  lastPrice: stats.last_price,
+                  connections: connections,
+                  masternodeCountOnline: masternodestotal.enabled,
+                  masternodeCountOffline: masternodesoffline,
+                  blockcount: blockcount
+                }]});
+              });
             });
           });
         });
