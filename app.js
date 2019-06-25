@@ -167,6 +167,7 @@ app.set('theme', settings.theme);
 app.set('labels', settings.labels);
 app.set('homelink', settings.homelink);
 app.set('logoheight', settings.logoheight);
+app.set('burned_coins', settings.burned_coins);
 
 // determine panel offset based on which panels are enabled
 var paneltotal=5;

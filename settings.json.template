@@ -193,5 +193,19 @@
   "labels": {
   //  "CLkWg5YSLod772uLzsFRxHgHiWVGAJSezm": {"label": "Donation Address", "type":"primary", "url":"http://example.com"},
   //  "CaxX1HVWzbQ516w61XbtHR63vNmp2mvLMZ": {"label": "Max Lee War Chest"}
-  }
+  },
+
+  // Burned coin addresses
+  // Use this setting to prevent specific wallet addresses from being displayed or calculated in the rich list and wealth distribution chart sections.
+  // These wallet addresses will still be accessible via the explorer under all other conditions except from the rich list.
+  // Add as many wallet addresses as necessary in the following format:
+  //"burned_coins": [
+  //  {
+  //    "address": "EPUzEEGa45Rsn88WAos6SqkZZ9GrsfpvtZ"
+  //  },
+  //  {
+  //    "address": "EUzgbt1r5AFzoZXK6WgTzM8kBBPJU1SX8E"
+  //  }
+  //]
+  "burned_coins": []
 }
