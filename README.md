@@ -1,4 +1,4 @@
-eIquidus - 1.0.0
+eIquidus - 1.0.1
 ================
 
 The Exor block explorer.
