@@ -10,7 +10,7 @@ then
         fi
 fi
 if [ -z "${1}" ]; then
-	eval "cd ${EXPLORER_PATH} && $(which node) scripts/sync.js index update > /dev/null 2>&1"
+	eval "cd ${EXPLORER_PATH} && $(which node) scripts/sync.js index update"
 else
-	eval "cd ${EXPLORER_PATH} && ${1} scripts/sync.js index update > /dev/null 2>&1"
+	eval "cd ${EXPLORER_PATH} && ${1} scripts/sync.js index update"
 fi
