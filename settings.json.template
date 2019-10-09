@@ -207,5 +207,15 @@
   //    "address": "EUzgbt1r5AFzoZXK6WgTzM8kBBPJU1SX8E"
   //  }
   //]
-  "burned_coins": []
+  "burned_coins": [],
+
+  // Customized API commands
+  // Not all blockchains utilize the same rpc cmds for accessing the internal daemon api
+  // Leave the value blank for any cmd that should not be used
+  // The following cmd-line calls to the daemon can be overridden:
+  //
+  // masternode_count: This should return an array of masternode counts where one key in the array must be named "total" and one key must be named "enabled" which are used to determine how many masternodes are offline (not enabled)
+  "api_cmds": {
+    "masternode_count": "getmasternodecount"
+  }
 }
