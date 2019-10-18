@@ -10,7 +10,6 @@ tbody
       td #{time} 
       td
         a(href='/tx/' + tx.txid) #{tx.txid}
-      - var done = false
       - var out = 0
       - var vin = 0
       each r in tx.vout 
