@@ -93,7 +93,7 @@ function route_get_index(res, error) {
 }
 
 function route_get_address(res, hash, count) {
-  db.get_address(hash, function(address) {
+  db.get_address(hash, false, function(address) {
     if (address) {
       var txs = [];
       var hashes = address.txs.reverse();
@@ -252,7 +252,7 @@ router.post('/search', function(req, res) {
       });
     }
   } else {
-    db.get_address(query, function(address) {
+    db.get_address(query, false, function(address) {
       if (address) {
         res.redirect('/address/' + address.a_id);
       } else {
