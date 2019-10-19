@@ -232,7 +232,7 @@ router.get('/address/:hash/:count', function(req, res) {
 });
 
 router.post('/search', function(req, res) {
-  var query = req.body.search;
+  var query = req.body.search.trim();
   if (query.length == 64) {
     if (query == settings.genesis_tx) {
       res.redirect('/block/' + settings.genesis_block);
