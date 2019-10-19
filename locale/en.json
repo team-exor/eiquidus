@@ -141,6 +141,7 @@
     "ccex": "C-Cex",
     "coinexchange": "CoinExchange",
 	"stex": "Stex",
+    "crex": "Crex24",
 
     // Heavy rewards view
     "heavy_title": "Reward/voting information",
