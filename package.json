@@ -17,11 +17,11 @@
     "pug": "~2.0.4",
     "request": "2.88.0",
     "jsonminify": "0.4.1",
-    "mongodb": "3.2.7",
-    "mongoose": "5.6.9",
+    "mongodb": "3.3.3",
+    "mongoose": "5.7.7",
     "qr-image": "~3.2.0"
   },
   "devDependencies": {
-    "jasmine": "~3.4.0"
+    "jasmine": "~3.5.0"
   }
 }
