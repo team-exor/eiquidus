@@ -134,10 +134,6 @@ router.get('/markets/:market', function(req, res) {
   var market = req.params['market'];
   if (settings.markets.enabled.indexOf(market) != -1) {
     db.get_market(market, function(data) {
-      /*if (market === 'bittrex') {
-        data = JSON.parse(data);
-      }*/
-      console.log(data);
       res.render('./markets/' + market, {
         active: 'markets',
         marketdata: {
