@@ -10,7 +10,7 @@ var express = require('express')
   , lib = require('./lib/explorer')
   , db = require('./lib/database')
   , locale = require('./lib/locale')
-  , request = require('request');
+  , request = require('postman-request');
 
 var app = express();
 
