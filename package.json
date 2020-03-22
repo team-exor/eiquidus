@@ -15,10 +15,10 @@
     "body-parser": "~1.19.0",
     "debug": ">=4.1.1",
     "pug": "~2.0.4",
-    "request": "2.88.0",
+    "request": "2.88.2",
     "jsonminify": "0.4.1",
-    "mongodb": "3.3.3",
-    "mongoose": "5.7.7",
+    "mongodb": "3.5.5",
+    "mongoose": "5.9.5",
     "qr-image": "~3.2.0"
   },
   "devDependencies": {
