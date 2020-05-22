@@ -63,7 +63,8 @@ app.use('/api', nodeapi.app);
 app.use('/', routes);
 app.use('/ext/getmoneysupply', function(req,res){
   lib.get_supply(function(supply){
-    res.send(' '+supply);
+    res.setHeader('content-type', 'text/plain');
+    res.end(supply.toString());
   });
 });
 
@@ -87,7 +88,8 @@ app.use('/ext/getaddress/:hash', function(req,res){
 app.use('/ext/getbalance/:hash', function(req,res){
   db.get_address(req.params.hash, false, function(address){
     if (address) {
-      res.send((address.balance / 100000000).toString().replace(/(^-+)/mg, ''));
+      res.setHeader('content-type', 'text/plain');
+      res.end((address.balance / 100000000).toString().replace(/(^-+)/mg, ''));
     } else {
       res.send({ error: 'address not found.', hash: req.params.hash})
     }
