@@ -184,7 +184,7 @@ app.use('/ext/getbasicstats', function(req,res){
 
 app.use('/ext/getaddresstxsajax', function(req,res){
     req.query.length = parseInt(req.query.length);
-    if(isNaN(req.query.length) || req.query.length > settings.index.last_txs){
+    if(isNaN(req.query.length) || req.query.length > settings.txcount){
         req.query.length = settings.txcount;
     }
     db.get_address_txs_ajax(req.query.address, req.query.start, req.query.length,function(txs, count){
@@ -196,13 +196,13 @@ app.use('/ext/getaddresstxsajax', function(req,res){
 
                 txs[i].vout.forEach(function (r) {
                     if (r.addresses == req.query.address) {
-                        out = r.amount;
+                        out += r.amount;
                     }
                 });
 
                 txs[i].vin.forEach(function (s) {
                     if (s.addresses == req.query.address) {
-                        vin = s.amount
+                        vin += s.amount
                     }
                 });
 
@@ -247,6 +247,7 @@ app.set('website', settings.website);
 app.set('genesis_block', settings.genesis_block);
 app.set('index', settings.index);
 app.set('heavy', settings.heavy);
+app.set('lock_during_index', settings.lock_during_index);
 app.set('txcount', settings.txcount);
 app.set('nethash', settings.nethash);
 app.set('nethash_units', settings.nethash_units);

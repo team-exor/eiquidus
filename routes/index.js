@@ -89,7 +89,13 @@ function route_get_tx(res, txid) {
 }
 
 function route_get_index(res, error) {
-  res.render('index', { active: 'home', error: error, warning: null});
+  db.is_locked(function(locked) {
+    if (locked) {
+      res.render('index', { active: 'home', error: error, warning: locale.initial_index_alert});
+    } else {
+      res.render('index', { active: 'home', error: error, warning: null});
+    }
+  });
 }
 
 function route_get_address(res, hash, count) {
@@ -174,22 +180,22 @@ router.get('/network', function(req, res) {
 
 router.get('/reward', function(req, res){
   //db.get_stats(settings.coin, function (stats) {
-  console.log(stats);
-  db.get_heavy(settings.coin, function (heavy) {
-    //heavy = heavy;
-    var votes = heavy.votes;
-    votes.sort(function (a,b) {
-      if (a.count < b.count) {
-        return -1;
-      } else if (a.count > b.count) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
+    console.log(stats);
+    db.get_heavy(settings.coin, function (heavy) {
+      //heavy = heavy;
+      var votes = heavy.votes;
+      votes.sort(function (a,b) {
+        if (a.count < b.count) {
+          return -1;
+        } else if (a.count > b.count) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
 
-    res.render('reward', { active: 'reward', stats: stats, heavy: heavy, votes: heavy.votes });
-  });
+      res.render('reward', { active: 'reward', stats: stats, heavy: heavy, votes: heavy.votes });
+    });
   //});
 });
 

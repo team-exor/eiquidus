@@ -29,20 +29,21 @@ script.
         if(out > 0 && vin > 0) {
           amount = (out - vin) / 100000000
           if (amount < 0) {
-            amount = amount * -1
-            $("td:eq(2)", row).html("-" + amount.toFixed(8)).addClass("info");
+            amount = (amount * -1).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            $("td:eq(2)", row).html("-" + amount).addClass("info");
           } else if (amount > 0) {
-            ammount = amount.toFixed(8);
+            amount = amount.toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
             $("td:eq(2)", row).html("+" + amount).addClass("info");
           } else {
-            $("td:eq(2)", row).html(amount.toFixed(8)).addClass("info");
+            amount = amount.toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            $("td:eq(2)", row).html(amount).addClass("info");
           }
         }else if(out > 0) {
-          amount = out / 100000000;
-          $("td:eq(2)", row).html("+" + amount.toFixed(8)).addClass("success");
+          amount = (out / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+          $("td:eq(2)", row).html("+" + amount).addClass("success");
         }else{
-          amount = vin / 100000000;
-          $("td:eq(2)", row).html("-" + amount.toFixed(8)).addClass("danger");
+          amount = (vin / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+          $("td:eq(2)", row).html("-" + amount).addClass("danger");
         }
 
       },

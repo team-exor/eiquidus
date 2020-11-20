@@ -26,14 +26,14 @@ html
         $('##{active}').addClass('active');
         function update_stats(){
           $.ajax({url: '/ext/summary', success: function(json){
-            $("#supply").text(json.data[0].supply);
+            $("#supply").text(parseInt(parseFloat(json.data[0].supply).toFixed(0)).toLocaleString('en'));
             $("#masternodeCountOnline").text(json.data[0].masternodeCountOnline).prop("alt", json.data[0].masternodeCountOnline+" nodes online").prop("title", json.data[0].masternodeCountOnline+" nodes online");
             $("#masternodeCountOffline").text(json.data[0].masternodeCountOffline).prop("alt", json.data[0].masternodeCountOffline+" unreachable nodes").prop("title", json.data[0].masternodeCountOffline+" unreachable nodes");
             $("#spnMasternodeCountOnline").prop("alt", json.data[0].masternodeCountOnline+" nodes online").prop("title", json.data[0].masternodeCountOnline+" nodes online");
             $("#spnMasternodeCountOffline").prop("alt", json.data[0].masternodeCountOffline+" unreachable nodes").prop("title", json.data[0].masternodeCountOffline+" unreachable nodes");
-            $("#difficulty").text(json.data[0].difficulty);
+            $("#difficulty").text(json.data[0].difficulty.toFixed(2));
             $("#difficultyHybrid").text(json.data[0].difficultyHybrid);
-            $("#hashrate").text(json.data[0].hashrate);
+            $("#hashrate").text(parseFloat(json.data[0].hashrate).toLocaleString('en'));
             $("#lastPrice").text(json.data[0].lastPrice.toFixed(8));
             $("#lblConnections").text(json.data[0].connections + ' connections');
             $("#lblBlockcount").text(json.data[0].blockcount + ' blocks');

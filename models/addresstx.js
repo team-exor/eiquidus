@@ -3,8 +3,7 @@ var mongoose = require('mongoose')
  
 var AddressTXSchema = new Schema({
   a_id: { type: String, index: true},
-  addresses: { type: String, lowercase: true},
-  type: { type: String }
+  txid: { type: String, lowercase: true, index: true}
 }, {id: false});
 
 module.exports = mongoose.model('AddressTx', AddressTXSchema);

@@ -71,7 +71,7 @@ block content
                       tr.info(style='text-align:center')
                         td #{settings.locale.new_coins}
                     else
-                      - var ramount = r.amount / 100000000
+                      - var ramount = (r.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true})
                       tr
                         td
                           if r.addresses != 'private_tx'
@@ -79,9 +79,9 @@ block content
                               =r.addresses
                           else
                             =settings.locale.hidden_sender
-                        td.danger.hidden-xs #{ramount.toFixed(8)}
+                        td.danger.hidden-xs #{ramount}
                       tr.hidden-lg.hidden-md
-                          td.danger #{ramount.toFixed(8)} #{settings.symbol}
+                          td.danger #{ramount} #{settings.symbol}
                 else
                   tr.info(style='text-align:center')
                     td #{settings.locale.proof_of_stake}
@@ -89,36 +89,37 @@ block content
           .panel.panel-default
             .panel-heading
               strong #{settings.locale.tx_recipients}
-            table.table.table-bordered.table-striped.summary-table 
+            table.table.table-bordered.table-striped.summary-table
               thead
                 tr
                   th #{settings.locale.tx_address}
                   th.hidden-xs #{settings.locale.mkt_amount} (#{settings.symbol})
               tbody
                 each r in tx.vout
-                  if tx.vout.length > 0 
-                    - var ramount = r.amount / 100000000  
+                  if tx.vout.length > 0
+                    - var ramount = (r.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true})
                     tr
                       if r.addresses != 'private_tx'
-                        td 
-                          a.loading(href='/address/' + r.addresses) 
-                            =r.addresses 
-                        td.success.hidden-xs #{ramount.toFixed(8)}
+                        td
+                          a.loading(href='/address/' + r.addresses)
+                            =r.addresses
+                        td.success.hidden-xs #{ramount}
                       else if r.amount > 0
                         td
                           =settings.locale.hidden_recipient
-                        td.success.hidden-xs #{ramount.toFixed(8)}
+                        td.success.hidden-xs #{ramount}
                       else
                         td(colspan='2')
                           =settings.locale.hidden_recipient
                     tr.hidden-lg.hidden-md
-                      td.success #{ramount.toFixed(8)} #{settings.symbol}
+                      td.success #{ramount} #{settings.symbol}
                   else
+                    - var ramount = (r.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true})
                     tr
-                      td 
-                        a.loading(href='/address/' + r.addresses) 
-                          =r.addresses 
-                      td.success.hidden-xs #{ramount.toFixed(8)}
+                      td
+                        a.loading(href='/address/' + r.addresses)
+                          =r.addresses
+                      td.success.hidden-xs #{ramount}
                     tr.hidden-lg.hidden-md
-                      td.success #{ramount.toFixed(8)} #{settings.symbol} 
+                      td.success #{ramount} #{settings.symbol}
     .footer-padding

@@ -1,9 +1,9 @@
 extends layout
 
 block content
-  - var balance = (address.received - address.sent) / 100000000;
-  - var sent = address.sent /100000000
-  - var received = address.received / 100000000
+  - var balance = ((address.received - address.sent) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+  - var sent = (address.sent /100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true})
+  - var received = (address.received / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true})
   img.qrcode.pull-right.hidden-xs(src='/qr/' + address.a_id)
   .col-xs-12.col-md-10.col-md-offset-1
     .panel.panel-default.panel-address-summary
@@ -34,11 +34,11 @@ block content
         tbody
           tr
             if settings.show_sent_received == true
-              td #{sent.toFixed(8)}
+              td #{sent}
             if address.a_id !== 'coinbase'
               if settings.show_sent_received == true
-                td #{received.toFixed(8)}
-              td #{balance.toFixed(8)}
+                td #{received}
+              td #{balance}
     .panel.panel-default
       .panel-heading
         strong #{settings.locale.ex_latest_transactions}
