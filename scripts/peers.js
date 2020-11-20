@@ -26,20 +26,28 @@ mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUni
     request({uri: 'http://127.0.0.1:' + settings.port + '/api/getpeerinfo', json: true, headers: {'User-Agent': 'eiquidus'}}, function (error, response, body) {
       lib.syncLoop(body.length, function (loop) {
         var i = loop.iteration();
-		var address = body[i].addr.substring(0, body[i].addr.lastIndexOf(":")).replace("[","").replace("]","");
+        var address = body[i].addr.split(':')[0];
+        var port = body[i].addr.split(':')[1];		
 		var rateLimit = new RateLimit(1, 2000, false);
         db.find_peer(address, function(peer) {
           if (peer) {
+            if (isNaN(peer['port']) || peer['port'].length < 2) {
+              db.drop_peers(function() {
+                console.log('Saved peers missing ports, dropping peers. Re-reun this script afterwards.');
+                exit();
+              });
+            }
             // peer already exists
             loop.next();
           } else {
 			rateLimit.schedule(function() {
-              request({uri: 'http://ip-api.com/json/' + address + '?fields=country', json: true, headers: {'User-Agent': 'eiquidus'}}, function (error, response, geo) {
+              request({uri: 'http://freegeoip.net/json/' + address, json: true, headers: {'User-Agent': 'eiquidus'}}, function (error, response, geo) {
                 db.create_peer({
                   address: address,
+                  port: port,
                   protocol: body[i].version,
                   version: body[i].subver.replace('/', '').replace('/', ''),
-                  country: geo.country
+                  country: geo.country_name
                 }, function(){
                   loop.next();
                 });
