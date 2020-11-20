@@ -31,9 +31,9 @@ mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUni
 		var rateLimit = new RateLimit(1, 2000, false);
         db.find_peer(address, function(peer) {
           if (peer) {
-            if (isNaN(peer['port']) || peer['port'].length < 2) {
+            if (isNaN(peer['port']) || peer['port'].length < 2 || peer['country'].length < 1) {
               db.drop_peers(function() {
-                console.log('Saved peers missing ports, dropping peers. Re-reun this script afterwards.');
+                console.log('Saved peers missing ports or country, dropping peers. Re-reun this script afterwards.');
                 exit();
               });
             }
@@ -41,7 +41,7 @@ mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUni
             loop.next();
           } else {
 			rateLimit.schedule(function() {
-              request({uri: 'http://freegeoip.net/json/' + address, json: true, headers: {'User-Agent': 'eiquidus'}}, function (error, response, geo) {
+              request({uri: 'https://freegeoip.app/json/' + address, json: true, headers: {'User-Agent': 'eiquidus'}}, function (error, response, geo) {
                 db.create_peer({
                   address: address,
                   port: port,
