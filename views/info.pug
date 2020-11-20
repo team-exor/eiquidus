@@ -139,6 +139,13 @@ block content
                   em Returns information for given address
                 a(href='/ext/getaddress/' + hashes.address) #{address}/ext/getaddress/#{hashes.address}
             li
+            li
+              p
+                div(style='font-weight:bold;') gettx (/ext/gettx/hash)
+                div
+                  em Returns information for given tx hash
+                a(href='/ext/gettx/' + hashes.txhash) #{address}/ext/gettx/#{hashes.txhash}
+            li
               p
                 div(style='font-weight:bold;') getbalance (/ext/getbalance/hash)
                 div
