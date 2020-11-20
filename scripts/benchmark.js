@@ -24,8 +24,8 @@ mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUni
     console.log('Aborting');
     exit();
   }
-  Tx.remove({}, function(err) { 
-    Address.remove({}, function(err2) { 
+  Tx.deleteMany({}, function(err) { 
+    Address.deleteMany({}, function(err2) { 
       var s_timer = new Date().getTime();
       db.update_tx_db(settings.coin, 1, COUNT, settings.update_timeout, function(){
         var e_timer = new Date().getTime();
