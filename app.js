@@ -85,7 +85,7 @@ app.use('/ext/getaddress/:hash', function(req,res){
 });
 
 app.use('/ext/gettx/:txid', function(req, res) {
-  var txid = req.param('txid');
+  var txid = req.params.txid;
   db.get_tx(txid, function(tx) {
     if (tx) {
       lib.get_blockcount(function(blockcount) {
