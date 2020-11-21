@@ -56,8 +56,8 @@
   "wallet": {
     "host": "localhost",
     "port": 51573,
-    "user": "exorrpc",
-    "pass": "sSTLyCkrD94Y8&9mr^m6W^Mk367Vr!!K"
+    "username": "exorrpc",
+    "password": "sSTLyCkrD94Y8&9mr^m6W^Mk367Vr!!K"
   },
 
   // confirmations
