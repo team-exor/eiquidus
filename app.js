@@ -155,12 +155,6 @@ app.use('/ext/getdistribution', function(req,res){
   });
 });
 
-app.use('/ext/getlasttxs/:min', function(req,res){
-  db.get_last_txs(settings.index.last_txs, (req.params.min * 100000000), function(txs){
-    res.send({data: txs});
-  });
-});
-
 app.use('/ext/getcurrentprice', function(req,res){
   db.get_stats(settings.coin, function (stats) {
 	  eval('var p_ext = { "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, }');
@@ -181,14 +175,19 @@ app.use('/ext/getbasicstats', function(req,res){
   });
 });
 
-app.use('/ext/getlasttxsajax', function(req,res){
+app.use('/ext/getlasttxsajax/:min', function(req,res){
   if(typeof req.query.length === 'undefined' || isNaN(req.query.length) || req.query.length > settings.index.last_txs){
     req.query.length = settings.index.last_txs;
   }
   if(typeof req.query.start === 'undefined' || isNaN(req.query.start) || req.query.start < 0){
-      req.query.start = 0;
+    req.query.start = 0;
   }
-  db.get_last_txs_ajax(req.query.start, req.query.length,function(txs, count){
+  if(typeof req.params.min === 'undefined' || isNaN(req.params.min ) || req.params.min  < 0){
+    req.params.min  = 0;
+  } else {
+    req.params.min  = (req.params.min * 100000000);
+  }
+  db.get_last_txs_ajax(req.query.start, req.query.length, req.params.min,function(txs, count){
     var data = [];
     for(i=0; i<txs.length; i++){
       var row = [];
