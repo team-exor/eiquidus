@@ -203,3 +203,7 @@ tr {
 		padding: 0 15px 0 30px;
 	}
 }
+
+.decimal {
+	font-size: 0.7em;
+}
