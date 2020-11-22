@@ -21,6 +21,8 @@ sudo touch "${SCRIPT_PATH}/del.tmp" && mongo <<EOF
 use explorerdb
 db.addresses.remove({})
 db.addresses.drop()
+db.addresstxes.remove({})
+db.addresstxes.drop()
 db.coinstats.remove({})
 db.coinstats.drop()
 db.heavies.remove({})
