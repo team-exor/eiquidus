@@ -1,6 +1,6 @@
 script.
   $(document).ready(function(){
-    var ctable = $('#addnodes-table').dataTable( {  
+    var ctable = $('#addnodes-table').dataTable({
       autoWidth: true,      
       searching: false,
       ordering: false,
@@ -10,7 +10,7 @@ script.
       ajax: {
         url: '/ext/connections',
         dataSrc: function ( json ) {
-          var rows = []
+          var rows = [];
           for ( var i=0;i<json.data.length; i++ ) {
             rows.push({'nodes':'addnode='+json.data[i]['address']+':'+json.data[i]['port']});
           }
