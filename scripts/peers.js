@@ -26,14 +26,14 @@ mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUni
     request({uri: 'http://127.0.0.1:' + settings.port + '/api/getpeerinfo', json: true, headers: {'User-Agent': 'eiquidus'}}, function (error, response, body) {
       lib.syncLoop(body.length, function (loop) {
         var i = loop.iteration();
-        var address = body[i].addr.split(':')[0];
-        var port = body[i].addr.split(':')[1];		
+		var address = body[i].addr.substring(0, body[i].addr.lastIndexOf(":")).replace("[","").replace("]","");
+		var port = body[i].addr.substring(body[i].addr.lastIndexOf(":") + 1);
 		var rateLimit = new RateLimit(1, 2000, false);
         db.find_peer(address, function(peer) {
           if (peer) {
             if (isNaN(peer['port']) || peer['port'].length < 2 || peer['country'].length < 1) {
               db.drop_peers(function() {
-                console.log('Saved peers missing ports or country, dropping peers. Re-reun this script afterwards.');
+                console.log('Saved peers missing ports or country, dropping peers. Re-run this script afterwards.');
                 exit();
               });
             }
