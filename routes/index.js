@@ -281,7 +281,7 @@ router.get('/qr/:string', function(req, res) {
 
 router.get('/ext/summary', function(req, res) {
   lib.get_difficulty(function(difficulty) {
-    difficultyHybrid = ''
+    difficultyHybrid = '';
     if (difficulty['proof-of-work']) {
       if (settings.index.difficulty == 'Hybrid') {
         difficultyHybrid = 'POS: ' + difficulty['proof-of-stake'];
