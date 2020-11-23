@@ -4,11 +4,13 @@ html
     title= settings.title
     link(rel='stylesheet', href='/themes/' + settings.theme + '/bootstrap.min.css')
     link(rel='stylesheet', href='/vendor/jqplot/jquery.jqplot.css')
-    link(rel='stylesheet', href='//cdn.datatables.net/plug-ins/725b2a2115b/integration/bootstrap/3/dataTables.bootstrap.css')
     link(rel='stylesheet', href='//use.fontawesome.com/releases/v5.2.0/css/all.css', integrity='sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ', crossorigin='anonymous')
+    link(rel='stylesheet', href='/vendor/flags-css/css/flag-icon.min.css')
+    link(res='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css')
+    link(rel='stylesheet', href='//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css')
     link(rel='stylesheet', href='/stylesheets/style.css')
     script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js')
-    script(src='//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js')
+    script(src='//netdna.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js')
     script(src='/vendor/jqplot/jquery.jqplot.min.js')
     script(src='/vendor/jqplot/plugins/jqplot.dateAxisRenderer.min.js')
     script(src='/vendor/jqplot/plugins/jqplot.ohlcRenderer.min.js')
@@ -17,9 +19,9 @@ html
     script(src='/vendor/jqplot/plugins/jqplot.barRenderer.min.js')
     script(src='/vendor/jqplot/plugins/jqplot.categoryAxisRenderer.min.js')
     script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js')
-    script(src='//cdn.datatables.net/1.10.2/js/jquery.dataTables.min.js')
+    script(src='//cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js')
     script(src='//cdn.datatables.net/responsive/1.0.1/js/dataTables.responsive.js')
-    script(src='//cdn.datatables.net/plug-ins/725b2a2115b/integration/bootstrap/3/dataTables.bootstrap.js')
+    script(src='//cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js')
     script(src='/javascripts/chart.js')
     script.
       $(document).ready(function(){
@@ -140,6 +142,10 @@ html
         hideShowPanel('#{settings.panel4}', 'pnlFour');
         hideShowPanel('#{settings.panel5}', 'pnlFive');
       });
+    style(type="text/css").
+      .header-icons {
+        margin: 0 3px;
+      }
   body
     - function format_unixtime(unixtime) {
       - var a = new Date(unixtime*1000);
@@ -166,92 +172,82 @@ html
       - var time = date + suffix + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec + ' GMT';
       - return time
     -  };
-    .nav.navbar.navbar-default.navbar-fixed-top(role='navigation')
-      - if(settings.homelink == 'logo') {
-          .container-fluid(style='padding-left:0;')
-      - } else {
-          .container-fluid
-      - }
-        .navbar-header
-          button.navbar-toggle(type='button', data-toggle='collapse', data-target='#navbar-collapse')
-            span.sr-only Toggle navigation
-            span.icon-bar
-            span.icon-bar
-            span.icon-bar
-          if settings.homelink == 'title'
-            a.navbar-brand(href='/') #{settings.title}
-          else if settings.homelink == 'coin'
-            a.navbar-brand(href='/') #{settings.coin}
-          else if settings.homelink == 'logo'
-            a(href='/', alt=settings.coin + ' Home', title=settings.coin + ' Home')
-              img.logo-main(src=settings.logo, style='margin:0;max-height:' + settings.logoheight + 'px;')
-        .collapse.navbar-collapse(id='navbar-collapse')
-          ul.nav.navbar-nav
-            li#home
-              a.navbar-link(href='/')
-                span.glyphicon.glyphicon-search
-                span.menu-text #{settings.locale.menu_explorer}
-            if settings.heavy == true
-              li#reward
-                a.navbar-link(href='/reward')
-                  span.fa.fa-star
-                  span.menu-text #{settings.locale.menu_reward}
-            if settings.display.movement == true
-              li#movement
-                a.navbar-link.loading(href='/movement')
-                  span.far.fa-money-bill-alt
-                  span.menu-text #{settings.locale.menu_movement}
-            if settings.display.network == true
-              li#network
-                a.navbar-link(href='/network')
-                  span.fa.fa-share-alt
-                  span.menu-text #{settings.locale.menu_network}
-            if settings.display.richlist == true
-              li#richlist
-                a.navbar-link(href='/richlist')
-                  span.fab.fa-btc
-                  span.menu-text #{settings.locale.menu_richlist}
-            if settings.display.markets == true
-              li#markets
-                a.navbar-link.loading(href='/markets/' + settings.markets.default)
-                  span.fas.fa-chart-line
-                  span.menu-text #{settings.locale.menu_markets}
-            if settings.display.api == true
-              li#info
-                a.navbar-link(href='/info')
-                  span.glyphicon.glyphicon-info-sign
-                  span.menu-text #{settings.locale.menu_api}
-
+    .nav.navbar.navbar-expand-lg.navbar-dark.bg-primary.fixed-top(role='navigation')(style=settings.homelink == 'logo' ? 'padding-left:0;' : '')
+      .navbar-header
+        button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbar-collapse')
+          span.navbar-toggler-icon
+      if settings.homelink == 'title'
+        a.navbar-brand(href='/') #{settings.title}
+      else if settings.homelink == 'coin'
+        a.navbar-brand(href='/') #{settings.coin}
+      else if settings.homelink == 'logo'
+        a(href='/', alt=settings.coin + ' Home', title=settings.coin + ' Home')
+          img.logo-main(src=settings.logo, style='margin:0;max-height:' + settings.logoheight + 'px;')
+      .collapse.navbar-collapse(id='navbar-collapse')
+        ul.navbar-nav.mr-auto
+          li#home
+            a.nav-link(href='/')
+              span.fa.fa-search
+              span.menu-text #{settings.locale.menu_explorer}
+          if settings.heavy == true
+            li#reward
+              a.nav-link(href='/reward')
+                span.fa.fa-star
+                span.menu-text #{settings.locale.menu_reward}
+          if settings.display.movement == true
+            li#movement
+              a.nav-link.loading(href='/movement')
+                span.far.fa-money-bill-alt
+                span.menu-text #{settings.locale.menu_movement}
+          if settings.display.network == true
+            li#network
+              a.nav-link(href='/network')
+                span.fa.fa-share-alt
+                span.menu-text #{settings.locale.menu_network}
+          if settings.display.richlist == true
+            li#richlist
+              a.nav-link(href='/richlist')
+                span.fab.fa-btc
+                span.menu-text #{settings.locale.menu_richlist}
+          if settings.display.markets == true
+            li#markets
+              a.nav-link.loading(href="#")
+                span.fas.fa-chart-line
+                span.menu-text #{settings.locale.menu_markets}
+          if settings.display.api == true
+            li#info
+              a.nav-link(href='/info')
+                span.fa.fa-info-circle
+                span.menu-text #{settings.locale.menu_api}
     .col-md-12
-      .row.text-center
+      .row.text-center.d-flex.justify-content-center
         div(class="col-md-2 col-md-offset-" + settings.paneloffset)
           - if(settings.panel1 != '') {
-            .panel.panel-default.hidden-sm.hidden-xs(id='pnlOne')
+            .card.card-default.d-none.d-md-block.d-block(id='pnlOne')
           - }
         - if(settings.panel2 != '') {
           .col-md-2
-            .panel.panel-default.hidden-sm.hidden-xs(id='pnlTwo')
+            .card.card-default.d-none.d-md-block.d-block(id='pnlTwo')
         - }
         - if(settings.panel3 != '') {
           .col-md-2
-           .panel.panel-default.hidden-sm.hidden-xs(id='pnlThree')
+            .card.card-default.d-none.d-md-block.d-block(id='pnlThree')
         - }
         - if(settings.panel4 != '') {
           .col-md-2
-            .panel.panel-default.hidden-sm.hidden-xs(id='pnlFour')
+            .card.card-default.d-none.d-md-block.d-block(id='pnlFour')
         - }
         - if(settings.panel5 != '') {
         .col-md-2
-          .panel.panel-default.hidden-sm.hidden-xs(id='pnlFive')
+          .card.card-default.d-none.d-md-block.d-block(id='pnlFive')
         - }
-
       .row.text-center(style='margin-top:10px;margin-bottom:20px;')
-        form.form-inline(method='post', action='/search')
-          #index-search.form-group
+        form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
+          #index-search.form-group.d-flex.justify-content-center
             input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
             button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
     block content
-    .navbar.navbar-default.navbar-fixed-bottom.hidden-xs
+    .nav.navbar.navbar-default.fixed-bottom.d-none.d-md-flex.d-flex.bg-primary
       .col-md-4
         if settings.display.github
           ul.nav.navbar-nav
@@ -284,12 +280,12 @@ html
               a#slack-icon(href=settings.slack, target='_blank', alt=settings.coin + ' Slack', title=settings.coin + ' Slack')
                 span.glyphicon.fab.fa-slack
         if settings.display.twitter
-          ul.nav.navbar-nav
+          ul.nav.justify-content-left
             li.pull-left
               a#twitter-icon(href="https://twitter.com/" + settings.twitter, target='_blank', alt=settings.coin + ' Twitter', title=settings.coin + ' Twitter')
                 span.glyphicon.fab.fa-twitter
         if settings.display.facebook
-          ul.nav.navbar-nav
+          ul.nav.justify-content-left
             li.pull-left
               a#facebook-icon(href="https://www.facebook.com/" + settings.facebook, target='_blank', alt=settings.coin + ' Facebook', title=settings.coin + ' Facebook')
                 span.glyphicon.fab.fa-facebook
@@ -309,10 +305,11 @@ html
               a#website-icon(href=settings.website, target='_blank', alt=settings.coin + ' Website', title=settings.coin + ' Website')
                 span.glyphicon.fa.fa-link
       .col-md-4
-        ul.nav
+        ul.nav.justify-content-center
           li.text-center(style='margin-left:80px;margin-right:80px;')
             p(style='margin-top:15px;')
-              a.navbar-link(href='https://github.com/team-exor/eiquidus', target='_blank') eIquidus Explorer v#{settings.explorer_version}
-      span.connections
-        label#lblBlockcount.label.label-default -
-        label#lblConnections.label.label-default -
+              a(href='https://github.com/team-exor/eiquidus', target='_blank') eIquidus Explorer v#{settings.explorer_version}
+      .col-md-4
+        ui.nav.justify-content-end
+          label#lblBlockcount.badge.badge-pill
+          label#lblConnections.badge.badge-pill
