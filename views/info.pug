@@ -1,11 +1,11 @@
 extends layout
 
 block content
-  .col-md-12.col-xs-12
-    .panel.panel-default
-      .panel-heading
+  .col-md-10.col-xs-12.offset-md-1
+    .card.card-default
+      .card-header
         strong #{settings.locale.api_title}
-      .panel-body
+      .card-body
         img(src=settings.logo, style='margin:0;height:128px;')
         p
           em #{settings.locale.api_message}

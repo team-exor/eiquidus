@@ -86,29 +86,29 @@ html
           }
           var hashRateType='<label id="hashrate"></label>';
           if ('#{settings.index.difficulty}' == 'Hybrid') hashRateType+='<br /><label id="lblX1"></label>';
-          return '<div class="panel-heading"><strong>#{settings.locale.network} '+networkSuffix+'</strong></div><div class="panel-body"><div id="hashratepanel"><span class="glyphicon fa fa-cogs"></span>'+hashRateType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.network} '+networkSuffix+'</strong></div><div class="card-body"><div id="hashratepanel"><span class="glyphicon fa fa-cogs"></span>'+hashRateType+'</div></div>';
         }
         function getDifficultyPanel() {
           var difficultyType='<label id="difficulty"></label>';
           if ('#{settings.index.difficulty}' == 'Hybrid') difficultyType+='<br /><label id="difficultyHybrid"></label>';
-          return '<div class="panel-heading"><strong>#{settings.locale.difficulty}</strong></div><div class="panel-body"><div id="difficultypanel"><span class="glyphicon fas fa-sliders-h"></span>'+difficultyType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.difficulty}</strong></div><div class="card-body"><div id="difficultypanel"><span class="glyphicon fas fa-sliders-h"></span>'+difficultyType+'</div></div>';
         }
         function getMasternodesPanel() {
-          return '<div class="panel-heading"><strong>#{settings.locale.masternodecount}</strong></div><div class="panel-body"><div id="masternodepanel"><span id="spnMasternodeCountOnline" class="glyphicon fa fa-check-circle"></span><label id="masternodeCountOnline"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline"></label><span id="spnMasternodeCountOffline" class="glyphicon fa fa-exclamation-triangle"></span></div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodepanel"><span id="spnMasternodeCountOnline" class="glyphicon fa fa-check-circle"></span><label id="masternodeCountOnline"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline"></label><span id="spnMasternodeCountOffline" class="glyphicon fa fa-exclamation-triangle"></span></div></div>';
         }
         function getCoinSupplyPanel() {
           var supplyType='<label id="supply"></label>';
           if ('#{settings.index.difficulty}' == 'Hybrid') supplyType+='<br /><label id="lblX1"></label>';
           if (#{settings.index.show_market_cap} == true && #{settings.index.show_market_cap_over_price} != true) supplyType+='<br /><span class="glyphicon fas fa-chart-line"></span><label>(</label><label id="marketCap">-</label><label>)</label>';
-          return '<div class="panel-heading"><strong>#{settings.locale.ex_supply} (#{settings.symbol})</strong></div><div class="panel-body"><div id="supplypanel"><span class="glyphicon fa fa-chart-pie"></span>'+supplyType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.ex_supply} (#{settings.symbol})</strong></div><div class="card-body"><div id="supplypanel"><span class="glyphicon fa fa-chart-pie"></span>'+supplyType+'</div></div>';
         }
         function getPricePanel() {
           if (#{settings.index.show_market_cap} == true && #{settings.index.show_market_cap_over_price} == true) {
-            return '<div class="panel-heading"><strong>Market Cap</strong></div><div class="panel-body"><div id="pricepanel"><span class="glyphicon fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
+            return '<div class="card-header"><strong>Market Cap</strong></div><div class="card-body"><div id="pricepanel"><span class="glyphicon fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
           } else {
             var priceType='<label id="lastPrice">-</label>';
             if ('#{settings.index.difficulty}' == 'Hybrid') priceType+='<br /><label id="lblX1"></label>';
-            return '<div class="panel-heading"><strong>#{settings.markets.exchange} Price</strong></div><div class="panel-body"><div id="pricepanel"><span class="glyphicon fa fa-rocket"></span>'+priceType+'</div></div>';
+            return '<div class="card-header"><strong>#{settings.markets.exchange} Price</strong></div><div class="card-body"><div id="pricepanel"><span class="glyphicon fa fa-rocket"></span>'+priceType+'</div></div>';
           }
         }
         function getActivePanel(nPanelName) {
@@ -172,7 +172,7 @@ html
       - var time = date + suffix + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec + ' GMT';
       - return time
     -  };
-    .nav.navbar.navbar-expand-lg.navbar-dark.bg-primary.fixed-top(role='navigation')(style=settings.homelink == 'logo' ? 'padding-left:0;' : '')
+    .nav.navbar.navbar-expand-lg.navbar-dark.bg-primary.fixed-top(role='navigation')(style=settings.homelink == 'logo' ? 'padding-left:0;max-height:65px;' : '')
       .navbar-header
         button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbar-collapse')
           span.navbar-toggler-icon
@@ -211,7 +211,7 @@ html
                 span.menu-text #{settings.locale.menu_richlist}
           if settings.display.markets == true
             li#markets
-              a.nav-link.loading(href="#")
+              a.nav-link.loading(href='/markets/'+settings.markets.default)
                 span.fas.fa-chart-line
                 span.menu-text #{settings.locale.menu_markets}
           if settings.display.api == true
@@ -251,57 +251,57 @@ html
       .col-md-4
         if settings.display.github
           ul.nav.navbar-nav
-            li.pull-left
+            li.float-left
               a#github-icon(href="https://github.com/" + settings.github, target='_blank', alt=settings.coin + ' Github', title=settings.coin + ' Github')
                 span.glyphicon.fab.fa-github
         if settings.display.discord
           ul.nav.navbar-nav
-            li.pull-left
+            li.float-left
               a#discord-icon(href=settings.discord, target='_blank', alt=settings.coin + ' Discord', title=settings.coin + ' Discord')
                 span.glyphicon.fab.fa-discord
         if settings.display.telegram
           ul.nav.navbar-nav
-            li.pull-left
+            li.float-left
               a#telegram-icon(href="https://t.me/" + settings.telegram, target='_blank', alt=settings.coin + ' Telegram', title=settings.coin + ' Telegram')
                 span.glyphicon.fab.fa-telegram
         if settings.display.reddit
           ul.nav.navbar-nav
-            li.pull-left
+            li.float-left
               a#reddit-icon(href="https://reddit.com/r/" + settings.reddit, target='_blank', alt=settings.coin + ' Reddit', title=settings.coin + ' Reddit')
                 span.glyphicon.fab.fa-reddit
         if settings.display.youtube
           ul.nav.navbar-nav
-            li.pull-left
+            li.float-left
               a#youtube-icon(href=settings.youtube, target='_blank', alt=settings.coin + ' YouTube', title=settings.coin + ' YouTube')
                 span.glyphicon.fab.fa-youtube
         if settings.display.slack
           ul.nav.navbar-nav
-            li.pull-left
+            li.float-left
               a#slack-icon(href=settings.slack, target='_blank', alt=settings.coin + ' Slack', title=settings.coin + ' Slack')
                 span.glyphicon.fab.fa-slack
         if settings.display.twitter
           ul.nav.justify-content-left
-            li.pull-left
+            li.float-left
               a#twitter-icon(href="https://twitter.com/" + settings.twitter, target='_blank', alt=settings.coin + ' Twitter', title=settings.coin + ' Twitter')
                 span.glyphicon.fab.fa-twitter
         if settings.display.facebook
           ul.nav.justify-content-left
-            li.pull-left
+            li.float-left
               a#facebook-icon(href="https://www.facebook.com/" + settings.facebook, target='_blank', alt=settings.coin + ' Facebook', title=settings.coin + ' Facebook')
                 span.glyphicon.fab.fa-facebook
         if settings.display.googleplus
           ul.nav.navbar-nav
-            li.pull-left
+            li.float-left
               a#googleplus-icon(href="https://plus.google.com/" + settings.googleplus, target='_blank', alt=settings.coin + ' Google+', title=settings.coin + ' Google+')
                 span.glyphicon.fab.fa-google-plus
         if settings.display.bitcointalk
           ul.nav.navbar-nav
-            li.pull-left
+            li.float-left
               a#bitcointalk-icon(href="https://bitcointalk.org/index.php?topic=" + settings.bitcointalk, target='_blank', alt=settings.coin + ' Bitcointalk', title=settings.coin + ' Bitcointalk')
                 span.glyphicon.fab.fa-btc
         if settings.display.website
           ul.nav.navbar-nav
-            li.pull-left
+            li.float-left
               a#website-icon(href=settings.website, target='_blank', alt=settings.coin + ' Website', title=settings.coin + ' Website')
                 span.glyphicon.fa.fa-link
       .col-md-4
