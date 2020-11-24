@@ -122,7 +122,6 @@
     "coin": "EXOR",
     "exchange": "BTC",
     "enabled": [],
-    "stex_id": "",
     "default": ""
   },
 
