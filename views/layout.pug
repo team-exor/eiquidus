@@ -186,7 +186,24 @@ html
       - var time = date + suffix + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec + ' GMT';
       - return time
     -  };
-    .nav.navbar.navbar-expand-lg.navbar-dark.bg-primary.fixed-top(role='navigation', style=settings.homelink == 'logo' ? 'padding-left:0;max-height:65px;' : '')
+    - var navbarClasses = ['nav','navbar','navbar-expand-lg','fixed-top'];
+    - var footerClasses = ['nav','navbar','navbar-default','fixed-bottom','d-none','d-md-flex','d-flex'];
+    if settings.display.navbar_dark == true
+      - navbarClasses.push('bg-dark');
+      - navbarClasses.push('navbar-dark');
+      - footerClasses.push('bg-dark');
+      - footerClasses.push('navbar-dark');
+    else if settings.display.navbar_light == true
+      - navbarClasses.push('bg-light');
+      - navbarClasses.push('navbar-light');
+      - footerClasses.push('bg-light');
+      - footerClasses.push('navbar-light');
+    else
+      - navbarClasses.push('bg-primary');
+      - navbarClasses.push('navbar-dark');
+      - footerClasses.push('bg-primary');
+      - footerClasses.push('navbar-dark');
+    div(class=navbarClasses, role='navigation', style=settings.homelink == 'logo' ? 'padding-left:0;max-height:65px;' : '')
       .navbar-header
         button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbar-collapse')
           span.navbar-toggler-icon
@@ -261,69 +278,60 @@ html
             input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
             button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
     block content
-    .nav.navbar.navbar-default.fixed-bottom.d-none.d-md-flex.d-flex.bg-primary
-      .col-md-4
-        if settings.display.github
-          ul.nav.navbar-nav
-            li.float-left
-              a#github-icon(href="https://github.com/" + settings.github, target='_blank', alt=settings.coin + ' Github', title=settings.coin + ' Github')
-                span.glyphicon.fab.fa-github
-        if settings.display.discord
-          ul.nav.navbar-nav
-            li.float-left
-              a#discord-icon(href=settings.discord, target='_blank', alt=settings.coin + ' Discord', title=settings.coin + ' Discord')
-                span.glyphicon.fab.fa-discord
-        if settings.display.telegram
-          ul.nav.navbar-nav
-            li.float-left
-              a#telegram-icon(href="https://t.me/" + settings.telegram, target='_blank', alt=settings.coin + ' Telegram', title=settings.coin + ' Telegram')
-                span.glyphicon.fab.fa-telegram
-        if settings.display.reddit
-          ul.nav.navbar-nav
-            li.float-left
-              a#reddit-icon(href="https://reddit.com/r/" + settings.reddit, target='_blank', alt=settings.coin + ' Reddit', title=settings.coin + ' Reddit')
-                span.glyphicon.fab.fa-reddit
-        if settings.display.youtube
-          ul.nav.navbar-nav
-            li.float-left
-              a#youtube-icon(href=settings.youtube, target='_blank', alt=settings.coin + ' YouTube', title=settings.coin + ' YouTube')
-                span.glyphicon.fab.fa-youtube
-        if settings.display.slack
-          ul.nav.navbar-nav
-            li.float-left
-              a#slack-icon(href=settings.slack, target='_blank', alt=settings.coin + ' Slack', title=settings.coin + ' Slack')
-                span.glyphicon.fab.fa-slack
-        if settings.display.twitter
+    div(class=footerClasses, role='navigation')
+      .col-md-4.navbar-nav
+        if settings.display.github || settings.display.discord || settings.display.telegram || settings.display.reddit || settings.display.youtube || settings.display.slack || settings.display.twitter || settings.display.facebook || settings.display.googleplus || settings.display.bitcointalk || settings.display.website
           ul.nav.justify-content-left
-            li.float-left
-              a#twitter-icon(href="https://twitter.com/" + settings.twitter, target='_blank', alt=settings.coin + ' Twitter', title=settings.coin + ' Twitter')
-                span.glyphicon.fab.fa-twitter
-        if settings.display.facebook
-          ul.nav.justify-content-left
-            li.float-left
-              a#facebook-icon(href="https://www.facebook.com/" + settings.facebook, target='_blank', alt=settings.coin + ' Facebook', title=settings.coin + ' Facebook')
-                span.glyphicon.fab.fa-facebook
-        if settings.display.googleplus
-          ul.nav.navbar-nav
-            li.float-left
-              a#googleplus-icon(href="https://plus.google.com/" + settings.googleplus, target='_blank', alt=settings.coin + ' Google+', title=settings.coin + ' Google+')
-                span.glyphicon.fab.fa-google-plus
-        if settings.display.bitcointalk
-          ul.nav.navbar-nav
-            li.float-left
-              a#bitcointalk-icon(href="https://bitcointalk.org/index.php?topic=" + settings.bitcointalk, target='_blank', alt=settings.coin + ' Bitcointalk', title=settings.coin + ' Bitcointalk')
-                span.glyphicon.fab.fa-btc
-        if settings.display.website
-          ul.nav.navbar-nav
-            li.float-left
-              a#website-icon(href=settings.website, target='_blank', alt=settings.coin + ' Website', title=settings.coin + ' Website')
-                span.glyphicon.fa.fa-link
-      .col-md-4
+            if settings.display.github
+              li.float-left
+                a#github-icon.nav-link(href="https://github.com/" + settings.github, target='_blank', alt=settings.coin + ' Github', title=settings.coin + ' Github')
+                  span.glyphicon.fab.fa-github
+            if settings.display.discord
+              li.float-left
+                a#discord-icon.nav-link(href=settings.discord, target='_blank', alt=settings.coin + ' Discord', title=settings.coin + ' Discord')
+                  span.glyphicon.fab.fa-discord
+            if settings.display.telegram
+              li.float-left
+                a#telegram-icon.nav-link(href="https://t.me/" + settings.telegram, target='_blank', alt=settings.coin + ' Telegram', title=settings.coin + ' Telegram')
+                  span.glyphicon.fab.fa-telegram
+            if settings.display.reddit
+              li.float-left
+                a#reddit-icon.nav-link(href="https://reddit.com/r/" + settings.reddit, target='_blank', alt=settings.coin + ' Reddit', title=settings.coin + ' Reddit')
+                  span.glyphicon.fab.fa-reddit
+            if settings.display.youtube
+              li.float-left
+                a#youtube-icon.nav-link(href=settings.youtube, target='_blank', alt=settings.coin + ' YouTube', title=settings.coin + ' YouTube')
+                  span.glyphicon.fab.fa-youtube
+            if settings.display.slack
+              li.float-left
+                a#slack-icon.nav-link(href=settings.slack, target='_blank', alt=settings.coin + ' Slack', title=settings.coin + ' Slack')
+                  span.glyphicon.fab.fa-slack
+            if settings.display.twitter
+              li.float-left
+                a#twitter-icon.nav-link(href="https://twitter.com/" + settings.twitter, target='_blank', alt=settings.coin + ' Twitter', title=settings.coin + ' Twitter')
+                  span.glyphicon.fab.fa-twitter
+            if settings.display.facebook
+              li.float-left
+                a#facebook-icon.nav-link(href="https://www.facebook.com/" + settings.facebook, target='_blank', alt=settings.coin + ' Facebook', title=settings.coin + ' Facebook')
+                  span.glyphicon.fab.fa-facebook
+            if settings.display.googleplus
+              li.float-left
+                a#googleplus-icon.nav-link(href="https://plus.google.com/" + settings.googleplus, target='_blank', alt=settings.coin + ' Google+', title=settings.coin + ' Google+')
+                  span.glyphicon.fab.fa-google-plus
+            if settings.display.bitcointalk
+              li.float-left
+                a#bitcointalk-icon.nav-link(href="https://bitcointalk.org/index.php?topic=" + settings.bitcointalk, target='_blank', alt=settings.coin + ' Bitcointalk', title=settings.coin + ' Bitcointalk')
+                  span.glyphicon.fab.fa-btc
+            if settings.display.website
+              li.float-left
+                a#website-icon.nav-link(href=settings.website, target='_blank', alt=settings.coin + ' Website', title=settings.coin + ' Website')
+                  span.glyphicon.fa.fa-link
+      .col-md-4.navbar-nav
         ul.nav.justify-content-center
           li.text-center(style='margin-left:80px;margin-right:80px;')
-            p(style='margin-top:15px;')
-              a(href='https://github.com/team-exor/eiquidus', target='_blank') eIquidus Explorer v#{settings.explorer_version}
-      .col-md-4
+            p(style='')
+              a.nav-link(href='https://github.com/team-exor/eiquidus', target='_blank') eIquidus Explorer v#{settings.explorer_version}
+      .col-md-4.navbar-nav
         ui.nav.justify-content-end
-          label#lblBlockcount.badge.badge-pill
-          label#lblConnections.badge.badge-pill
+          label#lblBlockcount.badge.badge-pill.nav-link
+          label#lblConnections.badge.badge-pill.nav-link
