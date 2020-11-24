@@ -53,7 +53,7 @@
   "block_parallel_tasks": 1,
 
   // wallet settings
-  "use_rpc": false,
+  "use_rpc": true,
 
   "wallet": {
     "host": "localhost",
