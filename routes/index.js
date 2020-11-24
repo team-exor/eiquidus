@@ -304,9 +304,9 @@ router.get('/ext/summary', function(req, res) {
               res.send({ data: [{
                 difficulty: difficulty,
                 difficultyHybrid: difficultyHybrid,
-                supply: stats.supply,
+                supply: (stats == null || stats.supply == null ? 0 : stats.supply),
                 hashrate: hashrate,
-                lastPrice: stats.last_price,
+                lastPrice: (stats == null || stats.last_price == null ? 0 : stats.last_price),
                 connections: connections,
                 masternodeCountOnline: masternodestotal.enabled,
                 masternodeCountOffline: masternodesoffline,
