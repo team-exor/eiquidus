@@ -16,15 +16,15 @@
     "cookie-parser": "~1.4.4",
     "body-parser": "~1.19.0",
     "debug": ">=4.1.1",
-    "pug": "~2.0.4",
-    "postman-request": "2.88.1-postman.22",
+    "pug": "~3.0.0",
+    "postman-request": "2.88.1-postman.27",
     "jsonminify": "0.4.1",
     "jstransformer-markdown-it": "^2.1.0",
-    "mongodb": "3.5.5",
-    "mongoose": "5.9.5",
+    "mongodb": "3.6.3",
+    "mongoose": "5.10.17",
     "qr-image": "~3.2.0"
   },
   "devDependencies": {
-    "jasmine": "~3.5.0"
+    "jasmine": "~3.6.3"
   }
 }
