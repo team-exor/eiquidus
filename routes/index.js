@@ -143,9 +143,11 @@ router.get('/markets/:market', function(req, res) {
   var market = req.params['market'];
   if (settings.markets.enabled.indexOf(market) != -1) {
     db.get_market(market, function(data) {
-      res.render('./markets/' + market, {
+      var exMarket = require('../lib/markets/' + market);
+      res.render('./market', {
         active: 'markets',
         marketdata: {
+          market_name: exMarket.market_name,
           coin: settings.markets.coin,
           exchange: settings.markets.exchange,
           data: data,

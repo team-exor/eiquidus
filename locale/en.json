@@ -132,16 +132,6 @@
     "mkt_type": "Type",
     "mkt_time_stamp": "Time Stamp",
 
-    // Markets
-    "fides": "Fides-ex",
-    "poloniex": "Poloniex",
-    "bittrex": "Bittrex",
-    "altmarkets": "AltMarkets",
-    "bleutrade": "Bleutrade",
-    "yobit": "Yobit",
-	"stex": "Stex",
-    "crex": "Crex24",
-
     // Heavy rewards view
     "heavy_title": "Reward/voting information",
     "heavy_vote": "Vote",

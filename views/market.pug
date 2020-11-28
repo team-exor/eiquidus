@@ -1,0 +1,248 @@
+extends layout
+
+block content
+  script.
+    $(document).ready(function() {
+      $('.order-table').dataTable({
+        info: false,
+        paging: false,
+        searching: false,
+        ordering: false,
+        scrollY: '250px',
+        autowidth: true,
+        responsive: true
+      });
+      $('.market-toggle').tooltip({
+        animation: true,
+        delay: { hide: 500 }
+      });
+    });
+  .col-xs-12.col-md-12
+    .d-none.nav.navbar.navbar-default(role='navigation' id='market_menu')
+      .container-fluid
+        .collapse.navbar-collapse(id='navbar-collapse')
+          ul.nav.navbar-nav
+            each mkt in settings.markets.enabled
+              if market == mkt
+                li.active
+                  a.navbar-link.loading(href='/markets/' + mkt) #{settings.locale[mkt]}
+              else
+                li
+                  a.navbar-link.loading(href='/markets/' + mkt) #{settings.locale[mkt]}
+    block market_view
+      - function formatDate(date) {
+      -   var hours = date.getHours();
+      -   var minutes = date.getMinutes();
+      -   var seconds = date.getSeconds();
+      -   var ampm = hours >= 12 ? 'PM' : 'AM';
+      -   hours = hours % 12;
+      -   hours = hours ? hours : 12;
+      -   hours = hours < 10 ? '0' + hours : hours;
+      -   minutes = minutes < 10 ? '0' + minutes : minutes;
+      -   seconds = seconds < 10 ? '0' + seconds : seconds;
+      -   return (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + hours + ':' + minutes + ':' + seconds + ' ' + ampm;
+      - }
+      script.
+        $(document).ready(function() {
+          var jqplot = null;
+          var chartData = !{(marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]' ? 'null' : marketdata.data.chartdata)};
+
+          if (chartData != null && chartData.length > 0 ) {
+            jqplot = $.jqplot('chart', [chartData], {
+              seriesDefaults: {
+                yaxis: 'y2axis'
+              },
+              axes: {
+                xaxis: {
+                  renderer: $.jqplot.DateAxisRenderer,
+                  tickOptions: { formatString: '%R' },
+                  tickInterval: '2 hours'
+                },
+                y2axis: {
+                  tickOptions: { formatString: '%.8f' },
+                }
+              },
+              series: [
+                {
+                  renderer: $.jqplot.OHLCRenderer,
+                  rendererOptions: {
+                    candleStick: true,
+                    upBodyColor: '#2aa3a3',
+                    downBodyColor: '#e2595b',
+                    fillUpBody: true,
+                    fillDownBody: true
+                  }
+                }
+              ],
+              highlighter: {
+                show: true,
+                showMarker: false,
+                tooltipAxes: 'xy',
+                yvalues: 4,
+                formatString: '<table class="jqplot-highlighter"> \
+                <tr><td>time:</td><td>%s</td></tr> \
+                <tr><td>open:</td><td>%s</td></tr> \
+                <tr><td>hi:</td><td>%s</td></tr> \
+                <tr><td>low:</td><td>%s</td></tr> \
+                <tr><td>close:</td><td>%s</td></tr></table>'
+              }
+            });
+          }
+          $(window).resize(function () {
+            if (jqplot != null)
+              jqplot.replot( { resetAxes: false } );
+          });
+        });
+      .row
+        .col-md-12.marketSpacer
+          .card.card-default
+            .card-header
+              strong #{marketdata.market_name} - #{marketdata.coin}/#{marketdata.exchange} - #{settings.locale.mkt_hours}
+              if marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]'
+                span.fas.fa-chart-line.float-right.view-chart-disabled.iquidus.market-toggle(style='cursor: pointer;', data-toggle='tooltip', data-placement='bottom', title=settings.locale.mkt_no_chart)
+            table.table.table-bordered.summary-table
+              thead
+                tr
+                  if marketdata.data.summary.high != null
+                    th #{settings.locale.mkt_high}
+                  if marketdata.data.summary.low != null
+                    th #{settings.locale.mkt_low}
+                  if marketdata.data.summary.volume != null
+                    th #{settings.locale.mkt_volume}
+                  if marketdata.data.summary.volume_btc != null
+                    th.d-none.d-xl-table-cell #{settings.locale.mkt_volume} (#{marketdata.exchange})
+                  if marketdata.data.summary.bid != null
+                    th.d-none.d-md-table-cell #{settings.locale.mkt_top_bid}
+                  if marketdata.data.summary.ask != null
+                    th.d-none.d-md-table-cell #{settings.locale.mkt_top_ask}
+                  if marketdata.data.summary.last != null
+                    th.d-none.d-xl-table-cell #{settings.locale.mkt_last}
+                  if marketdata.data.summary.prev != null
+                    th.d-none.d-xl-table-cell #{settings.locale.mkt_yesterday}
+                  if marketdata.data.summary.change != null || (marketdata.data.summary.last != null && marketdata.data.summary.prev != null)
+                    th.d-none.d-xl-table-cell #{settings.locale.mkt_change}
+              tbody
+                tr
+                  if marketdata.data.summary.high != null
+                    td #{parseFloat(marketdata.data.summary.high).toFixed(8)}
+                  if marketdata.data.summary.low != null
+                    td #{parseFloat(marketdata.data.summary.low).toFixed(8)}
+                  if marketdata.data.summary.volume != null
+                    td #{parseFloat(marketdata.data.summary.volume).toFixed(8)}
+                  if marketdata.data.summary.volume_btc != null
+                    td.d-none.d-xl-table-cell #{parseFloat(marketdata.data.summary.volume_btc).toFixed(8)}
+                  if marketdata.data.summary.bid != null
+                    td.d-none.d-md-table-cell #{parseFloat(marketdata.data.summary.bid).toFixed(8)}
+                  if marketdata.data.summary.ask != null
+                    td.d-none.d-md-table-cell #{parseFloat(marketdata.data.summary.ask).toFixed(8)}
+                  if marketdata.data.summary.last != null
+                    td.d-none.d-xl-table-cell #{parseFloat(marketdata.data.summary.last).toFixed(8)}
+                  if marketdata.data.summary.prev != null
+                    td.d-none.d-xl-table-cell #{parseFloat(marketdata.data.summary.prev).toFixed(8)}
+                  if marketdata.data.summary.change != null || (marketdata.data.summary.last != null && marketdata.data.summary.prev != null)
+                    if marketdata.data.summary.change != null
+                      if marketdata.data.summary.change == '' || marketdata.data.summary.change == '-'
+                        td.d-none.d-xl-table-cell.font-weight-bold 0.00 %
+                      else
+                        - var price_change = parseFloat(marketdata.data.summary.change).toFixed(2);
+                    else
+                      - var price_change = (100 - ((parseFloat(marketdata.data.summary.prev) / parseFloat(marketdata.data.summary.last)) * 100)).toFixed(2);
+                    if price_change >= 0
+                      td.d-none.d-xl-table-cell.text-success.font-weight-bold +#{price_change} %
+                    else
+                      td.d-none.d-xl-table-cell.text-danger.font-weight-bold #{price_change} %
+      if marketdata.data.chartdata != 'null' && marketdata.data.chartdata != '' && marketdata.data.chartdata != '[]'
+        .row
+          .col-md-12.marketSpacer
+            .card.card-default
+              .card-header
+                strong #{marketdata.market_name} - #{marketdata.coin}/#{marketdata.exchange} - #{settings.locale.mkt_hours}
+              .card-body
+                div#chart(style='width: 100%; height: 300px;')
+      .row
+        .col-md-6.col-xs-12.marketSpacer
+          .card.card-default
+            .card-header
+              h5.card-title #{settings.locale.mkt_buy_orders}
+            table.table.table-striped.table-bordered.order-table
+              thead
+                tr
+                  th #{settings.locale.mkt_price} (#{marketdata.exchange})
+                  th #{settings.locale.mkt_amount} (#{marketdata.coin})
+                  th.d-none.d-sm-table-cell #{settings.locale.mkt_total} (#{marketdata.exchange})
+              tbody
+                each buy in marketdata.data.buys
+                  tr
+                    td.text-success.font-weight-bold
+                      =parseFloat(buy.price).toFixed(8)
+                    td
+                      =parseFloat(buy.quantity).toFixed(8)
+                    td.d-none.d-sm-table-cell
+                      if buy.total != null
+                        =parseFloat(buy.total).toFixed(8)
+                      else
+                        =parseFloat(parseFloat(buy.price).toFixed(8) * parseFloat(buy.quantity).toFixed(8)).toFixed(8)
+        .col-md-6.col-xs-12.marketSpacer
+          .card.card-default
+            .card-header
+              h5.card-title #{settings.locale.mkt_sell_orders}
+            table.table.table-striped.table-bordered.order-table
+              thead
+                tr
+                  th #{settings.locale.mkt_price} (#{marketdata.exchange})
+                  th #{settings.locale.mkt_amount} (#{marketdata.coin})
+                  th.d-none.d-sm-table-cell #{settings.locale.mkt_total} (#{marketdata.exchange})
+              tbody
+                each sell in marketdata.data.sells
+                  tr
+                    td.text-danger.font-weight-bold
+                      =parseFloat(sell.price).toFixed(8)
+                    td
+                      =parseFloat(sell.quantity).toFixed(8)
+                    td.d-none.d-sm-table-cell
+                      if sell.total != null
+                        =parseFloat(sell.total).toFixed(8)
+                      else
+                        =parseFloat(parseFloat(sell.price).toFixed(8) * parseFloat(sell.quantity).toFixed(8)).toFixed(8)
+      .row
+        .col-md-12.marketSpacer
+          .card.card-default
+            .card-header
+              h5.card-title #{settings.locale.mkt_trade_history}
+            table.table.table-hover.history-table.table-bordered(cellspacing='0')
+              thead
+                tr
+                  th #{settings.locale.mkt_price} (#{marketdata.exchange})
+                  th #{settings.locale.mkt_amount} (#{marketdata.coin})
+                  th #{settings.locale.mkt_total} (#{marketdata.exchange})
+                  th.d-none.d-lg-table-cell #{settings.locale.mkt_time_stamp}
+              tbody
+                each order in marketdata.data.history
+                  if order.ordertype != null
+                    if order.ordertype.toUpperCase() == 'BUY'
+                      tr
+                        td.text-success.font-weight-bold
+                          =parseFloat(order.price).toFixed(8)
+                        td
+                          =parseFloat(order.quantity).toFixed(8)
+                        td
+                          if order.total != null
+                            =parseFloat(order.total).toFixed(8)
+                          else
+                            =parseFloat(parseFloat(order.price).toFixed(8) * parseFloat(order.quantity).toFixed(8)).toFixed(8)
+                        td.d-none.d-lg-table-cell
+                          =formatDate(new Date(order.timestamp))
+                    else
+                      tr
+                        td.text-danger.font-weight-bold
+                          =parseFloat(order.price).toFixed(8)
+                        td
+                          =parseFloat(order.quantity).toFixed(8)
+                        td
+                          if order.total != null
+                            =parseFloat(order.total).toFixed(8)
+                          else
+                            =parseFloat(parseFloat(order.price).toFixed(8) * parseFloat(order.quantity).toFixed(8)).toFixed(8)
+                        td.d-none.d-lg-table-cell
+                          =formatDate(new Date(order.timestamp))
+          .footer-padding
