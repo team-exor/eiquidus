@@ -30,18 +30,6 @@ block content
                 li
                   a.navbar-link.loading(href='/markets/' + mkt) #{settings.locale[mkt]}
     block market_view
-      - function formatDate(date) {
-      -   var hours = date.getHours();
-      -   var minutes = date.getMinutes();
-      -   var seconds = date.getSeconds();
-      -   var ampm = hours >= 12 ? 'PM' : 'AM';
-      -   hours = hours % 12;
-      -   hours = hours ? hours : 12;
-      -   hours = hours < 10 ? '0' + hours : hours;
-      -   minutes = minutes < 10 ? '0' + minutes : minutes;
-      -   seconds = seconds < 10 ? '0' + seconds : seconds;
-      -   return (date.getMonth()+1) + '/' + date.getDate() + '/' + date.getFullYear() + ' ' + hours + ':' + minutes + ':' + seconds + ' ' + ampm;
-      - }
       script.
         $(document).ready(function() {
           var jqplot = null;
@@ -94,7 +82,7 @@ block content
           });
         });
       .row
-        .col-md-12.marketSpacer
+        .col-md-12.cardSpacer
           .card.card-default
             .card-header
               strong #{marketdata.market_name} - #{marketdata.coin}/#{marketdata.exchange} - #{settings.locale.mkt_hours}
@@ -153,14 +141,14 @@ block content
                       td.d-none.d-xl-table-cell.text-danger.font-weight-bold #{price_change} %
       if marketdata.data.chartdata != 'null' && marketdata.data.chartdata != '' && marketdata.data.chartdata != '[]'
         .row
-          .col-md-12.marketSpacer
+          .col-md-12.cardSpacer
             .card.card-default
               .card-header
                 strong #{marketdata.market_name} - #{marketdata.coin}/#{marketdata.exchange} - #{settings.locale.mkt_hours}
               .card-body
                 div#chart(style='width: 100%; height: 300px;')
       .row
-        .col-md-6.col-xs-12.marketSpacer
+        .col-md-6.col-xs-12.cardSpacer
           .card.card-default
             .card-header
               h5.card-title #{settings.locale.mkt_buy_orders}
@@ -182,7 +170,7 @@ block content
                         =parseFloat(buy.total).toFixed(8)
                       else
                         =parseFloat(parseFloat(buy.price).toFixed(8) * parseFloat(buy.quantity).toFixed(8)).toFixed(8)
-        .col-md-6.col-xs-12.marketSpacer
+        .col-md-6.col-xs-12.cardSpacer
           .card.card-default
             .card-header
               h5.card-title #{settings.locale.mkt_sell_orders}
@@ -205,7 +193,7 @@ block content
                       else
                         =parseFloat(parseFloat(sell.price).toFixed(8) * parseFloat(sell.quantity).toFixed(8)).toFixed(8)
       .row
-        .col-md-12.marketSpacer
+        .col-md-12.cardSpacer
           .card.card-default
             .card-header
               h5.card-title #{settings.locale.mkt_trade_history}
@@ -231,7 +219,7 @@ block content
                           else
                             =parseFloat(parseFloat(order.price).toFixed(8) * parseFloat(order.quantity).toFixed(8)).toFixed(8)
                         td.d-none.d-lg-table-cell
-                          =formatDate(new Date(order.timestamp))
+                          =format_unixtime(new Date(order.timestamp), true)
                     else
                       tr
                         td.text-danger.font-weight-bold
@@ -244,5 +232,5 @@ block content
                           else
                             =parseFloat(parseFloat(order.price).toFixed(8) * parseFloat(order.quantity).toFixed(8)).toFixed(8)
                         td.d-none.d-lg-table-cell
-                          =formatDate(new Date(order.timestamp))
+                          =format_unixtime(new Date(order.timestamp), true)
           .footer-padding

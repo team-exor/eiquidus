@@ -228,6 +228,7 @@ tr {
 	font-size: 0.7em;
 }
 
-.marketSpacer {
-	padding-bottom:10px;
+.cardSpacer {
+	margin-bottom:10px;
+}
 }

@@ -160,8 +160,9 @@ html
         margin: 0 3px;
       }
   body
-    - function format_unixtime(unixtime) {
-      - var a = new Date(unixtime*1000);
+    - function format_unixtime(unixtime, skipIncrease) {
+      - skipIncrease = skipIncrease || false;
+      - var a = new Date(unixtime*(skipIncrease ? 1 : 1000));
       - var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
       - var year = a.getFullYear();
       - var month = months[a.getMonth()];
