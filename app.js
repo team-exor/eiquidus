@@ -204,31 +204,15 @@ app.use('/ext/getbasicstats', function(req,res){
   });
 });
 
-app.use('/ext/getlasttxsajax/:min', function(req,res){
-  if(typeof req.query.length === 'undefined' || isNaN(req.query.length) || req.query.length > settings.index.last_txs){
-    req.query.length = settings.index.last_txs;
-  }
-  if(typeof req.query.start === 'undefined' || isNaN(req.query.start) || req.query.start < 0){
-    req.query.start = 0;
-  }
-  if(typeof req.params.min === 'undefined' || isNaN(req.params.min ) || req.params.min  < 0){
-    req.params.min  = 0;
-  } else {
-    req.params.min  = (req.params.min * 100000000);
-  }
-  db.get_last_txs_ajax(req.query.start, req.query.length, req.params.min,function(txs, count){
-    var data = [];
-    for(i=0; i<txs.length; i++){
-      var row = [];
-      row.push(txs[i].blockindex);
-      row.push(txs[i].blockhash);
-      row.push(txs[i].txid);
-      row.push(txs[i].vout.length);
-      row.push((txs[i].total));
-      row.push(new Date((txs[i].timestamp) * 1000).toUTCString());
-      data.push(row);
-    }
-    res.json({"data":data, "draw": req.query.draw, "recordsTotal": count, "recordsFiltered": count});
+app.use('/ext/getlasttxs/:min', function(req, res) {
+  db.get_last_txs(req, function(data, draw, count) {
+    res.json({"data":data, "draw": draw, "recordsTotal": count, "recordsFiltered": count});
+  });
+});
+
+app.use('/ext/getlasttxsajax/:min', function(req, res){
+  db.get_last_txs(req, function(data, draw, count) {
+    res.json({"data":data, "draw": draw, "recordsTotal": count, "recordsFiltered": count});
   });
 });
 
