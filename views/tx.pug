@@ -1,6 +1,7 @@
 extends layout
 
 block content
+  include ./includes/common.pug
   - var time = format_unixtime(tx.timestamp);
   .col-xs-12.col-md-12.cardSpacer
     .card.card-body.d-lg-none.d-md-none(style='word-wrap:break-word;')

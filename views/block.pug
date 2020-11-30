@@ -1,6 +1,7 @@
 extends layout
 
 block content
+  include ./includes/common.pug
   - var time = format_unixtime(block.time);
   - var block_difficulty = parseFloat(block.difficulty).toFixed(4);
   .col-xs-12.col-md-12.cardSpacer

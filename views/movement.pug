@@ -1,6 +1,7 @@
 extends layout
 
 block content
+  include ./includes/common.pug
   script.
     var setting_maxTxCount = parseInt("#{settings.index.last_txs}");
     var setting_txPerPage = parseInt("#{settings.index.txs_per_page}");
@@ -45,7 +46,7 @@ block content
           } else {
             var total = "<label class='badge badge-success'>" + amountStr + "</label>";
           }
-          $("td:eq(0)", row).html(timestamp);
+          $("td:eq(0)", row).html(format_unixtime(new Date(timestamp), true));
           $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord');
           $("td:eq(2)", row).html(total);
         }

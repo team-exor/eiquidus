@@ -1,3 +1,4 @@
+include ./common.pug
 script.
   var hashAddress = "#{address.a_id}";
   var setting_maxTxCount = parseInt("#{settings.txcount}");
@@ -35,7 +36,7 @@ script.
         var vin = data[3]; //variables for better readability
         var balance = (data[4] / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}); //variables for better readability
         var balanceParts = balance.split('.');
-        $("td:eq(0)", row).html(timestamp);
+        $("td:eq(0)", row).html(format_unixtime(new Date(timestamp), true));
         $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord');
         var amount = 0;
         var updown = '';

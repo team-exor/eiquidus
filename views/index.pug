@@ -1,6 +1,7 @@
 extends layout
 
 block content
+  include ./includes/common.pug
   script.
     var setting_maxTxCount = parseInt("#{settings.index.last_txs}");
     var setting_txPerPage = parseInt("#{settings.index.txs_per_page}");
@@ -41,7 +42,7 @@ block content
           $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass("text-center breakWord");
           $("td:eq(2)", row).html(outputs).addClass("text-center");
           $("td:eq(3)", row).html(amount);
-          $("td:eq(4)", row).html(timestamp);          
+          $("td:eq(4)", row).html(format_unixtime(new Date(timestamp), true));
         },
       });
       setInterval( function () {
