@@ -24,10 +24,10 @@ html
     script(src='//cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js')
     script(src='/javascripts/chart.js')
     script.
-      $(document).ready(function(){
+      $(document).ready(function() {
         $('##{active}').addClass('active');
-        function update_stats(){
-          $.ajax({url: '/ext/summary', success: function(json){
+        function update_stats() {
+          $.ajax({url: '/ext/summary', success: function(json) {
             $("#masternodeCountOnline").text(json.data[0].masternodeCountOnline).prop("alt", json.data[0].masternodeCountOnline+" nodes online").prop("title", json.data[0].masternodeCountOnline+" nodes online");
             $("#masternodeCountOffline").text(json.data[0].masternodeCountOffline).prop("alt", json.data[0].masternodeCountOffline+" unreachable nodes").prop("title", json.data[0].masternodeCountOffline+" unreachable nodes");
             $("#spnMasternodeCountOnline").prop("alt", json.data[0].masternodeCountOnline+" nodes online").prop("title", json.data[0].masternodeCountOnline+" nodes online");
@@ -36,15 +36,14 @@ html
             var supplyString = json.data[0].supply;
             var diffString = json.data[0].difficulty;
             var hashrateString = json.data[0].hashrate;
-            if (!isNaN(json.data[0].difficulty)) {
+
+            if (!isNaN(json.data[0].difficulty))
               diffString = parseFloat(json.data[0].difficulty).toFixed(2);
-            }
-            if (!isNaN(json.data[0].supply)) {
+            if (!isNaN(json.data[0].supply))
               supplyString = parseInt(parseFloat(json.data[0].supply).toFixed(0)).toLocaleString('en');
-            }
-            if (!isNaN(json.data[0].hashrate)) {
+            if (!isNaN(json.data[0].hashrate))
               hashrateString = parseFloat(json.data[0].hashrate).toLocaleString('en');
-            }
+
             $("#supply").text(supplyString);
             $("#difficulty").text(diffString);
             $("#difficultyHybrid").text(json.data[0].difficultyHybrid);
@@ -58,10 +57,10 @@ html
         }
         $('.block-last-next').tooltip({
           animation: true,
-          delay: { hide: 500 },
+          delay: { hide: 500 }
         });
-        if($('.history-table tbody tr').length) {
-          $('.history-table').dataTable( {
+        if ($('.history-table tbody tr').length) {
+          $('.history-table').dataTable({
             searching: false,
             ordering: false,
             responsive: true
@@ -69,9 +68,9 @@ html
         }
         $('.iquidus').css('color',$('.table').css('color'));
         $(window).resize(function () {
-          $($.fn.dataTable.tables( true ) ).DataTable().columns.adjust();
+          $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
         });
-        setInterval( function() {
+        setInterval(function() {
           update_stats();
         }, 60000);
         update_stats();
@@ -170,21 +169,21 @@ html
       - var hour = a.getHours();
       - var min = a.getMinutes();
       - var sec = a.getSeconds();
-      - var suffix = 'th'
+      - var suffix = 'th';
       if date == 1 || date == 21 || date == 31
-        - suffix = 'st'
+        - suffix = 'st';
       if date == 2 || date == 22 || date == 32
-        - suffix = 'nd'
+        - suffix = 'nd';
       if date == 3 || date == 23
-        - suffix = 'rd'
+        - suffix = 'rd';
       if hour < 10
-        - hour = '0' + hour
+        - hour = '0' + hour;
       if min < 10
-        - min = '0' + min
+        - min = '0' + min;
       if sec < 10
-        - sec = '0' + sec
+        - sec = '0' + sec;
       - var time = date + suffix + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec + ' GMT';
-      - return time
+      - return time;
     -  };
     - var navbarClasses = ['nav','navbar','navbar-expand-lg','fixed-top'];
     - var footerClasses = ['nav','navbar','navbar-default','fixed-bottom','d-none','d-md-flex','d-flex','footer'];
@@ -250,27 +249,27 @@ html
               a.nav-link(href='/info')
                 span.fa.fa-info-circle
                 span.menu-text #{settings.locale.menu_api}
-    .col-md-12
+    .col-lg-12
       .row.text-center.d-flex.justify-content-center
-        div(class="col-md-2 col-md-offset-" + settings.paneloffset)
+        div(class="col-lg-2 col-lg-offset-" + settings.paneloffset)
           - if(settings.panel1 != '') {
-            .card.card-default.d-none.d-md-block.d-block(id='pnlOne')
+            .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlOne')
           - }
         - if(settings.panel2 != '') {
-          .col-md-2
-            .card.card-default.d-none.d-md-block.d-block(id='pnlTwo')
+          .col-lg-2
+            .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlTwo')
         - }
         - if(settings.panel3 != '') {
-          .col-md-2
-            .card.card-default.d-none.d-md-block.d-block(id='pnlThree')
+          .col-lg-2
+            .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlThree')
         - }
         - if(settings.panel4 != '') {
-          .col-md-2
-            .card.card-default.d-none.d-md-block.d-block(id='pnlFour')
+          .col-lg-2
+            .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlFour')
         - }
         - if(settings.panel5 != '') {
-        .col-md-2
-          .card.card-default.d-none.d-md-block.d-block(id='pnlFive')
+        .col-lg-2
+          .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlFive')
         - }
       .row.text-center(style='margin-top:10px;margin-bottom:20px;')
         form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
@@ -279,59 +278,59 @@ html
             button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
     block content
     div(class=footerClasses, role='navigation')
-      .col-md-4.navbar-nav
+      .col-4.navbar-nav
         if settings.display.github || settings.display.discord || settings.display.telegram || settings.display.reddit || settings.display.youtube || settings.display.slack || settings.display.twitter || settings.display.facebook || settings.display.googleplus || settings.display.bitcointalk || settings.display.website
           ul.nav.justify-content-left
             if settings.display.github
               li.float-left
-                a#github-icon.nav-link.social-link(href="https://github.com/" + settings.github, target='_blank', alt=settings.coin + ' Github', title=settings.coin + ' Github')
+                a#github-icon.nav-link.social-link.border-0(href="https://github.com/" + settings.github, target='_blank', alt=settings.coin + ' Github', title=settings.coin + ' Github')
                   span.glyphicon.fab.fa-github
             if settings.display.discord
               li.float-left
-                a#discord-icon.nav-link.social-link(href=settings.discord, target='_blank', alt=settings.coin + ' Discord', title=settings.coin + ' Discord')
+                a#discord-icon.nav-link.social-link.border-0(href=settings.discord, target='_blank', alt=settings.coin + ' Discord', title=settings.coin + ' Discord')
                   span.glyphicon.fab.fa-discord
             if settings.display.telegram
               li.float-left
-                a#telegram-icon.nav-link.social-link(href="https://t.me/" + settings.telegram, target='_blank', alt=settings.coin + ' Telegram', title=settings.coin + ' Telegram')
+                a#telegram-icon.nav-link.social-link.border-0(href="https://t.me/" + settings.telegram, target='_blank', alt=settings.coin + ' Telegram', title=settings.coin + ' Telegram')
                   span.glyphicon.fab.fa-telegram
             if settings.display.reddit
               li.float-left
-                a#reddit-icon.nav-link.social-link(href="https://reddit.com/r/" + settings.reddit, target='_blank', alt=settings.coin + ' Reddit', title=settings.coin + ' Reddit')
+                a#reddit-icon.nav-link.social-link.border-0(href="https://reddit.com/r/" + settings.reddit, target='_blank', alt=settings.coin + ' Reddit', title=settings.coin + ' Reddit')
                   span.glyphicon.fab.fa-reddit
             if settings.display.youtube
               li.float-left
-                a#youtube-icon.nav-link.social-link(href=settings.youtube, target='_blank', alt=settings.coin + ' YouTube', title=settings.coin + ' YouTube')
+                a#youtube-icon.nav-link.social-link.border-0(href=settings.youtube, target='_blank', alt=settings.coin + ' YouTube', title=settings.coin + ' YouTube')
                   span.glyphicon.fab.fa-youtube
             if settings.display.slack
               li.float-left
-                a#slack-icon.nav-link.social-link(href=settings.slack, target='_blank', alt=settings.coin + ' Slack', title=settings.coin + ' Slack')
+                a#slack-icon.nav-link.social-link.border-0(href=settings.slack, target='_blank', alt=settings.coin + ' Slack', title=settings.coin + ' Slack')
                   span.glyphicon.fab.fa-slack
             if settings.display.twitter
               li.float-left
-                a#twitter-icon.nav-link.social-link(href="https://twitter.com/" + settings.twitter, target='_blank', alt=settings.coin + ' Twitter', title=settings.coin + ' Twitter')
+                a#twitter-icon.nav-link.social-link.border-0(href="https://twitter.com/" + settings.twitter, target='_blank', alt=settings.coin + ' Twitter', title=settings.coin + ' Twitter')
                   span.glyphicon.fab.fa-twitter
             if settings.display.facebook
               li.float-left
-                a#facebook-icon.nav-link.social-link(href="https://www.facebook.com/" + settings.facebook, target='_blank', alt=settings.coin + ' Facebook', title=settings.coin + ' Facebook')
+                a#facebook-icon.nav-link.social-link.border-0(href="https://www.facebook.com/" + settings.facebook, target='_blank', alt=settings.coin + ' Facebook', title=settings.coin + ' Facebook')
                   span.glyphicon.fab.fa-facebook
             if settings.display.googleplus
               li.float-left
-                a#googleplus-icon.nav-link.social-link(href="https://plus.google.com/" + settings.googleplus, target='_blank', alt=settings.coin + ' Google+', title=settings.coin + ' Google+')
+                a#googleplus-icon.nav-link.social-link.border-0(href="https://plus.google.com/" + settings.googleplus, target='_blank', alt=settings.coin + ' Google+', title=settings.coin + ' Google+')
                   span.glyphicon.fab.fa-google-plus
             if settings.display.bitcointalk
               li.float-left
-                a#bitcointalk-icon.nav-link.social-link(href="https://bitcointalk.org/index.php?topic=" + settings.bitcointalk, target='_blank', alt=settings.coin + ' Bitcointalk', title=settings.coin + ' Bitcointalk')
+                a#bitcointalk-icon.nav-link.social-link.border-0(href="https://bitcointalk.org/index.php?topic=" + settings.bitcointalk, target='_blank', alt=settings.coin + ' Bitcointalk', title=settings.coin + ' Bitcointalk')
                   span.glyphicon.fab.fa-btc
             if settings.display.website
               li.float-left
-                a#website-icon.nav-link.social-link(href=settings.website, target='_blank', alt=settings.coin + ' Website', title=settings.coin + ' Website')
+                a#website-icon.nav-link.social-link.border-0(href=settings.website, target='_blank', alt=settings.coin + ' Website', title=settings.coin + ' Website')
                   span.glyphicon.fa.fa-link
-      .col-md-4.navbar-nav
+      .col-4.navbar-nav
         ul.nav.justify-content-center
-          li.text-center(style='margin-left:80px;margin-right:80px;')
-            p(style='')
-              a.nav-link.poweredby(href='https://github.com/team-exor/eiquidus', target='_blank') eIquidus Explorer v#{settings.explorer_version}
-      .col-md-4.navbar-nav
+          li.text-center
+            p
+              a.nav-link.poweredby.border-0(href='https://github.com/team-exor/eiquidus', target='_blank') eIquidus Explorer v#{settings.explorer_version}
+      .col-4.navbar-nav
         ui.nav.justify-content-end
-          label#lblBlockcount.badge.badge-pill.nav-link
-          label#lblConnections.badge.badge-pill.nav-link
+          label#lblBlockcount.badge.badge-secondary.nav-link.border-0.float-right
+          label#lblConnections.badge.badge-secondary.nav-link.border-0.float-right

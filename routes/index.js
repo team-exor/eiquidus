@@ -202,7 +202,7 @@ router.get('/network', function(req, res) {
 });
 
 router.get('/reward', function(req, res){
-  //db.get_stats(settings.coin, function (stats) {
+  db.get_stats(settings.coin, function (stats) {
     console.log(stats);
     db.get_heavy(settings.coin, function (heavy) {
       //heavy = heavy;
@@ -217,9 +217,9 @@ router.get('/reward', function(req, res){
         }
       });
 
-      res.render('reward', { active: 'reward', stats: stats, heavy: heavy, votes: heavy.votes });
+      res.render('reward', { active: 'reward', stats: stats, heavy: heavy, votes: votes });
     });
-  //});
+  });
 });
 
 router.get('/tx/:txid', function(req, res) {

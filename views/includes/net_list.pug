@@ -1,7 +1,7 @@
 script.
-  $(document).ready(function(){
-    var ctable = $('#connections-table').dataTable( {  
-      autoWidth: true,      
+  $(document).ready(function() {
+    $('#connections-table').dataTable({
+      autoWidth: true,
       searching: false,
       ordering: false,
       responsive: true,
@@ -9,7 +9,7 @@ script.
       processing: true,
       ajax: {
         url: '/ext/connections',
-        dataSrc: function ( json ) {
+        dataSrc: function (json) {
           return json.data;
         }
       },
@@ -18,11 +18,10 @@ script.
         if (data['country_code'].length > 1) {
           flagBlock = '&nbsp;<div class="flag-icon flag-icon-'+data['country_code'].toLowerCase()+'"></div>';
         }
-        $("td:eq(0)", row).html(data['address']);
+        $("td:eq(0)", row).html(data['address']).addClass('breakWord');
         $("td:eq(1)", row).html(data['protocol']);
         $("td:eq(2)", row).html(data['version']);
         $("td:eq(3)", row).html(data['country']+flagBlock);
-
       },
       columns: [
         { data: 'address', width: '25%' },
@@ -36,7 +35,7 @@ script.
   table#connections-table.table.table-bordered.table-striped
     thead
       tr
-        th.text-center #{settings.locale.net_address}
+        th #{settings.locale.net_address}
         th.text-center #{settings.locale.net_protocol}
         th.text-center #{settings.locale.net_subversion}
         th.text-center #{settings.locale.net_country}

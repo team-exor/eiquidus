@@ -150,8 +150,8 @@ tr {
 	right: 15px;
 }
 
-#lblBlockcount {
-	margin-right: 10px;
+#lblConnections {
+	margin-left: 10px;
 }
 
 #market_menu {
@@ -231,4 +231,7 @@ tr {
 .cardSpacer {
 	margin-bottom:10px;
 }
+
+.breakWord {
+	word-break: break-word;
 }

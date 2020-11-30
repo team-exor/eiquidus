@@ -120,75 +120,75 @@ block content
         p
           em Return data from local indexes
         ul
-            li
-              p
-                div(style='font-weight:bold;') getmoneysupply
-                div
-                  em Returns current money supply
-                a(href='/ext/getmoneysupply') #{address}/ext/getmoneysupply
-            li
-              p
-                div(style='font-weight:bold;') getdistribution
-                div
-                  em Returns wealth distribution stats
-                a(href='/ext/getdistribution') #{address}/ext/getdistribution
-            li
-              p
-                div(style='font-weight:bold;') getaddress (/ext/getaddress/hash)
-                div
-                  em Returns information for given address
-                a(href='/ext/getaddress/' + hashes.address) #{address}/ext/getaddress/#{hashes.address}
-            li
-              p
-                div(style='font-weight:bold;') gettx (/ext/gettx/hash)
-                div
-                  em Returns information for given tx hash
-                a(href='/ext/gettx/' + hashes.txhash) #{address}/ext/gettx/#{hashes.txhash}
-            li
-              p
-                div(style='font-weight:bold;') getbalance (/ext/getbalance/hash)
-                div
-                  em Returns current balance of given address
-                a(href='/ext/getbalance/' + hashes.address) #{address}/ext/getbalance/#{hashes.address}
-            li
-              p
-                div(style='font-weight:bold;') getlasttxs (/ext/getlasttxs/min)
-                div
-                  em Returns last transactions greater than [min]
-                div
-                  em Note: returned values are in satoshis
-                a(href='/ext/getlasttxs/100') #{address}/ext/getlasttxs/100
-            li
-              p
-                div(style='font-weight:bold;') getcurrentprice
-                div
-                  em Returns last known exchange price
-                a(href='/ext/getcurrentprice') #{address}/ext/getcurrentprice
-            li
-              p
-                div(style='font-weight:bold;') getbasicstats
-                div
-                  em Returns basic statistics about the coin including: block count, circulating supply, USD price, BTC price and # of masternodes
-                a(href='/ext/getbasicstats') #{address}/ext/getbasicstats
+          li
+            p
+              div(style='font-weight:bold;') getmoneysupply
+              div
+                em Returns current money supply
+              a(href='/ext/getmoneysupply') #{address}/ext/getmoneysupply
+          li
+            p
+              div(style='font-weight:bold;') getdistribution
+              div
+                em Returns wealth distribution stats
+              a(href='/ext/getdistribution') #{address}/ext/getdistribution
+          li
+            p
+              div(style='font-weight:bold;') getaddress (/ext/getaddress/hash)
+              div
+                em Returns information for given address
+              a(href='/ext/getaddress/' + hashes.address) #{address}/ext/getaddress/#{hashes.address}
+          li
+            p
+              div(style='font-weight:bold;') gettx (/ext/gettx/hash)
+              div
+                em Returns information for given tx hash
+              a(href='/ext/gettx/' + hashes.txhash) #{address}/ext/gettx/#{hashes.txhash}
+          li
+            p
+              div(style='font-weight:bold;') getbalance (/ext/getbalance/hash)
+              div
+                em Returns current balance of given address
+              a(href='/ext/getbalance/' + hashes.address) #{address}/ext/getbalance/#{hashes.address}
+          li
+            p
+              div(style='font-weight:bold;') getlasttxs (/ext/getlasttxs/min)
+              div
+                em Returns last transactions greater than [min]
+              div
+                em Note: returned values are in satoshis
+              a(href='/ext/getlasttxs/100') #{address}/ext/getlasttxs/100
+          li
+            p
+              div(style='font-weight:bold;') getcurrentprice
+              div
+                em Returns last known exchange price
+              a(href='/ext/getcurrentprice') #{address}/ext/getcurrentprice
+          li
+            p
+              div(style='font-weight:bold;') getbasicstats
+              div
+                em Returns basic statistics about the coin including: block count, circulating supply, USD price, BTC price and # of masternodes
+              a(href='/ext/getbasicstats') #{address}/ext/getbasicstats
         hr
         h3 Linking (GET)
         p
           em Linking to the block explorer
         ul
-            li
-              p
-                div(style='font-weight:bold;') transaction (/tx/txid)
-                a(href='/tx/' + hashes.txhash) #{address}/tx/#{hashes.txhash}
-            li
-              p
-                div(style='font-weight:bold;') block (/block/hash)
-                a(href='/block/' + hashes.blockhash) #{address}/block/#{hashes.blockhash}
-            li
-              p
-                div(style='font-weight:bold;') address (/address/hash)
-                a(href='/address/' + hashes.address) #{address}/address/#{hashes.address}
-            li
-              p
-                div(style='font-weight:bold;') qrcode (/qr/hash)
-                a(href='/qr/' + hashes.address) #{address}/qr/#{hashes.address}
+          li
+            p
+              div(style='font-weight:bold;') transaction (/tx/txid)
+              a(href='/tx/' + hashes.txhash) #{address}/tx/#{hashes.txhash}
+          li
+            p
+              div(style='font-weight:bold;') block (/block/hash)
+              a(href='/block/' + hashes.blockhash) #{address}/block/#{hashes.blockhash}
+          li
+            p
+              div(style='font-weight:bold;') address (/address/hash)
+              a(href='/address/' + hashes.address) #{address}/address/#{hashes.address}
+          li
+            p
+              div(style='font-weight:bold;') qrcode (/qr/hash)
+              a(href='/qr/' + hashes.address) #{address}/qr/#{hashes.address}
     .footer-padding

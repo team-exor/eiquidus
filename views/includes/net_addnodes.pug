@@ -1,7 +1,7 @@
 script.
-  $(document).ready(function(){
-    var ctable = $('#addnodes-table').dataTable({
-      autoWidth: true,      
+  $(document).ready(function() {
+    $('#addnodes-table').dataTable({
+      autoWidth: true,
       searching: false,
       ordering: false,
       responsive: true,
@@ -9,23 +9,23 @@ script.
       processing: true,
       ajax: {
         url: '/ext/connections',
-        dataSrc: function ( json ) {
+        dataSrc: function (json) {
           var rows = [];
-          for ( var i=0;i<json.data.length; i++ ) {
+          for (var i=0; i<json.data.length; i++) {
             rows.push({'nodes':'addnode='+json.data[i]['address']+':'+json.data[i]['port']});
           }
           return rows;
         }
       },
       columns: [
-        { data: 'nodes', width: '100%' }
+        {data: 'nodes', width: '100%'}
       ],
       columnDefs: [
-        { targets: '_all', className: 'text-left'}
+        {targets: '_all', className: 'text-left'}
       ]
     });
-    var ctable = $('#addnodes2-table').dataTable( {  
-      autoWidth: true,      
+    $('#addnodes2-table').dataTable({
+      autoWidth: true,
       searching: false,
       ordering: false,
       responsive: true,
@@ -33,19 +33,19 @@ script.
       processing: true,
       ajax: {
         url: '/ext/connections',
-        dataSrc: function ( json ) {
-          var rows = []
-          for ( var i=0;i<json.data.length; i++ ) {
+        dataSrc: function (json) {
+          var rows = [];
+          for (var i=0; i<json.data.length; i++) {
             rows.push({'nodes':'addnode '+json.data[i]['address']+':'+json.data[i]['port']+' onetry'});
           }
           return rows;
         }
       },
       columns: [
-        { data: 'nodes', width: '100%' }
+        {data: 'nodes', width: '100%'}
       ],
       columnDefs: [
-        { targets: '_all', className: 'text-left'}
+        {targets: '_all', className: 'text-left'}
       ]
     });
   });
@@ -60,7 +60,6 @@ script.
       tr
         th.text-center AddNode Config Lines
     tbody.text-center
-
   .card-body
     :markdown-it
       Alternatively you can try one of these lines in the coin wallet debug window, or add them with *coindaemon*-cli

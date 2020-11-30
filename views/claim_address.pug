@@ -3,17 +3,19 @@ extends layout
 block content
   script.
     $(function () {
-
         $('form').on('submit', function (e) {
-
           e.preventDefault();
-          var address;
-          var message;
-          var signature;
-          address = $('input#address').val();
-          message = $('input#message').val();
-          signature = $('input#signature').val();
+          var address = $('input#address').val();
+          var message = $('input#message').val();
+          var signature = $('input#signature').val();
           var url = '/address/'+address+'/claim';
+
+          function showClaimAlert(success) {
+            if ($('#claimAlert').length == 0)
+              $('<div id="claimAlert"></div>').insertBefore('#claimForm');
+            $('#claimAlert').html('<div class="alert alert-' + (success ? 'success' : 'danger') + '"><div class="font-weight-bold" style="padding-bottom:10px;">' + (success ? 'Address claimed successfully' : 'Failed to claim address') + '</div> ' + (success ? 'This address will now be referred to as <strong>"' + $('#message').val() + '"</strong> throughout the website' : 'Invalid signature') + '.</div>');			
+          }
+
           $.ajax({
             type: 'post',
             url: url,
@@ -23,14 +25,10 @@ block content
               'signature': signature
             },
             success: function (data) {
-              if(data.status == "success")
-                window.location = "/address/"+address;
-                
+              showClaimAlert(data.status == 'success');
             }
           });
-
         });
-
       });
   - var balance = ((address.received - address.sent) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var balanceParts = balance.split('.');
@@ -38,24 +36,24 @@ block content
   - var sentParts = sent.split('.');
   - var received = (address.received / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var receivedParts = received.split('.');
-  .col-xs-12.col-md-12
-    .card.card-default.card-address-summary
-      .card-header(style='position:relative;')        
+  .col-xs-12.col-md-12.cardSpacer
+    .card.card-default.card-address-summary.cardSpacer
+      .card-header(style='position:relative;')
         strong=address.a_id
         if settings.labels[address.a_id]
-          if settings.labels[address.a_id].type  
+          if settings.labels[address.a_id].type
             label(class='badge label-#{ settings.labels[address.a_id].type} float-right d-none d-sm-block', style='margin-left:15px;')
               =settings.labels[address.a_id].label
               if settings.labels[address.a_id].url
                 a(href="#{ settings.labels[address.a_id].url}'", target='_blank')
                   span.fa.fa-question-circle(style='margin-left:5px;')
           else
-            label.badge.badge-pill.float-right.d-none.d-sm-block(style='margin-left:15px;') 
+            label.badge.badge-pill.float-right.d-none.d-sm-block(style='margin-left:15px;')
               =settings.labels[address.a_id].label
               if settings.labels[address.a_id].url
                 a(href='#{settings.labels[address.a_id].url}', target='_blank')
                   span.fa.fa-question-circle(style='margin-left:5px;')
-      table.table.table-bordered.table-striped.summary-table 
+      table.table.table-bordered.table-striped.summary-table
         thead
           tr
             if settings.show_sent_received == true
@@ -65,34 +63,60 @@ block content
                 th.d-none.d-sm-block #{settings.locale.total_received} (#{settings.symbol})
               th #{settings.locale.rl_balance} (#{settings.symbol})
               th #{settings.locale.a_qr}
-        tbody             
+        tbody
           tr
             if settings.show_sent_received == true
               td.addr-summary.hidden-xs #{sentParts[0]}.
-                span.decimal #{sentParts[1]} 
+                span.decimal #{sentParts[1]}
             if address.a_id !== 'coinbase'
               if settings.show_sent_received == true
                 td.addr-summary.hidden-xs #{receivedParts[0]}.
-                  span.decimal #{receivedParts[1]} 
+                  span.decimal #{receivedParts[1]}
               td.addr-summary #{balanceParts[0]}.
-                span.decimal #{balanceParts[1]} 
+                span.decimal #{balanceParts[1]}
               td.addr-summary
                 img.qrcode(src='/qr/'+address.a_id)
-    .card.card-default.d-none.d-sm-block
+    .card.card-default.cardSpacer
       .card-header
         strong Claim this Address
-      form#claimForm
-        .form-group
-          fieldset
-            label.control-label(for='address') Wallet Address
-            input#address.form-control(type='text' value=address.a_id readonly="")
-        .form-group
-          fieldset
-            label(for='message') Username
-            input#message.form-control(type='text' placeholder='User Name')
-        .form-group
-          fieldset
-            label(for='signature') Signature
-            input#signature.form-control(type='text' placeholder='Signature')
-        button.btn.btn-primary(type='submit') Submit
+      .card-body
+        div.alert.alert-primary
+          div
+            span Use the '
+            span.font-weight-bold Sign Message
+            span ' feature from your wallet to verify ownership of this address.
+          br
+          div
+            span Enter the wallet address '
+            span.font-weight-bold #{address.a_id}
+            span ' for both the '
+            span.font-weight-bold Address
+            span ' and '
+            span.font-weight-bold Message
+            span ' and click the '
+            span.font-weight-bold Sign Message
+            span ' button to generate the '
+            span.font-weight-bold Signature
+            span '.
+          br
+          div
+            span Enter the '
+            span.font-weight-bold Signature
+            span ' below and click '
+            span.font-weight-bold Submit
+            span ' to claim your address which allows displaying a custom name instead of the default wallet address.
+        form#claimForm
+          .form-group
+            fieldset
+              label.control-label(for='address') Wallet Address
+              input#address.form-control(type='text' value=address.a_id readonly="")
+          .form-group
+            fieldset
+              label(for='message') Display Name
+              input#message.form-control(type='text' placeholder='Display Name')
+          .form-group
+            fieldset
+              label(for='signature') Signature
+              input#signature.form-control(type='text' placeholder='Signature')
+          button.btn.btn-primary(type='submit') Submit
     .footer-padding
