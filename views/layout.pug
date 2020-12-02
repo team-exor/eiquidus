@@ -1,6 +1,7 @@
 doctype html
 html
   head
+    meta(name='viewport' content='width=device-width, initial-scale=1')
     title= settings.title
     link(rel='stylesheet', href='/themes/' + settings.theme + '/bootstrap.min.css')
     link(rel='stylesheet', href='/vendor/jqplot/jquery.jqplot.css')
@@ -48,8 +49,8 @@ html
             $("#difficulty").text(diffString);
             $("#difficultyHybrid").text(json.data[0].difficultyHybrid);
             $("#hashrate").text(hashrateString);
-            $("#lastPrice").text(parseFloat(json.data[0].lastPrice).toFixed(8) + ' #{settings.markets.exchange}'.toUpperCase());
-            $("#marketCap").text((parseFloat(json.data[0].lastPrice).toFixed(8) * parseInt(parseFloat(json.data[0].supply).toFixed(0))).toLocaleString('en') + ' #{settings.markets.exchange}'.toUpperCase());
+            $("#lastPrice").text(parseFloat(json.data[0].lastPrice).toFixed(8));
+            $("#marketCap").html((parseFloat(json.data[0].lastPrice).toFixed(8) * parseInt(parseFloat(json.data[0].supply).toFixed(0))).toLocaleString('en') + '<span class="small" style="margin-right:0;">' + '#{settings.markets.exchange}'.toUpperCase() + '</span>');
             $("#lblConnections").text(json.data[0].connections + ' connections');
             $("#lblBlockcount").text(json.data[0].blockcount + ' blocks');
             $("#lblX1").text(' ');
@@ -63,7 +64,13 @@ html
           $('.history-table').dataTable({
             searching: false,
             ordering: false,
-            responsive: true
+            responsive: true,
+            language: {
+              paginate: {
+                previous: '<',
+                next: '>'
+              }
+            }
           });
         }
         $('.iquidus').css('color',$('.table').css('color'));
@@ -112,7 +119,7 @@ html
           var supplyType='<label id="supply"></label>';
           if ('#{settings.index.difficulty}' == 'Hybrid') supplyType+='<br /><label id="lblX1"></label>';
           if (#{settings.index.show_market_cap} == true && #{settings.index.show_market_cap_over_price} != true) supplyType+='<br /><span class="glyphicon fas fa-chart-line"></span><label>(</label><label id="marketCap">-</label><label>)</label>';
-          return '<div class="card-header"><strong>#{settings.locale.ex_supply} (#{settings.symbol})</strong></div><div class="card-body"><div id="supplypanel"><span class="glyphicon fa fa-chart-pie"></span>'+supplyType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small">(#{settings.symbol})</span></strong></div><div class="card-body"><div id="supplypanel"><span class="glyphicon fa fa-chart-pie"></span>'+supplyType+'</div></div>';
         }
         function getPricePanel() {
           if (#{settings.index.show_market_cap} == true && #{settings.index.show_market_cap_over_price} == true) {
@@ -120,7 +127,7 @@ html
           } else {
             var priceType='<label id="lastPrice">-</label>';
             if ('#{settings.index.difficulty}' == 'Hybrid') priceType+='<br /><label id="lblX1"></label>';
-            return '<div class="card-header"><strong>#{settings.markets.exchange} Price</strong></div><div class="card-body"><div id="pricepanel"><span class="glyphicon fa fa-rocket"></span>'+priceType+'</div></div>';
+            return '<div class="card-header"><strong>Price <span class="small">(#{settings.markets.exchange})</span></strong></div><div class="card-body"><div id="pricepanel"><span class="glyphicon fa fa-rocket"></span>'+priceType+'</div></div>';
           }
         }
         function getActivePanel(nPanelName) {

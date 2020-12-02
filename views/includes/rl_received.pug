@@ -7,7 +7,8 @@
         th.text-center
           span.fa.fa-flag-checkered
         th #{settings.locale.tx_address}
-        th #{settings.locale.rl_received} (#{settings.symbol})
+        th #{settings.locale.rl_received}
+          span.small  (#{settings.symbol})
     tbody
       - var count = 0;
       each item in received

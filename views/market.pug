@@ -99,7 +99,8 @@ block content
                   if marketdata.data.summary.volume != null
                     th #{settings.locale.mkt_volume}
                   if marketdata.data.summary.volume_btc != null
-                    th.d-none.d-xl-table-cell #{settings.locale.mkt_volume} (#{marketdata.exchange})
+                    th.d-none.d-xl-table-cell #{settings.locale.mkt_volume}
+                      span.small  (#{marketdata.exchange})
                   if marketdata.data.summary.bid != null
                     th.d-none.d-md-table-cell #{settings.locale.mkt_top_bid}
                   if marketdata.data.summary.ask != null
@@ -141,7 +142,7 @@ block content
                     else
                       td.d-none.d-xl-table-cell.text-danger.font-weight-bold #{price_change} %
       if marketdata.data.chartdata != 'null' && marketdata.data.chartdata != '' && marketdata.data.chartdata != '[]'
-        .row
+        #marketChart.row
           .col-md-12.cardSpacer
             .card.card-default
               .card-header
@@ -156,9 +157,12 @@ block content
             table.table.table-striped.table-bordered.order-table
               thead
                 tr
-                  th #{settings.locale.mkt_price} (#{marketdata.exchange})
-                  th #{settings.locale.mkt_amount} (#{marketdata.coin})
-                  th.d-none.d-sm-table-cell #{settings.locale.mkt_total} (#{marketdata.exchange})
+                  th #{settings.locale.mkt_price}
+                    span.small  (#{marketdata.exchange})
+                  th #{settings.locale.mkt_amount}
+                    span.small  (#{marketdata.coin})
+                  th.d-none.d-sm-table-cell #{settings.locale.mkt_total}
+                    span.small  (#{marketdata.exchange})
               tbody
                 each buy in marketdata.data.buys
                   tr
@@ -178,9 +182,12 @@ block content
             table.table.table-striped.table-bordered.order-table
               thead
                 tr
-                  th #{settings.locale.mkt_price} (#{marketdata.exchange})
-                  th #{settings.locale.mkt_amount} (#{marketdata.coin})
-                  th.d-none.d-sm-table-cell #{settings.locale.mkt_total} (#{marketdata.exchange})
+                  th #{settings.locale.mkt_price}
+                    span.small  (#{marketdata.exchange})
+                  th #{settings.locale.mkt_amount}
+                    span.small  (#{marketdata.coin})
+                  th.d-none.d-sm-table-cell #{settings.locale.mkt_total}
+                    span.small  (#{marketdata.exchange})
               tbody
                 each sell in marketdata.data.sells
                   tr
@@ -201,9 +208,12 @@ block content
             table.table.table-hover.history-table.table-bordered(cellspacing='0')
               thead
                 tr
-                  th #{settings.locale.mkt_price} (#{marketdata.exchange})
-                  th #{settings.locale.mkt_amount} (#{marketdata.coin})
-                  th #{settings.locale.mkt_total} (#{marketdata.exchange})
+                  th #{settings.locale.mkt_price}
+                    span.small  (#{marketdata.exchange})
+                  th #{settings.locale.mkt_amount}
+                    span.small  (#{marketdata.coin})
+                  th #{settings.locale.mkt_total}
+                    span.small  (#{marketdata.exchange})
                   th.d-none.d-lg-table-cell #{settings.locale.mkt_time_stamp}
               tbody
                 each order in marketdata.data.history

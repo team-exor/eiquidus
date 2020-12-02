@@ -29,6 +29,12 @@ block content
         iDisplayLength: displayLengthMax,
         lengthMenu: lengthMenuOpts,
         ajax: '/ext/getlasttxsajax/0',
+        language: {
+          paginate: {
+            previous: '<',
+            next: '>'
+          }
+        },
         rowCallback: function(row, data, index) {
           var blockindex = data[0]; //variables for better readability
           var blockhash = data[1]; //variables for better readability
@@ -39,10 +45,10 @@ block content
           var amount = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
           var timestamp = data[5];
           $("td:eq(0)", row).html('<a href="/block/' + blockhash + '">' + blockindex + '</a>');
-          $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass("text-center breakWord");
+          $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass("text-center breakWord d-none d-sm-table-cell");
           $("td:eq(2)", row).html(outputs).addClass("text-center");
           $("td:eq(3)", row).html(amount);
-          $("td:eq(4)", row).html(format_unixtime(new Date(timestamp), true));
+          $("td:eq(4)", row).html(format_unixtime(new Date(timestamp), true)).addClass("text-center d-none d-sm-table-cell");
         },
       });
       setInterval( function () {
@@ -67,9 +73,10 @@ block content
         thead
           tr
             th.text-center #{settings.locale.ex_block}
-            th.text-center #{settings.locale.tx_hash}
+            th.text-center.d-none.d-sm-table-cell #{settings.locale.tx_hash}
             th.text-center #{settings.locale.tx_recipients}
-            th.text-center #{settings.locale.mkt_amount} (#{settings.symbol})
-            th.text-center #{settings.locale.timestamp}
+            th.text-center #{settings.locale.mkt_amount}
+              span.small  (#{settings.symbol})
+            th.text-center.d-none.d-sm-table-cell #{settings.locale.timestamp}
         tbody.text-center
     .footer-padding

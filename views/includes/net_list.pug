@@ -7,6 +7,12 @@ script.
       responsive: true,
       lengthChange: true,
       processing: true,
+      language: {
+        paginate: {
+          previous: '<',
+          next: '>'
+        }
+      },
       ajax: {
         url: '/ext/connections',
         dataSrc: function (json) {

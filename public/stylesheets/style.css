@@ -114,6 +114,32 @@ table {
 	padding-right: 5px;
 }
 
+.pagination > .paginate_button > a, .pagination > .paginate_button.disabled > a {
+	border: 1px solid black;
+}
+
+ul.pagination {
+	justify-content: flex-start;
+	display: inline-block;
+}
+
+ul.pagination > li {
+    display: inline;
+}
+
+ul.pagination > li > a {
+	float: left;
+}
+
+@media(max-width:576px){
+	.dataTables_paginate {
+	    font-size: 80%;
+    }
+	#marketChart {
+		display: none;
+	}
+}
+
 .tab-pane {
 	margin-top: 5px;
 }

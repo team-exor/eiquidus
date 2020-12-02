@@ -5,12 +5,15 @@ block content
     .col-xs-12.col-md-12
       .card.card-default.card-address-summary
         .card-header(style='position:relative;')
-          strong #{settings.locale.heavy_title} (#{settings.symbol})
+          strong #{settings.locale.heavy_title}
+            span.small  (#{settings.symbol})
         table.table.table-bordered.table-striped.summary-table
           thead
             tr
-              th #{settings.locale.ex_supply} (#{settings.symbol})
-              th #{settings.locale.heavy_cap} (#{settings.symbol})
+              th #{settings.locale.ex_supply}
+                span.small  (#{settings.symbol})
+              th #{settings.locale.heavy_cap}
+                span.small  (#{settings.symbol})
               th #{settings.locale.heavy_phase}
               th #{settings.locale.heavy_maxvote}
               th #{settings.locale.heavy_reward}

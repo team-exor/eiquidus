@@ -30,6 +30,12 @@ block content
         iDisplayLength: displayLengthMax,
         lengthMenu: lengthMenuOpts,
         ajax: '/ext/getlasttxsajax/#{min_amount}',
+        language: {
+          paginate: {
+            previous: '<',
+            next: '>'
+          }
+        },
         rowCallback: function(row, data, index) {
           var blockindex = data[0]; //variables for better readability
           var blockhash = data[1]; //variables for better readability
@@ -47,7 +53,7 @@ block content
             var total = "<label class='badge badge-success'>" + amountStr + "</label>";
           }
           $("td:eq(0)", row).html(format_unixtime(new Date(timestamp), true));
-          $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord');
+          $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-sm-table-cell');
           $("td:eq(2)", row).html(total);
         }
       });
@@ -63,7 +69,7 @@ block content
         thead
           tr
             th.text-center timestamp
-            th.text-center txid
+            th.text-center.d-none.d-sm-table-cell txid
             th.text-center amount
         tbody.text-center
     .footer-padding
