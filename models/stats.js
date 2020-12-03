@@ -8,7 +8,7 @@ var StatsSchema = new Schema({
   //difficulty: { type: Object, default: {} },
   //hashrate: { type: String, default: 'N/A' },
   supply: { type: Number, default: 0 },
-  //last_txs: { type: Array, default: [] },
+  txes: { type: Number, default: 0 },
   connections: { type: Number, default: 0 },
   last_price: { type: Number, default: 0 },
   last_usd_price: { type: Number, default: 0 },

@@ -20,9 +20,10 @@ function usage() {
   console.log('market       Market data: summaries, orderbooks, trade history & chartdata')
   console.log('');
   console.log('mode: (required for index database only)');
-  console.log('update       Updates index from last sync to current block');
-  console.log('check        checks index for (and adds) any missing transactions/addresses');
-  console.log('reindex      Clears index then resyncs from genesis to current block');
+  console.log('update           Updates index from last sync to current block');
+  console.log('check            Checks index for (and adds) any missing transactions/addresses');
+  console.log('reindex          Clears index then resyncs from genesis to current block');
+  console.log('reindex-txcount  Rescan and flatten the tx count value for faster access');
   console.log('');
   console.log('notes:');
   console.log('* \'current block\' is the latest created block when script is executed.');
@@ -51,6 +52,8 @@ if (process.argv[2] == 'index') {
         break;
       case 'reindex-rich':
         mode = 'reindex-rich';
+      case 'reindex-txcount':
+        mode = 'reindex-txcount';
         break;
       default:
         usage();
@@ -164,7 +167,7 @@ is_locked(function (exists) {
                             }, function() {
                               console.log('index cleared (reindex)');
                             });
-                            db.update_tx_db(settings.coin, 1, stats.count, settings.update_timeout, function(){
+                            db.update_tx_db(settings.coin, 1, stats.count, stats.txes, settings.update_timeout, function(){
                               db.update_richlist('received', function(){
                                 db.update_richlist('balance', function(){
                                   db.get_stats(settings.coin, function(nstats){
@@ -179,7 +182,7 @@ is_locked(function (exists) {
                     });
                   });
                 } else if (mode == 'check') {
-                  db.update_tx_db(settings.coin, 1, stats.count, settings.check_timeout, function(){
+                  db.update_tx_db(settings.coin, 1, stats.count, stats.txes, settings.check_timeout, function(){
                     db.get_stats(settings.coin, function(nstats){
                       console.log('check complete (block: %s)', nstats.last);
                       exit();
@@ -194,7 +197,7 @@ is_locked(function (exists) {
                       nLast = data.blockindex;
                     }
 
-                    db.update_tx_db(settings.coin, nLast, stats.count, settings.update_timeout, function(){
+                    db.update_tx_db(settings.coin, nLast, stats.count, stats.txes, settings.update_timeout, function(){
                       db.update_richlist('received', function(){
                         db.update_richlist('balance', function(){
                           db.get_stats(settings.coin, function(nstats){
@@ -207,7 +210,7 @@ is_locked(function (exists) {
                   });
                 } else if (mode == 'reindex-rich') {
                   console.log('update started');
-                  db.update_tx_db(settings.coin, stats.last, stats.count, settings.check_timeout, function(){
+                  db.update_tx_db(settings.coin, stats.last, stats.count, stats.txes, settings.check_timeout, function(){
                     console.log('update finished');
                     db.check_richlist(settings.coin, function(exists){
                       if (exists == true) {
@@ -233,6 +236,18 @@ is_locked(function (exists) {
                       });
                     }); 
                   });
+                } else if (mode == 'reindex-txcount') {
+                  console.log('calculating tx count.. please wait..');
+                  // Resetting the transaction counter requires a single lookup on the txes collection to find all txes that have a positive or zero total and 1 or more vout
+                  Tx.find({'total': {$gte: 0}, 'vout': { $gte: { $size: 1 }}}).countDocuments(function(err, count) {
+                    console.log('found tx count: ' + count.toString());
+                    Stats.updateOne({coin: settings.coin}, {
+                      txes: count
+                    }, function() {
+                      console.log('tx count update complete');
+                      exit();
+                    });
+				  });
                 }
               });
             }

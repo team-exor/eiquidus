@@ -27,7 +27,7 @@ mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUni
   Tx.deleteMany({}, function(err) { 
     Address.deleteMany({}, function(err2) { 
       var s_timer = new Date().getTime();
-      db.update_tx_db(settings.coin, 1, COUNT, settings.update_timeout, function(){
+      db.update_tx_db(settings.coin, 1, COUNT, 0, settings.update_timeout, function(){
         var e_timer = new Date().getTime();
         Tx.countDocuments({}, function(txerr, txcount){
           Address.countDocuments({}, function(aerr, acount){
