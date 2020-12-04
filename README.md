@@ -59,34 +59,34 @@ To stop the cluster you can use
 
 ### Syncing databases with the blockchain
 
-sync.js (located in scripts/) is used for updating the local databases. This script must be called from the explorers root directory.
+sync.sh (located in scripts/) is used for updating the local databases. This script must be called from the explorers root directory.
 
-    Usage: node scripts/sync.js [database] [mode]
+    Usage: scripts/sync.sh /path/to/nodejs [mode]
 
-    database: (required)
-    index [mode] Main index: coin info/stats, transactions & addresses
-    market       Market data: summaries, orderbooks, trade history & chartdata
+    Mode: (required)
+    update           Updates index from last sync to current block
+    check            Checks index for (and adds) any missing transactions/addresses
+    reindex          Clears index then resyncs from genesis to current block
+    reindex-rich     Clears and recreates the richlist data
+    reindex-txcount  Rescan and flatten the tx count value for faster access
+    market           Updates market summaries, orderbooks, trade history + charts
+    peers            Updates peer info based on local wallet connections
 
-    mode: (required for index database only)
-    update       Updates index from last sync to current block
-    check        checks index for (and adds) any missing transactions/addresses
-    reindex      Clears index then resyncs from genesis to current block
-
-    notes:
-    * 'current block' is the latest created block when script is executed.
-    * The market database only supports (& defaults to) reindex mode.
-    * If check mode finds missing data(ignoring new data since last sync),
+    Notes:
+    - 'current block' is the latest created block when script is executed.
+    - The market + peers databases only support (& defaults to) reindex mode.
+    - If check mode finds missing data(ignoring new data since last sync),
       index_timeout in settings.json is set too low.
 
 *It is recommended to have this script launched via a cronjob at 1+ min intervals.*
 
 **crontab**
 
-*Example crontab; update index every minute and market data every 2 minutes*
+*Example crontab; update index every minute, market data every 2 minutes and peers every 5 minutes*
 
-	*/1 * * * * /path/to/explorer/scripts/index.sh /path/to/nodejs > /dev/null 2>&1
-    */2 * * * * cd /path/to/explorer && /path/to/nodejs scripts/sync.js market > /dev/null 2>&1
-    */5 * * * * cd /path/to/explorer && /path/to/nodejs scripts/peers.js > /dev/null 2>&1
+	*/1 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs update > /dev/null 2>&1
+    */2 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs market > /dev/null 2>&1
+    */5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs peers > /dev/null 2>&1
 
 ### Wallet
 
@@ -200,13 +200,13 @@ A pair of scripts to backup or restore the internal mongo database are included.
 
     RangeError: Maximum call stack size exceeded
 
-Nodes default stack size may be too small to index addresses with many tx's. If you experience the above error while running sync.js the stack size needs to be increased.
+Nodes default stack size may be too small to index addresses with many tx's. If you experience the above error while running sync.sh the stack size needs to be increased.
 
 To determine the default setting run
 
     node --v8-options | grep -B0 -A1 stack_size
 
-To run sync.js with a larger stack size launch with
+To run a sync with a larger stack size launch with
 
     node --stack-size=[SIZE] scripts/sync.js index update
 
