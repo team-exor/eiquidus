@@ -183,16 +183,16 @@ html
       - navbarClasses.push('navbar-dark');
       - footerClasses.push('bg-primary');
       - footerClasses.push('navbar-dark');
-    div(class=navbarClasses, role='navigation', style=settings.homelink == 'logo' ? 'padding-left:0;max-height:65px;' : '')
+    div(class=navbarClasses, role='navigation', style=settings.homelink == 'logo' ? 'padding-left:0;' : '')
       .navbar-header
         button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbar-collapse')
           span.navbar-toggler-icon
       if settings.homelink == 'title'
-        a.navbar-brand(href='/') #{settings.title}
+        a.navbar-brand(href='/', style='order:-1;') #{settings.title}
       else if settings.homelink == 'coin'
-        a.navbar-brand(href='/') #{settings.coin}
+        a.navbar-brand(href='/', style='order:-1;') #{settings.coin}
       else if settings.homelink == 'logo'
-        a(href='/', alt=settings.coin + ' Home', title=settings.coin + ' Home')
+        a(href='/', alt=settings.coin + ' Home', title=settings.coin + ' Home', style='order:-1;')
           img.logo-main(src=settings.logo, style='margin:0;max-height:' + settings.logoheight + 'px;')
       .collapse.navbar-collapse(id='navbar-collapse')
         ul.navbar-nav.mr-auto
