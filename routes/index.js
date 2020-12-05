@@ -197,25 +197,32 @@ router.get('/network', function(req, res) {
   res.render('network', {active: 'network', showSync: db.check_show_sync_message()});
 });
 
-router.get('/reward', function(req, res){
-  db.get_stats(settings.coin, function (stats) {
-    console.log(stats);
-    db.get_heavy(settings.coin, function (heavy) {
-      //heavy = heavy;
-      var votes = heavy.votes;
-      votes.sort(function (a,b) {
-        if (a.count < b.count) {
-          return -1;
-        } else if (a.count > b.count) {
-          return 1;
-        } else {
-          return 0;
-        }
-      });
+router.get('/reward', function(req, res) {
+  if (settings.heavy) {
+    db.get_stats(settings.coin, function (stats) {
+      console.log(stats);
+      db.get_heavy(settings.coin, function (heavy) {
+        if (!heavy)
+          heavy = { coin: settings.coin, lvote: 0, reward: 0, supply: 0, cap: 0, estnext: 0, phase: 'N/A', maxvote: 0, nextin: 'N/A', votes: [] };
 
-      res.render('reward', { active: 'reward', stats: stats, heavy: heavy, votes: votes, showSync: db.check_show_sync_message() });
+        var votes = heavy.votes;
+
+        votes.sort(function (a,b) {
+          if (a.count < b.count) {
+            return -1;
+          } else if (a.count > b.count) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
+
+        res.render('reward', { active: 'reward', stats: stats, heavy: heavy, votes: votes, showSync: db.check_show_sync_message() });
+      });
     });
-  });
+  } else {
+    route_get_index(res, null);
+  }
 });
 
 router.get('/tx/:txid', function(req, res) {
