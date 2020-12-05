@@ -11,16 +11,12 @@ if (cluster.isMaster) {
       //ensure workers exit cleanly 
       process.on('SIGINT', function() {
         console.log('Cluster shutting down..');
-        setTimeout(function() {
-          for (var id in cluster.workers) {
-            console.log('Worker shutting down (' + id + ')');
-            cluster.workers[id].kill();
-          }
-          setTimeout(function() {
-            // exit the master process
-            process.exit(0);
-          }, 3000);
-        }, 1000);
+        for (var id in cluster.workers) {
+          console.log('Worker shutting down (' + id + ')');
+          cluster.workers[id].kill();
+        }
+        // exit the master process
+        process.exit(0);
       });
 
       // Count the machine's CPUs
