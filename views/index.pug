@@ -55,16 +55,12 @@ block content
         rtable.api().ajax.reload(null, false);
       }, 60000 );
     });
-  .row
-    .col-md-12
-      if error !== null
+  if error !== null
+    .row
+      .col-md-12
         .alert.alert-danger.alert-dismissable(role='alert')
           button.close(type='button', data-dismiss='alert') ×
           strong #{settings.locale.ex_error} : #{error}
-      if warning !== null
-        .alert.alert-warning.alert-dismissable(role='alert')
-          button.close(type='button', data-dismiss='alert') ×
-          strong #{settings.locale.ex_warning} #{warning}
   .col-md-12.cardSpacer
     .card.card-default.cardSpacer
       .card-header

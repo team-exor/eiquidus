@@ -230,6 +230,13 @@ html
               a.nav-link(href='/info')
                 span.fa.fa-info-circle
                 span.menu-text #{settings.locale.menu_api}
+    if showSync != null && showSync == true
+      .col-lg-12
+        .alert.alert-warning
+          .cardSpacer
+            span.fas.fa-exclamation-triangle(style='margin-right:5px')
+            strong #{settings.locale.ex_warning}
+          div #{settings.locale.initial_index_alert}
     .col-lg-12
       .row.text-center.d-flex.justify-content-center
         div(class="col-lg-2 col-lg-offset-" + settings.paneloffset)

@@ -269,10 +269,19 @@ if (database == 'peers') {
                               }, function() {
                                 console.log('index cleared (reindex)');
                               });
+
+                              // Check if there are more than 1000 blocks to index
+                              var showSync = check_show_sync_message(stats.count);
+
                               db.update_tx_db(settings.coin, 1, stats.count, stats.txes, settings.update_timeout, function(){
                                 db.update_richlist('received', function(){
                                   db.update_richlist('balance', function(){
                                     db.get_stats(settings.coin, function(nstats){
+                                      // Check if the sync msg was showing
+                                      if (showSync) {
+                                        // Remove the sync msg
+                                        remove_sync_message();
+                                      }
                                       console.log('reindex complete (block: %s)', nstats.last);
                                       exit();
                                   });
@@ -293,17 +302,25 @@ if (database == 'peers') {
                     });
                   } else if (mode == 'update') {
                     // Lookup the last block index
-                    Tx.findOne({}, {blockindex:1}).sort({blockindex:-1}).limit(1).exec(function(err, data){
-                      var nLast = stats.last;
+                    Tx.findOne({}, {blockindex:1}).sort({blockindex:-1}).limit(1).exec(function(err, data) {
+                      var last = stats.last;
                       if (!err && data) {
                         // start from the last block index
-                        nLast = data.blockindex;
+                        last = data.blockindex;
                       }
 
-                      db.update_tx_db(settings.coin, nLast, stats.count, stats.txes, settings.update_timeout, function(){
+                      // Check if there are more than 1000 blocks to index
+                      var showSync = check_show_sync_message(stats.count - last);
+
+                      db.update_tx_db(settings.coin, last, stats.count, stats.txes, settings.update_timeout, function(){
                         db.update_richlist('received', function(){
                           db.update_richlist('balance', function(){
                             db.get_stats(settings.coin, function(nstats){
+                              // Check if the sync msg was showing
+                              if (showSync) {
+                                // Remove the sync msg
+                                remove_sync_message();
+                              }
                               console.log('update complete (block: %s)', nstats.last);
                               exit();
                             });
@@ -379,6 +396,36 @@ if (database == 'peers') {
       });
     }
   });
+}
+
+function check_show_sync_message(blocks_to_sync) {
+  var retVal = false;
+  var filePath = './show_sync_message.tmp';
+  // Check if there are more than 1000 blocks to index
+  if (blocks_to_sync > 1000) {
+    // Check if the show sync stub file already exists
+    if (!fs.existsSync(filePath)) {
+      // File doesn't exist, so create it now
+      fs.writeFileSync(filePath, '');
+    }
+
+    retVal = true;
+  }
+
+  return retVal;
+}
+
+function remove_sync_message() {
+  var filePath = './show_sync_message.tmp';
+  // Check if the show sync stub file exists
+  if (fs.existsSync(filePath)) {
+    // File exists, so delete it now
+    try {
+      fs.unlinkSync(filePath);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 }
 
 function get_last_usd_price() {

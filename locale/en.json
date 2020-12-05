@@ -59,7 +59,7 @@
     "proof_of_stake": "PoS",
     "hidden_sender": "Hidden Sender",
     "hidden_recipient": "Hidden Recipient",
-    "initial_index_alert": "Indexing is currently incomplete, functionality is limited until index is up-to-date.",
+    "initial_index_alert": "Blockchain data is currently being synchronized. You may browse the site during this time, but keep in mind that data may not yet be fully accurate and some functionality may not work until synchronization is complete.",
 
     //address menu
     "a_menu_showing": "Showing last",

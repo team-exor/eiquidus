@@ -10,16 +10,16 @@ function route_get_block(res, blockhash) {
   lib.get_block(blockhash, function (block) {
     if (block != 'There was an error. Check your console.') {
       if (blockhash == settings.genesis_block) {
-        res.render('block', { active: 'block', block: block, confirmations: settings.confirmations, txs: 'GENESIS'});
+        res.render('block', { active: 'block', block: block, confirmations: settings.confirmations, txs: 'GENESIS', showSync: db.check_show_sync_message()});
       } else {
         db.get_txs(block, function(txs) {
           if (txs.length > 0) {
-            res.render('block', { active: 'block', block: block, confirmations: settings.confirmations, txs: txs});
+            res.render('block', { active: 'block', block: block, confirmations: settings.confirmations, txs: txs, showSync: db.check_show_sync_message()});
           } else {
             db.create_txs(block, function(){
               db.get_txs(block, function(ntxs) {
                 if (ntxs.length > 0) {
-                  res.render('block', { active: 'block', block: block, confirmations: settings.confirmations, txs: ntxs});
+                  res.render('block', { active: 'block', block: block, confirmations: settings.confirmations, txs: ntxs, showSync: db.check_show_sync_message()});
                 } else {
                   route_get_index(res, 'Block not found: ' + blockhash);
                 }
@@ -53,7 +53,7 @@ function route_get_tx(res, txid) {
     db.get_tx(txid, function(tx) {
       if (tx) {
         lib.get_blockcount(function(blockcount) {
-          res.render('tx', { active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: blockcount});
+          res.render('tx', { active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: blockcount, showSync: db.check_show_sync_message()});
         });
       }
       else {
@@ -72,7 +72,7 @@ function route_get_tx(res, txid) {
                       blockhash: '-',
                       blockindex: -1,
                     };
-                    res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount:-1});
+                    res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount:-1, showSync: db.check_show_sync_message()});
                   } else {
                     var utx = {
                       txid: rtx.txid,
@@ -84,7 +84,7 @@ function route_get_tx(res, txid) {
                       blockindex: rtx.blockheight,
                     };
                     lib.get_blockcount(function(blockcount) {
-                      res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: blockcount});
+                      res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: blockcount, showSync: db.check_show_sync_message()});
                     });
                   }
                 });
@@ -100,20 +100,14 @@ function route_get_tx(res, txid) {
 }
 
 function route_get_index(res, error) {
-  db.is_locked(function(locked) {
-    if (locked) {
-      res.render('index', { active: 'home', error: error, warning: locale.initial_index_alert});
-    } else {
-      res.render('index', { active: 'home', error: error, warning: null});
-    }
-  });
+  res.render('index', { active: 'home', error: error, showSync: db.check_show_sync_message()});
 }
 
 function route_get_address(res, hash, count) {
   db.get_address(hash, false, function(address) {
     if (address) {
       var txs = [];
-      res.render('address', { active: 'address', address: address, txs: txs});
+      res.render('address', { active: 'address', address: address, txs: txs, showSync: db.check_show_sync_message()});
     } else {
       route_get_index(res, hash + ' not found');
     }
@@ -123,7 +117,7 @@ function route_get_address(res, hash, count) {
 function route_get_claim_form(res, hash){
   db.get_address(hash, false, function(address) {
     if (address) {
-      res.render("claim_address", { active: "address", address: address});
+      res.render("claim_address", { active: "address", address: address, showSync: db.check_show_sync_message()});
     } else {
       route_get_index(res, hash + ' not found');
     }
@@ -136,7 +130,7 @@ router.get('/', function(req, res) {
 });
 
 router.get('/info', function(req, res) {
-  res.render('info', { active: 'info', address: settings.address, hashes: settings.api });
+  res.render('info', { active: 'info', address: settings.address, hashes: settings.api, showSync: db.check_show_sync_message() });
 });
 
 router.get('/markets/:market', function(req, res) {
@@ -152,7 +146,8 @@ router.get('/markets/:market', function(req, res) {
           exchange: settings.markets.exchange,
           data: data,
         },
-        market: market
+        market: market,
+        showSync: db.check_show_sync_message()
       });
     });
   } else {
@@ -181,6 +176,7 @@ router.get('/richlist', function(req, res) {
               show_dist: settings.richlist.distribution,
               show_received: settings.richlist.received,
               show_balance: settings.richlist.balance,
+              showSync: db.check_show_sync_message()			  
             });
           });
         } else {
@@ -194,11 +190,11 @@ router.get('/richlist', function(req, res) {
 });
 
 router.get('/movement', function(req, res) {
-  res.render('movement', {active: 'movement', flaga: settings.movement.low_flag, flagb: settings.movement.high_flag, min_amount:settings.movement.min_amount});
+  res.render('movement', {active: 'movement', flaga: settings.movement.low_flag, flagb: settings.movement.high_flag, min_amount:settings.movement.min_amount, showSync: db.check_show_sync_message()});
 });
 
 router.get('/network', function(req, res) {
-  res.render('network', {active: 'network'});
+  res.render('network', {active: 'network', showSync: db.check_show_sync_message()});
 });
 
 router.get('/reward', function(req, res){
@@ -217,7 +213,7 @@ router.get('/reward', function(req, res){
         }
       });
 
-      res.render('reward', { active: 'reward', stats: stats, heavy: heavy, votes: votes });
+      res.render('reward', { active: 'reward', stats: stats, heavy: heavy, votes: votes, showSync: db.check_show_sync_message() });
     });
   });
 });
