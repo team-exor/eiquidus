@@ -21,7 +21,7 @@
     "jsonminify": "0.4.1",
     "jstransformer-markdown-it": "^2.1.0",
     "mongodb": "3.6.3",
-    "mongoose": "5.10.17",
+    "mongoose": "5.11.4",
     "qr-image": "~3.2.0"
   },
   "devDependencies": {
