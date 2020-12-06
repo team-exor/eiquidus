@@ -69,11 +69,11 @@ block content
         tbody
           tr
             if settings.show_sent_received == true
-              td.addr-summary.hidden-xs #{sentParts[0]}.
+              td.addr-summary.d-none.d-sm-table-cell #{sentParts[0]}.
                 span.decimal #{sentParts[1]}
             if address.a_id !== 'coinbase'
               if settings.show_sent_received == true
-                td.addr-summary.hidden-xs #{receivedParts[0]}.
+                td.addr-summary.d-none.d-sm-table-cell #{receivedParts[0]}.
                   span.decimal #{receivedParts[1]}
               td.addr-summary #{balanceParts[0]}.
                 span.decimal #{balanceParts[1]}

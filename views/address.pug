@@ -39,7 +39,7 @@ block content
                 span.small  (#{settings.symbol})
             if address.a_id !== 'coinbase'
               if settings.show_sent_received == true
-                th #{settings.locale.total_received}
+                th.d-none.d-sm-table-cell #{settings.locale.total_received}
                   span.small  (#{settings.symbol})
               th #{settings.locale.rl_balance}
                 span.small  (#{settings.symbol})
