@@ -26,6 +26,43 @@ html
     script(src='/javascripts/chart.js')
     script.
       $(document).ready(function() {
+        function fixSocialLinkFontSize() {
+          var fontSize = $('#footer-container').height() * (getSocialLinkHeight() / 100);
+          $('#footer-container .social-link').css('font-size', fontSize);
+        }
+        function fixFooterHeight() {
+          var screenWidth = $(window).width();
+
+          if (screenWidth <= 575) {
+            // Mobile
+            $('#footer-container').css('height', '!{settings.footer_height_mobile}');
+          } else if (screenWidth >= 576 && screenWidth <= 991) {
+            // Tablet
+            $('#footer-container').css('height', '!{settings.footer_height_tablet}');
+          } else {
+            // Desktop
+            $('#footer-container').css('height', '!{settings.footer_height_desktop}');
+          }
+
+          fixSocialLinkFontSize();
+        }
+        function getSocialLinkHeight() {
+          var retVal = 70;
+          var screenWidth = $(window).width();
+
+          if (screenWidth <= 575) {
+            // Mobile
+            retVal = !{settings.social_link_percent_height_mobile};
+          } else if (screenWidth >= 576 && screenWidth <= 991) {
+            // Tablet
+            retVal = !{settings.social_link_percent_height_tablet};
+          } else {
+            // Desktop
+            retVal = !{settings.social_link_percent_height_desktop};
+          }
+
+          return retVal;
+        }
         $('##{active}').addClass('active');
         function update_stats() {
           $.ajax({url: '/ext/summary', success: function(json) {
@@ -76,6 +113,7 @@ html
         $('.iquidus').css('color',$('.table').css('color'));
         $(window).resize(function () {
           $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+          fixFooterHeight();
         });
         setInterval(function() {
           update_stats();
@@ -160,6 +198,7 @@ html
         hideShowPanel('#{settings.panel3}', 'pnlThree');
         hideShowPanel('#{settings.panel4}', 'pnlFour');
         hideShowPanel('#{settings.panel5}', 'pnlFive');
+        fixFooterHeight();
       });
     style(type="text/css").
       .header-icons {
@@ -265,7 +304,7 @@ html
             input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
             button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
     block content
-    div(class=footerClasses, role='navigation')
+    div#footer-container(class=footerClasses, role='navigation')
       .col-4.navbar-nav
         if settings.display.github || settings.display.discord || settings.display.telegram || settings.display.reddit || settings.display.youtube || settings.display.slack || settings.display.twitter || settings.display.facebook || settings.display.googleplus || settings.display.bitcointalk || settings.display.website
           ul.nav.justify-content-left

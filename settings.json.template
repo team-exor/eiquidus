@@ -27,6 +27,24 @@
   // home link logo height (value in px, only valid if using homelink = 'logo')
   "logoheight":  50,
 
+  // Customize the height of the footer for the following screen sizes:
+  // Mobile (0-575px)
+  // Tablet (576-991px)
+  // Desktop (>= 992px)
+  // Supports any valid height value in pixels ("50px") or percent ("10%")
+  "footer_height_desktop": "50px",
+  "footer_height_tablet": "60px",
+  "footer_height_mobile": "70px",
+
+  // Customize the height of the social media links in the footer for the following screen sizes:
+  // Mobile (0-575px)
+  // Tablet (576-991px)
+  // Desktop (>= 992px)
+  // This is a percentage value and must be a positive number between 1-100
+  "social_link_percent_height_desktop": 70,
+  "social_link_percent_height_tablet": 55,
+  "social_link_percent_height_mobile": 40,
+
   // Uses bootswatch themes (http://bootswatch.com/)
   // Valid options:
   //     Cerulean, Cosmo, Cyborg, Darkly, Flatly, Journal, Litera, Lumen, 

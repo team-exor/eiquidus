@@ -319,6 +319,14 @@ app.set('homelink', settings.homelink);
 app.set('logoheight', settings.logoheight);
 app.set('burned_coins', settings.burned_coins);
 
+app.set('footer_height_desktop', settings.footer_height_desktop);
+app.set('footer_height_tablet', settings.footer_height_tablet);
+app.set('footer_height_mobile', settings.footer_height_mobile);
+
+app.set('social_link_percent_height_desktop', settings.social_link_percent_height_desktop);
+app.set('social_link_percent_height_tablet', settings.social_link_percent_height_tablet);
+app.set('social_link_percent_height_mobile', settings.social_link_percent_height_mobile);
+
 // determine panel offset based on which panels are enabled
 var paneltotal=5;
 var panelcount=(settings.display.networkpnl > 0 ? 1 : 0)+(settings.display.difficultypnl > 0 ? 1 : 0)+(settings.display.masternodespnl > 0 ? 1 : 0)+(settings.display.coinsupplypnl > 0 ? 1 : 0)+(settings.display.pricepnl > 0 ? 1 : 0);
