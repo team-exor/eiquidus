@@ -11,7 +11,8 @@ var express = require('express')
   , db = require('./lib/database')
   , package_metadata = require('./package.json')
   , locale = require('./lib/locale')
-  , request = require('postman-request');
+  , request = require('postman-request')
+  , fs = require('fs');
 
 var app = express();
 
@@ -334,6 +335,21 @@ panelorder.sort(function(a,b) { return a.val - b.val; });
 for (var i=1; i<6; i++) {
   app.set('panel'+i.toString(), ((panelorder.length >= i) ? panelorder[i-1].name : ''));
 }
+
+// Dynamically populate market names
+var market_names = {};
+
+settings.markets.enabled.forEach(function (market) {
+  // Check if market file exists
+  if (fs.existsSync('./lib/markets/' + market + '.js')) {
+    // Load market file
+    var exMarket = require('./lib/markets/' + market);
+    // Save market_name from market file to settings
+    eval('market_names.' + market + ' = "' + exMarket.market_name + '";');
+  }
+});
+
+app.set('market_names', market_names);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

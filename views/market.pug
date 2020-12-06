@@ -28,12 +28,13 @@ block content
             .card-body
               ul.nav.nav-pills
                 each mkt in settings.markets.enabled
-                  if market == mkt
-                    li.nav-item
-                      a.nav-link.active(href='/markets/' + mkt) #{mkt}
-                  else
-                    li.nav-item
-                      a.nav-link(href='/markets/' + mkt) #{mkt}
+                  if settings.market_names[mkt] != null
+                    if market == mkt
+                      li.nav-item
+                        a.nav-link.active(href='/markets/' + mkt) #{settings.market_names[mkt]}
+                    else
+                      li.nav-item
+                        a.nav-link(href='/markets/' + mkt) #{settings.market_names[mkt]}
     block market_view
       script.
         $(document).ready(function() {
