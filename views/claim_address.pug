@@ -3,7 +3,7 @@ extends layout
 block content
   script.
     $(function () {
-        $('form').on('submit', function (e) {
+        $('#claimForm').on('submit', function (e) {
           e.preventDefault();
           var address = $('input#address').val();
           var message = $('input#message').val();
