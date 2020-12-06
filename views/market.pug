@@ -19,17 +19,21 @@ block content
       });
     });
   .col-xs-12.col-md-12
-    .d-none.nav.navbar.navbar-default(role='navigation' id='market_menu')
-      .container-fluid
-        .collapse.navbar-collapse(id='navbar-collapse')
-          ul.nav.navbar-nav
-            each mkt in settings.markets.enabled
-              if market == mkt
-                li.active
-                  a.navbar-link.loading(href='/markets/' + mkt) #{settings.locale[mkt]}
-              else
-                li
-                  a.navbar-link.loading(href='/markets/' + mkt) #{settings.locale[mkt]}
+    if settings.markets.enabled.length > 1
+      .row
+        .col-md-12.cardSpacer
+          .card.card-default
+            .card-header
+              strong #{settings.locale.menu_markets}
+            .card-body
+              ul.nav.nav-pills
+                each mkt in settings.markets.enabled
+                  if market == mkt
+                    li.nav-item
+                      a.nav-link.active(href='/markets/' + mkt) #{mkt}
+                  else
+                    li.nav-item
+                      a.nav-link(href='/markets/' + mkt) #{mkt}
     block market_view
       script.
         $(document).ready(function() {
