@@ -400,7 +400,7 @@ if (database == 'peers') {
 
 function check_show_sync_message(blocks_to_sync) {
   var retVal = false;
-  var filePath = './show_sync_message.tmp';
+  var filePath = './tmp/show_sync_message.tmp';
   // Check if there are more than 1000 blocks to index
   if (blocks_to_sync > 1000) {
     // Check if the show sync stub file already exists
@@ -416,7 +416,7 @@ function check_show_sync_message(blocks_to_sync) {
 }
 
 function remove_sync_message() {
-  var filePath = './show_sync_message.tmp';
+  var filePath = './tmp/show_sync_message.tmp';
   // Check if the show sync stub file exists
   if (fs.existsSync(filePath)) {
     // File exists, so delete it now
