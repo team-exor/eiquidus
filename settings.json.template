@@ -204,8 +204,8 @@
   // netmhashps: uses getmininginfo.netmhashpsm returns in MH/s
   "nethash": "getnetworkhashps",
 
-  // nethash unitd: sets nethash API return units
-  // valid options: "P" (PH/s), "T" (TH/s), "G" (GH/s), "M" (MH/s), "K" (KH/s)
+  // nethash_units: sets nethash API return units
+  // valid options: "P" (PH/s), "T" (TH/s), "G" (GH/s), "M" (MH/s), "K" (KH/s), "H" (H/s)
   "nethash_units": "G",
   
   // simple Cross-Origin Resource Sharing (CORS) support
@@ -239,12 +239,53 @@
   "burned_coins": [],
 
   // Customized API commands
-  // Not all blockchains utilize the same rpc cmds for accessing the internal daemon api
-  // Leave the value blank for any cmd that should not be used
+  // Not all blockchains utilize the same rpc cmds for accessing the internal daemon api.
+  // Leaving a cmd value blank ( "" ) will completely disable use of that cmd.
+  // NOTICE: Some apis such as getblockhash for example, are integral to the functionality of the explorer and will result in a fairly unusable experience if disabled.
   // The following cmd-line calls to the daemon can be overridden:
   //
-  // masternode_count: This should return an array of masternode counts where one key in the array must be named "total" and one key must be named "enabled" which are used to determine how many masternodes are offline (not enabled)
+  // getnetworkhashps: Returns the estimated network hashes per second. This should be a positive whole number.
+  // getmininginfo: Returns a json object containing mining-related information.
+  // getdifficulty: Returns the proof-of-work difficulty as a multiple of the minimum difficulty. This should be a positive whole or decimal number.
+  // getconnectioncount: Returns the number of connections to other nodes. This should be a positive whole number.
+  // getblockcount: Returns the number of blocks in the longest blockchain. This should be a positive whole number.
+  // getblockhash: Returns hash of block in best-block-chain at height provided. This should be a string value.
+  // getblock: Returns an object with information about the block.
+  // getrawtransaction: Returns raw transaction data. Can return a hex-encoded string that is serialized or an object with txid information depending on the decrypt value (0(false) or 1(true))
+  // getinfo: Returns an object containing various state info.
+  // gettxoutsetinfo: Returns an object with statistics about the unspent transaction output set.
+  // getsupply: Returns the current money supply. This should be a positive whole or decimal number.
+  // getmaxmoney: Returns the number of coins that will be produced in total. This should be a positive whole or decimal number.
+  // getmaxvote: Returns the maximum allowed vote for the current phase of voting. This should be a positive whole number.
+  // getvote: Returns the current block reward vote setting. This should be a positive whole number.
+  // getphase: Returns the current voting phase name. This should be a string value.
+  // getreward: Returns the current block reward. This should be a positive whole or decimal number.
+  // getnextrewardestimate: Returns an estimate for the next block reward based on the current state of decentralized voting. This should be a positive whole or decimal number.
+  // getnextrewardwhenstr: Returns a string describing how long until the votes are tallied and the next block reward is computed.
+  // getvotelist: Returns an object with details regarding the current vote list.
+  // getmasternodecount: Returns a json object containing the total number of masternodes on the network.
+  // getmasternodelist: Returns a json array containing status information for all masternodes on the network.
   "api_cmds": {
-    "masternode_count": "getmasternodecount"
+    "getnetworkhashps": "getnetworkhashps",
+    "getmininginfo": "getmininginfo",
+    "getdifficulty": "getdifficulty",
+    "getconnectioncount": "getconnectioncount",
+    "getblockcount": "getblockcount",
+    "getblockhash": "getblockhash",
+    "getblock": "getblock",
+    "getrawtransaction": "getrawtransaction",
+    "getinfo": "getinfo",
+    "gettxoutsetinfo": "gettxoutsetinfo",
+    "getsupply": "getsupply",
+    "getmaxmoney": "getmaxmoney",
+    "getmaxvote": "getmaxvote",
+    "getvote": "getvote",
+    "getphase": "getphase",
+    "getreward": "getreward",
+    "getnextrewardestimate": "getnextrewardestimate",
+    "getnextrewardwhenstr": "getnextrewardwhenstr",
+    "getvotelist": "masternodelist votes",
+    "getmasternodecount": "getmasternodecount",
+    "getmasternodelist": "listmasternodes"
   }
 }

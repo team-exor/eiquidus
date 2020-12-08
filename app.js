@@ -63,10 +63,10 @@ app.use(express.static(path.join(__dirname, 'public')));
 // routes
 app.use('/api', nodeapi.app);
 app.use('/', routes);
-app.use('/ext/getmoneysupply', function(req,res){
-  lib.get_supply(function(supply){
+app.use('/ext/getmoneysupply', function(req,res) {
+  lib.get_supply(function(supply) {
     res.setHeader('content-type', 'text/plain');
-    res.end(supply.toString());
+    res.end((supply ? supply.toString() : '0'));
   });
 });
 
@@ -119,12 +119,12 @@ app.use('/ext/gettx/:txid', function(req, res) {
   db.get_tx(txid, function(tx) {
     if (tx) {
       lib.get_blockcount(function(blockcount) {
-        res.send({ active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: blockcount});
+        res.send({ active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0)});
       });
     }
     else {
       lib.get_rawtransaction(txid, function(rtx) {
-        if (rtx.txid) {
+        if (rtx && rtx.txid) {
           lib.prepare_vin(rtx, function(vin) {
             lib.prepare_vout(rtx.vout, rtx.txid, vin, function(rvout, rvin) {
               lib.calculate_total(rvout, function(total){
@@ -150,7 +150,7 @@ app.use('/ext/gettx/:txid', function(req, res) {
                     blockindex: rtx.blockheight,
                   };
                   lib.get_blockcount(function(blockcount) {
-                    res.send({ active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: blockcount});
+                    res.send({ active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0)});
                   });
                 }
               });
@@ -192,15 +192,15 @@ app.use('/ext/getcurrentprice', function(req,res){
   });
 });
 
-app.use('/ext/getbasicstats', function(req,res){
-  lib.get_blockcount(function(blockcount){
-    lib.get_supply(function(supply){
-      db.get_stats(settings.coin, function (stats){
-		lib.get_masternodecount(function(masternodestotal){  
-          eval('var p_ext = { "block_count": blockcount, "money_supply": supply, "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, "masternode_count": masternodestotal.total }');
+app.use('/ext/getbasicstats', function(req,res) {
+  lib.get_blockcount(function(blockcount) {
+    lib.get_supply(function(supply) {
+      db.get_stats(settings.coin, function (stats) {
+        lib.get_masternodecount(function(masternodestotal) {
+          eval('var p_ext = { "block_count": (blockcount ? blockcount : 0), "money_supply": (supply ? supply : 0), "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, "masternode_count": masternodestotal.total }');
           res.send(p_ext);
         });
-	  });
+      });
     });
   });
 });
@@ -318,6 +318,7 @@ app.set('labels', settings.labels);
 app.set('homelink', settings.homelink);
 app.set('logoheight', settings.logoheight);
 app.set('burned_coins', settings.burned_coins);
+app.set('api_cmds', settings.api_cmds);
 
 app.set('footer_height_desktop', settings.footer_height_desktop);
 app.set('footer_height_tablet', settings.footer_height_tablet);

@@ -5,6 +5,31 @@ The Exor block explorer.
 
 This project is a fork of [Ciquidus Explorer](https://github.com/suprnurd/ciquidus) which is a fork of [Iquidus Explorer](https://github.com/iquidus/explorer). Shoutouts to both Luke Williams for the original code and Alan Rudolf for all the additional bonus featues which saved me tons of time! I'm only standing on the shoulders of giants. Thank you both!!!
 
+### Features
+
+- Custom rpc/api command support which increases blockchain compatibility. Supported cmds:
+  - **getnetworkhashps:** Returns the estimated network hashes per second
+  - **getmininginfo:** Returns a json object containing mining-related information
+  - **getdifficulty:** Returns the proof-of-work difficulty as a multiple of the minimum difficulty
+  - **getconnectioncount:** Returns the number of connections to other nodes
+  - **getblockcount:** Returns the number of blocks in the longest blockchain
+  - **getblockhash:** Returns hash of block in best-block-chain at height provided
+  - **getblock:** Returns an object with information about the block
+  - **getrawtransaction:** Returns raw transaction data
+  - **getinfo:** Returns an object containing various state info
+  - **gettxoutsetinfo:** Returns an object with statistics about the unspent transaction output set
+  - **getsupply:** Returns the current money supply
+  - **getmaxmoney:** Returns the number of coins that will be produced in total
+  - **getmaxvote:** Returns the maximum allowed vote for the current phase of voting
+  - **getvote:** Returns the current block reward vote setting
+  - **getphase:** Returns the current voting phase name
+  - **getreward:** Returns the current block reward
+  - **getnextrewardestimate:** Returns an estimate for the next block reward based on the current state of decentralized voting
+  - **getnextrewardwhenstr:** Returns a string describing how long until the votes are tallied and the next block reward is computed
+  - **getvotelist:** Returns an object with details regarding the current vote list
+  - **getmasternodecount:** Returns a json object containing the total number of masternodes on the network
+  - **getmasternodelist:** Returns a json array containing status information for all masternodes on the network
+
 ### See it in action
 
 -  https://explorer.exor.io/

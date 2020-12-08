@@ -8,7 +8,7 @@ var express = require('express')
 
 function route_get_block(res, blockhash) {
   lib.get_block(blockhash, function (block) {
-    if (block != 'There was an error. Check your console.') {
+    if (block && block != 'There was an error. Check your console.') {
       if (blockhash == settings.genesis_block) {
         res.render('block', { active: 'block', block: block, confirmations: settings.confirmations, txs: 'GENESIS', showSync: db.check_show_sync_message()});
       } else {
@@ -32,7 +32,7 @@ function route_get_block(res, blockhash) {
       if (!isNaN(blockhash)) {
         var height = blockhash;
         lib.get_blockhash(height, function(hash) {
-          if (hash != 'There was an error. Check your console.') {
+          if (hash && hash != 'There was an error. Check your console.') {
             res.redirect('/block/' + hash);
           } else {
             route_get_index(res, 'Block not found: ' + blockhash);
@@ -53,12 +53,12 @@ function route_get_tx(res, txid) {
     db.get_tx(txid, function(tx) {
       if (tx) {
         lib.get_blockcount(function(blockcount) {
-          res.render('tx', { active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: blockcount, showSync: db.check_show_sync_message()});
+          res.render('tx', { active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
         });
       }
       else {
         lib.get_rawtransaction(txid, function(rtx) {
-          if (rtx.txid) {
+          if (rtx && rtx.txid) {
             lib.prepare_vin(rtx, function(vin) {
               lib.prepare_vout(rtx.vout, rtx.txid, vin, ((typeof rtx.vjoinsplit === 'undefined' || rtx.vjoinsplit == null) ? [] : rtx.vjoinsplit), function(rvout, rvin) {
                 lib.calculate_total(rvout, function(total){
@@ -84,7 +84,7 @@ function route_get_tx(res, txid) {
                       blockindex: rtx.blockheight,
                     };
                     lib.get_blockcount(function(blockcount) {
-                      res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: blockcount, showSync: db.check_show_sync_message()});
+                      res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
                     });
                   }
                 });
@@ -256,7 +256,7 @@ router.post('/search', function(req, res) {
           res.redirect('/tx/' +tx.txid);
         } else {
           lib.get_block(query, function(block) {
-            if (block != 'There was an error. Check your console.') {
+            if (block && block != 'There was an error. Check your console.') {
               res.redirect('/block/' + query);
             } else {
               route_get_index(res, locale.ex_search_error + query );
@@ -271,7 +271,7 @@ router.post('/search', function(req, res) {
         res.redirect('/address/' + address.a_id);
       } else {
         lib.get_blockhash(query, function(hash) {
-          if (hash != 'There was an error. Check your console.') {
+          if (hash && hash != 'There was an error. Check your console.') {
             res.redirect('/block/' + hash);
           } else {
             route_get_index(res, locale.ex_search_error + query );
@@ -298,7 +298,7 @@ router.get('/qr/:string', function(req, res) {
 router.get('/ext/summary', function(req, res) {
   lib.get_difficulty(function(difficulty) {
     difficultyHybrid = '';
-    if (difficulty['proof-of-work']) {
+    if (difficulty && difficulty['proof-of-work']) {
       if (settings.index.difficulty == 'Hybrid') {
         difficultyHybrid = 'POS: ' + difficulty['proof-of-stake'];
         difficulty = 'POW: ' + difficulty['proof-of-work'];
@@ -316,17 +316,26 @@ router.get('/ext/summary', function(req, res) {
               if (hashrate == 'There was an error. Check your console.') {
                 hashrate = 0;
               }
-			  var masternodesoffline = Math.floor(masternodestotal.total - masternodestotal.enabled);
+
+              var mn_total = 0;
+              var mn_enabled = 0;
+
+              if (masternodestotal) {
+                if (masternodestotal.total)
+                  mn_total = masternodestotal.total;
+                if (masternodestotal.enabled)
+                  mn_enabled = masternodestotal.enabled;
+              }
               res.send({ data: [{
-                difficulty: difficulty,
+                difficulty: (difficulty ? difficulty : '-'),
                 difficultyHybrid: difficultyHybrid,
                 supply: (stats == null || stats.supply == null ? 0 : stats.supply),
                 hashrate: hashrate,
                 lastPrice: (stats == null || stats.last_price == null ? 0 : stats.last_price),
-                connections: connections,
-                masternodeCountOnline: masternodestotal.enabled,
-                masternodeCountOffline: masternodesoffline,
-                blockcount: blockcount
+                connections: (connections ? connections : '-'),
+                masternodeCountOnline: (masternodestotal ? mn_enabled : '-'),
+                masternodeCountOffline: (masternodestotal ? Math.floor(mn_total - mn_enabled) : '-'),
+                blockcount: (blockcount ? blockcount : '-')
               }]});
             });
           });
