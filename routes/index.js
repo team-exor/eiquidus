@@ -74,18 +74,44 @@ function route_get_tx(res, txid) {
                     };
                     res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount:-1, showSync: db.check_show_sync_message()});
                   } else {
-                    var utx = {
-                      txid: rtx.txid,
-                      vin: rvin,
-                      vout: rvout,
-                      total: total.toFixed(8),
-                      timestamp: rtx.time,
-                      blockhash: rtx.blockhash,
-                      blockindex: rtx.blockheight,
-                    };
-                    lib.get_blockcount(function(blockcount) {
-                      res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
-                    });
+                    // check if blockheight exists
+                    if (!rtx.blockheight && rtx.blockhash) {
+                      // blockheight not found so look up the block
+                      lib.get_block(rtx.blockhash, function(block) {
+                        if (block && block != 'There was an error. Check your console.') {
+                          // create the tx object before rendering
+                          var utx = {
+                            txid: rtx.txid,
+                            vin: rvin,
+                            vout: rvout,
+                            total: total.toFixed(8),
+                            timestamp: rtx.time,
+                            blockhash: rtx.blockhash,
+                            blockindex: block.height,
+                          };
+                          lib.get_blockcount(function(blockcount) {
+                            res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+                          });
+                        } else {
+                          // cannot load tx
+                          route_get_index(res, null);
+                        }
+                      });
+                    } else {
+                      // create the tx object before rendering
+                      var utx = {
+                        txid: rtx.txid,
+                        vin: rvin,
+                        vout: rvout,
+                        total: total.toFixed(8),
+                        timestamp: rtx.time,
+                        blockhash: rtx.blockhash,
+                        blockindex: rtx.blockheight,
+                      };
+                      lib.get_blockcount(function(blockcount) {
+                        res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+                      });
+                    }
                   }
                 });
               });
@@ -253,13 +279,21 @@ router.post('/search', function(req, res) {
     } else {
       db.get_tx(query, function(tx) {
         if (tx) {
-          res.redirect('/tx/' +tx.txid);
+          res.redirect('/tx/' + tx.txid);
         } else {
           lib.get_block(query, function(block) {
             if (block && block != 'There was an error. Check your console.') {
               res.redirect('/block/' + query);
             } else {
-              route_get_index(res, locale.ex_search_error + query );
+              // check wallet for transaction
+              lib.get_rawtransaction(query, function(tx) {
+                if (tx && tx.txid) {
+                  res.redirect('/tx/' + tx.txid);
+                } else {
+                  // search found nothing so display the index page with an error msg
+                  route_get_index(res, locale.ex_search_error + query );
+                }
+              });
             }
           });
         }
