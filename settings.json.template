@@ -180,6 +180,9 @@
 
   //heavy (enable/disable additional heavy features)
   "heavy": false,
+  
+  //during index syncronization, stats are saved updated after processing this many blocks to save time
+  "save_stats_after_sync_blocks": 100,
 
   //disable saving blocks & TXs via API during indexing.
   "lock_during_index": false,
