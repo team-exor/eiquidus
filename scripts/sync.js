@@ -7,8 +7,7 @@ var mongoose = require('mongoose')
   , Richlist = require('../models/richlist')
   , Stats = require('../models/stats')
   , settings = require('../lib/settings')
-  , request = require('postman-request')
-  , fs = require('fs');
+  , request = require('postman-request');
 
 var mode = 'update';
 var database = 'index';
@@ -72,7 +71,7 @@ if (process.argv[2] == 'index') {
 function create_lock(cb) {
   if ( database == 'index' ) {
     var fname = './tmp/' + database + '.pid';
-    fs.appendFile(fname, process.pid.toString(), function (err) {
+    db.fs.appendFile(fname, process.pid.toString(), function (err) {
       if (err) {
         console.log("Error: unable to create %s", fname);
         process.exit(1);
@@ -88,7 +87,7 @@ function create_lock(cb) {
 function remove_lock(cb) {
   if ( database == 'index' ) {
     var fname = './tmp/' + database + '.pid';
-    fs.unlink(fname, function (err){
+    db.fs.unlink(fname, function (err) {
       if(err) {
         console.log("unable to remove lock: %s", fname);
         process.exit(1);
@@ -104,7 +103,7 @@ function remove_lock(cb) {
 function is_locked(cb) {
   if ( database == 'index' ) {
     var fname = './tmp/' + database + '.pid';
-    fs.exists(fname, function (exists){
+    db.fs.exists(fname, function (exists) {
       if(exists) {
         return cb(true);
       } else {
@@ -362,29 +361,37 @@ if (database == 'peers') {
             var markets = settings.markets.enabled;
             var complete = 0;
             for (var x = 0; x < markets.length; x++) {
-              var market = markets[x];
-              db.check_market(market, function(mkt, exists) {
-                if (exists) {
-                  db.update_markets_db(mkt, function(err) {
-                    if (!err) {
-                      console.log('%s market data updated successfully.', mkt);
-                      complete++;
-                      if (complete == markets.length)
-                        get_last_usd_price();
-                    } else {
-                      console.log('%s: %s', mkt, err);
-                      complete++;
-                      if (complete == markets.length)
-                        get_last_usd_price();
-                    }
-                  });
-                } else {
-                  console.log('error: entry for %s does not exists in markets db.', mkt);
-                  complete++;
-                  if (complete == markets.length)
+              // check if market is installed
+              if (db.fs.existsSync('./lib/markets/' + markets[x] + '.js')) {
+                db.check_market(markets[x], function(mkt, exists) {
+                  if (exists) {
+                    db.update_markets_db(mkt, function(err) {
+                      if (!err) {
+                        console.log('%s market data updated successfully.', mkt);
+                        complete++;
+                        if (complete == markets.length)
+                          get_last_usd_price();
+                      } else {
+                        console.log('%s: %s', mkt, err);
+                        complete++;
+                        if (complete == markets.length)
+                          get_last_usd_price();
+                      }
+                    });
+                  } else {
+                    console.log('error: entry for %s does not exists in markets db.', mkt);
+                    complete++;
+                    if (complete == markets.length)
+                    get_last_usd_price();
+                  }
+                });
+              } else {
+                // market not installed
+                console.log('%s %s', markets[x], 'market not installed');
+                complete++;
+                if (complete == markets.length)
                   get_last_usd_price();
-                }
-              });
+              }
             }
           }
         });
@@ -399,9 +406,9 @@ function check_show_sync_message(blocks_to_sync) {
   // Check if there are more than 1000 blocks to index
   if (blocks_to_sync > 1000) {
     // Check if the show sync stub file already exists
-    if (!fs.existsSync(filePath)) {
+    if (!db.fs.existsSync(filePath)) {
       // File doesn't exist, so create it now
-      fs.writeFileSync(filePath, '');
+      db.fs.writeFileSync(filePath, '');
     }
 
     retVal = true;
@@ -413,10 +420,10 @@ function check_show_sync_message(blocks_to_sync) {
 function remove_sync_message() {
   var filePath = './tmp/show_sync_message.tmp';
   // Check if the show sync stub file exists
-  if (fs.existsSync(filePath)) {
+  if (db.fs.existsSync(filePath)) {
     // File exists, so delete it now
     try {
-      fs.unlinkSync(filePath);
+      db.fs.unlinkSync(filePath);
     } catch (err) {
       console.log(err);
     }

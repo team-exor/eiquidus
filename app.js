@@ -11,8 +11,7 @@ var express = require('express')
   , db = require('./lib/database')
   , package_metadata = require('./package.json')
   , locale = require('./lib/locale')
-  , request = require('postman-request')
-  , fs = require('fs');
+  , request = require('postman-request');
 
 var app = express();
 
@@ -351,7 +350,7 @@ var market_names = {};
 
 settings.markets.enabled.forEach(function (market) {
   // Check if market file exists
-  if (fs.existsSync('./lib/markets/' + market + '.js')) {
+  if (db.fs.existsSync('./lib/markets/' + market + '.js')) {
     // Load market file
     var exMarket = require('./lib/markets/' + market);
     // Save market_name from market file to settings
