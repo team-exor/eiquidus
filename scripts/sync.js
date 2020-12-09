@@ -301,29 +301,24 @@ if (database == 'peers') {
                       });
                     });
                   } else if (mode == 'update') {
-                    // Lookup the last block index
-                    Tx.findOne({}, {blockindex:1}).sort({blockindex:-1}).limit(1).exec(function(err, data) {
-                      var last = stats.last;
-                      if (!err && data) {
-                        // start from the last block index
-                        last = data.blockindex;
-                      }
+                    // Get the last synced block index value
+                    var last = (stats.last ? stats.last : 0);
+                    // Get the total number of blocks
+                    var count = (stats.count ? stats.count : 0);
+                    // Check if there are more than 1000 blocks to index
+                    var showSync = check_show_sync_message(count - last);
 
-                      // Check if there are more than 1000 blocks to index
-                      var showSync = check_show_sync_message(stats.count - last);
-
-                      db.update_tx_db(settings.coin, last, stats.count, stats.txes, settings.update_timeout, function(){
-                        db.update_richlist('received', function(){
-                          db.update_richlist('balance', function(){
-                            db.get_stats(settings.coin, function(nstats){
-                              // Check if the sync msg was showing
-                              if (showSync) {
-                                // Remove the sync msg
-                                remove_sync_message();
-                              }
-                              console.log('update complete (block: %s)', nstats.last);
-                              exit();
-                            });
+                    db.update_tx_db(settings.coin, last, count, stats.txes, settings.update_timeout, function(){
+                      db.update_richlist('received', function(){
+                        db.update_richlist('balance', function(){
+                          db.get_stats(settings.coin, function(nstats){
+                            // Check if the sync msg was showing
+                            if (showSync) {
+                              // Remove the sync msg
+                              remove_sync_message();
+                            }
+                            console.log('update complete (block: %s)', nstats.last);
+                            exit();
                           });
                         });
                       });
