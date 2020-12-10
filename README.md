@@ -214,11 +214,6 @@ A pair of scripts to backup or restore the internal mongo database are included.
 
 `sh restore_backup.sh ~/archive.tar.gz`: Restores the ~/archive.tar.gz file
 
-### Donate
-    
-    EXOR: EYYW8Nvz5aJz33M3JNHXG2FEHWUsntozrd
-    BTC: 15zQAQFB9KR35nPWEJEKvmytUF6fg2zvdP
-
 ### Known Issues
 
 **exceeding stack size**
