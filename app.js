@@ -320,6 +320,9 @@ app.set('logoheight', settings.logoheight);
 app.set('burned_coins', settings.burned_coins);
 app.set('api_cmds', settings.api_cmds);
 
+app.set('sticky_header', settings.sticky_header);
+app.set('sticky_footer', settings.sticky_footer);
+
 app.set('footer_height_desktop', settings.footer_height_desktop);
 app.set('footer_height_tablet', settings.footer_height_tablet);
 app.set('footer_height_mobile', settings.footer_height_mobile);

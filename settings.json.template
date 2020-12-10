@@ -26,7 +26,12 @@
   
   // home link logo height (value in px, only valid if using homelink = 'logo')
   "logoheight":  50,
-
+  
+  // set whether page header "sticks" to top of page or not
+  "sticky_header": true,
+  // set whether page footer "sticks" to bottom of page or not
+  "sticky_footer": false,
+  
   // Customize the height of the footer for the following screen sizes:
   // Mobile (0-575px)
   // Tablet (576-991px)

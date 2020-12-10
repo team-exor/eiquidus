@@ -205,8 +205,12 @@ html
         margin: 0 3px;
       }
   body
-    - var navbarClasses = ['nav','navbar','navbar-expand-lg','fixed-top'];
-    - var footerClasses = ['nav','navbar','navbar-default','fixed-bottom','d-none','d-md-flex','d-flex','footer'];
+    - var navbarClasses = ['nav','navbar','navbar-expand-lg'];
+    - var footerClasses = ['nav','navbar','navbar-default','d-none','d-md-flex','d-flex','footer'];
+    if settings.sticky_header == true
+      - navbarClasses.push('fixed-top');
+    if settings.sticky_footer == true
+      - footerClasses.push('fixed-bottom');
     if settings.display.navbar_dark == true
       - navbarClasses.push('bg-dark');
       - navbarClasses.push('navbar-dark');
@@ -269,41 +273,42 @@ html
               a.nav-link(href='/info')
                 span.fa.fa-info-circle
                 span.menu-text #{settings.locale.menu_api}
-    if showSync != null && showSync == true
+    div#body-container(style='margin-top:' + (settings.sticky_header == true ? '80px;' : '20px'))
+      if showSync != null && showSync == true
+        .col-lg-12
+          .alert.alert-warning
+            .cardSpacer
+              span.fas.fa-exclamation-triangle(style='margin-right:5px')
+              strong #{settings.locale.ex_warning}
+            div #{settings.locale.initial_index_alert}
       .col-lg-12
-        .alert.alert-warning
-          .cardSpacer
-            span.fas.fa-exclamation-triangle(style='margin-right:5px')
-            strong #{settings.locale.ex_warning}
-          div #{settings.locale.initial_index_alert}
-    .col-lg-12
-      .row.text-center.d-flex.justify-content-center
-        div(class="col-lg-2 col-lg-offset-" + settings.paneloffset)
-          - if(settings.panel1 != '') {
-            .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlOne')
+        .row.text-center.d-flex.justify-content-center
+          div(class="col-lg-2 col-lg-offset-" + settings.paneloffset)
+            - if(settings.panel1 != '') {
+              .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlOne')
+            - }
+          - if(settings.panel2 != '') {
+            .col-lg-2
+              .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlTwo')
           - }
-        - if(settings.panel2 != '') {
+          - if(settings.panel3 != '') {
+            .col-lg-2
+              .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlThree')
+          - }
+          - if(settings.panel4 != '') {
+            .col-lg-2
+              .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlFour')
+          - }
+          - if(settings.panel5 != '') {
           .col-lg-2
-            .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlTwo')
-        - }
-        - if(settings.panel3 != '') {
-          .col-lg-2
-            .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlThree')
-        - }
-        - if(settings.panel4 != '') {
-          .col-lg-2
-            .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlFour')
-        - }
-        - if(settings.panel5 != '') {
-        .col-lg-2
-          .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlFive')
-        - }
-      .row.text-center(style='margin-top:10px;margin-bottom:20px;')
-        form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
-          #index-search.form-group.d-flex.justify-content-center
-            input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
-            button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
-    block content
+            .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlFive')
+          - }
+        .row.text-center(style='margin-top:10px;margin-bottom:20px;')
+          form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
+            #index-search.form-group.d-flex.justify-content-center
+              input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
+              button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
+      block content
     div#footer-container(class=footerClasses, role='navigation')
       .col-4.navbar-nav
         if settings.display.github || settings.display.discord || settings.display.telegram || settings.display.reddit || settings.display.youtube || settings.display.slack || settings.display.twitter || settings.display.facebook || settings.display.googleplus || settings.display.bitcointalk || settings.display.website

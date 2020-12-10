@@ -1,7 +1,5 @@
 body {
-  padding: 80px 40px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
- /* background-image: url('/images/background2.png');*/
 }
 
 .navbar {
@@ -209,11 +207,15 @@ tr {
 	color: #ffffff;
 }
 
+#body-container {
+  padding: 0 40px;
+}
+
 @media(max-width:767px){
-	body {
-		padding: 0px;
-		padding-top:60px;
-	}
+  #body-container {
+    padding-left:0;
+    padding-right:0;
+  }
 }
 
 @media(max-width:1096px){
@@ -242,12 +244,6 @@ tr {
 
 .logo-main {
 	padding: 0 15px;
-}
-
-@media(max-width:767px){
-	.logo-main {
-		padding: 0 15px 0 30px;
-	}
 }
 
 .decimal {
