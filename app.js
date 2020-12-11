@@ -210,12 +210,6 @@ app.use('/ext/getlasttxs/:min', function(req, res) {
   });
 });
 
-app.use('/ext/getlasttxsajax/:min', function(req, res){
-  db.get_last_txs(req, function(data, draw, count) {
-    res.json({"data":data, "draw": draw, "recordsTotal": count, "recordsFiltered": count});
-  });
-});
-
 app.use('/ext/getaddresstxsajax/:address', function(req,res){
     req.query.length = parseInt(req.query.length);
     if(isNaN(req.query.length) || req.query.length > settings.txcount){
