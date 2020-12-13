@@ -4,62 +4,59 @@ block content
   include ./includes/common.pug
   - var time = format_unixtime(tx.timestamp);
   .col-xs-12.col-md-12.cardSpacer
-    .card.card-body.d-lg-none.d-md-none(style='word-wrap:break-word;')
-      | Viewing TXID: #{tx.txid}
-    .card.card-default.cardSpacer
-      .card-header.d-none.d-md-block
+    .card.card-default.border-0.cardSpacer
+      .card-header
         strong=settings.symbol + ' TXid: ' + tx.txid
-        a(href=`/api/getrawtransaction?txid=${tx.txid}&decrypt=1`)
+        a.d-none.d-md-inline(href=`/api/getrawtransaction?txid=${tx.txid}&decrypt=1`)
           span.fa.fa-info-circle.iquidus.float-right
-      div.table-responsive
-        table.table.table-bordered.table-striped.summary-table
-          thead
-            tr
-              th #{settings.locale.confirmations}
-              th.d-none.d-sm-table-cell #{settings.locale.tx_block_hash}
-              th #{settings.locale.timestamp}
-              th
-          tbody
-            - var confirms = (blockcount - tx.blockindex);
-            if confirms >= confirmations
-              tr.bg-success.text-dark
+      table.table.table-bordered.table-striped.summary-table.mobile-border-right
+        thead
+          tr
+            th #{settings.locale.confirmations}
+            th.d-none.d-sm-table-cell #{settings.locale.tx_block_hash}
+            th #{settings.locale.timestamp}
+            th
+        tbody
+          - var confirms = (blockcount - tx.blockindex);
+          if confirms >= confirmations
+            tr.bg-success.text-dark
+              td #{confirms}
+              td.d-none.d-sm-table-cell
+                a.breakWord(href='/block/'+tx.blockhash) #{tx.blockhash}
+              td #{time}
+              td.text-center
+                a(href='/block/'+tx.blockhash)
+                  span.fa.fa-eye
+          else
+            if confirms < (confirmations / 2)
+              tr.bg-danger
                 td #{confirms}
                 td.d-none.d-sm-table-cell
                   a.breakWord(href='/block/'+tx.blockhash) #{tx.blockhash}
                 td #{time}
-                td.view_tx
+                td.text-center
                   a(href='/block/'+tx.blockhash)
                     span.fa.fa-eye
             else
-              if confirms < (confirmations / 2)
-                tr.bg-danger
-                  td #{confirms}
-                  td.d-none.d-sm-table-cell
-                    a.breakWord(href='/block/'+tx.blockhash) #{tx.blockhash}
-                  td #{time}
-                  td.view_tx
-                    a(href='/block/'+tx.blockhash)
-                      span.fa.fa-eye
-              else
-                tr.table-warning
-                  td #{confirms}
-                  td.d-none.d-sm-table-cell
-                    a.breakWord(href='/block/'+tx.blockhash) #{tx.blockhash}
-                  td #{time}
-                  td.view_tx
-                    a(href='/block/'+tx.blockhash)
-                      span.fa.fa-eye
+              tr.table-warning
+                td #{confirms}
+                td.d-none.d-sm-table-cell
+                  a.breakWord(href='/block/'+tx.blockhash) #{tx.blockhash}
+                td #{time}
+                td.text-center
+                  a(href='/block/'+tx.blockhash)
+                    span.fa.fa-eye
     if tx.vout.length < 1
       .alert.alert-info.text-center(role='alert')
         strong #{settings.locale.tx_nonstandard}
     else
       .row
         .col-md-6.cardSpacer
-          .card.card-default
+          .card.card-default.border-0
             .card-header
               strong #{settings.locale.tx_contributors}
               span.fa.fa-arrow-right.float-right.d-xs-none
-            table.table.table-striped.summary-table
+            table.table.table-bordered.table-striped.summary-table.mobile-border-right
               thead
                 tr
                   th #{settings.locale.tx_address}
@@ -89,10 +86,10 @@ block content
                   tr.table-info.text-center
                     td #{settings.locale.proof_of_stake}
         .col-md-6.cardSpacer
-          .card.card-default
+          .card.card-default.border-0
             .card-header
               strong #{settings.locale.tx_recipients}
-            table.table.table-striped.summary-table
+            table.table.table-bordered.table-striped.summary-table.mobile-border-right
               thead
                 tr
                   th #{settings.locale.tx_address}

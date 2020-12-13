@@ -2,7 +2,7 @@ extends layout
 
 block content
   .col-md-12(style="margin-bottom: 4%")
-    .card.card-default
+    .card.card-default.border-0
       .card-header
         strong #{settings.locale.api_title}
       .card-body
@@ -17,42 +17,42 @@ block content
           if settings.api_cmds['getdifficulty'] != null && settings.api_cmds['getdifficulty'] != ''
             li
               p
-                div(style='font-weight:bold;') getdifficulty
+                div.font-weight-bold getdifficulty
                 div
                   em #{settings.locale.api_getdifficulty}
                 a(href='/api/getdifficulty') #{address}/api/getdifficulty
           if settings.api_cmds['getconnectioncount'] != null && settings.api_cmds['getconnectioncount'] != ''
             li
               p
-                div(style='font-weight:bold;') getconnectioncount
+                div.font-weight-bold getconnectioncount
                 div
                   em #{settings.locale.api_getconnectioncount}
                 a(href='/api/getconnectioncount') #{address}/api/getconnectioncount
           if settings.api_cmds['getblockcount'] != null && settings.api_cmds['getblockcount'] != ''
             li
               p
-                div(style='font-weight:bold;') getblockcount
+                div.font-weight-bold getblockcount
                 div
                   em #{settings.locale.api_getblockcount}
                 a(href='/api/getblockcount') #{address}/api/getblockcount
           if settings.api_cmds['getblockhash'] != null && settings.api_cmds['getblockhash'] != ''
             li
               p
-                div(style='font-weight:bold;') getblockhash [index]
+                div.font-weight-bold getblockhash [index]
                 div
                   em #{settings.locale.api_getblockhash}
                 a(href='/api/getblockhash?index=' + hashes.blockindex) #{address}/api/getblockhash?index=#{hashes.blockindex}
           if settings.api_cmds['getblock'] != null && settings.api_cmds['getblock'] != ''
             li
               p
-                div(style='font-weight:bold;') getblock [hash]
+                div.font-weight-bold getblock [hash]
                 div
                   em #{settings.locale.api_getblock}
                 a(href='/api/getblock?hash=' + hashes.blockhash) #{address}/api/getblock?hash=#{hashes.blockhash}
           if settings.api_cmds['getrawtransaction'] != null && settings.api_cmds['getrawtransaction'] != ''
             li
               p
-                div(style='font-weight:bold;') getrawtransaction [txid] [decrypt]
+                div.font-weight-bold getrawtransaction [txid] [decrypt]
                 div
                   em #{settings.locale.api_getrawtransaction}
                 div
@@ -62,28 +62,28 @@ block content
           if settings.index.show_hashrate == true && settings.api_cmds['getnetworkhashps'] != null && settings.api_cmds['getnetworkhashps'] != ''
             li
               p
-                div(style='font-weight:bold;') getnetworkhashps
+                div.font-weight-bold getnetworkhashps
                 div
                   em #{settings.locale.api_getnetworkhashps}
                 a(href='/api/getnetworkhashps') #{address}/api/getnetworkhashps
           if settings.api_cmds['getvotelist'] != null && settings.api_cmds['getvotelist'] != ''
             li
               p
-                div(style='font-weight:bold;') getvotelist
+                div.font-weight-bold getvotelist
                 div
                   em #{settings.locale.api_getvotelist}
                 a(href='/api/getvotelist') #{address}/api/getvotelist
           if settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != ''
             li
               p
-                div(style='font-weight:bold;') getmasternodecount
+                div.font-weight-bold getmasternodecount
                 div
                   em #{settings.locale.api_getmasternodecount}
                 a(href='/api/getmasternodecount') #{address}/api/getmasternodecount
           if settings.api_cmds['getmasternodelist'] != null && settings.api_cmds['getmasternodelist'] != ''
             li
               p
-                div(style='font-weight:bold;') getmasternodelist
+                div.font-weight-bold getmasternodelist
                 div
                   em #{settings.locale.api_getmasternodelist}
                 a(href='/api/getmasternodelist') #{address}/api/getmasternodelist
@@ -91,56 +91,56 @@ block content
             if settings.api_cmds['getmaxmoney'] != null && settings.api_cmds['getmaxmoney'] != ''
               li
                 p
-                  div(style='font-weight:bold;') getmaxmoney
+                  div.font-weight-bold getmaxmoney
                   div
                     em #{settings.locale.api_getmaxmoney}
                   a(href='/api/getmaxmoney') #{address}/api/getmaxmoney
             if settings.api_cmds['getmaxvote'] != null && settings.api_cmds['getmaxvote'] != ''
               li
                 p
-                  div(style='font-weight:bold;') getmaxvote
+                  div.font-weight-bold getmaxvote
                   div
                     em #{settings.locale.api_getmaxvote}
                   a(href='/api/getmaxvote') #{address}/api/getmaxvote
             if settings.api_cmds['getvote'] != null && settings.api_cmds['getvote'] != ''
               li
                 p
-                  div(style='font-weight:bold;') getvote
+                  div.font-weight-bold getvote
                   div
                     em #{settings.locale.api_getvote}
                   a(href='/api/getvote') #{address}/api/getvote
             if settings.api_cmds['getphase'] != null && settings.api_cmds['getphase'] != ''
               li
                 p
-                  div(style='font-weight:bold;') getphase
+                  div.font-weight-bold getphase
                   div
                     em #{settings.locale.api_getphase}
                   a(href='/api/getphase') #{address}/api/getphase
             if settings.api_cmds['getreward'] != null && settings.api_cmds['getreward'] != ''
               li
                 p
-                  div(style='font-weight:bold;') getreward
+                  div.font-weight-bold getreward
                   div
                     em #{settings.locale.api_getreward}
                   a(href='/api/getreward') #{address}/api/getreward
             if settings.api_cmds['getsupply'] != null && settings.api_cmds['getsupply'] != ''
               li
                 p
-                  div(style='font-weight:bold;') getsupply
+                  div.font-weight-bold getsupply
                   div
                     em #{settings.locale.api_getsupply}
                   a(href='/api/getsupply') #{address}/api/getsupply
             if settings.api_cmds['getnextrewardestimate'] != null && settings.api_cmds['getnextrewardestimate'] != ''
               li
                 p
-                  div(style='font-weight:bold;') getnextrewardestimate
+                  div.font-weight-bold getnextrewardestimate
                   div
                     em #{settings.locale.api_getnextrewardestimate}
                   a(href='/api/getnextrewardestimate') #{address}/api/getnextrewardestimate
             if settings.api_cmds['getnextrewardwhenstr'] != null && settings.api_cmds['getnextrewardwhenstr'] != ''
               li
                 p
-                  div(style='font-weight:bold;') getnextrewardwhenstr
+                  div.font-weight-bold getnextrewardwhenstr
                   div
                     em #{settings.locale.api_getnextrewardwhenstr}
                   a(href='/api/getnextrewardwhenstr') #{address}/api/getnextrewardwhenstr
@@ -151,37 +151,37 @@ block content
         ul
           li
             p
-              div(style='font-weight:bold;') getmoneysupply
+              div.font-weight-bold getmoneysupply
               div
                 em Returns current money supply
               a(href='/ext/getmoneysupply') #{address}/ext/getmoneysupply
           li
             p
-              div(style='font-weight:bold;') getdistribution
+              div.font-weight-bold getdistribution
               div
                 em Returns wealth distribution stats
               a(href='/ext/getdistribution') #{address}/ext/getdistribution
           li
             p
-              div(style='font-weight:bold;') getaddress (/ext/getaddress/hash)
+              div.font-weight-bold getaddress (/ext/getaddress/hash)
               div
                 em Returns information for given address
               a(href='/ext/getaddress/' + hashes.address) #{address}/ext/getaddress/#{hashes.address}
           li
             p
-              div(style='font-weight:bold;') gettx (/ext/gettx/hash)
+              div.font-weight-bold gettx (/ext/gettx/hash)
               div
                 em Returns information for given tx hash
               a(href='/ext/gettx/' + hashes.txhash) #{address}/ext/gettx/#{hashes.txhash}
           li
             p
-              div(style='font-weight:bold;') getbalance (/ext/getbalance/hash)
+              div.font-weight-bold getbalance (/ext/getbalance/hash)
               div
                 em Returns current balance of given address
               a(href='/ext/getbalance/' + hashes.address) #{address}/ext/getbalance/#{hashes.address}
           li
             p
-              div(style='font-weight:bold;') getlasttxs (/ext/getlasttxs/min)
+              div.font-weight-bold getlasttxs (/ext/getlasttxs/min)
               div
                 em Returns last transactions greater than [min]
               div
@@ -189,13 +189,13 @@ block content
               a(href='/ext/getlasttxs/100') #{address}/ext/getlasttxs/100
           li
             p
-              div(style='font-weight:bold;') getcurrentprice
+              div.font-weight-bold getcurrentprice
               div
                 em Returns last known exchange price
               a(href='/ext/getcurrentprice') #{address}/ext/getcurrentprice
           li
             p
-              div(style='font-weight:bold;') getbasicstats
+              div.font-weight-bold getbasicstats
               div
                 em Returns basic statistics about the coin including: block count, circulating supply, USD price, BTC price and # of masternodes
               a(href='/ext/getbasicstats') #{address}/ext/getbasicstats
@@ -206,18 +206,18 @@ block content
         ul
           li
             p
-              div(style='font-weight:bold;') transaction (/tx/txid)
+              div.font-weight-bold transaction (/tx/txid)
               a(href='/tx/' + hashes.txhash) #{address}/tx/#{hashes.txhash}
           li
             p
-              div(style='font-weight:bold;') block (/block/hash)
+              div.font-weight-bold block (/block/hash)
               a(href='/block/' + hashes.blockhash) #{address}/block/#{hashes.blockhash}
           li
             p
-              div(style='font-weight:bold;') address (/address/hash)
+              div.font-weight-bold address (/address/hash)
               a(href='/address/' + hashes.address) #{address}/address/#{hashes.address}
           li
             p
-              div(style='font-weight:bold;') qrcode (/qr/hash)
+              div.font-weight-bold qrcode (/qr/hash)
               a(href='/qr/' + hashes.address) #{address}/qr/#{hashes.address}
     .footer-padding

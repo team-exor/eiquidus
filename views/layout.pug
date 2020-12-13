@@ -9,7 +9,7 @@ html
     link(rel='stylesheet', href='/vendor/flags-css/css/flag-icon.min.css')
     link(res='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css')
     link(rel='stylesheet', href='//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css')
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/style.min.css')
     script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js')
     script(src='//stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js')
     script(src='/vendor/jqplot/jquery.jqplot.min.js')
@@ -97,8 +97,8 @@ html
           animation: true,
           delay: { hide: 500 }
         });
-        if ($('.history-table tbody tr').length) {
-          $('.history-table').dataTable({
+        if ($('#history-table tbody tr').length) {
+          $('#history-table').dataTable({
             searching: false,
             ordering: false,
             responsive: true,
@@ -143,29 +143,29 @@ html
           }
           var hashRateType='<label id="hashrate"></label>';
           if ('#{settings.index.difficulty}' == 'Hybrid') hashRateType+='<br /><label id="lblX1"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.network} '+networkSuffix+'</strong></div><div class="card-body"><div id="hashratepanel"><span class="glyphicon fa fa-cogs"></span>'+hashRateType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small">'+networkSuffix+'</span></strong></div><div class="card-body"><div id="hashratepanel" class="header-panel"><span class="glyphicon fa fa-cogs"></span>'+hashRateType+'</div></div>';
         }
         function getDifficultyPanel() {
           var difficultyType='<label id="difficulty"></label>';
           if ('#{settings.index.difficulty}' == 'Hybrid') difficultyType+='<br /><label id="difficultyHybrid"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.difficulty}</strong></div><div class="card-body"><div id="difficultypanel"><span class="glyphicon fas fa-sliders-h"></span>'+difficultyType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.difficulty}</strong></div><div class="card-body"><div id="difficultypanel" class="header-panel"><span class="glyphicon fas fa-sliders-h"></span>'+difficultyType+'</div></div>';
         }
         function getMasternodesPanel() {
-          return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodepanel"><span id="spnMasternodeCountOnline" class="glyphicon fa fa-check-circle"></span><label id="masternodeCountOnline"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline"></label><span id="spnMasternodeCountOffline" class="glyphicon fa fa-exclamation-triangle"></span></div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodepanel" class="header-panel"><span id="spnMasternodeCountOnline" class="glyphicon fa fa-check-circle"></span><label id="masternodeCountOnline"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline"></label><span id="spnMasternodeCountOffline" class="glyphicon fa fa-exclamation-triangle"></span></div></div>';
         }
         function getCoinSupplyPanel() {
           var supplyType='<label id="supply"></label>';
           if ('#{settings.index.difficulty}' == 'Hybrid') supplyType+='<br /><label id="lblX1"></label>';
           if (#{settings.index.show_market_cap} == true && #{settings.index.show_market_cap_over_price} != true) supplyType+='<br /><span class="glyphicon fas fa-chart-line"></span><label>(</label><label id="marketCap">-</label><label>)</label>';
-          return '<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small">(#{settings.symbol})</span></strong></div><div class="card-body"><div id="supplypanel"><span class="glyphicon fa fa-chart-pie"></span>'+supplyType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small">(#{settings.symbol})</span></strong></div><div class="card-body"><div id="supplypanel" class="header-panel"><span class="glyphicon fa fa-chart-pie"></span>'+supplyType+'</div></div>';
         }
         function getPricePanel() {
           if (#{settings.index.show_market_cap} == true && #{settings.index.show_market_cap_over_price} == true) {
-            return '<div class="card-header"><strong>Market Cap</strong></div><div class="card-body"><div id="pricepanel"><span class="glyphicon fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
+            return '<div class="card-header"><strong>Market Cap</strong></div><div class="card-body"><div id="pricepanel" class="header-panel"><span class="glyphicon fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
           } else {
             var priceType='<label id="lastPrice">-</label>';
             if ('#{settings.index.difficulty}' == 'Hybrid') priceType+='<br /><label id="lblX1"></label>';
-            return '<div class="card-header"><strong>Price <span class="small">(#{settings.markets.exchange})</span></strong></div><div class="card-body"><div id="pricepanel"><span class="glyphicon fa fa-rocket"></span>'+priceType+'</div></div>';
+            return '<div class="card-header"><strong>Price <span class="small">(#{settings.markets.exchange})</span></strong></div><div class="card-body"><div id="pricepanel" class="header-panel"><span class="glyphicon fa fa-rocket"></span>'+priceType+'</div></div>';
           }
         }
         function getActivePanel(nPanelName) {
@@ -200,10 +200,6 @@ html
         hideShowPanel('#{settings.panel5}', 'pnlFive');
         fixFooterHeight();
       });
-    style(type="text/css").
-      .header-icons {
-        margin: 0 3px;
-      }
   body
     - var navbarClasses = ['nav','navbar','navbar-expand-lg'];
     - var footerClasses = ['nav','navbar','navbar-default','d-none','d-md-flex','d-flex','footer'];
@@ -242,37 +238,37 @@ html
           li#home
             a.nav-link(href='/')
               span.fa.fa-search
-              span.menu-text #{settings.locale.menu_explorer}
+              span.margin-left-5 #{settings.locale.menu_explorer}
           if settings.heavy == true
             li#reward
               a.nav-link(href='/reward')
                 span.fa.fa-star
-                span.menu-text #{settings.locale.menu_reward}
+                span.margin-left-5 #{settings.locale.menu_reward}
           if settings.display.movement == true
             li#movement
               a.nav-link.loading(href='/movement')
                 span.far.fa-money-bill-alt
-                span.menu-text #{settings.locale.menu_movement}
+                span.margin-left-5 #{settings.locale.menu_movement}
           if settings.display.network == true
             li#network
               a.nav-link(href='/network')
                 span.fa.fa-share-alt
-                span.menu-text #{settings.locale.menu_network}
+                span.margin-left-5 #{settings.locale.menu_network}
           if settings.display.richlist == true
             li#richlist
               a.nav-link(href='/richlist')
                 span.fab.fa-btc
-                span.menu-text #{settings.locale.menu_richlist}
+                span.margin-left-5 #{settings.locale.menu_richlist}
           if settings.display.markets == true
             li#markets
               a.nav-link.loading(href='/markets/'+settings.markets.default)
                 span.fas.fa-chart-line
-                span.menu-text #{settings.locale.menu_markets}
+                span.margin-left-5 #{settings.locale.menu_markets}
           if settings.display.api == true
             li#info
               a.nav-link(href='/info')
                 span.fa.fa-info-circle
-                span.menu-text #{settings.locale.menu_api}
+                span.margin-left-5 #{settings.locale.menu_api}
     div#body-container(style='margin-top:' + (settings.sticky_header == true ? '80px;' : '20px'))
       if showSync != null && showSync == true
         .col-lg-12
@@ -285,23 +281,23 @@ html
         .row.text-center.d-flex.justify-content-center
           div(class="col-lg-2 col-lg-offset-" + settings.paneloffset)
             - if(settings.panel1 != '') {
-              .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlOne')
+              .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlOne')
             - }
           - if(settings.panel2 != '') {
             .col-lg-2
-              .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlTwo')
+              .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlTwo')
           - }
           - if(settings.panel3 != '') {
             .col-lg-2
-              .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlThree')
+              .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlThree')
           - }
           - if(settings.panel4 != '') {
             .col-lg-2
-              .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlFour')
+              .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFour')
           - }
           - if(settings.panel5 != '') {
           .col-lg-2
-            .card.card-default.d-none.d-lg-block.d-block.cardSpacer(id='pnlFive')
+            .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFive')
           - }
         .row.text-center(style='margin-top:10px;margin-bottom:20px;')
           form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')

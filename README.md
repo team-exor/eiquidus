@@ -7,6 +7,9 @@ This project is a fork of [Ciquidus Explorer](https://github.com/suprnurd/ciquid
 
 ### Features
 
+- Mobile-friendly
+- Bootstrap v4.5
+- Sass support
 - Custom rpc/api command support which increases blockchain compatibility. Supported cmds:
   - **getnetworkhashps:** Returns the estimated network hashes per second
   - **getmininginfo:** Returns a json object containing mining-related information

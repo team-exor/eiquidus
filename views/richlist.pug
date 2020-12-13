@@ -32,23 +32,23 @@ block content
     });
   .row(style='margin-left:0;margin-right:0;')
     .col-xs-12.col-lg-8
-      .tabpanel
+      .container
         ul.nav.nav-tabs(role='tablist')
           li.nav-item(role='presentation')
-            a.nav-link.active(href='#balance', aria-controls='balance', role='tab', data-toggle='tab') Balance
+            a.nav-link.active(href='#balance', aria-controls='balance', role='tab', data-toggle='tab') #{settings.locale.rl_current_balance}
           li.nav-item(role='presentation')
-            a.nav-link(href='#received', aria-controls='received', role='tab', data-toggle='tab') Received
+            a.nav-link(href='#received', aria-controls='received', role='tab', data-toggle='tab') #{settings.locale.rl_received_coins}
       .tab-content
-        #balance.tabpanel.tab-pane.active(style='margin-top:0;')
+        #balance.container.tab-pane.active(style='margin-top:0;')
           include ./includes/rl_balance.pug
-        #received.tabpanel.tab-pane(style='margin-top:0;')
+        #received.container.tab-pane(style='margin-top:0;')
           include ./includes/rl_received.pug
     if show_dist == true
       .col-lg-4.col-xs-12(style='margin-bottom:45px;')
-        #summary-panel.card.card-default(style='margin-top:34px;')
+        #summary-panel.card.card-default.border-0(style='margin-top:34px;')
           .card-header
-            h5.card-title #{settings.locale.rl_wealth}
-          table.table.table-hover.table-bordered(style='margin-bottom:0;')
+            strong #{settings.locale.rl_wealth}
+          table.table.table-hover.table-bordered.summary-table.right-border-0(style='margin-bottom:0;')
             thead
               tr
                 th
@@ -57,7 +57,7 @@ block content
                 th.text-center %
             tbody
               tr
-                th
+                td.font-weight-bold
                   div.float-left(style='background-color:#d9534f;width:20px;height:20px;margin-right:6px;')
                   span #{settings.locale.rl_top25}
                 - var total = parseFloat(dista.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
@@ -66,7 +66,7 @@ block content
                   span.decimal.breakWord #{totalParts[1]}
                 td.text-center #{parseFloat(dista.percent).toFixed(2)}
               tr
-                th
+                td.font-weight-bold
                   div.float-left(style='background-color:#5cb85c;width:20px;height:20px;margin-right:6px;')
                   span #{settings.locale.rl_top50}
                 - var total = parseFloat(distb.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
@@ -75,7 +75,7 @@ block content
                   span.decimal.breakWord #{totalParts[1]}
                 td.text-center #{parseFloat(distb.percent).toFixed(2)}
               tr
-                th
+                td.font-weight-bold
                   div.float-left(style='background-color:#428bca;width:20px;height:20px;margin-right:6px;')
                   span #{settings.locale.rl_top75}
                 - var total = parseFloat(distc.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
@@ -84,7 +84,7 @@ block content
                   span.decimal.breakWord #{totalParts[1]}
                 td.text-center #{parseFloat(distc.percent).toFixed(2)}
               tr
-                th
+                td.font-weight-bold
                   div.float-left(style='background-color:#222;width:20px;height:20px;margin-right:6px;')
                   span #{settings.locale.rl_top100}
                 - var total = parseFloat(distd.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});

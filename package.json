@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "node --stack-size=10000 ./bin/cluster",
+    "start": "npm run sass:compile && node --stack-size=10000 ./bin/cluster",
     "stop": "kill -2 $(cat tmp/cluster.pid)",
-    "test": "node ./node_modules/jasmine/bin/jasmine.js"
+    "test": "node ./node_modules/jasmine/bin/jasmine.js",
+    "sass:compile": "sh ./scripts/sass_theme_reader.sh && ./node_modules/.bin/sass --no-source-map --style=compressed ./public/stylesheets/style.scss ./public/stylesheets/style.min.css"
   },
   "dependencies": {
     "express": ">=4.17.1",
@@ -22,7 +23,10 @@
     "jstransformer-markdown-it": "^2.1.0",
     "mongodb": "3.6.3",
     "mongoose": "5.11.4",
-    "qr-image": "~3.2.0"
+    "qr-image": "~3.2.0",
+    "sass": "1.30.0",
+    "json": "10.0.0",
+    "strip-json-comments-cli": "1.0.1"
   },
   "devDependencies": {
     "jasmine": "~3.6.3"

@@ -3,7 +3,7 @@ extends layout
 block content
   .row
     .col-xs-12.col-md-12
-      .card.card-default.card-address-summary
+      .card.card-default.border-0.card-address-summary
         .card-header(style='position:relative;')
           strong #{settings.locale.heavy_title}
             span.small  (#{settings.symbol})
@@ -34,7 +34,7 @@ block content
                 =heavy.estnext
   .row
     .col-md-3
-      .card.card-default
+      .card.card-default.border-0
         .card-body
           div.text-center
             canvas(id="myChart2", width="150", height="150")
@@ -74,7 +74,7 @@ block content
                     td
                       div(style="width:20px;height:20px;background-color:rgba(92,184,92,1.0)")
     .col-md-9
-      .card.card-default
+      .card.card-default.border-0
         .card-body
           div.text-center
             .div

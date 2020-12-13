@@ -8,30 +8,30 @@ block content
   - var received = (address.received / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var receivedParts = received.split('.');
   .col-xs-12.col-md-12.cardSpacer
-    .card.card-default.card-address-summary.cardSpacer
+    .card.card-default.border-0.card-address-summary.cardSpacer
       .card-header(style='position:relative;')
         strong #{address.a_id}
           if settings.labels[address.a_id]
             if settings.labels[address.a_id].type
-              label.d-none.d-sm-block(class='label label-'+settings.labels[address.a_id].type+' float-right', style='margin-left:15px;')
+              label.d-none.d-sm-block.badge.float-right(class='badge-'+settings.labels[address.a_id].type, style='margin-left:15px;margin-bottom:0;')
                 =settings.labels[address.a_id].label
                 if settings.labels[address.a_id].url
-                  a(href=settings.labels[address.a_id].url, target='_blank')
+                  a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site')
                     span.fa.fa-question-circle(style='margin-left:5px;')
             else
-              label.d-none.d-sm-table-cell.label.label-default.float-right(style='margin-left:15px;')
+              label.d-none.d-sm-block.badge.badge-default.float-right(style='margin-left:15px;margin-bottom:0;')
                 =settings.labels[address.a_id].label
                 if settings.labels[address.a_id].url
-                  a(href=settings.labels[address.a_id].url, target='_blank')
+                  a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site')
                     span.fa.fa-question-circle(style='margin-left:5px;')
           else
             if address.name !== "" && typeof address.name !== "undefined"
               label.badge.badge-pill.float-right.d-none.d-sm-block(style='margin-left:15px;')
                 =address.name
             else
-              a.badge.badge-pill.float-right.d-none.d-sm-block(href="/address/"+ address.a_id +"/claim" style="font-size: smaller;")
+              a.badge.badge-pill.float-right.d-none.d-sm-block(href="/address/"+ address.a_id +"/claim" style="font-size:smaller;padding-bottom:0;")
                 =" Is this yours? Claim it now for free!"
-      table.table.table-bordered.table-striped.summary-table
+      table.table.table-bordered.table-striped.summary-table.mobile-border-right
         thead
           tr
             if settings.show_sent_received == true
@@ -57,9 +57,8 @@ block content
                 span.decimal #{balanceParts[1]}
               td.addr-summary
                 img.qrcode(src='/qr/' + address.a_id)
-    .card.card-default.cardSpacer
+    .card.card-default.border-0.cardSpacer
       .card-header
         strong #{settings.locale.ex_latest_transactions}
-      table.table-bordered.table-striped
-        include ./includes/address_history.pug
+      include ./includes/address_history.pug
     .footer-padding

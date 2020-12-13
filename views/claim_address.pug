@@ -3,31 +3,39 @@ extends layout
 block content
   script.
     $(function () {
+        function showClaimAlert(claimClass, warnMsg) {
+          if ($('#claimAlert').length == 0)
+            $('<div id="claimAlert"></div>').insertBefore('#claimForm');
+          $('#claimAlert').html('<div class="alert alert-' + claimClass + '"><div class="font-weight-bold" style="padding-bottom:10px;">' + (claimClass == 'success' ? 'Address claimed successfully' : (claimClass == 'danger' ? 'Failed to claim address' : 'Required field missing')) + '</div> ' + (claimClass == 'success' ? 'This address will now be referred to as <strong>"' + $('#message').val() + '"</strong> throughout the website' : (claimClass == 'danger' ? 'Invalid signature' : warnMsg)) + '.</div>');			
+        }
+
         $('#claimForm').on('submit', function (e) {
           e.preventDefault();
           var address = $('input#address').val();
           var message = $('input#message').val();
           var signature = $('input#signature').val();
           var url = '/address/'+address+'/claim';
-
-          function showClaimAlert(success) {
-            if ($('#claimAlert').length == 0)
-              $('<div id="claimAlert"></div>').insertBefore('#claimForm');
-            $('#claimAlert').html('<div class="alert alert-' + (success ? 'success' : 'danger') + '"><div class="font-weight-bold" style="padding-bottom:10px;">' + (success ? 'Address claimed successfully' : 'Failed to claim address') + '</div> ' + (success ? 'This address will now be referred to as <strong>"' + $('#message').val() + '"</strong> throughout the website' : 'Invalid signature') + '.</div>');			
+          
+          if (message == null || message.trim().length == 0) {
+            showClaimAlert('warning', 'Please enter the name you would like your address to be referred to on this site');
+            $('input#message').focus();
+          } else if (signature == null || signature.trim().length == 0) {
+            showClaimAlert('warning', 'Please enter the signature value from your wallet software');
+            $('input#signature').focus();          
+          } else {
+            $.ajax({
+              type: 'post',
+              url: url,
+              data: {
+                'address': address,
+                'message': message,
+                'signature': signature
+              },
+              success: function (data) {
+                showClaimAlert((data.status == 'success' ? 'success' : 'danger'), '');
+              }
+            });
           }
-
-          $.ajax({
-            type: 'post',
-            url: url,
-            data: {
-              'address': address,
-              'message': message,
-              'signature': signature
-            },
-            success: function (data) {
-              showClaimAlert(data.status == 'success');
-            }
-          });
         });
       });
   - var balance = ((address.received - address.sent) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
@@ -37,23 +45,23 @@ block content
   - var received = (address.received / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var receivedParts = received.split('.');
   .col-xs-12.col-md-12.cardSpacer
-    .card.card-default.card-address-summary.cardSpacer
+    .card.card-default.border-0.card-address-summary.cardSpacer
       .card-header(style='position:relative;')
         strong=address.a_id
         if settings.labels[address.a_id]
           if settings.labels[address.a_id].type
-            label(class='badge label-#{ settings.labels[address.a_id].type} float-right d-none d-sm-block', style='margin-left:15px;')
+            label.d-none.d-sm-block.badge.float-right(class='badge-'+settings.labels[address.a_id].type, style='margin-left:15px;margin-bottom:0;')
               =settings.labels[address.a_id].label
               if settings.labels[address.a_id].url
-                a(href="#{ settings.labels[address.a_id].url}'", target='_blank')
+                a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site')
                   span.fa.fa-question-circle(style='margin-left:5px;')
           else
-            label.badge.badge-pill.float-right.d-none.d-sm-block(style='margin-left:15px;')
+            label.d-none.d-sm-block.badge.badge-default.float-right(style='margin-left:15px;margin-bottom:0;')
               =settings.labels[address.a_id].label
               if settings.labels[address.a_id].url
-                a(href='#{settings.labels[address.a_id].url}', target='_blank')
+                a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site')
                   span.fa.fa-question-circle(style='margin-left:5px;')
-      table.table.table-bordered.table-striped.summary-table
+      table.table.table-bordered.table-striped.summary-table.mobile-border-right
         thead
           tr
             if settings.show_sent_received == true
@@ -79,47 +87,50 @@ block content
                 span.decimal #{balanceParts[1]}
               td.addr-summary
                 img.qrcode(src='/qr/'+address.a_id)
-    .card.card-default.cardSpacer
+    .card.card-default.border-0.cardSpacer
       .card-header
         strong Claim this Address
       .card-body
         div.alert.alert-primary
           div
-            span Use the '
-            span.font-weight-bold Sign Message
-            span ' feature from your wallet to verify ownership of this address.
+            span You can use the
+            span.font-weight-bold  Sign Message
+            span  feature from your
+            span.font-weight-bold  #{settings.coin}
+            span  wallet to verify ownership of this address.
+          br
+          div Enter the following data into the wallet software:
           br
           div
-            span Enter the wallet address '
-            span.font-weight-bold #{address.a_id}
-            span ' for both the '
-            span.font-weight-bold Address
-            span ' and '
-            span.font-weight-bold Message
-            span ' and click the '
-            span.font-weight-bold Sign Message
-            span ' button to generate the '
-            span.font-weight-bold Signature
-            span '.
+            span.font-weight-bold Address:
+            span  #{address.a_id}
+          div
+            span.font-weight-bold Message:
+            span=' <display name from the form below>'
           br
           div
-            span Enter the '
-            span.font-weight-bold Signature
-            span ' below and click '
-            span.font-weight-bold Submit
-            span ' to claim your address which allows displaying a custom name instead of the default wallet address.
+            span Click the
+            span.font-weight-bold  Sign Message
+            span  button in the wallet, and copy/paste the resulting
+            span.font-weight-bold  Signature
+            span  in the form below.
+          br
+          div
+            span Finally, click the
+            span.font-weight-bold  Submit
+            span  button below to claim your address, which will display your custom display name instead of the default wallet address on this site.
         form#claimForm
           .form-group
-            fieldset
-              label.control-label(for='address') Wallet Address
+            fieldset.entryField
+              label(for='address') Wallet Address
               input#address.form-control(type='text' value=address.a_id readonly="")
           .form-group
-            fieldset
+            fieldset.entryField
               label(for='message') Display Name
-              input#message.form-control(type='text' placeholder='Display Name')
+              input#message.form-control(type='text', placeholder='Display Name', maxlength='50')
           .form-group
-            fieldset
+            fieldset.entryField
               label(for='signature') Signature
-              input#signature.form-control(type='text' placeholder='Signature')
+              input#signature.form-control(type='text', placeholder='Signature', maxlength='100')
           button.btn.btn-primary(type='submit') Submit
     .footer-padding

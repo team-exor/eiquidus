@@ -5,7 +5,7 @@ block content
   - var time = format_unixtime(block.time);
   - var block_difficulty = parseFloat(block.difficulty).toFixed(4);
   .col-xs-12.col-md-12.cardSpacer
-    .card.card-default.cardSpacer
+    .card.card-default.border-0.cardSpacer
       .card-header(style='padding-left:25px;padding-right:25px;')
         .row
           if block.previousblockhash != null
@@ -26,7 +26,7 @@ block content
             th #{settings.locale.difficulty}
             th #{settings.locale.confirmations}
             if settings.heavy == true
-              th Vote
+              th.d-none.d-sm-table-cell Vote
             th.d-none.d-sm-table-cell #{settings.locale.size} (kB)
             th.d-none.d-md-table-cell #{settings.locale.bits}
             th.d-none.d-sm-table-cell #{settings.locale.nonce}
@@ -39,7 +39,7 @@ block content
               td=Number(block.difficulty).toFixed(4)
               td=block.confirmations
               if settings.heavy == true
-                td=block.vote
+                td.d-none.d-sm-table-cell=block.vote
               td.d-none.d-sm-table-cell=block_size.toFixed(2)
               td.d-none.d-md-table-cell=block.bits
               td.d-none.d-sm-table-cell=block.nonce
@@ -52,7 +52,7 @@ block content
                 td=Number(block.difficulty).toFixed(4)
                 td=block.confirmations
                 if settings.heavy == true
-                  td=block.vote
+                  td.d-none.d-sm-table-cell=block.vote
                 td.d-none.d-sm-table-cell=block_size.toFixed(2)
                 td.d-none.d-md-table-cell=block.bits
                 td.d-none.d-sm-table-cell=block.nonce
@@ -64,7 +64,7 @@ block content
                 td=Number(block.difficulty).toFixed(4)
                 td=block.confirmations
                 if settings.heavy == true
-                  td=block.vote
+                  td.d-none.d-sm-table-cell=block.vote
                 td.d-none.d-sm-cell=block_size.toFixed(2)
                 td.d-none.d-md-table-cell=block.bits
                 td.d-none.d-sm-table-cell=block.nonce
@@ -73,10 +73,10 @@ block content
       .alert.alert-info(role='alert', style='text-align:center;')
         strong #{settings.locale.block_genesis}
     else
-      .card.card-default.cardSpacer
+      .card.card-default.border-0.cardSpacer
         .card-header
           strong #{settings.locale.ex_latest_transactions}
-        table.table.table-bordered.table-striped.summary-table
+        table.table.table-bordered.table-striped.summary-table.mobile-border-right
           thead
             tr
               th.d-none.d-sm-table-cell #{settings.locale.tx_hash}
@@ -100,7 +100,7 @@ block content
                   - var totalParts = total.split('.');
                   td #{totalParts[0]}.
                     span.decimal #{totalParts[1]}
-                td.view_tx
+                td.text-center
                   a(href='/tx/' + txn.txid)
                     span.fa.fa-eye
     .footer-padding

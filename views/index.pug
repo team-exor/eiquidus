@@ -49,7 +49,7 @@ block content
           $("td:eq(2)", row).html(outputs).addClass("text-center");
           $("td:eq(3)", row).html(amount);
           $("td:eq(4)", row).html(format_unixtime(new Date(timestamp), true)).addClass("text-center d-none d-sm-table-cell");
-        },
+        }
       });
       setInterval( function () {
         rtable.api().ajax.reload(null, false);
@@ -62,10 +62,10 @@ block content
           button.close(type='button', data-dismiss='alert') ×
           strong #{settings.locale.ex_error} : #{error}
   .col-md-12.cardSpacer
-    .card.card-default.cardSpacer
+    .card.card-default.border-0.cardSpacer
       .card-header
         strong #{settings.locale.ex_latest_transactions}
-      table#recent-table.table.table-bordered.table-striped
+      table#recent-table.table.table-bordered.table-striped.table-paging
         thead
           tr
             th.text-center #{settings.locale.ex_block}
