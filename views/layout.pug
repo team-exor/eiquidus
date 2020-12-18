@@ -1,29 +1,31 @@
 doctype html
-html
+html(lang='en')
   head
+    meta(charset='UTF-8')
     meta(name='viewport' content='width=device-width, initial-scale=1')
-    title= settings.title
-    link(rel='stylesheet', href='/themes/' + settings.theme + '/bootstrap.min.css')
-    link(rel='stylesheet', href='/vendor/jqplot/jquery.jqplot.css')
-    link(rel='stylesheet', href='//use.fontawesome.com/releases/v5.2.0/css/all.css', integrity='sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ', crossorigin='anonymous')
-    link(rel='stylesheet', href='/vendor/flags-css/css/flag-icon.min.css')
-    link(res='stylesheet', href='//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.1/css/bootstrap.css')
-    link(rel='stylesheet', href='//cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css')
-    link(rel='stylesheet', href='/stylesheets/style.min.css')
-    script(src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js')
-    script(src='//stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js')
-    script(src='/vendor/jqplot/jquery.jqplot.min.js')
-    script(src='/vendor/jqplot/plugins/jqplot.dateAxisRenderer.min.js')
-    script(src='/vendor/jqplot/plugins/jqplot.ohlcRenderer.min.js')
-    script(src='/vendor/jqplot/plugins/jqplot.highlighter.min.js')
-    script(src='/vendor/jqplot/plugins/jqplot.pieRenderer.min.js')
-    script(src='/vendor/jqplot/plugins/jqplot.barRenderer.min.js')
-    script(src='/vendor/jqplot/plugins/jqplot.categoryAxisRenderer.min.js')
-    script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js')
-    script(src='//cdn.datatables.net/1.10.9/js/jquery.dataTables.min.js')
-    script(src='//cdn.datatables.net/responsive/1.0.1/js/dataTables.responsive.js')
-    script(src='//cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js')
-    script(src='/javascripts/chart.js')
+    meta(http-equiv='Content-Language', content='en')
+    title=settings.title
+    link(rel='stylesheet', href='/css/themes/' + settings.theme + '/bootstrap.min.css')
+    link(rel='stylesheet', href='//use.fontawesome.com/releases/v5.15.1/css/all.css')
+    if active == 'markets' || active == 'richlist'
+      link(rel='stylesheet', href='/css/jquery.jqplot.min.css')
+    if active == 'network'
+      link(rel='stylesheet', href='/css/flag-icon.min.css')
+    link(rel='stylesheet', type='text/css', href='//cdn.datatables.net/v/bs4/dt-1.10.22/datatables.min.css')
+    link(rel='stylesheet', href='/css/style.min.css')
+    script(type='text/javascript', src='//cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js', integrity='sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==', crossorigin='anonymous')
+    script(type='text/javascript', src='//cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js', integrity='sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx', crossorigin='anonymous')
+    if active == 'markets' || active == 'richlist'
+      script(type='text/javascript', src='/js/jquery.jqplot.min.js')
+    if active == 'markets'
+      script(type='text/javascript', src='/js/jqplot.dateAxisRenderer.min.js')
+      script(type='text/javascript', src='/js/jqplot.ohlcRenderer.min.js')
+      script(type='text/javascript', src='/js/jqplot.highlighter.min.js')
+    if active == 'richlist'
+      script(type='text/javascript', src='/js/jqplot.pieRenderer.min.js')
+    script(type='text/javascript', src='//cdn.datatables.net/v/bs4/dt-1.10.22/datatables.min.js')
+    if active == 'reward'
+      script(type='text/javascript', src='/js/Chart.min.js')
     script.
       $(document).ready(function() {
         function fixSocialLinkFontSize() {

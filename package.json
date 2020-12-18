@@ -6,7 +6,7 @@
     "start": "npm run sass:compile && node --stack-size=10000 ./bin/cluster",
     "stop": "kill -2 $(cat tmp/cluster.pid)",
     "test": "node ./node_modules/jasmine/bin/jasmine.js",
-    "sass:compile": "sh ./scripts/sass_theme_reader.sh && ./node_modules/.bin/sass --no-source-map --style=compressed ./public/stylesheets/style.scss ./public/stylesheets/style.min.css"
+    "sass:compile": "sh ./scripts/sass_theme_reader.sh && ./node_modules/.bin/sass --no-source-map --style=compressed ./public/css/style.scss ./public/css/style.min.css"
   },
   "dependencies": {
     "express": ">=4.17.1",

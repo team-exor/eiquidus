@@ -7,8 +7,17 @@ This project is a fork of [Ciquidus Explorer](https://github.com/suprnurd/ciquid
 
 ### Features
 
+- Built using the following scripts and technologies:
+  - Node.js (v14.15.1 or newer recommended)
+  - MongoDB (v4.0.21 or newer recommended)
+  - JQuery v3.5.1  
+  - Bootstrap v4.5.3
+  - DataTables v1.10.22
+  - FontAwesome v5.15.1
+  - jqPlot v1.0.9.d96a669
+  - Chart.js v2.9.4
+  - flag-icon-css v3.5.0 ([https://github.com/lipis/flag-icon-css](https://github.com/lipis/flag-icon-css))
 - Mobile-friendly
-- Bootstrap v4.5
 - Sass support
 - Custom rpc/api command support which increases blockchain compatibility. Supported cmds:
   - **getnetworkhashps:** Returns the estimated network hashes per second

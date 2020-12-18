@@ -37,20 +37,27 @@ block content
       .card.card-default.border-0
         .card-body
           div.text-center
-            canvas(id="myChart2", width="150", height="150")
+            canvas.d-inline(id="rewardChange", width="150", height="150" style="max-width:150px;")
               script.
-                var ctx = document.getElementById("myChart2").getContext("2d");
-                var data = [
-                  {
-                    value: ((#{stats.count}/3600)%1)*100,
-                    color: "rgba(92,184,92,1.0)"
-                  },
-                  {
-                    value: (1-((#{stats.count}/3600)%1))*100,
-                    color: "#222"
+                var ctx = document.getElementById("rewardChange").getContext("2d");
+                var data = {
+                  labels: [
+                    "Est. Next",
+                    "Current Reward"
+                  ],
+                  datasets: [
+                    {
+                      data: [(((#{stats.count}/3600)%1)*100).toFixed(2), ((1-((#{stats.count}/3600)%1))*100).toFixed(2)],
+                      backgroundColor: ["rgba(92,184,92,1.0)", "#222"]
+                    }
+                  ]
+                };
+                var options = {
+                  legend: {
+                    display: false
                   }
-                ]
-                new Chart(ctx).Doughnut(data);
+                };
+                new Chart(ctx, { type: 'doughnut', data: data, options: options });
             h5 #{settings.locale.heavy_changein}
             h5
               =heavy.nextin
@@ -80,33 +87,45 @@ block content
             .div
               strong #{settings.locale.heavy_lastxvotes}
             .div
-              canvas(id="myChart", width="800", height="300", style="margin-left:-30px;margin-top:30px;")
+              canvas.d-inline(id="lastVotes", width="800", height="300", style="margin-left:-30px;margin-top:30px;max-width:800px;")
                 script.
-                  var ctx = document.getElementById("myChart").getContext("2d");
+                  var ctx = document.getElementById("lastVotes").getContext("2d");
                   var options = {
-                    scaleOverride: true,
-                    scaleSteps: 8,
-                    scaleStepWidth: 1,
-                    scaleStartValue: 0,
-                    bezierCurve: false
-                  }
+                    legend: {
+                      display: false
+                    },
+                    scales: {
+                      yAxes: [{
+                        ticks: {
+                          beginAtZero: true,
+                          min: 0,
+                          suggestedMax: 8,
+                          stepSize: 1,
+                          maxTicksLimit: 8
+                        }
+                      }],
+                    },
+                    line: {
+                      tension: 0
+                    }
+                  };
                   var data = {
-                    labels: [#{(votes.length > 0 ? votes[0].count : '0')},#{(votes.length > 1 ? votes[1].count : '0')},#{(votes.length > 2 ? votes[2].count : '0')},#{(votes.length > 3 ? votes[3].count : '0')},#{(votes.length > 4 ? votes[4].count : '0')},#{(votes.length > 5 ? votes[5].count : '0')},#{(votes.length > 6 ? votes[6].count : '0')},#{(votes.length > 7 ? votes[7].count : '0')},#{(votes.length > 8 ? votes[8].count : '0')},#{(votes.length > 9 ? votes[9].count : '0')},#{(votes.length > 10 ? votes[10].count : '0')},#{(votes.length > 11 ? votes[11].count : '0')},#{(votes.length > 12 ? votes[12].count : '0')},#{(votes.length > 13 ? votes[13].count : '0')},#{(votes.length > 14 ? votes[14].count : '0')},#{(votes.length > 15 ? votes[15].count : '0')},#{(votes.length > 16 ? votes[16].count : '0')},#{(votes.length > 17 ? votes[17].count : '0')},#{(votes.length > 18 ? votes[18].count : '0')},#{(votes.length > 19 ? votes[19].count : '0')}],
+                    labels: [#{(votes.length > 0 ? votes[0].count : 0)},#{(votes.length > 1 ? votes[1].count : 0)},#{(votes.length > 2 ? votes[2].count : 0)},#{(votes.length > 3 ? votes[3].count : 0)},#{(votes.length > 4 ? votes[4].count : 0)},#{(votes.length > 5 ? votes[5].count : 0)},#{(votes.length > 6 ? votes[6].count : 0)},#{(votes.length > 7 ? votes[7].count : 0)},#{(votes.length > 8 ? votes[8].count : 0)},#{(votes.length > 9 ? votes[9].count : 0)},#{(votes.length > 10 ? votes[10].count : 0)},#{(votes.length > 11 ? votes[11].count : 0)},#{(votes.length > 12 ? votes[12].count : 0)},#{(votes.length > 13 ? votes[13].count : 0)},#{(votes.length > 14 ? votes[14].count : 0)},#{(votes.length > 15 ? votes[15].count : 0)},#{(votes.length > 16 ? votes[16].count : 0)},#{(votes.length > 17 ? votes[17].count : 0)},#{(votes.length > 18 ? votes[18].count : 0)},#{(votes.length > 19 ? votes[19].count : 0)}],
                     datasets: [
                       {
-                        fillColor: "rgba(66,139,202,0.5)",
-                        strokeColor: "rgba(66,139,202,0.8)",
-                        pointColor: '#428bca',
-                        pointStrokeColor: "#fff",
-                        data: [#{(votes.length > 0 ? votes[0].vote : '0')},#{(votes.length > 1 ? votes[1].vote : '0')},#{(votes.length > 2 ? votes[2].vote : '0')},#{(votes.length > 3 ? votes[3].vote : '0')},#{(votes.length > 4 ? votes[4].vote : '0')},#{(votes.length > 5 ? votes[5].vote : '0')},#{(votes.length > 6 ? votes[6].vote : '0')},#{(votes.length > 7 ? votes[7].vote : '0')},#{(votes.length > 8 ? votes[8].vote : '0')},#{(votes.length > 9 ? votes[9].vote : '0')},#{(votes.length > 10 ? votes[10].vote : '0')},#{(votes.length > 11 ? votes[11].vote : '0')},#{(votes.length > 12 ? votes[12].vote : '0')},#{(votes.length > 13 ? votes[13].vote : '0')},#{(votes.length > 14 ? votes[14].vote : '0')},#{(votes.length > 15 ? votes[15].vote : '0')},#{(votes.length > 16 ? votes[16].vote : '0')},#{(votes.length > 17 ? votes[17].vote : '0')},#{(votes.length > 18 ? votes[18].vote : '0')},#{(votes.length > 19 ? votes[19].vote : '0')}]
+                        backgroundColor: "rgba(66,139,202,0.5)",
+                        borderColor: "rgba(66,139,202,0.8)",
+                        pointBackgroundColor: '#428bca',
+                        pointBorderColor: "#fff",
+                        data: [#{(votes.length > 0 ? votes[0].vote : 0)},#{(votes.length > 1 ? votes[1].vote : 0)},#{(votes.length > 2 ? votes[2].vote : 0)},#{(votes.length > 3 ? votes[3].vote : 0)},#{(votes.length > 4 ? votes[4].vote : 0)},#{(votes.length > 5 ? votes[5].vote : 0)},#{(votes.length > 6 ? votes[6].vote : 0)},#{(votes.length > 7 ? votes[7].vote : 0)},#{(votes.length > 8 ? votes[8].vote : 0)},#{(votes.length > 9 ? votes[9].vote : 0)},#{(votes.length > 10 ? votes[10].vote : 0)},#{(votes.length > 11 ? votes[11].vote : 0)},#{(votes.length > 12 ? votes[12].vote : 0)},#{(votes.length > 13 ? votes[13].vote : 0)},#{(votes.length > 14 ? votes[14].vote : 0)},#{(votes.length > 15 ? votes[15].vote : 0)},#{(votes.length > 16 ? votes[16].vote : 0)},#{(votes.length > 17 ? votes[17].vote : 0)},#{(votes.length > 18 ? votes[18].vote : 0)},#{(votes.length > 19 ? votes[19].vote : 0)}]
                       },
                       {
-                        fillColor: "rgba(151,187,205,0.0)",
-                        strokeColor: '#222',
-                        pointColor: "rgba(0,0,0,0)",
-                        pointStrokeColor: "rgba(0,0,0,0.0)",
-                        data: [#{(votes.length > 0 ? votes[0].reward : '0')},#{(votes.length > 1 ? votes[1].reward : '0')},#{(votes.length > 2 ? votes[2].reward : '0')},#{(votes.length > 3 ? votes[3].reward : '0')},#{(votes.length > 4 ? votes[4].reward : '0')},#{(votes.length > 5 ? votes[5].reward : '0')},#{(votes.length > 6 ? votes[6].reward : '0')},#{(votes.length > 7 ? votes[7].reward : '0')},#{(votes.length > 8 ? votes[8].reward : '0')},#{(votes.length > 9 ? votes[9].reward : '0')},#{(votes.length > 10 ? votes[10].reward : '0')},#{(votes.length > 11 ? votes[11].reward : '0')},#{(votes.length > 12 ? votes[12].reward : '0')},#{(votes.length > 13 ? votes[13].reward : '0')},#{(votes.length > 14 ? votes[14].reward : '0')},#{(votes.length > 15 ? votes[15].reward : '0')},#{(votes.length > 16 ? votes[16].reward : '0')},#{(votes.length > 17 ? votes[17].reward : '0')},#{(votes.length > 18 ? votes[18].reward : '0')},#{(votes.length > 19 ? votes[19].reward : '0')}]
+                        backgroundColor: "rgba(151,187,205,0.0)",
+                        borderColor: '#222',
+                        pointBackgroundColor: "rgba(0,0,0,0)",
+                        pointBorderColor: "rgba(0,0,0,0.0)",
+                        data: [#{(votes.length > 0 ? votes[0].reward : 0)},#{(votes.length > 1 ? votes[1].reward : 0)},#{(votes.length > 2 ? votes[2].reward : 0)},#{(votes.length > 3 ? votes[3].reward : 0)},#{(votes.length > 4 ? votes[4].reward : 0)},#{(votes.length > 5 ? votes[5].reward : 0)},#{(votes.length > 6 ? votes[6].reward : 0)},#{(votes.length > 7 ? votes[7].reward : 0)},#{(votes.length > 8 ? votes[8].reward : 0)},#{(votes.length > 9 ? votes[9].reward : 0)},#{(votes.length > 10 ? votes[10].reward : 0)},#{(votes.length > 11 ? votes[11].reward : 0)},#{(votes.length > 12 ? votes[12].reward : 0)},#{(votes.length > 13 ? votes[13].reward : 0)},#{(votes.length > 14 ? votes[14].reward : 0)},#{(votes.length > 15 ? votes[15].reward : 0)},#{(votes.length > 16 ? votes[16].reward : 0)},#{(votes.length > 17 ? votes[17].reward : 0)},#{(votes.length > 18 ? votes[18].reward : 0)},#{(votes.length > 19 ? votes[19].reward : 0)}]
                       }
                     ]
-                  }
-                  var myNewChart = new Chart(ctx).Line(data,options);
+                  };
+                  var myNewChart = new Chart(ctx, { type: 'line', data: data, options: options });
