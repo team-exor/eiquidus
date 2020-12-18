@@ -125,7 +125,7 @@ app.use('/ext/gettx/:txid', function(req, res) {
       lib.get_rawtransaction(txid, function(rtx) {
         if (rtx && rtx.txid) {
           lib.prepare_vin(rtx, function(vin) {
-            lib.prepare_vout(rtx.vout, rtx.txid, vin, function(rvout, rvin) {
+            lib.prepare_vout(rtx.vout, rtx.txid, vin, ((typeof rtx.vjoinsplit === 'undefined' || rtx.vjoinsplit == null) ? [] : rtx.vjoinsplit), function(rvout, rvin) {
               lib.calculate_total(rvout, function(total){
                 if (!rtx.confirmations > 0) {
                   var utx = {
