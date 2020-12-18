@@ -205,7 +205,39 @@ app.use('/ext/getbasicstats', function(req,res) {
 });
 
 app.use('/ext/getlasttxs/:min', function(req, res) {
-  db.get_last_txs(req, function(data, count) {
+  var min = req.params.min, start, length;
+  // split url suffix by forward slash and remove blank entries
+  var split = req.url.split('/').filter(function(v) { return v; });
+  // determine how many parameters were passed
+  switch (split.length) {
+    case 2:
+      // capture start and length
+      start = split[0];
+      length = split[1];
+      break;
+    default:
+      if (split.length == 1) {
+        // capture start
+        start = split[0];
+      } else if (split.length > 2) {
+        // capture start and length
+        start = split[0];
+        length = split[1];
+      }
+      break;
+  }
+
+  // fix parameters
+  if (typeof length === 'undefined' || isNaN(length) || length > settings.index.last_txs)
+    length = settings.index.last_txs;
+  if (typeof start === 'undefined' || isNaN(start) || start < 0)
+    start = 0;
+  if (typeof min === 'undefined' || isNaN(min ) || min < 0)
+    min  = 0;
+  else
+    min  = (min * 100000000);
+
+  db.get_last_txs(start, length, min, function(data, count) {
     res.json({"data":data, "recordsTotal": count, "recordsFiltered": count});
   });
 });

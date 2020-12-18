@@ -32,7 +32,7 @@ block content
         ajax: {
           url: '/ext/getlasttxs/#{min_amount}',
           beforeSend: function(jqXHR, settings) {
-            settings.url = fixDatatableQuerystring(settings.url, 3);
+            settings.url = settings.url.substring(0, settings.url.indexOf('?')) + '/' + getParameterByName('start', settings.url) + '/' + getParameterByName('length', settings.url);
             return true;
           }
         },

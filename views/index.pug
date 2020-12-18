@@ -31,7 +31,7 @@ block content
         ajax: {
           url: '/ext/getlasttxs/0',
           beforeSend: function(jqXHR, settings) {
-            settings.url = fixDatatableQuerystring(settings.url, 5);
+            settings.url = settings.url.substring(0, settings.url.indexOf('?')) + '/' + getParameterByName('start', settings.url) + '/' + getParameterByName('length', settings.url);
             return true;
           }
         },

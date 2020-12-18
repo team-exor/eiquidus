@@ -181,12 +181,13 @@ block content
               a(href='/ext/getbalance/' + hashes.address) #{address}/ext/getbalance/#{hashes.address}
           li
             p
-              div.font-weight-bold getlasttxs (/ext/getlasttxs/min)
+              div.font-weight-bold getlasttxs (/ext/getlasttxs/min/start/length)
               div
-                em Returns last transactions greater than [min]
+                em Returns last [length] transactions greater than [min], starting from offset [start]
               div
                 em Note: returned values are in satoshis
-              a(href='/ext/getlasttxs/100') #{address}/ext/getlasttxs/100
+              div
+                a(href='/ext/getlasttxs/100/0/100') #{address}/ext/getlasttxs/100/0/100
           li
             p
               div.font-weight-bold getcurrentprice
