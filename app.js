@@ -205,8 +205,8 @@ app.use('/ext/getbasicstats', function(req,res) {
 });
 
 app.use('/ext/getlasttxs/:min', function(req, res) {
-  db.get_last_txs(req, function(data, draw, count) {
-    res.json({"data":data, "draw": draw, "recordsTotal": count, "recordsFiltered": count});
+  db.get_last_txs(req, function(data, count) {
+    res.json({"data":data, "recordsTotal": count, "recordsFiltered": count});
   });
 });
 

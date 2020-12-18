@@ -27,7 +27,11 @@ script.
       iDisplayLength: displayLengthMax,
       lengthMenu: lengthMenuOpts,
       ajax: {
-        "url": '/ext/getaddresstxsajax/'+hashAddress
+        url: '/ext/getaddresstxsajax/' + hashAddress,
+        beforeSend: function(jqXHR, settings) {
+          settings.url = fixDatatableQuerystring(settings.url, 4);
+          return true;
+        }
       },
       language: {
         paginate: {

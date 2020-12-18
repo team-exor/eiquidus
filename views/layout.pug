@@ -27,6 +27,64 @@ html(lang='en')
     if active == 'reward'
       script(type='text/javascript', src='/js/Chart.min.js')
     script.
+      /* Special thanks to bobince for the removeURLParameter function: https://stackoverflow.com/a/1634841/3038650 */
+      function removeURLParameter(url, parameter) {
+        //prefer to use l.search if you have a location/link object
+        var urlparts = url.split('?');
+        if (urlparts.length >= 2) {
+          var prefix = encodeURIComponent(parameter) + '=';
+          var pars = urlparts[1].split(/[&;]/g);
+
+          //reverse iteration as may be destructive
+          for (var i = pars.length; i-- > 0;) {
+            //idiom for string.startsWith
+            if (pars[i].lastIndexOf(prefix, 0) !== -1)
+              pars.splice(i, 1);
+          }
+
+          return urlparts[0] + (pars.length > 0 ? '?' + pars.join('&') : '');
+        }
+
+        return url;
+      }
+      /* Remove unnecessary querystring values from ajax-enabled datatables */
+      function fixDatatableQuerystring(url, columnCount) {
+        for (i = 0; i < columnCount; i++) {
+          if (url.indexOf('columns%5B' + i.toString() + '%5D') > -1) {
+            for (z = 0; z < 5; z++) {
+              var dataType;
+
+              switch (z) {
+                case 0:
+                  dataType = 'data';
+                  break;
+                case 1:
+                  dataType = 'name';
+                  break;
+                case 2:
+                  dataType = 'searchable';
+                  break;
+                case 3:
+                  dataType = 'orderable';
+                  break;
+                case 4:
+                  dataType = 'search';
+                  url = removeURLParameter(url, 'columns[' + i.toString() + '][' + dataType + '][value]');
+                  break;
+              }
+
+              url = removeURLParameter(url, 'columns[' + i.toString() + '][' + dataType + ']' + (dataType == 'search' ? '[regex]' : ''));
+            }
+          }
+        }
+
+        url = removeURLParameter(url, 'draw');
+        url = removeURLParameter(url, 'search[value]');
+        url = removeURLParameter(url, 'search[regex]');
+        url = removeURLParameter(url, '_');
+
+        return url;
+      }
       $(document).ready(function() {
         function fixSocialLinkFontSize() {
           var fontSize = $('#footer-container').height() * (getSocialLinkHeight() / 100);

@@ -28,7 +28,13 @@ block content
         serverSide: true,
         iDisplayLength: displayLengthMax,
         lengthMenu: lengthMenuOpts,
-        ajax: '/ext/getlasttxs/0',
+        ajax: {
+          url: '/ext/getlasttxs/0',
+          beforeSend: function(jqXHR, settings) {
+            settings.url = fixDatatableQuerystring(settings.url, 5);
+            return true;
+          }
+        },
         language: {
           paginate: {
             previous: '<',

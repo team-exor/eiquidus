@@ -29,7 +29,13 @@ block content
         serverSide: true,
         iDisplayLength: displayLengthMax,
         lengthMenu: lengthMenuOpts,
-        ajax: '/ext/getlasttxs/#{min_amount}',
+        ajax: {
+          url: '/ext/getlasttxs/#{min_amount}',
+          beforeSend: function(jqXHR, settings) {
+            settings.url = fixDatatableQuerystring(settings.url, 3);
+            return true;
+          }
+        },
         language: {
           paginate: {
             previous: '<',
