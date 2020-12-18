@@ -65,7 +65,8 @@ html(lang='en')
 
           return retVal;
         }
-        $('##{active}').addClass('active');
+        if ('#{active}' != '')
+          $('##{active}').addClass('active');
         function update_stats() {
           $.ajax({url: '/ext/summary', success: function(json) {
             $("#masternodeCountOnline").text(json.data[0].masternodeCountOnline).prop("alt", json.data[0].masternodeCountOnline+" nodes online").prop("title", json.data[0].masternodeCountOnline+" nodes online");
