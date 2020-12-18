@@ -27,9 +27,9 @@ script.
       iDisplayLength: displayLengthMax,
       lengthMenu: lengthMenuOpts,
       ajax: {
-        url: '/ext/getaddresstxsajax/' + hashAddress,
+        url: '/ext/getaddresstxs/' + hashAddress,
         beforeSend: function(jqXHR, settings) {
-          settings.url = fixDatatableQuerystring(settings.url, 4);
+          settings.url = settings.url.substring(0, settings.url.indexOf('?')) + '/' + getParameterByName('start', settings.url) + '/' + getParameterByName('length', settings.url);
           return true;
         }
       },

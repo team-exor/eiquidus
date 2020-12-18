@@ -232,7 +232,7 @@ app.use('/ext/getlasttxs/:min', function(req, res) {
     length = settings.index.last_txs;
   if (typeof start === 'undefined' || isNaN(start) || start < 0)
     start = 0;
-  if (typeof min === 'undefined' || isNaN(min ) || min < 0)
+  if (typeof min === 'undefined' || isNaN(min) || min < 0)
     min  = 0;
   else
     min  = (min * 100000000);
@@ -242,45 +242,48 @@ app.use('/ext/getlasttxs/:min', function(req, res) {
   });
 });
 
-app.use('/ext/getaddresstxsajax/:address', function(req,res){
-    req.query.length = parseInt(req.query.length);
-    if(isNaN(req.query.length) || req.query.length > settings.txcount){
-        req.query.length = settings.txcount;
+app.use('/ext/getaddresstxs/:address/:start/:length', function(req,res) {
+  // fix parameters
+  if (typeof req.params.length === 'undefined' || isNaN(req.params.length) || req.params.length > settings.txcount)
+    req.params.length = settings.txcount;
+  if (typeof req.params.start === 'undefined' || isNaN(req.params.start) || req.params.start < 0)
+    req.params.start = 0;
+  if (typeof req.params.min === 'undefined' || isNaN(req.params.min) || req.params.min < 0)
+    req.params.min  = 0;
+  else
+    req.params.min  = (req.params.min * 100000000);
+
+  db.get_address_txs_ajax(req.params.address, req.params.start, req.params.length, function(txs, count) {
+    var data = [];
+    for (i = 0; i < txs.length; i++) {
+      if (typeof txs[i].txid !== "undefined") {
+        var out = 0;
+        var vin = 0;
+
+        txs[i].vout.forEach(function(r) {
+          if (r.addresses == req.params.address) {
+            out += r.amount;
+          }
+        });
+
+        txs[i].vin.forEach(function(s) {
+          if (s.addresses == req.params.address) {
+            vin += s.amount;
+          }
+        });
+
+        var row = [];
+        row.push(new Date((txs[i].timestamp) * 1000).toUTCString());
+        row.push(txs[i].txid);
+        row.push(out);
+        row.push(vin);
+        row.push(txs[i].balance);
+        data.push(row);
+      }
     }
-    if(isNaN(req.query.start) || req.query.start < 0){
-        req.query.start = 0;
-    }
-    db.get_address_txs_ajax(req.params.address, req.query.start, req.query.length,function(txs, count){
-        var data = [];
-        for(i=0; i<txs.length; i++){
-            if(typeof txs[i].txid !== "undefined") {
-                var out = 0
-                var vin = 0
 
-                txs[i].vout.forEach(function (r) {
-                    if (r.addresses == req.params.address) {
-                        out += r.amount;
-                    }
-                });
-
-                txs[i].vin.forEach(function (s) {
-                    if (s.addresses == req.params.address) {
-                        vin += s.amount
-                    }
-                });
-
-                var row = [];
-                row.push(new Date((txs[i].timestamp) * 1000).toUTCString());
-                row.push(txs[i].txid);
-                row.push(out);
-                row.push(vin);
-                row.push(txs[i].balance);
-                data.push(row);
-            }
-        }
-
-        res.json({"data":data, "draw": req.query.draw, "recordsTotal": count, "recordsFiltered": count});
-    });
+    res.json({"data":data, "recordsTotal": count, "recordsFiltered": count});
+  });
 });
 
 app.post('/address/:hash/claim', function(req, res){
