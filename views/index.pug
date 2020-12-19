@@ -55,6 +55,9 @@ block content
           $("td:eq(2)", row).html(outputs).addClass("text-center");
           $("td:eq(3)", row).html(amount);
           $("td:eq(4)", row).html(format_unixtime(new Date(timestamp), true)).addClass("text-center d-none d-sm-table-cell");
+        },
+        fnDrawCallback: function(settings) {
+          fixFooterHeightAndPosition();
         }
       });
       setInterval( function () {
@@ -81,4 +84,3 @@ block content
               span.small  (#{settings.symbol})
             th.text-center.d-none.d-sm-table-cell #{settings.locale.timestamp}
         tbody.text-center
-    .footer-padding

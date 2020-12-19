@@ -75,6 +75,9 @@ script.
         var amountParts = amount.split('.');
         $("td:eq(2)", row).html(updown + amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>').addClass(rowclass);
         $("td:eq(3)", row).html(balanceParts[0] + '.<span class="decimal">' + balanceParts[1] + '</span>');
+      },
+      fnDrawCallback: function(settings) {
+        fixFooterHeightAndPosition();
       }
     });
   });

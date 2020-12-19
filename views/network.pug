@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  .col-md-12(style='margin-bottom: 4%')
+  .col-md-12.cardSpacer
     .text-center(style='margin-bottom:15px;')
       i #{settings.locale.net_warning}
     .container
@@ -10,7 +10,7 @@ block content
           a.nav-link.active(href='#connections', aria-controls='connections', role='tab', data-toggle='tab') #{settings.locale.net_connections}
         li.nav-item(role='presentation')
           a.nav-link(href='#addnodes', aria-controls='addnodes', role='tab', data-toggle='tab') #{settings.locale.net_addnodes}
-    .tab-content(style='margin-bottom:70px;')
+    .tab-content
       #connections.container.tab-pane.active(style='margin-top:0;border-top:0;')
         include ./includes/net_list.pug
       #addnodes.container.tab-pane(style='margin-top:0;border-top:0;')

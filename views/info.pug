@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  .col-md-12(style="margin-bottom: 4%")
+  .col-md-12.cardSpacer
     .card.card-default.border-0
       .card-header
         strong #{settings.locale.api_title}
@@ -221,4 +221,3 @@ block content
             p
               div.font-weight-bold qrcode (/qr/hash)
               a(href='/qr/' + hashes.address) #{address}/qr/#{hashes.address}
-    .footer-padding

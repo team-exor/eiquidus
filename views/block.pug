@@ -4,7 +4,7 @@ block content
   include ./includes/common.pug
   - var time = format_unixtime(block.time);
   - var block_difficulty = parseFloat(block.difficulty).toFixed(4);
-  .col-xs-12.col-md-12.cardSpacer
+  .col-xs-12.col-md-12
     .card.card-default.border-0.cardSpacer
       .card-header(style='padding-left:25px;padding-right:25px;')
         .row
@@ -73,7 +73,7 @@ block content
       .alert.alert-info(role='alert', style='text-align:center;')
         strong #{settings.locale.block_genesis}
     else
-      .card.card-default.border-0.cardSpacer
+      .card.card-default.border-0
         .card-header
           strong #{settings.locale.ex_latest_transactions}
         table.table.table-bordered.table-striped.summary-table.mobile-border-right
@@ -103,4 +103,3 @@ block content
                 td.text-center
                   a(href='/tx/' + txn.txid)
                     span.fa.fa-eye
-    .footer-padding

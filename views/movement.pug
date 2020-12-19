@@ -61,14 +61,17 @@ block content
           $("td:eq(0)", row).html(format_unixtime(new Date(timestamp), true));
           $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-sm-table-cell');
           $("td:eq(2)", row).html(total);
+        },
+        fnDrawCallback: function(settings) {
+          fixFooterHeightAndPosition();
         }
       });
       setInterval(function () {
         rtable.api().ajax.reload(null, false);
       }, 45000);
     });
-  .col-md-12(style="margin-bottom: 4%")
-    .card.card-default.border-0
+  .col-md-12
+    .card.card-default.border-0.cardSpacer
       .card-header
         strong="Latest Movement"
       table#movement-table.table.table-bordered.table-striped.table-paging.mobile-border-right
@@ -78,4 +81,3 @@ block content
             th.text-center.d-none.d-sm-table-cell txid
             th.text-center amount
         tbody.text-center
-    .footer-padding

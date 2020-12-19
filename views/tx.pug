@@ -3,7 +3,7 @@ extends layout
 block content
   include ./includes/common.pug
   - var time = format_unixtime(tx.timestamp);
-  .col-xs-12.col-md-12.cardSpacer
+  .col-xs-12.col-md-12
     .card.card-default.border-0.cardSpacer
       .card-header
         strong=settings.symbol + ' TXid: ' + tx.txid
@@ -124,4 +124,3 @@ block content
                           =r.addresses
                       td.bg-success #{ramountParts[0]}.
                         span.decimal #{ramountParts[1]}
-    .footer-padding

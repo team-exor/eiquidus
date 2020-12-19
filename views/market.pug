@@ -206,7 +206,7 @@ block content
                       else
                         =parseFloat(parseFloat(sell.price).toFixed(8) * parseFloat(sell.quantity).toFixed(8)).toFixed(8)
       .row
-        .col-md-12.cardSpacer
+        .col-md-12
           .card.card-default.border-0
             .card-header
               strong #{settings.locale.mkt_trade_history}
@@ -249,4 +249,3 @@ block content
                             =parseFloat(parseFloat(order.price).toFixed(8) * parseFloat(order.quantity).toFixed(8)).toFixed(8)
                         td.d-none.d-lg-table-cell
                           =format_unixtime(new Date(order.timestamp), true)
-          .footer-padding

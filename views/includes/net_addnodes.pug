@@ -23,6 +23,9 @@ script.
           return rows;
         }
       },
+      fnDrawCallback: function(settings) {
+        fixFooterHeightAndPosition();
+      },
       columns: [
         {data: 'nodes', width: '100%'}
       ],
@@ -52,6 +55,9 @@ script.
           }
           return rows;
         }
+      },
+      fnDrawCallback: function(settings) {
+        fixFooterHeightAndPosition();
       },
       columns: [
         {data: 'nodes', width: '100%'}

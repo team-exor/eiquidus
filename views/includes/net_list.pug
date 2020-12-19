@@ -29,6 +29,9 @@ script.
         $("td:eq(2)", row).html(data['version']);
         $("td:eq(3)", row).html(data['country']+flagBlock);
       },
+      fnDrawCallback: function(settings) {
+        fixFooterHeightAndPosition();
+      },
       columns: [
         { data: 'address', width: '25%' },
         { data: 'protocol', width: '25%' },
@@ -40,6 +43,7 @@ script.
       $($.fn.dataTable.tables(true)).DataTable().responsive.recalc();
       $($.fn.dataTable.tables(true)).css('width', '100%');
       $($.fn.dataTable.tables(true)).DataTable().columns.adjust().draw();
+      fixFooterHeightAndPosition();
     });
   });
 .card.card-default.border-0

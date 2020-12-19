@@ -7,7 +7,7 @@ block content
   - var sentParts = sent.split('.');
   - var received = (address.received / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var receivedParts = received.split('.');
-  .col-xs-12.col-md-12.cardSpacer
+  .col-xs-12.col-md-12
     .card.card-default.border-0.card-address-summary.cardSpacer
       .card-header(style='position:relative;')
         strong #{address.a_id}
@@ -61,4 +61,3 @@ block content
       .card-header
         strong #{settings.locale.ex_latest_transactions}
       include ./includes/address_history.pug
-    .footer-padding

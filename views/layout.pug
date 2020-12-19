@@ -36,44 +36,55 @@ html(lang='en')
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, ' '));
       }
+      function fixFooterHeightAndPosition() {
+        var screenWidth = $(window).width();
+
+        if (screenWidth <= 575) {
+          // Mobile
+          $('#footer-container').css('height', '!{settings.footer_height_mobile}');
+        } else if (screenWidth >= 576 && screenWidth <= 991) {
+          // Tablet
+          $('#footer-container').css('height', '!{settings.footer_height_tablet}');
+        } else {
+          // Desktop
+          $('#footer-container').css('height', '!{settings.footer_height_desktop}');
+        }
+
+        if (!#{settings.sticky_footer}) {
+          // Wait a tick before fixing footer position to give time for elements to be rendered
+          var nonStickyFooterSetIntervalID = setInterval(function() {
+            // Stop setInterval from running again
+            clearInterval(nonStickyFooterSetIntervalID);
+            // Ensure footer is shown at the bottom of the viewport
+            var offset = (window.innerHeight - $('#footer-container').position().top - $('#footer-container').outerHeight());
+            $('#footer-container').css('margin-top', (offset > 0 ? offset : '10') + 'px');
+          }, 1, "tmrFixFooter");
+        }
+
+        fixSocialLinkFontSize();
+      }
+      function fixSocialLinkFontSize() {
+        var fontSize = $('#footer-container').height() * (getSocialLinkHeight() / 100);
+        $('#footer-container .social-link').css('font-size', fontSize);
+      }
+      function getSocialLinkHeight() {
+        var retVal = 70;
+        var screenWidth = $(window).width();
+
+        if (screenWidth <= 575) {
+          // Mobile
+          retVal = !{settings.social_link_percent_height_mobile};
+        } else if (screenWidth >= 576 && screenWidth <= 991) {
+          // Tablet
+          retVal = !{settings.social_link_percent_height_tablet};
+        } else {
+          // Desktop
+          retVal = !{settings.social_link_percent_height_desktop};
+        }
+
+        return retVal;
+      }
       $(document).ready(function() {
-        function fixSocialLinkFontSize() {
-          var fontSize = $('#footer-container').height() * (getSocialLinkHeight() / 100);
-          $('#footer-container .social-link').css('font-size', fontSize);
-        }
-        function fixFooterHeight() {
-          var screenWidth = $(window).width();
-
-          if (screenWidth <= 575) {
-            // Mobile
-            $('#footer-container').css('height', '!{settings.footer_height_mobile}');
-          } else if (screenWidth >= 576 && screenWidth <= 991) {
-            // Tablet
-            $('#footer-container').css('height', '!{settings.footer_height_tablet}');
-          } else {
-            // Desktop
-            $('#footer-container').css('height', '!{settings.footer_height_desktop}');
-          }
-
-          fixSocialLinkFontSize();
-        }
-        function getSocialLinkHeight() {
-          var retVal = 70;
-          var screenWidth = $(window).width();
-
-          if (screenWidth <= 575) {
-            // Mobile
-            retVal = !{settings.social_link_percent_height_mobile};
-          } else if (screenWidth >= 576 && screenWidth <= 991) {
-            // Tablet
-            retVal = !{settings.social_link_percent_height_tablet};
-          } else {
-            // Desktop
-            retVal = !{settings.social_link_percent_height_desktop};
-          }
-
-          return retVal;
-        }
         if ('#{active}' != '')
           $('##{active}').addClass('active');
         function update_stats() {
@@ -125,7 +136,7 @@ html(lang='en')
         $('.iquidus').css('color',$('.table').css('color'));
         $(window).resize(function () {
           $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-          fixFooterHeight();
+          fixFooterHeightAndPosition();
         });
         setInterval(function() {
           update_stats();
@@ -210,7 +221,7 @@ html(lang='en')
         hideShowPanel('#{settings.panel3}', 'pnlThree');
         hideShowPanel('#{settings.panel4}', 'pnlFour');
         hideShowPanel('#{settings.panel5}', 'pnlFive');
-        fixFooterHeight();
+        fixFooterHeightAndPosition();
       });
   body
     - var navbarClasses = ['nav','navbar','navbar-expand-lg'];
