@@ -59,6 +59,9 @@ html(lang='en')
             var offset = (window.innerHeight - $('#footer-container').position().top - $('#footer-container').outerHeight());
             $('#footer-container').css('margin-top', (offset > 0 ? offset : '10') + 'px');
           }, 1, "tmrFixFooter");
+        } else {
+          // Add spacing to the bottom of the body for the sticky footer
+          $('body').css('margin-bottom', ($('#footer-container').outerHeight() + 10) + 'px');
         }
 
         fixSocialLinkFontSize();
