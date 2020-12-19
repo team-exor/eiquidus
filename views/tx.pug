@@ -47,7 +47,7 @@ block content
                   a(href='/block/'+tx.blockhash)
                     span.fa.fa-eye
     if tx.vout.length < 1
-      .alert.alert-info.text-center(role='alert')
+      .alert.alert-info.text-center(role='alert', style='margin-bottom:0;')
         strong #{settings.locale.tx_nonstandard}
     else
       .row
