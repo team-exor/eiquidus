@@ -233,19 +233,18 @@ html(lang='en')
       - navbarClasses.push('fixed-top');
     if settings.sticky_footer == true
       - footerClasses.push('fixed-bottom');
-    if settings.display.navbar_dark == true
-      - navbarClasses.push('bg-dark');
-      - navbarClasses.push('navbar-dark');
-      - footerClasses.push('bg-dark');
-      - footerClasses.push('navbar-dark');
-    else if settings.display.navbar_light == true
-      - navbarClasses.push('bg-light');
-      - navbarClasses.push('navbar-light');
-      - footerClasses.push('bg-light');
-      - footerClasses.push('navbar-light');
+    if settings.display.page_header_bgcolor != null && settings.display.page_header_bgcolor != ''
+      - navbarClasses.push('bg-' + settings.display.page_header_bgcolor);
+      if settings.display.page_header_bgcolor.toString().toLowerCase() == 'dark' || settings.display.page_header_bgcolor.toString().toLowerCase() == 'light'
+        - navbarClasses.push('navbar-' + settings.display.page_header_bgcolor);
     else
       - navbarClasses.push('bg-primary');
       - navbarClasses.push('navbar-dark');
+    if settings.display.page_footer_bgcolor != null && settings.display.page_footer_bgcolor != ''
+      - footerClasses.push('bg-' + settings.display.page_footer_bgcolor);
+      if settings.display.page_footer_bgcolor.toString().toLowerCase() == 'dark' || settings.display.page_footer_bgcolor.toString().toLowerCase() == 'light'
+        - footerClasses.push('navbar-' + settings.display.page_footer_bgcolor);
+    else
       - footerClasses.push('bg-primary');
       - footerClasses.push('navbar-dark');
     div(class=navbarClasses, role='navigation', style=settings.homelink == 'logo' ? 'padding-left:0;' : '')

@@ -111,8 +111,13 @@
     "search": true,
     "movement": true,
     "network": true,
-    "navbar_dark": false,
-    "navbar_light": false,
+
+    // page_header_bgcolor: change the background color of the page header
+    // page_footer_bgcolor: change the background color of the page footer
+    // valid options: light, dark, primary, secondary, success, info, warning, danger or leave blank ( "" ) for default colors
+    "page_header_bgcolor": "",
+    "page_footer_bgcolor": "",
+    
     "networkpnl": 1,
     "difficultypnl": 2,
     "masternodespnl": 3,
