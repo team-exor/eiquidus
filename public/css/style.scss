@@ -418,7 +418,16 @@ table {
     }
     > thead.thead-light > tr > th:last-child {
       @include thead-light-border-color;
-    }    
+    }   
+    > tbody > tr {
+      > td:last-child {
+        border-left: 1px solid #000000;
+        @include table-border-color;
+      }
+      > td:nth-child(2) {
+        border-right: 0;
+      }
+    }
   }
   &.history-table {
     border-left: 0;
