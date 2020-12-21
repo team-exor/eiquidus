@@ -49,7 +49,10 @@ block content
           .card-header
             strong #{settings.locale.rl_wealth}
           table.table.table-hover.table-bordered.summary-table.right-border-0(style='margin-bottom:0;')
-            thead
+            - var theadClasses = [];
+            if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+              - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+            thead(class=theadClasses)
               tr
                 th
                 th Amount

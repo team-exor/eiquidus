@@ -82,7 +82,10 @@ script.
     });
   });
 table#address-txs.table.table-bordered.table-striped.table-paging.mobile-border-right
-  thead
+  - var theadClasses = [];
+  if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+    - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+  thead(class=theadClasses)
     tr
       th #{settings.locale.timestamp}
       th.d-none.d-sm-table-cell #{settings.locale.tx_hash}

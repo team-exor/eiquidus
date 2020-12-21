@@ -117,6 +117,9 @@
     // valid options: light, dark, primary, secondary, success, info, warning, danger or leave blank ( "" ) for default colors
     "page_header_bgcolor": "",
     "page_footer_bgcolor": "",
+    // table_header_bgcolor: change the background color of all table headers
+    // valid options: light, dark or leave blank ( "" ) for default colors
+    "table_header_bgcolor": "",
     
     "networkpnl": 1,
     "difficultypnl": 2,

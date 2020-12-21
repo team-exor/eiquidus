@@ -62,7 +62,10 @@ block content
                 a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site')
                   span.fa.fa-question-circle(style='margin-left:5px;')
       table.table.table-bordered.table-striped.summary-table.mobile-border-right
-        thead
+        - var theadClasses = [];
+        if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+          - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+        thead(class=theadClasses)
           tr
             if settings.show_sent_received == true
               th.d-none.d-sm-table-cell #{settings.locale.total_sent}

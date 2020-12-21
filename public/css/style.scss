@@ -69,6 +69,246 @@
   }
 }
 
+@mixin thead-dark-border-color() {
+  @if theme-selector.$theme-name == "Cerulean" {
+    border-color: #454d55;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Cosmo" {
+    border-color: #494d50;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Cyborg" {
+    border-color: #757575;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Darkly" {
+    border-color: #434343;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Flatly" {
+    border-color: #454d55;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Journal" {
+    border-color: #464646;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Litera" {
+    border-color: #454d55;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Lumen" {
+    border-color: #464646;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Lux" {
+    border-color: #454d55;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Materia" {
+    border-color: #353535;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Minty" {
+    border-color: Minty.$table-border-color;
+  } @else if theme-selector.$theme-name == "Pulse" {
+    border-color: Pulse.$table-border-color;
+  } @else if theme-selector.$theme-name == "Sandstone" {
+    border-color: #52534c;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Simplex" {
+    border-color: #494d50;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Sketchy" {
+    border-color: #464646;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Slate" {
+    border-color: Slate.$table-border-color;
+  } @else if theme-selector.$theme-name == "Solar" {
+    border-color: #a5adb6;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Spacelab" {
+    border-color: #464646;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Superhero" {
+    border-color: Superhero.$gray-200;
+  } @else if theme-selector.$theme-name == "United" {
+    border-color: #642246;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Yeti" {
+    border-color: #464646;  /* Hardcoded value not present in _variables.scss */
+  } @else {
+    border-color: #000000;
+  }
+}
+
+@mixin thead-light-border-color() {
+  @if theme-selector.$theme-name == "Cerulean" {
+    border-color: Cerulean.$gray-300;
+  } @else if theme-selector.$theme-name == "Cosmo" {
+    border-color: Cosmo.$gray-300;
+  } @else if theme-selector.$theme-name == "Cyborg" {
+    border-color: Cyborg.$gray-700;
+  } @else if theme-selector.$theme-name == "Darkly" {
+    border-color: Darkly.$gray-700;
+  } @else if theme-selector.$theme-name == "Flatly" {
+    border-color: Flatly.$gray-300;
+  } @else if theme-selector.$theme-name == "Journal" {
+    border-color: Journal.$gray-300;
+  } @else if theme-selector.$theme-name == "Litera" {
+    border-color: Litera.$table-border-color;
+  } @else if theme-selector.$theme-name == "Lumen" {
+    border-color: Lumen.$gray-300;
+  } @else if theme-selector.$theme-name == "Lux" {
+    border-color: Lux.$table-border-color;
+  } @else if theme-selector.$theme-name == "Materia" {
+    border-color: Materia.$gray-300;
+  } @else if theme-selector.$theme-name == "Minty" {
+    border-color: Minty.$table-border-color;
+  } @else if theme-selector.$theme-name == "Pulse" {
+    border-color: Pulse.$table-border-color;
+  } @else if theme-selector.$theme-name == "Sandstone" {
+    border-color: Sandstone.$gray-300;
+  } @else if theme-selector.$theme-name == "Simplex" {
+    border-color: Simplex.$gray-300;
+  } @else if theme-selector.$theme-name == "Sketchy" {
+    border-color: Sketchy.$gray-800;
+  } @else if theme-selector.$theme-name == "Slate" {
+    border-color: Slate.$table-border-color;
+  } @else if theme-selector.$theme-name == "Solar" {
+    border-color: Solar.$gray-800;
+  } @else if theme-selector.$theme-name == "Spacelab" {
+    border-color: Spacelab.$gray-300;
+  } @else if theme-selector.$theme-name == "Superhero" {
+    border-color: Superhero.$table-border-color;
+  } @else if theme-selector.$theme-name == "United" {
+    border-color: United.$gray-300;
+  } @else if theme-selector.$theme-name == "Yeti" {
+    border-color: Yeti.$gray-300;
+  } @else {
+    border-color: #dee2e6;
+  }
+}
+
+@mixin thead-dark() {
+  @if theme-selector.$theme-name == "Cerulean" {
+    color: Cerulean.$white;
+    background-color: Cerulean.$gray-800;
+  } @else if theme-selector.$theme-name == "Cosmo" {
+    color: Cosmo.$white;
+    background-color: Cosmo.$gray-800;
+  } @else if theme-selector.$theme-name == "Cyborg" {
+    color: Cyborg.$white;
+    background-color: Cyborg.$gray-500;
+  } @else if theme-selector.$theme-name == "Darkly" {
+    color: Darkly.$white;
+    background-color: Darkly.$gray-800;
+  } @else if theme-selector.$theme-name == "Flatly" {
+    color: Flatly.$white;
+    background-color: Flatly.$gray-800;
+  } @else if theme-selector.$theme-name == "Journal" {
+    color: Journal.$white;
+    background-color: Journal.$gray-800;
+  } @else if theme-selector.$theme-name == "Litera" {
+    color: Litera.$white;
+    background-color: Litera.$gray-800;
+  } @else if theme-selector.$theme-name == "Lumen" {
+    color: Lumen.$white;
+    background-color: Lumen.$gray-800;
+  } @else if theme-selector.$theme-name == "Lux" {
+    color: Lux.$white;
+    background-color: Lux.$gray-800;
+  } @else if theme-selector.$theme-name == "Materia" {
+    color: Materia.$white;
+    background-color: Materia.$gray-800;
+  } @else if theme-selector.$theme-name == "Minty" {
+    color: Minty.$white;
+    background-color: Minty.$primary;
+  } @else if theme-selector.$theme-name == "Pulse" {
+    color: Pulse.$white;
+    background-color: Pulse.$secondary;
+  } @else if theme-selector.$theme-name == "Sandstone" {
+    color: Sandstone.$white;
+    background-color: Sandstone.$gray-800;
+  } @else if theme-selector.$theme-name == "Simplex" {
+    color: Simplex.$white;
+    background-color: Simplex.$gray-800;
+  } @else if theme-selector.$theme-name == "Sketchy" {
+    color: Sketchy.$white;
+    background-color: Sketchy.$gray-800;
+  } @else if theme-selector.$theme-name == "Slate" {
+    color: Slate.$white;
+    background-color: Slate.$gray-800;
+  } @else if theme-selector.$theme-name == "Solar" {
+    color: Solar.$white;
+    background-color: Solar.$gray-500;
+  } @else if theme-selector.$theme-name == "Spacelab" {
+    color: Spacelab.$white;
+    background-color: Spacelab.$gray-800;
+  } @else if theme-selector.$theme-name == "Superhero" {
+    color: Superhero.$white;
+    background-color: #abb6c2;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "United" {
+    color: United.$white;
+    background-color: United.$purple;
+  } @else if theme-selector.$theme-name == "Yeti" {
+    color: Yeti.$white;
+    background-color: Yeti.$gray-800;
+  } @else {
+    color: #FFFFFF;
+    background-color: #343a40;
+  }
+  
+  @include thead-dark-border-color;
+}
+
+@mixin thead-light() {
+  @if theme-selector.$theme-name == "Cerulean" {
+    color: Cerulean.$gray-700;
+    background-color: Cerulean.$gray-200;
+  } @else if theme-selector.$theme-name == "Cosmo" {
+    color: Cosmo.$gray-700;
+    background-color: Cosmo.$gray-200;
+  } @else if theme-selector.$theme-name == "Cyborg" {
+    color: Cyborg.$gray-700;
+    background-color: Cyborg.$gray-200;
+  } @else if theme-selector.$theme-name == "Darkly" {
+    color: Darkly.$gray-700;
+    background-color: Darkly.$gray-200;
+  } @else if theme-selector.$theme-name == "Flatly" {
+    color: Flatly.$gray-700;
+    background-color: Flatly.$gray-200;
+  } @else if theme-selector.$theme-name == "Journal" {
+    color: Journal.$gray-700;
+    background-color: Journal.$gray-200;
+  } @else if theme-selector.$theme-name == "Litera" {
+    color: Litera.$gray-700;
+    background-color: Litera.$gray-200;
+  } @else if theme-selector.$theme-name == "Lumen" {
+    color: Lumen.$gray-700;
+    background-color: Lumen.$gray-200;
+  } @else if theme-selector.$theme-name == "Lux" {
+    color: Lux.$gray-700;
+    background-color: Lux.$gray-200;
+  } @else if theme-selector.$theme-name == "Materia" {
+    color: Materia.$gray-700;
+    background-color: Materia.$gray-200;
+  } @else if theme-selector.$theme-name == "Minty" {
+    color: Minty.$gray-700;
+    background-color: Minty.$gray-200;
+  } @else if theme-selector.$theme-name == "Pulse" {
+    color: Pulse.$gray-700;
+    background-color: Pulse.$gray-200;
+  } @else if theme-selector.$theme-name == "Sandstone" {
+    color: Sandstone.$gray-700;
+    background-color: Sandstone.$gray-200;
+  } @else if theme-selector.$theme-name == "Simplex" {
+    color: Simplex.$gray-700;
+    background-color: Simplex.$gray-200;
+  } @else if theme-selector.$theme-name == "Sketchy" {
+    color: Sketchy.$gray-700;
+    background-color: Sketchy.$gray-200;
+  } @else if theme-selector.$theme-name == "Slate" {
+    color: Slate.$gray-700;
+    background-color: Slate.$gray-200;
+  } @else if theme-selector.$theme-name == "Solar" {
+    color: Solar.$gray-700;
+    background-color: Solar.$gray-200;
+  } @else if theme-selector.$theme-name == "Spacelab" {
+    color: Spacelab.$gray-700;
+    background-color: Spacelab.$gray-200;
+  } @else if theme-selector.$theme-name == "Superhero" {
+    color: Superhero.$gray-700;
+    background-color: #abb6c2;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "United" {
+    color: United.$gray-700;
+    background-color: United.$gray-200;
+  } @else if theme-selector.$theme-name == "Yeti" {
+    color: Yeti.$gray-700;
+    background-color: Yeti.$gray-200;
+  } @else {
+    color: #52575c;
+    background-color: #e9ecef;
+  }
+  
+  @include thead-light-border-color;
+}
+
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
@@ -173,6 +413,12 @@ table {
         border-right: 0;
       }
     }
+    > thead.thead-dark > tr > th:last-child {
+      @include thead-dark-border-color;
+    }
+    > thead.thead-light > tr > th:last-child {
+      @include thead-light-border-color;
+    }    
   }
   &.history-table {
     border-left: 0;
@@ -209,6 +455,14 @@ table {
   padding-right: 16px !important;
   border-right: 1px solid #000000;
   @include table-border-color;
+}
+
+.card-default.thead-dark .dataTables_scrollHeadInner {
+  @include thead-dark;
+}
+
+.card-default.thead-light .dataTables_scrollHeadInner {
+  @include thead-light;
 }
 
 .pagination {

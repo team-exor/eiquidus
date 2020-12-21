@@ -75,7 +75,10 @@ block content
       .card-header
         strong #{settings.locale.ex_latest_transactions}
       table#recent-table.table.table-bordered.table-striped.table-paging
-        thead
+        - var theadClasses = [];
+        if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+          - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+        thead(class=theadClasses)
           tr
             th.text-center #{settings.locale.ex_block}
             th.text-center.d-none.d-sm-table-cell #{settings.locale.tx_hash}

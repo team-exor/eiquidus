@@ -4,6 +4,9 @@ block content
   include ./includes/common.pug
   - var time = format_unixtime(block.time);
   - var block_difficulty = parseFloat(block.difficulty).toFixed(4);
+  - var theadClasses = [];
+  if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+    - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
   .col-xs-12.col-md-12
     .card.card-default.border-0.cardSpacer
       .card-header(style='padding-left:25px;padding-right:25px;')
@@ -20,7 +23,7 @@ block content
           a(href='/api/getblock?hash=' + block.hash, style='margin-left: auto;')
             span.fa.fa-info-circle.iquidus
       table.table.table-bordered.summary-table
-        thead
+        thead(class=theadClasses)
           tr
             th #{settings.locale.height}
             th #{settings.locale.difficulty}
@@ -77,7 +80,7 @@ block content
         .card-header
           strong #{settings.locale.ex_latest_transactions}
         table.table.table-bordered.table-striped.summary-table.mobile-border-right
-          thead
+          thead(class=theadClasses)
             tr
               th.d-none.d-sm-table-cell #{settings.locale.tx_hash}
               th #{settings.locale.tx_recipients}

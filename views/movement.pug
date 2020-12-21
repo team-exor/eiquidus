@@ -75,7 +75,10 @@ block content
       .card-header
         strong="Latest Movement"
       table#movement-table.table.table-bordered.table-striped.table-paging.mobile-border-right
-        thead
+        - var theadClasses = [];
+        if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+          - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+        thead(class=theadClasses)
           tr
             th.text-center timestamp
             th.text-center.d-none.d-sm-table-cell txid

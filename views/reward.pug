@@ -8,7 +8,10 @@ block content
           strong #{settings.locale.heavy_title}
             span.small  (#{settings.symbol})
         table.table.table-bordered.table-striped.summary-table
-          thead
+          - var theadClasses = [];
+          if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+            - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+          thead(class=theadClasses)
             tr
               th #{settings.locale.ex_supply}
                 span.small  (#{settings.symbol})
@@ -63,23 +66,22 @@ block content
               =heavy.nextin
           form
             table.table
-              thead
-                tbody
-                  tr
-                    th #{settings.locale.heavy_key}
-                    td
-                  tr
-                    th #{settings.locale.heavy_vote}
-                    td
-                      div(style="width:20px;height:20px;background-color:#428bca")
-                  tr
-                    th #{settings.locale.heavy_current}
-                    td
-                      div(style="width:20px;height:20px;background-color:#222")
-                  tr
-                    th #{settings.locale.heavy_estnext}
-                    td
-                      div(style="width:20px;height:20px;background-color:rgba(92,184,92,1.0)")
+              tbody
+                tr
+                  th #{settings.locale.heavy_key}
+                  td
+                tr
+                  th #{settings.locale.heavy_vote}
+                  td
+                    div(style="width:20px;height:20px;background-color:#428bca")
+                tr
+                  th #{settings.locale.heavy_current}
+                  td
+                    div(style="width:20px;height:20px;background-color:#222")
+                tr
+                  th #{settings.locale.heavy_estnext}
+                  td
+                    div(style="width:20px;height:20px;background-color:rgba(92,184,92,1.0)")
     .col-md-9
       .card.card-default.border-0
         .card-body

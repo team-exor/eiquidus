@@ -50,7 +50,10 @@ script.
   });
 .card.card-default.border-0
   table#connections-table.table.table-bordered.table-striped.table-paging.mobile-border-right
-    thead
+    - var theadClasses = [];
+    if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+      - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+    thead(class=theadClasses)
       tr
         th #{settings.locale.net_address}
         th.text-center #{settings.locale.net_protocol}

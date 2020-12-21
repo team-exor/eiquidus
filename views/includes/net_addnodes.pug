@@ -67,6 +67,9 @@ script.
       ]
     });
   });
+- var theadClasses = [];
+if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+  - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
 .card.card-default.border-0
   .card-body.border-top-0
     :markdown-it
@@ -74,7 +77,7 @@ script.
       
       *Typically you can access the config file through QT-wallet menu, Tools > Open Wallet Configuration File*
   table#addnodes-table.table.table-bordered.table-striped.table-paging.mobile-border-right
-    thead
+    thead(class=theadClasses)
       tr
         th AddNode Config Lines
     tbody.text-center
@@ -82,7 +85,7 @@ script.
     :markdown-it
       Alternatively you can try one of these lines in the coin wallet debug window, or add them with *coindaemon*-cli
   table#addnodes2-table.table.table-bordered.table-striped.table-paging.mobile-border-right
-    thead
+    thead(class=theadClasses)
       tr
         th OneTry Node Lines
     tbody.text-center

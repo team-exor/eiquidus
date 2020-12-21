@@ -2,6 +2,9 @@ extends layout
 
 block content
   include ./includes/common.pug
+  - var theadClasses = [];
+  if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+    - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
   script.
     $(document).ready(function() {
       $('.order-table').dataTable({
@@ -95,7 +98,7 @@ block content
               if marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]'
                 span.fas.fa-chart-line.float-right.view-chart-disabled.iquidus.market-toggle(style='cursor: pointer;', data-toggle='tooltip', data-placement='bottom', title=settings.locale.mkt_no_chart)
             table.table.table-bordered.right-border-0.summary-table
-              thead
+              thead(class=theadClasses)
                 tr
                   if marketdata.data.summary.high != null
                     th #{settings.locale.mkt_high}
@@ -156,11 +159,11 @@ block content
                 div#chart(style='width: 100%; height: 300px;')
       .row
         .col-md-6.col-xs-12.cardSpacer
-          .card.card-default.border-0.wrapper-border-0
+          .card.card-default.border-0.wrapper-border-0(class=theadClasses)
             .card-header(style='border-bottom-width:1px;')
               strong #{settings.locale.mkt_buy_orders}
             table.table.table-striped.table-bordered.order-table
-              thead
+              thead(class=theadClasses)
                 tr
                   th #{settings.locale.mkt_price}
                     span.small  (#{marketdata.exchange})
@@ -181,11 +184,11 @@ block content
                       else
                         =parseFloat(parseFloat(buy.price).toFixed(8) * parseFloat(buy.quantity).toFixed(8)).toFixed(8)
         .col-md-6.col-xs-12.cardSpacer
-          .card.card-default.border-0.wrapper-border-0
+          .card.card-default.border-0.wrapper-border-0(class=theadClasses)
             .card-header(style='border-bottom-width:1px;')
               strong #{settings.locale.mkt_sell_orders}
             table.table.table-striped.table-bordered.order-table
-              thead
+              thead(class=theadClasses)
                 tr
                   th #{settings.locale.mkt_price}
                     span.small  (#{marketdata.exchange})
@@ -211,7 +214,7 @@ block content
             .card-header
               strong #{settings.locale.mkt_trade_history}
             table#history-table.table.table-hover.table-bordered.table-striped.table-paging.right-border-0(cellspacing='0')
-              thead
+              thead(class=theadClasses)
                 tr
                   th #{settings.locale.mkt_price}
                     span.small  (#{marketdata.exchange})
