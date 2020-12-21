@@ -269,6 +269,7 @@
   // getblock: Returns an object with information about the block.
   // getrawtransaction: Returns raw transaction data. Can return a hex-encoded string that is serialized or an object with txid information depending on the decrypt value (0(false) or 1(true))
   // getinfo: Returns an object containing various state info.
+  // getpeerinfo: Returns data about each connected network node as a json array of objects.
   // gettxoutsetinfo: Returns an object with statistics about the unspent transaction output set.
   // getsupply: Returns the current money supply. This should be a positive whole or decimal number.
   // getmaxmoney: Returns the number of coins that will be produced in total. This should be a positive whole or decimal number.
@@ -291,6 +292,7 @@
     "getblock": "getblock",
     "getrawtransaction": "getrawtransaction",
     "getinfo": "getinfo",
+    "getpeerinfo": "getpeerinfo",
     "gettxoutsetinfo": "gettxoutsetinfo",
     "getsupply": "getsupply",
     "getmaxmoney": "getmaxmoney",

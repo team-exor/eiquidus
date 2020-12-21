@@ -6,8 +6,7 @@ var mongoose = require('mongoose')
   , AddressTx = require('../models/addresstx')
   , Richlist = require('../models/richlist')
   , Stats = require('../models/stats')
-  , settings = require('../lib/settings')
-  , request = require('postman-request');
+  , settings = require('../lib/settings');
 
 var mode = 'update';
 var database = 'index';
@@ -185,43 +184,55 @@ if (database == 'peers') {
       console.log('Aborting');
       exit();
     } else {
-      request({uri: 'http://127.0.0.1:' + settings.port + '/api/getpeerinfo', json: true, headers: {'User-Agent': 'eiquidus'}}, function (error, response, body) {
-        lib.syncLoop(body.length, function (loop) {
-          var i = loop.iteration();
-          var address = body[i].addr.substring(0, body[i].addr.lastIndexOf(":")).replace("[","").replace("]","");
-          var port = body[i].addr.substring(body[i].addr.lastIndexOf(":") + 1);
-          var rateLimit = new RateLimit(1, 2000, false);
-          db.find_peer(address, function(peer) {
-            if (peer) {
-              if (isNaN(peer['port']) || peer['port'].length < 2 || peer['country'].length < 1 || peer['country_code'].length < 1) {
-                db.drop_peers(function() {
-                  console.log('Saved peers missing ports or country, dropping peers. Re-run this script afterwards.');
-                  exit();
-                });
-              }
-              // peer already exists
-              loop.next();
-            } else {
-              rateLimit.schedule(function() {
-                request({uri: 'https://freegeoip.app/json/' + address, json: true, headers: {'User-Agent': 'eiquidus'}}, function (error, response, geo) {
-                  db.create_peer({
-                    address: address,
-                    port: port,
-                    protocol: body[i].version,
-                    version: body[i].subver.replace('/', '').replace('/', ''),
-                    country: geo.country_name,
-                    country_code: geo.country_code
-                  }, function(){
-                    loop.next();
+      lib.get_peerinfo(function (body) {
+        if (body != null) {
+          lib.syncLoop(body.length, function (loop) {
+            var i = loop.iteration();
+            var address = body[i].addr.substring(0, body[i].addr.lastIndexOf(":")).replace("[","").replace("]","");
+            var port = body[i].addr.substring(body[i].addr.lastIndexOf(":") + 1);
+            var rateLimit = new RateLimit(1, 2000, false);
+            db.find_peer(address, function(peer) {
+              if (peer) {
+                if (isNaN(peer['port']) || peer['port'].length < 2 || peer['country'].length < 1 || peer['country_code'].length < 1) {
+                  db.drop_peers(function() {
+                    console.log('Saved peers missing ports or country, dropping peers. Re-run this script afterwards.');
+                    exit();
+                  });
+                }
+                // peer already exists
+                loop.next();
+              } else {
+                rateLimit.schedule(function() {
+                  lib.get_geo_location(address, function (error, geo) {
+                    // check if an error was returned
+                    if (error) {
+                      console.log(error);
+                      exit();
+                    } else {
+                      // add peer to collection
+                      db.create_peer({
+                        address: address,
+                        port: port,
+                        protocol: body[i].version,
+                        version: body[i].subver.replace('/', '').replace('/', ''),
+                        country: geo.country_name,
+                        country_code: geo.country_code
+                      }, function() {
+                        loop.next();
+                      });
+                    }
                   });
                 });
-              });
-            }
+              }
+            });
+          }, function() {
+            console.log('peer sync complete');
+            exit();
           });
-        }, function() {
-          console.log('peer sync complete');
+        } else {
+          console.log('no peers found');
           exit();
-        });
+        }
       });
     }
   });

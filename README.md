@@ -29,6 +29,7 @@ This project is a fork of [Ciquidus Explorer](https://github.com/suprnurd/ciquid
   - **getblock:** Returns an object with information about the block
   - **getrawtransaction:** Returns raw transaction data
   - **getinfo:** Returns an object containing various state info
+  - **getpeerinfo:** Returns data about each connected network node as a json array of objects
   - **gettxoutsetinfo:** Returns an object with statistics about the unspent transaction output set
   - **getsupply:** Returns the current money supply
   - **getmaxmoney:** Returns the number of coins that will be produced in total
