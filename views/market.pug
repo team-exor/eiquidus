@@ -86,8 +86,8 @@ block content
             });
           }
           $(window).resize(function () {
-            if (jqplot != null)
-              jqplot.replot( { resetAxes: false } );
+            if (jqplot != null && $('#chart').is(':visible'))
+              jqplot.replot({ resetAxes: false });
           });
         });
       .row
