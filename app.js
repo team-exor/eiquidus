@@ -14,31 +14,24 @@ var express = require('express')
   , request = require('postman-request');
 
 var app = express();
+var apiAccessList = [];
 
-// nodeapi
+// pass wallet rpc connection info to nodeapi
 nodeapi.setWalletDetails(settings.wallet);
-if (settings.heavy != true) {
-  nodeapi.setAccess('only', ['getinfo', 'getnetworkhashps', 'getmininginfo','getdifficulty', 'getconnectioncount',
-  'getmasternodecount', 'getmasternodelist', 'getvotelist', 'getblockcount', 'getblockhash', 'getblock', 'getrawtransaction', 
-  'getpeerinfo', 'gettxoutsetinfo', 'verifymessage']);
-} else {
-  // enable additional heavy api calls
-  /*
-    getvote - Returns the current block reward vote setting.
-    getmaxvote - Returns the maximum allowed vote for the current phase of voting.
-    getphase - Returns the current voting phase ('Mint', 'Limit' or 'Sustain').
-    getreward - Returns the current block reward, which has been decided democratically in the previous round of block reward voting.
-    getnextrewardestimate - Returns an estimate for the next block reward based on the current state of decentralized voting.
-    getnextrewardwhenstr - Returns string describing how long until the votes are tallied and the next block reward is computed.
-    getnextrewardwhensec - Same as above, but returns integer seconds.
-    getsupply - Returns the current money supply.
-    getmaxmoney - Returns the maximum possible money supply.
-  */
-  nodeapi.setAccess('only', ['getinfo', 'getstakinginfo', 'getnetworkhashps', 'getdifficulty', 'getconnectioncount',
-    'getmasternodecount', 'getmasternodelist', 'getvotelist', 'getblockcount', 'getblockhash', 
-    'getblock', 'getrawtransaction', 'getmaxmoney', 'getvote', 'getmaxvote', 'getphase', 'getreward', 'getpeerinfo', 
-    'getnextrewardestimate', 'getnextrewardwhenstr', 'getnextrewardwhensec', 'getsupply', 'gettxoutsetinfo', 'verifymessage']);
+// dynamically build the nodeapi cmd access list by adding all non-heavy api cmds that have a value
+Object.keys(settings.api_cmds).forEach(function(key, index, map) { 
+  if (key != 'heavies' && settings.api_cmds[key] != null && settings.api_cmds[key] != '')
+    apiAccessList.push(key);
+});
+if (settings.heavy) {
+  // add all heavy api cmds that have a value
+  Object.keys(settings.api_cmds.heavies).forEach(function(key, index, map) { 
+    if (settings.api_cmds.heavies[key] != null && settings.api_cmds.heavies[key] != '')
+      apiAccessList.push(key);
+  });
 }
+// whitelist the cmds in the nodeapi access list
+nodeapi.setAccess('only', apiAccessList);
 // determine if cors should be enabled
 if (settings.usecors == true) {
 	app.use(function(req, res, next) {

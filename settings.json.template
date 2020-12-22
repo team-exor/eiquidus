@@ -271,21 +271,23 @@
   // getinfo: Returns an object containing various state info.
   // getpeerinfo: Returns data about each connected network node as a json array of objects.
   // gettxoutsetinfo: Returns an object with statistics about the unspent transaction output set.
-  // getsupply: Returns the current money supply. This should be a positive whole or decimal number.
-  // getmaxmoney: Returns the number of coins that will be produced in total. This should be a positive whole or decimal number.
-  // getmaxvote: Returns the maximum allowed vote for the current phase of voting. This should be a positive whole number.
-  // getvote: Returns the current block reward vote setting. This should be a positive whole number.
-  // getphase: Returns the current voting phase name. This should be a string value.
-  // getreward: Returns the current block reward. This should be a positive whole or decimal number.
-  // getnextrewardestimate: Returns an estimate for the next block reward based on the current state of decentralized voting. This should be a positive whole or decimal number.
-  // getnextrewardwhenstr: Returns a string describing how long until the votes are tallied and the next block reward is computed.
   // getvotelist: Returns an object with details regarding the current vote list.
   // getmasternodecount: Returns a json object containing the total number of masternodes on the network.
   // getmasternodelist: Returns a json array containing status information for all masternodes on the network.
   // verifymessage: Verify a signed message. Must accept the following arguments:
-  //  address: The wallet address to use for the signature.
-  //  signature: The signature provided by the signer in base 64 encoding.
-  //  message: The message that was signed.
+  //   address: The wallet address to use for the signature.
+  //   signature: The signature provided by the signer in base 64 encoding.
+  //   message: The message that was signed.
+  //
+  // heavies: A collection of commands that are enabled when the "heavy" setting is set to "true"
+  //   getmaxmoney: Returns the number of coins that will be produced in total. This should be a positive whole or decimal number.
+  //   getmaxvote: Returns the maximum allowed vote for the current phase of voting. This should be a positive whole number.
+  //   getvote: Returns the current block reward vote setting. This should be a positive whole number.
+  //   getphase: Returns the current voting phase name. This should be a string value.
+  //   getreward: Returns the current block reward. This should be a positive whole or decimal number.
+  //   getnextrewardestimate: Returns an estimate for the next block reward based on the current state of decentralized voting. This should be a positive whole or decimal number.
+  //   getnextrewardwhenstr: Returns a string describing how long until the votes are tallied and the next block reward is computed.
+  //   getsupply: Returns the current money supply. This should be a positive whole or decimal number.
   "api_cmds": {
     "getnetworkhashps": "getnetworkhashps",
     "getmininginfo": "getmininginfo",
@@ -298,17 +300,19 @@
     "getinfo": "getinfo",
     "getpeerinfo": "getpeerinfo",
     "gettxoutsetinfo": "gettxoutsetinfo",
-    "getsupply": "getsupply",
-    "getmaxmoney": "getmaxmoney",
-    "getmaxvote": "getmaxvote",
-    "getvote": "getvote",
-    "getphase": "getphase",
-    "getreward": "getreward",
-    "getnextrewardestimate": "getnextrewardestimate",
-    "getnextrewardwhenstr": "getnextrewardwhenstr",
     "getvotelist": "masternodelist votes",
     "getmasternodecount": "getmasternodecount",
-    "getmasternodelist": "listmasternodes"
-    "verifymessage": "verifymessage"
+    "getmasternodelist": "listmasternodes",
+    "verifymessage": "verifymessage",
+    "heavies": {
+      "getmaxmoney": "getmaxmoney",
+      "getmaxvote": "getmaxvote",
+      "getvote": "getvote",
+      "getphase": "getphase",
+      "getreward": "getreward",
+      "getnextrewardestimate": "getnextrewardestimate",
+      "getnextrewardwhenstr": "getnextrewardwhenstr",
+      "getsupply": "getsupply"
+    }
   }
 }
