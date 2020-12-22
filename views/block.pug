@@ -20,7 +20,7 @@ block content
           if block.nextblockhash != null
             a(href='/block/' + block.nextblockhash)
               span.fa.fa-chevron-right.iquidus.block-next(data-toggle='tooltip', data-placement='top', title=settings.locale.block_next)
-          a(href='/api/getblock?hash=' + block.hash, style='margin-left: auto;')
+          a(href='/api/getblock?hash=' + block.hash, style='margin-left: auto;', data-toggle='tooltip', data-placement='top', title=settings.locale.view_raw_block_data)
             span.fa.fa-info-circle.iquidus
       table.table.table-bordered.summary-table
         thead(class=theadClasses)
@@ -105,4 +105,4 @@ block content
                     span.decimal #{totalParts[1]}
                 td.text-center
                   a(href='/tx/' + txn.txid)
-                    span.fa.fa-eye
+                    span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_tx)

@@ -11,7 +11,7 @@ block content
       .card-header
         strong=settings.symbol + ' TXid: ' + tx.txid
         a.d-none.d-md-inline(href=`/api/getrawtransaction?txid=${tx.txid}&decrypt=1`)
-          span.fa.fa-info-circle.iquidus.float-right
+          span.fa.fa-info-circle.iquidus.float-right(data-toggle='tooltip', data-placement='top', title=settings.locale.view_raw_tx_data)
       table.table.table-bordered.table-striped.summary-table.mobile-border-right
         thead(class=theadClasses)
           tr
@@ -29,7 +29,7 @@ block content
               td #{time}
               td.text-center
                 a(href='/block/'+tx.blockhash)
-                  span.fa.fa-eye
+                  span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)
           else
             if confirms < (confirmations / 2)
               tr.bg-danger
@@ -39,7 +39,7 @@ block content
                 td #{time}
                 td.text-center
                   a(href='/block/'+tx.blockhash)
-                    span.fa.fa-eye
+                    span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)
             else
               tr.table-warning
                 td #{confirms}
@@ -48,7 +48,7 @@ block content
                 td #{time}
                 td.text-center
                   a(href='/block/'+tx.blockhash)
-                    span.fa.fa-eye
+                    span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)
     if tx.vout.length < 1
       .alert.alert-info.text-center(role='alert', style='margin-bottom:0;')
         strong #{settings.locale.tx_nonstandard}

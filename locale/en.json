@@ -1,7 +1,5 @@
 /*
   This file must be valid JSON. But comments are allowed
-
-  Please edit en.json, not en.json.template
 */
 {
     // menu items
@@ -34,12 +32,16 @@
     "tx_hash": "Hash",
     "tx_address": "Address",
     "tx_nonstandard": "NONSTANDARD TX",
+    "view_raw_tx_data": "View Raw Transaction Data",
+    "view_block": "View Block",
 
     // block view
-    "block_previous": "Previous",
-    "block_next": "Next",
+    "block_previous": "Previous Block",
+    "block_next": "Next Block",
     "block_title": "Block Details",
     "block_genesis": "GENESIS",
+    "view_raw_block_data": "View Raw Block Data",
+    "view_tx": "View Transaction",
 
     // global
     "difficulty": "Difficulty",
