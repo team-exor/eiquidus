@@ -42,6 +42,10 @@ This project is a fork of [Ciquidus Explorer](https://github.com/suprnurd/ciquid
   - **getvotelist:** Returns an object with details regarding the current vote list
   - **getmasternodecount:** Returns a json object containing the total number of masternodes on the network
   - **getmasternodelist:** Returns a json array containing status information for all masternodes on the network
+  - **verifymessage:** Verify a signed message. Must accept the following arguments:
+    - **address:** The wallet address to use for the signature.
+    - **signature:** The signature provided by the signer in base 64 encoding.
+    - **message:** The message that was signed.
 
 ### See it in action
 

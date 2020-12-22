@@ -286,23 +286,18 @@ app.use('/ext/getaddresstxs/:address/:start/:length', function(req,res) {
   });
 });
 
-app.post('/address/:hash/claim', function(req, res){
-  var address = req.body.address;
-  var signature = req.body.signature;
-  var message = req.body.message;
-
-  request({ url: 'http://127.0.0.1:' + settings.port + '/api/verifymessage?address='+address+ '&signature='+ signature + '&message=' + message, method: 'GET'}, function(error, response, body) {
-    if (body == 'There was an error. Check your console.')
-      res.json({"status": "failed", "error": true, "message": body});
-    else if (body == "false") {
-      res.json({"status": "failed", "error": true, "message": error});
-    } else if(body == "true") {
-      db.update_label(address, message, function() {
-        res.json({"status": "success"});
+app.post('/address/:hash/claim', function(req, res) {
+  lib.verify_message(req.body.address, req.body.signature, req.body.message, function(body) {
+    if (body == false) {
+      res.json({'status': 'failed', 'error': true, 'message': 'Invalid signature'});
+    } else if (body == true) {
+      db.update_label(req.body.address, req.body.message, function() {
+        res.json({'status': 'success'});
       });
-    }
+    } else
+      res.json({'status': 'failed', 'error': true, 'message': 'There was an error. Check your console.'});
   });
-})
+});
 
 app.use('/ext/connections', function(req,res){
   db.get_peers(function(peers){
