@@ -3,10 +3,13 @@ extends layout
 block content
   script.
     $(function () {
+        function displayAsText(str) {
+          return str.replace(/</g, '&#60;').replace(/>/g, '&#62;');
+        }
         function showClaimAlert(claimClass, warnMsg) {
           if ($('#claimAlert').length == 0)
             $('<div id="claimAlert"></div>').insertBefore('#claimForm');
-          $('#claimAlert').html('<div class="alert alert-' + claimClass + '"><div class="font-weight-bold" style="padding-bottom:10px;">' + (claimClass == 'success' ? 'Address claimed successfully' : (claimClass == 'danger' ? 'Failed to claim address' : 'Required field missing')) + '</div> ' + (claimClass == 'success' ? 'This address will now be referred to as <strong>"' + $('#message').val() + '"</strong> throughout the website' : (claimClass == 'danger' ? 'Invalid signature' : warnMsg)) + '.</div>');			
+          $('#claimAlert').html('<div class="alert alert-' + claimClass + '"><div class="font-weight-bold" style="padding-bottom:10px;">' + (claimClass == 'success' ? 'Address claimed successfully' : (claimClass == 'danger' ? 'Failed to claim address' : 'Required field missing')) + '</div> ' + (claimClass == 'success' ? 'This address will now be referred to as <strong>"' + displayAsText($('#message').val()) + '"</strong> throughout the website' : warnMsg) + '.</div>');			
         }
 
         $('#claimForm').on('submit', function (e) {
@@ -32,7 +35,7 @@ block content
                 'signature': signature
               },
               success: function (data) {
-                showClaimAlert((data.status == 'success' ? 'success' : 'danger'), '');
+                showClaimAlert((data.status == 'success' ? 'success' : 'danger'), data.message);
               }
             });
           }
