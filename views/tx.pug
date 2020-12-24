@@ -69,21 +69,22 @@ block content
                         span.small  (#{settings.symbol})
               tbody
                 if tx.vin.length > 0
-                  each r in tx.vin
-                    if r.addresses == 'coinbase'
+                  each address in tx.vin
+                    if address.addresses == 'coinbase'
                       tr.table-info.text-center
                         td #{settings.locale.new_coins}
                     else
-                      - var ramount = (r.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+                      - var ramount = (address.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                       - var ramountParts = ramount.split('.');
                       tr
                         td
-                          if r.addresses != 'private_tx'
-                            a.loading.breakWord(href='/address/' + r.addresses)
-                              if r.claim_name == null || r.claim_name == ''
-                                =r.addresses
+                          if address.addresses != 'private_tx'
+                            a.loading.breakWord(href='/address/' + address.addresses)
+                              if address.claim_name == null || address.claim_name == ''
+                                =address.addresses
                               else
-                                =r.claim_name
+                                =address.claim_name
+                            include ./includes/rl_labels.pug
                           else
                             =settings.locale.hidden_sender
                         td.bg-danger.d-xs-none #{ramountParts[0]}.
@@ -102,21 +103,22 @@ block content
                   th #{settings.locale.mkt_amount}
                     span.small  (#{settings.symbol})
               tbody
-                each r in tx.vout
+                each address in tx.vout
                   if tx.vout.length > 0
-                    - var ramount = (r.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+                    - var ramount = (address.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                     - var ramountParts = ramount.split('.');
                     tr
-                      if r.addresses != 'private_tx'
+                      if address.addresses != 'private_tx'
                         td
-                          a.loading.breakWord(href='/address/' + r.addresses)
-                            if r.claim_name == null || r.claim_name == ''
-                              =r.addresses
+                          a.loading.breakWord(href='/address/' + address.addresses)
+                            if address.claim_name == null || address.claim_name == ''
+                              =address.addresses
                             else
-                              =r.claim_name
+                              =address.claim_name
+                          include ./includes/rl_labels.pug
                         td.bg-success #{ramountParts[0]}.
                           span.decimal #{ramountParts[1]}
-                      else if r.amount > 0
+                      else if address.amount > 0
                         td
                           =settings.locale.hidden_recipient
                         td.bg-success #{ramountParts[0]}.
@@ -125,14 +127,15 @@ block content
                         td(colspan='2')
                           =settings.locale.hidden_recipient
                   else
-                    - var ramount = (r.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+                    - var ramount = (address.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                     - var ramountParts = ramount.split('.');
                     tr
                       td
-                        a.loading.breakWord(href='/address/' + r.addresses)
-                          if r.claim_name == null || r.claim_name == ''
-                            =r.addresses
+                        a.loading.breakWord(href='/address/' + address.addresses)
+                          if address.claim_name == null || address.claim_name == ''
+                            =address.addresses
                           else
-                            =r.claim_name
+                            =address.claim_name
+                        include ./includes/rl_labels.pug
                       td.bg-success #{ramountParts[0]}.
                         span.decimal #{ramountParts[1]}

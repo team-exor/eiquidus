@@ -12,18 +12,18 @@
           span.small  (#{settings.symbol})
     tbody
       - var count = 0;
-      each item in received
+      each address in received
         - count = count + 1;
-        - var itemFixed = (parseInt(item.received) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+        - var itemFixed = (parseInt(address.received) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
         - var itemFixedParts = itemFixed.split(".");
         tr
           td.text-center
             =count
           td
-            if settings.display.claim_address == false || item.name == null || item.name == ''
-              a.breakWord(href='/address/' + item.a_id) #{item.a_id}
+            if settings.display.claim_address == false || address.name == null || address.name == ''
+              a.breakWord(href='/address/' + address.a_id) #{address.a_id}
             else
-              a.breakWord(href='/address/' + item.a_id) #{item.name}
+              a.breakWord(href='/address/' + address.a_id) #{address.name}
             include ./rl_labels.pug
           td #{itemFixedParts[0]}.
             span.decimal #{itemFixedParts[1]}

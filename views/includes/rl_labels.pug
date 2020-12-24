@@ -1,13 +1,15 @@
-if settings.labels[item.a_id]
-  if settings.labels[item.a_id].type
-    label(class='badge badge-' + settings.labels[item.a_id].type + ' float-right d-none d-md-block', style='margin-left:15px;margin-bottom:0;')
-      =settings.labels[item.a_id].label
-      if settings.labels[item.a_id].url
-        a(href=settings.labels[item.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-toggle='tooltip', data-placement='top')
+if address.a_id == null
+  - address.a_id = address.addresses;
+if settings.labels[address.a_id]
+  if settings.labels[address.a_id].type
+    label(class='badge badge-' + settings.labels[address.a_id].type + ' float-right d-none d-' + (active == 'richlist' ? 'md' : (active == 'tx' ? 'lg' : 'sm')) + '-block', style='margin-left:15px;margin-bottom:0;')
+      =settings.labels[address.a_id].label
+      if settings.labels[address.a_id].url
+        a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-toggle='tooltip', data-placement='top')
           span.fa.fa-question-circle(style='margin-left:5px;')
   else
-    label.badge.badge-default.float-right.d-none.d-md-block(style='margin-left:15px;margin-bottom:0;')
-      =settings.labels[item.a_id].label
-      if settings.labels[item.a_id].url
-        a(href=settings.labels[item.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-toggle='tooltip', data-placement='top')
+    label.badge.badge-default.float-right.d-none(class='d-' + (active == 'richlist' ? 'md' : (active == 'tx' ? 'lg' : 'sm')) + '-block', style='margin-left:15px;margin-bottom:0;')
+      =settings.labels[address.a_id].label
+      if settings.labels[address.a_id].url
+        a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-toggle='tooltip', data-placement='top')
           span.fa.fa-question-circle(style='margin-left:5px;')

@@ -13,19 +13,19 @@
         th.text-center %
     tbody
       - var count = 0;
-      each item in balance
+      each address in balance
         - count = count + 1;
-        - var itemFixed = (parseInt(item.balance) / 100000000);
+        - var itemFixed = (parseInt(address.balance) / 100000000);
         - var itemFixedParts = itemFixed.toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}).split(".");
         - var percentage = (itemFixed / stats.supply) * 100;
         tr
           td.text-center
             =count
           td
-            if settings.display.claim_address == false || item.name == null || item.name == ''
-              a.breakWord(href='/address/' + item.a_id) #{item.a_id}
+            if settings.display.claim_address == false || address.name == null || address.name == ''
+              a.breakWord(href='/address/' + address.a_id) #{address.a_id}
             else
-              a.breakWord(href='/address/' + item.a_id) #{item.name}
+              a.breakWord(href='/address/' + address.a_id) #{address.name}
             include ./rl_labels.pug
           td #{itemFixedParts[0]}.
             span.decimal #{itemFixedParts[1]}

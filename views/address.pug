@@ -14,20 +14,8 @@ block content
           strong #{address.a_id}
         else
           strong #{address.name}
-        if settings.labels[address.a_id]
-          if settings.labels[address.a_id].type
-            label.d-none.d-sm-block.badge.float-right(class='badge-'+settings.labels[address.a_id].type, style='margin-left:15px;margin-bottom:0;')
-              =settings.labels[address.a_id].label
-              if settings.labels[address.a_id].url
-                a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-toggle='tooltip', data-placement='top')
-                  span.fa.fa-question-circle(style='margin-left:5px;')
-          else
-            label.d-none.d-sm-block.badge.badge-default.float-right(style='margin-left:15px;margin-bottom:0;')
-              =settings.labels[address.a_id].label
-              if settings.labels[address.a_id].url
-                a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-toggle='tooltip', data-placement='top')
-                  span.fa.fa-question-circle(style='margin-left:5px;')
-        else if settings.display.claim_address == true
+        include ./includes/rl_labels.pug
+        if !settings.labels[address.a_id] && settings.display.claim_address == true
           a.badge.badge-pill.float-right.d-none.d-sm-block(href="/address/"+ address.a_id +"/claim" style="font-size:smaller;padding-bottom:0;")
             if address.name == null || address.name == ''
               =" Is this yours? Claim it now for free!"
