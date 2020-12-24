@@ -156,7 +156,17 @@
     "coin": "EXOR",
     "exchange": "BTC",
     "enabled": [],
-    "default": ""
+    "default": "",
+    // market_dropdown_menu: true/false
+    //   true = Markets header menu will function as a dropdown that allows selecting from all available markets
+    //   false = Markets header menu will function as a single-click menu item that opens the default market only
+    //   NOTE: Dropdown will only work when 2 or more markets are enabled, otherwise it will default to a normal menu item automatically
+    "market_dropdown_menu": true,
+    // market_select_visible: true/false
+    //   true = All market pages will display a clickable list of enabled markets near the top of the page for quick selection
+    //   false = No market select box will be shown on market pages
+    //   NOTE: Market select box will only be visible when 2 or more markets are enabled, otherwise it will be hidden automatically
+    "market_select_visible": true
   },
 
   // richlist/top100 settings

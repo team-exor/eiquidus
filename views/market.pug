@@ -18,12 +18,12 @@ block content
       });
     });
   .col-xs-12.col-md-12
-    if settings.markets.enabled.length > 1
+    if settings.markets.market_select_visible == true && settings.markets.enabled.length > 1
       .row
         .col-md-12.cardSpacer
           .card.card-default.border-0
             .card-header
-              strong #{settings.locale.menu_markets}
+              strong #{settings.locale.mkt_select}
             .card-body
               ul.nav.nav-pills
                 each mkt in settings.markets.enabled
