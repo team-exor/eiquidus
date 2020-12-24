@@ -22,7 +22,10 @@
           td.text-center
             =count
           td
-            a.breakWord(href='/address/'+item.a_id) #{item.a_id}
+            if settings.display.claim_address == false || item.name == null || item.name == ''
+              a.breakWord(href='/address/' + item.a_id) #{item.a_id}
+            else
+              a.breakWord(href='/address/' + item.a_id) #{item.name}
             include ./rl_labels.pug
           td #{itemFixedParts[0]}.
             span.decimal #{itemFixedParts[1]}

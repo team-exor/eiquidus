@@ -10,27 +10,29 @@ block content
   .col-xs-12.col-md-12
     .card.card-default.border-0.card-address-summary.cardSpacer
       .card-header(style='position:relative;')
-        strong #{address.a_id}
-          if settings.labels[address.a_id]
-            if settings.labels[address.a_id].type
-              label.d-none.d-sm-block.badge.float-right(class='badge-'+settings.labels[address.a_id].type, style='margin-left:15px;margin-bottom:0;')
-                =settings.labels[address.a_id].label
-                if settings.labels[address.a_id].url
-                  a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-toggle='tooltip', data-placement='top')
-                    span.fa.fa-question-circle(style='margin-left:5px;')
-            else
-              label.d-none.d-sm-block.badge.badge-default.float-right(style='margin-left:15px;margin-bottom:0;')
-                =settings.labels[address.a_id].label
-                if settings.labels[address.a_id].url
-                  a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-toggle='tooltip', data-placement='top')
-                    span.fa.fa-question-circle(style='margin-left:5px;')
+        if settings.display.claim_address == false || address.name == null || address.name == ''
+          strong #{address.a_id}
+        else
+          strong #{address.name}
+        if settings.labels[address.a_id]
+          if settings.labels[address.a_id].type
+            label.d-none.d-sm-block.badge.float-right(class='badge-'+settings.labels[address.a_id].type, style='margin-left:15px;margin-bottom:0;')
+              =settings.labels[address.a_id].label
+              if settings.labels[address.a_id].url
+                a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-toggle='tooltip', data-placement='top')
+                  span.fa.fa-question-circle(style='margin-left:5px;')
           else
-            if address.name !== "" && typeof address.name !== "undefined"
-              label.badge.badge-pill.float-right.d-none.d-sm-block(style='margin-left:15px;')
-                =address.name
+            label.d-none.d-sm-block.badge.badge-default.float-right(style='margin-left:15px;margin-bottom:0;')
+              =settings.labels[address.a_id].label
+              if settings.labels[address.a_id].url
+                a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-toggle='tooltip', data-placement='top')
+                  span.fa.fa-question-circle(style='margin-left:5px;')
+        else if settings.display.claim_address == true
+          a.badge.badge-pill.float-right.d-none.d-sm-block(href="/address/"+ address.a_id +"/claim" style="font-size:smaller;padding-bottom:0;")
+            if address.name == null || address.name == ''
+              =" Is this yours? Claim it now for free!"
             else
-              a.badge.badge-pill.float-right.d-none.d-sm-block(href="/address/"+ address.a_id +"/claim" style="font-size:smaller;padding-bottom:0;")
-                =" Is this yours? Claim it now for free!"
+              =" Update claimed address"
       table.table.table-bordered.table-striped.summary-table.mobile-border-right
         - var theadClasses = [];
         if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''

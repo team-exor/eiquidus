@@ -80,7 +80,10 @@ block content
                         td
                           if r.addresses != 'private_tx'
                             a.loading.breakWord(href='/address/' + r.addresses)
-                              =r.addresses
+                              if r.claim_name == null || r.claim_name == ''
+                                =r.addresses
+                              else
+                                =r.claim_name
                           else
                             =settings.locale.hidden_sender
                         td.bg-danger.d-xs-none #{ramountParts[0]}.
@@ -107,7 +110,10 @@ block content
                       if r.addresses != 'private_tx'
                         td
                           a.loading.breakWord(href='/address/' + r.addresses)
-                            =r.addresses
+                            if r.claim_name == null || r.claim_name == ''
+                              =r.addresses
+                            else
+                              =r.claim_name
                         td.bg-success #{ramountParts[0]}.
                           span.decimal #{ramountParts[1]}
                       else if r.amount > 0
@@ -124,6 +130,9 @@ block content
                     tr
                       td
                         a.loading.breakWord(href='/address/' + r.addresses)
-                          =r.addresses
+                          if r.claim_name == null || r.claim_name == ''
+                            =r.addresses
+                          else
+                            =r.claim_name
                       td.bg-success #{ramountParts[0]}.
                         span.decimal #{ramountParts[1]}

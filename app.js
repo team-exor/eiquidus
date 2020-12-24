@@ -283,9 +283,9 @@ app.post('/address/:hash/claim', function(req, res) {
   // initialize the bad-words filter
   var bad_word_lib = require('bad-words');
   var bad_word_filter = new bad_word_lib();
-  
+
   // clean the message (Display name) of bad words
-  var message = bad_word_filter.clean(req.body.message);
+  var message = (req.body.message == null || req.body.message == '' ? '' : bad_word_filter.clean(req.body.message));
 
   // check if the message was filtered
   if (message == req.body.message) {

@@ -19,6 +19,7 @@ This project is a fork of [Ciquidus Explorer](https://github.com/suprnurd/ciquid
   - flag-icon-css v3.5.0 ([https://github.com/lipis/flag-icon-css](https://github.com/lipis/flag-icon-css))
 - Mobile-friendly
 - Sass support
+- Claim address with bad word filter support (Allows anyone to set custom display names for wallet addresses that they own)
 - Custom rpc/api command support which increases blockchain compatibility. Supported cmds:
   - **getnetworkhashps:** Returns the estimated network hashes per second
   - **getmininginfo:** Returns a json object containing mining-related information

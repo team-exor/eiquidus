@@ -53,10 +53,15 @@ function route_get_tx(res, txid) {
     db.get_tx(txid, function(tx) {
       if (tx) {
         lib.get_blockcount(function(blockcount) {
-          res.render('tx', { active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+          if (settings.display.claim_address) {
+            db.populate_claim_address_names(tx, function(tx) {
+              res.render('tx', { active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+            });
+          } else {
+            res.render('tx', { active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+          }
         });
-      }
-      else {
+      } else {
         lib.get_rawtransaction(txid, function(rtx) {
           if (rtx && rtx.txid) {
             lib.prepare_vin(rtx, function(vin) {
@@ -72,7 +77,14 @@ function route_get_tx(res, txid) {
                       blockhash: '-',
                       blockindex: -1,
                     };
-                    res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount:-1, showSync: db.check_show_sync_message()});
+
+                    if (settings.display.claim_address) {
+                      db.populate_claim_address_names(utx, function(utx) {
+                        res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount:-1, showSync: db.check_show_sync_message()});
+                      });
+                    } else {
+                      res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount:-1, showSync: db.check_show_sync_message()});
+                    }
                   } else {
                     // check if blockheight exists
                     if (!rtx.blockheight && rtx.blockhash) {
@@ -90,7 +102,13 @@ function route_get_tx(res, txid) {
                             blockindex: block.height,
                           };
                           lib.get_blockcount(function(blockcount) {
-                            res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+                            if (settings.display.claim_address) {
+                              db.populate_claim_address_names(utx, function(utx) {
+                                res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+                              });
+                            } else {
+                              res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+                            }
                           });
                         } else {
                           // cannot load tx
@@ -109,7 +127,13 @@ function route_get_tx(res, txid) {
                         blockindex: rtx.blockheight,
                       };
                       lib.get_blockcount(function(blockcount) {
-                        res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+                        if (settings.display.claim_address) {
+                          db.populate_claim_address_names(utx, function(utx) {
+                            res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+                          });
+                        } else {
+                          res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+                        }
                       });
                     }
                   }
@@ -132,22 +156,25 @@ function route_get_index(res, error) {
 function route_get_address(res, hash, count) {
   db.get_address(hash, false, function(address) {
     if (address) {
-      var txs = [];
-      res.render('address', { active: 'address', address: address, txs: txs, showSync: db.check_show_sync_message()});
+      res.render('address', { active: 'address', address: address, showSync: db.check_show_sync_message()});
     } else {
       route_get_index(res, hash + ' not found');
     }
   });
 }
 
-function route_get_claim_form(res, hash){
-  db.get_address(hash, false, function(address) {
-    if (address) {
-      res.render("claim_address", { active: "address", address: address, showSync: db.check_show_sync_message()});
-    } else {
-      route_get_index(res, hash + ' not found');
-    }
-  });
+function route_get_claim_form(res, hash) {
+  // check if claiming addresses is enabled
+  if (settings.display.claim_address) {
+    db.get_address(hash, false, function(address) {
+      if (address)
+        res.render("claim_address", { active: "address", address: address, showSync: db.check_show_sync_message()});
+      else
+        route_get_index(res, hash + ' not found');
+    });
+  } else {
+    route_get_address(res, hash, settings.txcount);
+  }
 }
 
 /* GET home page. */

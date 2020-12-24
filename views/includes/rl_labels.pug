@@ -11,7 +11,3 @@ if settings.labels[item.a_id]
       if settings.labels[item.a_id].url
         a(href=settings.labels[item.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-toggle='tooltip', data-placement='top')
           span.fa.fa-question-circle(style='margin-left:5px;')
-else
-  if item.name !== "" && typeof item.name !== "undefined"
-    label(class='badge badge-default float-right d-none d-md-block', style='margin-left:15px;margin-bottom:0;')
-      =item.name

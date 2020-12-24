@@ -6,10 +6,10 @@ block content
         function displayAsText(str) {
           return str.replace(/</g, '&#60;').replace(/>/g, '&#62;');
         }
-        function showClaimAlert(claimClass, warnMsg) {
+        function showClaimAlert(claimClass, warnMsg, removedClaim) {
           if ($('#claimAlert').length == 0)
             $('<div id="claimAlert"></div>').insertBefore('#claimForm');
-          $('#claimAlert').html('<div class="alert alert-' + claimClass + '"><div class="font-weight-bold" style="padding-bottom:10px;">' + (claimClass == 'success' ? 'Address claimed successfully' : (claimClass == 'danger' ? 'Failed to claim address' : 'Required field missing')) + '</div> ' + (claimClass == 'success' ? 'This address will now be referred to as <strong>"' + displayAsText($('#message').val()) + '"</strong> throughout the website' : warnMsg) + '.</div>');			
+          $('#claimAlert').html('<div class="alert alert-' + claimClass + '"><div class="font-weight-bold" style="padding-bottom:10px;">' + (claimClass == 'success' ? (removedClaim ? 'Address claim removed successfully' : 'Address claimed successfully') : (claimClass == 'danger' ? 'Failed to claim address' : 'Required field missing')) + '</div> ' + (claimClass == 'success' ? 'This address will now be referred to as <strong>' + (removedClaim ? $('input#address').val() : displayAsText($('#message').val())) + '</strong> throughout the website' : warnMsg) + '.</div>');			
         }
 
         $('#claimForm').on('submit', function (e) {
@@ -19,11 +19,8 @@ block content
           var signature = $('input#signature').val();
           var url = '/address/'+address+'/claim';
           
-          if (message == null || message.trim().length == 0) {
-            showClaimAlert('warning', 'Please enter the name you would like your address to be referred to on this site');
-            $('input#message').focus();
-          } else if (signature == null || signature.trim().length == 0) {
-            showClaimAlert('warning', 'Please enter the signature value from your wallet software');
+          if (signature == null || signature.trim().length == 0) {
+            showClaimAlert('warning', 'Please enter the signature value from your wallet software', false);
             $('input#signature').focus();          
           } else {
             $.ajax({
@@ -35,7 +32,7 @@ block content
                 'signature': signature
               },
               success: function (data) {
-                showClaimAlert((data.status == 'success' ? 'success' : 'danger'), data.message);
+                showClaimAlert((data.status == 'success' ? 'success' : 'danger'), data.message, (data.status == 'success' && message == ''));
               }
             });
           }
@@ -50,7 +47,10 @@ block content
   .col-xs-12.col-md-12.cardSpacer
     .card.card-default.border-0.card-address-summary.cardSpacer
       .card-header(style='position:relative;')
-        strong=address.a_id
+        if typeof address.name == null || address.name == ''
+          strong #{address.a_id}
+        else
+          strong #{address.name}
         if settings.labels[address.a_id]
           if settings.labels[address.a_id].type
             label.d-none.d-sm-block.badge.float-right(class='badge-'+settings.labels[address.a_id].type, style='margin-left:15px;margin-bottom:0;')
@@ -125,6 +125,10 @@ block content
             span Finally, click the
             span.font-weight-bold  Submit
             span  button below to claim your address, which will display your custom display name instead of the default wallet address on this site.
+          br
+          div
+            span.font-weight-bold NOTE:
+            span  You can update your claimed address at any time, as often as you wish. To remove a previously claimed display name, simply sign a blank message to return the address back to its original value.
         form#claimForm
           .form-group
             fieldset.entryField
