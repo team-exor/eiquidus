@@ -105,6 +105,14 @@ html(lang='en')
       $(document).ready(function() {
         if ('#{active}' != '')
           $('##{active}').addClass('active');
+        function showTopPanelData(dataElement, loadingElement) {
+          if ($('#' + loadingElement).length) {
+            $('#' + loadingElement).fadeOut('slow', function() {
+              $('#' + loadingElement).remove();              
+              $('#' + dataElement).fadeIn();
+            });
+          }
+        }
         function update_stats() {
           $.ajax({url: '/ext/summary', success: function(json) {
             var mnOnlineText = json.data[0].masternodeCountOnline+" node"+(json.data[0].masternodeCountOnline == 1 ? "" : "s")+" online";
@@ -114,6 +122,7 @@ html(lang='en')
             $("#masternodeCountOffline").text(json.data[0].masternodeCountOffline).prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-original-title", mnOfflineText);
             $("#spnMasternodeCountOnline").prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-original-title", mnOnlineText);
             $("#spnMasternodeCountOffline").prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-original-title", mnOfflineText);
+            showTopPanelData('masternodepanel', 'masternodePanelLoading');
 
             var supplyString = json.data[0].supply;
             var diffString = json.data[0].difficulty;
@@ -126,15 +135,20 @@ html(lang='en')
             if (!isNaN(json.data[0].hashrate))
               hashrateString = parseFloat(json.data[0].hashrate).toLocaleString('en');
 
+            $("#lblX1").text(' ');
             $("#supply").text(supplyString);
+            $("#marketCap").html((parseFloat(json.data[0].lastPrice).toFixed(8) * parseInt(parseFloat(json.data[0].supply).toFixed(0))).toLocaleString('en') + '<span class="small" style="margin-right:0;">' + '#{settings.markets.exchange}'.toUpperCase() + '</span>');
+            showTopPanelData('supplypanel', 'supplyPanelLoading');
             $("#difficulty").text(diffString);
             $("#difficultyHybrid").text(json.data[0].difficultyHybrid);
+            showTopPanelData('difficultypanel', 'difficultyPanelLoading');
             $("#hashrate").text(hashrateString);
+            showTopPanelData('hashratepanel', 'hashratePanelLoading');
             $("#lastPrice").text(parseFloat(json.data[0].lastPrice).toFixed(8));
-            $("#marketCap").html((parseFloat(json.data[0].lastPrice).toFixed(8) * parseInt(parseFloat(json.data[0].supply).toFixed(0))).toLocaleString('en') + '<span class="small" style="margin-right:0;">' + '#{settings.markets.exchange}'.toUpperCase() + '</span>');
+            showTopPanelData('pricepanel', 'pricePanelLoading');
+
             $("#lblConnections").text(json.data[0].connections + ' connections');
             $("#lblBlockcount").text(json.data[0].blockcount + ' blocks');
-            $("#lblX1").text(' ');
           }});
         }
         $('.iquidus').css('color',$('.table').css('color'));
@@ -170,29 +184,29 @@ html(lang='en')
           }
           var hashRateType='<label id="hashrate"></label>';
           if ('#{settings.index.difficulty}' == 'Hybrid') hashRateType+='<br /><label id="lblX1"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small">'+networkSuffix+'</span></strong></div><div class="card-body"><div id="hashratepanel" class="header-panel"><span class="glyphicon fa fa-cogs"></span>'+hashRateType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small">'+networkSuffix+'</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="glyphicon fa fa-cogs"></span>'+hashRateType+'</div></div>';
         }
         function getDifficultyPanel() {
           var difficultyType='<label id="difficulty"></label>';
           if ('#{settings.index.difficulty}' == 'Hybrid') difficultyType+='<br /><label id="difficultyHybrid"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.difficulty}</strong></div><div class="card-body"><div id="difficultypanel" class="header-panel"><span class="glyphicon fas fa-sliders-h"></span>'+difficultyType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.difficulty}</strong></div><div class="card-body"><div id="difficultyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="difficultypanel" class="header-panel" style="display:none;"><span class="glyphicon fas fa-sliders-h"></span>'+difficultyType+'</div></div>';
         }
         function getMasternodesPanel() {
-          return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodepanel" class="header-panel"><span id="spnMasternodeCountOnline" class="glyphicon fa fa-check-circle" data-toggle="tooltip" data-placement="top"></span><label id="masternodeCountOnline" data-toggle="tooltip" data-placement="top"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline" data-toggle="tooltip" data-placement="top"></label><span id="spnMasternodeCountOffline" class="glyphicon fa fa-exclamation-triangle" data-toggle="tooltip" data-placement="top"></span></div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="masternodepanel" class="header-panel" style="display:none;"><span id="spnMasternodeCountOnline" class="glyphicon fa fa-check-circle" data-toggle="tooltip" data-placement="top"></span><label id="masternodeCountOnline" data-toggle="tooltip" data-placement="top"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline" data-toggle="tooltip" data-placement="top"></label><span id="spnMasternodeCountOffline" class="glyphicon fa fa-exclamation-triangle" data-toggle="tooltip" data-placement="top"></span></div></div>';
         }
         function getCoinSupplyPanel() {
           var supplyType='<label id="supply"></label>';
           if ('#{settings.index.difficulty}' == 'Hybrid') supplyType+='<br /><label id="lblX1"></label>';
           if (#{settings.index.show_market_cap} == true && #{settings.index.show_market_cap_over_price} != true) supplyType+='<br /><span class="glyphicon fas fa-chart-line"></span><label>(</label><label id="marketCap">-</label><label>)</label>';
-          return '<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small">(#{settings.symbol})</span></strong></div><div class="card-body"><div id="supplypanel" class="header-panel"><span class="glyphicon fa fa-chart-pie"></span>'+supplyType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small">(#{settings.symbol})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="glyphicon fa fa-chart-pie"></span>'+supplyType+'</div></div>';
         }
         function getPricePanel() {
           if (#{settings.index.show_market_cap} == true && #{settings.index.show_market_cap_over_price} == true) {
-            return '<div class="card-header"><strong>Market Cap</strong></div><div class="card-body"><div id="pricepanel" class="header-panel"><span class="glyphicon fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
+            return '<div class="card-header"><strong>Market Cap</strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="glyphicon fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
           } else {
             var priceType='<label id="lastPrice">-</label>';
             if ('#{settings.index.difficulty}' == 'Hybrid') priceType+='<br /><label id="lblX1"></label>';
-            return '<div class="card-header"><strong>Price <span class="small">(#{settings.markets.exchange})</span></strong></div><div class="card-body"><div id="pricepanel" class="header-panel"><span class="glyphicon fa fa-rocket"></span>'+priceType+'</div></div>';
+            return '<div class="card-header"><strong>Price <span class="small">(#{settings.markets.exchange})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="glyphicon fa fa-rocket"></span>'+priceType+'</div></div>';
           }
         }
         function getActivePanel(nPanelName) {
