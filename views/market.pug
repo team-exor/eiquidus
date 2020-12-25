@@ -111,6 +111,7 @@ block content
                 <tr><td>close:</td><td>%s</td></tr></table>'
               }
             });
+            $('#chart').css('width', '100%');
           }
           $(window).resize(function () {
             if (jqplot != null && $('#chart').is(':visible'))
@@ -183,7 +184,7 @@ block content
               .card-header
                 strong #{marketdata.market_name} - #{marketdata.coin}/#{marketdata.exchange} - #{settings.locale.mkt_hours}
               .card-body
-                div#chart(style='width: 100%; height: 300px;')
+                div#chart(style='height:300px;')
       .row
         .col-md-6.col-xs-12.cardSpacer
           .card.card-default.border-0.wrapper-border-0(class=theadClasses)
