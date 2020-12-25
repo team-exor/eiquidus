@@ -15,40 +15,40 @@ block content
       table.table.table-bordered.table-striped.summary-table.mobile-border-right
         thead(class=theadClasses)
           tr
-            th #{settings.locale.confirmations}
-            th.d-none.d-sm-table-cell #{settings.locale.tx_block_hash}
-            th #{settings.locale.timestamp}
-            th
+            th.text-center.d-table-cell.d-md-none
+            th.d-none.d-md-table-cell #{settings.locale.tx_block_hash}
+            th.text-center #{settings.locale.confirmations}
+            th.text-center #{settings.locale.timestamp}
         tbody
           - var confirms = (blockcount - tx.blockindex);
           if confirms >= confirmations
             tr.bg-success.text-dark
-              td #{confirms}
-              td.d-none.d-sm-table-cell
-                a.breakWord(href='/block/'+tx.blockhash) #{tx.blockhash}
-              td #{time}
-              td.text-center
-                a(href='/block/'+tx.blockhash)
+              td.text-center.d-table-cell.d-md-none
+                a(href='/block/' + tx.blockhash)
                   span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)
+              td.d-none.d-md-table-cell
+                a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
+              td.text-center #{confirms}
+              td.text-center #{time}
           else
             if confirms < (confirmations / 2)
               tr.bg-danger
-                td #{confirms}
-                td.d-none.d-sm-table-cell
-                  a.breakWord(href='/block/'+tx.blockhash) #{tx.blockhash}
-                td #{time}
-                td.text-center
-                  a(href='/block/'+tx.blockhash)
+                td.text-center.d-table-cell.d-md-none
+                  a(href='/block/' + tx.blockhash)
                     span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)
+                td.d-none.d-md-table-cell
+                  a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
+                td.text-center #{confirms}
+                td.text-center #{time}
             else
               tr.table-warning
-                td #{confirms}
-                td.d-none.d-sm-table-cell
-                  a.breakWord(href='/block/'+tx.blockhash) #{tx.blockhash}
-                td #{time}
-                td.text-center
-                  a(href='/block/'+tx.blockhash)
-                    span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)
+                td.text-center.d-table-cell.d-md-none
+                  a(href='/block/' + tx.blockhash)
+                    span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)              
+                td.d-none.d-md-table-cell
+                  a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
+                td.text-center #{confirms}
+                td.text-center #{time}
     if tx.vout.length < 1
       .alert.alert-info.text-center(role='alert', style='margin-bottom:0;')
         strong #{settings.locale.tx_nonstandard}
@@ -58,14 +58,14 @@ block content
           .card.card-default.border-0
             .card-header
               strong #{settings.locale.tx_contributors}
-              span.fa.fa-arrow-right.float-right.d-xs-none
+              span.fa.fa-arrow-right.float-right.d-none.d-md-block
             table.table.table-bordered.table-striped.summary-table.mobile-border-right
               thead(class=theadClasses)
                 tr
                   th #{settings.locale.tx_address}
                   if (tx.vin.length > 0)
                     if tx.vin[0].addresses != 'coinbase'
-                      th.d-xs-none #{settings.locale.mkt_amount}
+                      th.text-center #{settings.locale.mkt_amount}
                         span.small  (#{settings.symbol})
               tbody
                 if tx.vin.length > 0
@@ -87,7 +87,7 @@ block content
                             include ./includes/rl_labels.pug
                           else
                             =settings.locale.hidden_sender
-                        td.bg-danger.d-xs-none #{ramountParts[0]}.
+                        td.bg-danger.text-center #{ramountParts[0]}.
                           span.decimal #{ramountParts[1]}
                 else
                   tr.table-info.text-center
@@ -100,7 +100,7 @@ block content
               thead(class=theadClasses)
                 tr
                   th #{settings.locale.tx_address}
-                  th #{settings.locale.mkt_amount}
+                  th.text-center #{settings.locale.mkt_amount}
                     span.small  (#{settings.symbol})
               tbody
                 each address in tx.vout
@@ -116,12 +116,12 @@ block content
                             else
                               =address.claim_name
                           include ./includes/rl_labels.pug
-                        td.bg-success #{ramountParts[0]}.
+                        td.bg-success.text-center #{ramountParts[0]}.
                           span.decimal #{ramountParts[1]}
                       else if address.amount > 0
                         td
                           =settings.locale.hidden_recipient
-                        td.bg-success #{ramountParts[0]}.
+                        td.bg-success.text-center #{ramountParts[0]}.
                           span.decimal #{ramountParts[1]}
                       else
                         td(colspan='2')
@@ -137,5 +137,5 @@ block content
                           else
                             =address.claim_name
                         include ./includes/rl_labels.pug
-                      td.bg-success #{ramountParts[0]}.
+                      td.bg-success.text-center #{ramountParts[0]}.
                         span.decimal #{ramountParts[1]}

@@ -44,43 +44,61 @@ block content
   - var sentParts = sent.split('.');
   - var received = (address.received / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var receivedParts = received.split('.');
+  if address.a_id !== 'coinbase' || settings.show_sent_received == true
+    script.
+      $(document).ready(function() {
+        $('.summary-table').dataTable({
+          info: false,
+          paging: false,
+          searching: false,
+          ordering: false,
+          responsive: true,
+          scrollX: true,
+          fnDrawCallback: function(settings) {
+            fixDataTableColumns();
+          }
+        })
+      });
   .col-xs-12.col-md-12.cardSpacer
-    .card.card-default.border-0.card-address-summary.cardSpacer
-      .card-header(style='position:relative;')
-        if typeof address.name == null || address.name == ''
-          strong #{address.a_id}
-        else
-          strong #{address.name}
-        include ./includes/rl_labels.pug
-      table.table.table-bordered.table-striped.summary-table.mobile-border-right
-        - var theadClasses = [];
-        if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-          - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
-        thead(class=theadClasses)
-          tr
-            if settings.show_sent_received == true
-              th.d-none.d-sm-table-cell #{settings.locale.total_sent}
-                span.small  (#{settings.symbol})
-            if address.a_id !== 'coinbase'
-              if settings.show_sent_received == true
-                th.d-none.d-sm-table-cell #{settings.locale.total_received}
+    if address.a_id !== 'coinbase' || settings.show_sent_received == true
+      .card.card-default.border-0.card-address-summary.cardSpacer
+        .card-header(style='position:relative;')
+          if typeof address.name == null || address.name == ''
+            strong #{address.a_id}
+          else
+            strong #{address.name}
+          include ./includes/rl_labels.pug
+        table.table.table-bordered.table-striped.summary-table.mobile-border-right(style='border-top:0;margin-top:0 !important;')
+          - var theadClasses = [];
+          if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+            - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+          thead(class=theadClasses)
+            tr
+              if address.a_id !== 'coinbase'
+                th.text-center #{settings.locale.rl_balance}
                   span.small  (#{settings.symbol})
-              th #{settings.locale.rl_balance}
-                span.small  (#{settings.symbol})
-              th #{settings.locale.a_qr}
-        tbody
-          tr
-            if settings.show_sent_received == true
-              td.addr-summary.d-none.d-sm-table-cell #{sentParts[0]}.
-                span.decimal #{sentParts[1]}
-            if address.a_id !== 'coinbase'
               if settings.show_sent_received == true
-                td.addr-summary.d-none.d-sm-table-cell #{receivedParts[0]}.
+                th.text-center #{settings.locale.total_sent}
+                  span.small  (#{settings.symbol})
+              if address.a_id !== 'coinbase' && settings.show_sent_received == true
+                th.text-center #{settings.locale.total_received}
+                  span.small  (#{settings.symbol})
+              if address.a_id !== 'coinbase'
+                th.text-center #{settings.locale.a_qr}
+          tbody
+            tr
+              if address.a_id !== 'coinbase'
+                td.text-center.addr-summary #{balanceParts[0]}.
+                  span.decimal #{balanceParts[1]}
+              if settings.show_sent_received == true
+                td.text-center.addr-summary #{sentParts[0]}.
+                  span.decimal #{sentParts[1]}
+              if address.a_id !== 'coinbase' && settings.show_sent_received == true
+                td.text-center.addr-summary #{receivedParts[0]}.
                   span.decimal #{receivedParts[1]}
-              td.addr-summary #{balanceParts[0]}.
-                span.decimal #{balanceParts[1]}
-              td.addr-summary
-                img.qrcode(src='/qr/'+address.a_id)
+              if address.a_id !== 'coinbase'
+                td.text-center.addr-summary
+                  img.qrcode(src='/qr/' + address.a_id)
     .card.card-default.border-0.cardSpacer
       .card-header
         strong Claim this Address

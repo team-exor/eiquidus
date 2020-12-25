@@ -93,6 +93,15 @@ html(lang='en')
           $('[data-toggle="tooltip"]').tooltip();
         }
       }
+      function fixDataTableColumns() {
+        // Wait 2 ticks before adjusting table columns to give time for elements to be rendered (1 tick doesn't seem to be enough for some tables)
+        var ColumnAdjustSetIntervalID = setInterval(function() {
+          // Stop setInterval from running again
+          clearInterval(ColumnAdjustSetIntervalID);
+          // Ensure columns are properly aligned
+          $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+        }, 2, 'adjustTableColumns');
+      }      
       $(document).ready(function() {
         if ('#{active}' != '')
           $('##{active}').addClass('active');
@@ -128,22 +137,9 @@ html(lang='en')
             $("#lblX1").text(' ');
           }});
         }
-        if ($('#history-table tbody tr').length) {
-          $('#history-table').dataTable({
-            searching: false,
-            ordering: false,
-            responsive: true,
-            language: {
-              paginate: {
-                previous: '<',
-                next: '>'
-              }
-            }
-          });
-        }
         $('.iquidus').css('color',$('.table').css('color'));
         $(window).resize(function () {
-          $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
+          fixDataTableColumns();
           fixFooterHeightAndPosition();
         });
         setInterval(function() {
@@ -340,7 +336,7 @@ html(lang='en')
           .col-lg-2
             .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFive')
           - }
-        .row.text-center(style='margin-top:10px;margin-bottom:20px;')
+        div#search-row.row.text-center
           form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
             #index-search.form-group.d-flex.justify-content-center
               input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')

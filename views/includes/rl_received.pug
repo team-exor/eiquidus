@@ -8,7 +8,7 @@
         th.text-center
           span.fa.fa-flag-checkered
         th #{settings.locale.tx_address}
-        th #{settings.locale.rl_received}
+        th.text-center #{settings.locale.rl_received}
           span.small  (#{settings.symbol})
     tbody
       - var count = 0;
@@ -25,5 +25,5 @@
             else
               a.breakWord(href='/address/' + address.a_id) #{address.name}
             include ./rl_labels.pug
-          td #{itemFixedParts[0]}.
+          td.text-center #{itemFixedParts[0]}.
             span.decimal #{itemFixedParts[1]}

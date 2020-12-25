@@ -26,6 +26,7 @@ script.
       serverSide: true,
       iDisplayLength: displayLengthMax,
       lengthMenu: lengthMenuOpts,
+      scrollX: true,
       ajax: {
         url: '/ext/getaddresstxs/' + hashAddress,
         beforeSend: function(jqXHR, settings) {
@@ -46,8 +47,8 @@ script.
         var vin = data[3]; //variables for better readability
         var balance = (data[4] / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}); //variables for better readability
         var balanceParts = balance.split('.');
-        $("td:eq(0)", row).html(format_unixtime(new Date(timestamp), true));
-        $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-sm-table-cell');
+        $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
+        $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-md-table-cell');
         var amount = 0;
         var updown = '';
         var rowclass = 'info';
@@ -73,11 +74,14 @@ script.
           rowclass = 'bg-danger';
         }
         var amountParts = amount.split('.');
-        $("td:eq(2)", row).html(updown + amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>').addClass(rowclass);
-        $("td:eq(3)", row).html(balanceParts[0] + '.<span class="decimal">' + balanceParts[1] + '</span>');
+        $("td:eq(2)", row).html(updown + amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>').addClass(rowclass + ' text-center');
+        $("td:eq(3)", row).html(balanceParts[0] + '.<span class="decimal">' + balanceParts[1] + '</span>').addClass('text-center');
+        $("td:eq(4)", row).html(format_unixtime(new Date(timestamp), true)).addClass('text-center');
       },
       fnDrawCallback: function(settings) {
+        fixDataTableColumns();
         fixFooterHeightAndPosition();
+        enableTooltips();
       }
     });
   });
@@ -87,10 +91,11 @@ table#address-txs.table.table-bordered.table-striped.table-paging.mobile-border-
     - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
   thead(class=theadClasses)
     tr
-      th #{settings.locale.timestamp}
-      th.d-none.d-sm-table-cell #{settings.locale.tx_hash}
-      th #{settings.locale.mkt_amount}
+      th.d-table-cell.d-md-none
+      th.d-none.d-md-table-cell #{settings.locale.tx_hash}
+      th.text-center #{settings.locale.mkt_amount}
         span.small  (#{settings.symbol})
-      th #{settings.locale.rl_balance}
+      th.text-center #{settings.locale.rl_balance}
         span.small  (#{settings.symbol})
+      th.text-center #{settings.locale.timestamp}
   tbody

@@ -28,6 +28,7 @@ block content
         serverSide: true,
         iDisplayLength: displayLengthMax,
         lengthMenu: lengthMenuOpts,
+        scrollX: true,
         ajax: {
           url: '/ext/getlasttxs/0',
           beforeSend: function(jqXHR, settings) {
@@ -50,14 +51,17 @@ block content
           var amountParts = amount.split('.');
           var amount = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
           var timestamp = data[5];
-          $("td:eq(0)", row).html('<a href="/block/' + blockhash + '">' + blockindex + '</a>');
-          $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass("text-center breakWord d-none d-sm-table-cell");
-          $("td:eq(2)", row).html(outputs).addClass("text-center");
-          $("td:eq(3)", row).html(amount);
-          $("td:eq(4)", row).html(format_unixtime(new Date(timestamp), true)).addClass("text-center d-none d-sm-table-cell");
+          $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
+          $("td:eq(1)", row).html('<a href="/block/' + blockhash + '">' + blockindex + '</a>');
+          $("td:eq(2)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass("text-center breakWord d-none d-md-table-cell");
+          $("td:eq(3)", row).html(outputs).addClass("text-center d-none d-sm-table-cell");
+          $("td:eq(4)", row).html(amount);
+          $("td:eq(5)", row).html(format_unixtime(new Date(timestamp), true)).addClass("text-center");
         },
         fnDrawCallback: function(settings) {
+          fixDataTableColumns();
           fixFooterHeightAndPosition();
+          enableTooltips();
         }
       });
       setInterval( function () {
@@ -65,11 +69,13 @@ block content
       }, 60000 );
     });
   if error !== null
-    .row
-      .col-md-12
-        .alert.alert-danger.alert-dismissable(role='alert')
-          button.close(type='button', data-dismiss='alert') ×
-          strong #{settings.locale.ex_error} : #{error}
+    .col-12
+      .alert.alert-danger.alert-dismissable(role='alert')
+        button.close(type='button', data-dismiss='alert') ×
+        .cardSpacer
+          span.fas.fa-exclamation-circle(style='margin-right:5px')
+          strong #{settings.locale.ex_error}
+        div #{error}
   .col-md-12.cardSpacer
     .card.card-default.border-0.cardSpacer
       .card-header
@@ -80,10 +86,11 @@ block content
           - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
         thead(class=theadClasses)
           tr
+            th.d-table-cell.d-md-none
             th.text-center #{settings.locale.ex_block}
-            th.text-center.d-none.d-sm-table-cell #{settings.locale.tx_hash}
-            th.text-center #{settings.locale.tx_recipients}
+            th.text-center.d-none.d-md-table-cell #{settings.locale.tx_hash}
+            th.text-center.d-none.d-sm-table-cell #{settings.locale.tx_recipients}
             th.text-center #{settings.locale.mkt_amount}
               span.small  (#{settings.symbol})
-            th.text-center.d-none.d-sm-table-cell #{settings.locale.timestamp}
+            th.text-center #{settings.locale.timestamp}
         tbody.text-center

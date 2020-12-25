@@ -1,37 +1,38 @@
 extends layout
 
 block content
-  script.
-    $(document).ready(function() {
-      var data = [
-        ['Top 1-25', !{dista.percent}],['Top 26-50', !{distb.percent}],['Top 51-75', !{distc.percent}],['Top 76-100', !{distd.percent}],['101+', !{diste.percent}]
-      ];
-      $.jqplot('pieChart', [data],
-        {
-          seriesColors: [ "#d9534f", "#5cb85c", "#428bca", "#222", "#CCC"],
-          series: [{
-            renderer: $.jqplot.PieRenderer,
-            rendererOptions: {
-              diameter: 260,
-              padding: 0,
-              sliceMargin: 4,
-              showDataLabels: false
-            }
-          }],
-          grid: {borderWidth:0, shadow:false},
-          legend: {
-            show: false,
-            rendererOptions: {
+  if show_dist == true
+    script.
+      $(document).ready(function() {
+        var data = [
+          ['Top 1-25', !{dista.percent}],['Top 26-50', !{distb.percent}],['Top 51-75', !{distc.percent}],['Top 76-100', !{distd.percent}],['101+', !{diste.percent}]
+        ];
+        $.jqplot('pieChart', [data],
+          {
+            seriesColors: [ "#d9534f", "#5cb85c", "#428bca", "#222", "#CCC"],
+            series: [{
+              renderer: $.jqplot.PieRenderer,
+              rendererOptions: {
+                diameter: 260,
+                padding: 0,
+                sliceMargin: 4,
+                showDataLabels: false
+              }
+            }],
+            grid: {borderWidth:0, shadow:false},
+            legend: {
+              show: false,
+              rendererOptions: {
                 numberRows: 1,
                 border: 'none'
-            },
-            location: 's'
+              },
+              location: 's'
+            }
           }
-        }
-      );
-    });
+        );
+      });
   .row(style='margin-left:0;margin-right:0;')
-    .col-xs-12.col-lg-8
+    div(class=(show_dist == true ? 'col-xs-12 col-lg-8' : 'col-12'))
       .container
         ul.nav.nav-tabs(role='tablist')
           li.nav-item(role='presentation')
@@ -44,7 +45,7 @@ block content
         #received.container.tab-pane(style='margin-top:0;')
           include ./includes/rl_received.pug
     if show_dist == true
-      .col-lg-4.col-xs-12
+      .col-xs-12.col-lg-4
         #summary-panel.card.card-default.border-0(style='margin-top:34px;')
           .card-header
             strong #{settings.locale.rl_wealth}
@@ -55,7 +56,7 @@ block content
             thead(class=theadClasses)
               tr
                 th
-                th Amount
+                th.text-center Amount
                   span.small  (#{settings.symbol})
                 th.text-center %
             tbody
@@ -65,7 +66,7 @@ block content
                   span #{settings.locale.rl_top25}
                 - var total = parseFloat(dista.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                 - var totalParts = total.split(".");
-                td.breakWord #{totalParts[0]}.
+                td.text-center.breakWord #{totalParts[0]}.
                   span.decimal.breakWord #{totalParts[1]}
                 td.text-center #{parseFloat(dista.percent).toFixed(2)}
               tr
@@ -74,7 +75,7 @@ block content
                   span #{settings.locale.rl_top50}
                 - var total = parseFloat(distb.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                 - var totalParts = total.split(".");
-                td.breakWord #{totalParts[0]}.
+                td.text-center.breakWord #{totalParts[0]}.
                   span.decimal.breakWord #{totalParts[1]}
                 td.text-center #{parseFloat(distb.percent).toFixed(2)}
               tr
@@ -83,7 +84,7 @@ block content
                   span #{settings.locale.rl_top75}
                 - var total = parseFloat(distc.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                 - var totalParts = total.split(".");
-                td.breakWord #{totalParts[0]}.
+                td.text-center.breakWord #{totalParts[0]}.
                   span.decimal.breakWord #{totalParts[1]}
                 td.text-center #{parseFloat(distc.percent).toFixed(2)}
               tr
@@ -92,7 +93,7 @@ block content
                   span #{settings.locale.rl_top100}
                 - var total = parseFloat(distd.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                 - var totalParts = total.split(".");
-                td.breakWord #{totalParts[0]}.
+                td.text-center.breakWord #{totalParts[0]}.
                   span.decimal.breakWord #{totalParts[1]}
                 td.text-center #{parseFloat(distd.percent).toFixed(2)}
               tr
@@ -100,8 +101,7 @@ block content
                   span #{settings.locale.total}
                 - var total = (parseFloat(dista.total) + parseFloat(distb.total) + parseFloat(distc.total) + parseFloat(distd.total)).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                 - var totalParts = total.split(".");
-                td.font-weight-bold.breakWord #{totalParts[0]}.
+                td.text-center.font-weight-bold.breakWord #{totalParts[0]}.
                   span.decimal.breakWord #{totalParts[1]}
                 td.font-weight-bold.text-center #{(parseFloat(dista.percent)+parseFloat(distb.percent)+parseFloat(distc.percent)+parseFloat(distd.percent)).toFixed(2)}
         div#pieChart(style="width:300px;height:305px;margin: 0 auto;")
-  .row.footer-margin

@@ -7,6 +7,7 @@ script.
       responsive: true,
       lengthChange: true,
       processing: true,
+      scrollX: true,
       language: {
         paginate: {
           previous: '<',
@@ -24,6 +25,7 @@ script.
         }
       },
       fnDrawCallback: function(settings) {
+        fixDataTableColumns();
         fixFooterHeightAndPosition();
       },
       columns: [
@@ -40,6 +42,7 @@ script.
       responsive: true,
       lengthChange: true,
       processing: true,
+      scrollX: true,
       language: {
         paginate: {
           previous: '<',
@@ -57,6 +60,7 @@ script.
         }
       },
       fnDrawCallback: function(settings) {
+        fixDataTableColumns();
         fixFooterHeightAndPosition();
       },
       columns: [

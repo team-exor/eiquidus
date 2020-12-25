@@ -7,6 +7,7 @@ script.
       responsive: true,
       lengthChange: true,
       processing: true,
+      scrollX: true,
       language: {
         paginate: {
           previous: '<',
@@ -30,6 +31,7 @@ script.
         $("td:eq(3)", row).html(data['country']+flagBlock);
       },
       fnDrawCallback: function(settings) {
+        fixDataTableColumns();
         fixFooterHeightAndPosition();
       },
       columns: [
@@ -40,11 +42,7 @@ script.
       ]
     });
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-      var table = $($.fn.dataTable.tables(true));
-
-      if (table.DataTable().responsive != null) table.DataTable().responsive.recalc();
-      table.css('width', '100%');
-      table.DataTable().columns.adjust().draw();
+      fixDataTableColumns();
       fixFooterHeightAndPosition();
     });
   });
@@ -55,7 +53,7 @@ script.
       - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
     thead(class=theadClasses)
       tr
-        th #{settings.locale.net_address}
+        th.text-center #{settings.locale.net_address}
         th.text-center #{settings.locale.net_protocol}
         th.text-center #{settings.locale.net_subversion}
         th.text-center #{settings.locale.net_country}

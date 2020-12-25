@@ -29,6 +29,7 @@ block content
         serverSide: true,
         iDisplayLength: displayLengthMax,
         lengthMenu: lengthMenuOpts,
+        scrollX: true,
         ajax: {
           url: '/ext/getlasttxs/#{min_amount}',
           beforeSend: function(jqXHR, settings) {
@@ -58,12 +59,15 @@ block content
           } else {
             var total = "<label class='badge badge-success'>" + amountStr + "</label>";
           }
-          $("td:eq(0)", row).html(format_unixtime(new Date(timestamp), true));
-          $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-sm-table-cell');
-          $("td:eq(2)", row).html(total);
+          $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
+          $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-md-table-cell');
+          $("td:eq(2)", row).html(total).addClass('text-center');
+          $("td:eq(3)", row).html(format_unixtime(new Date(timestamp), true)).addClass('text-center');
         },
         fnDrawCallback: function(settings) {
+          fixDataTableColumns();
           fixFooterHeightAndPosition();
+          enableTooltips();
         }
       });
       setInterval(function () {
@@ -80,7 +84,9 @@ block content
           - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
         thead(class=theadClasses)
           tr
-            th.text-center timestamp
-            th.text-center.d-none.d-sm-table-cell txid
-            th.text-center amount
-        tbody.text-center
+            th.d-table-cell.d-md-none
+            th.d-none.d-md-table-cell #{settings.locale.tx_hash}
+            th.text-center #{settings.locale.mkt_amount}
+              span.small  (#{settings.symbol})
+            th.text-center #{settings.locale.timestamp}
+        tbody

@@ -436,7 +436,7 @@ table {
   &.table-bordered:not(.table-paging) th, &.table-bordered:not(.table-paging) td {
     border-left-width: 0;
   }
-  &.table-bordered:not(.table-paging):not(.right-border-0) th:last-child, &.table-bordered:not(.table-paging):not(.right-border-0) td:last-child {
+  &.table-bordered:not(.table-paging):not(.right-border-0) th:last-child {
     border-right-width: 0;
   }
   &.table-bordered.right-border-0 th:last-child, &.table-bordered.right-border-0 td:last-child {
@@ -529,6 +529,11 @@ tr {
   width: 100%;
 }
 
+#search-row {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
 @media(max-width:575px) {
   .dataTables_paginate {
     font-size: 80%;
@@ -536,8 +541,16 @@ tr {
   #marketChart {
     display: none;
   }
-  table.table-paging:not(.mobile-border-right), table.summary-table:not(.mobile-border-right) {
-    border-right-width: 0;
+  table {
+    &.table-paging:not(.mobile-border-right), table.summary-table:not(.mobile-border-right) {
+      border-right-width: 0;
+    }
+    &.table-bordered:not(.table-paging):not(.right-border-0) th:last-child {
+      border-right-width: 1px;
+    }
+  }
+  #search-row {
+    margin-bottom: 5px;
   }
 }
 

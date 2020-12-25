@@ -7,6 +7,18 @@ block content
     - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
   script.
     $(document).ready(function() {
+      $('.summary-table').dataTable({
+        info: false,
+        paging: false,
+        searching: false,
+        ordering: false,
+        autowidth: true,
+        responsive: true,
+        scrollX: true,
+        fnDrawCallback: function(settings) {
+          fixDataTableColumns();
+        }
+      });
       $('.order-table').dataTable({
         info: false,
         paging: false,
@@ -14,7 +26,26 @@ block content
         ordering: false,
         scrollY: '250px',
         autowidth: true,
-        responsive: true
+        responsive: true,
+        scrollX: true,
+        fnDrawCallback: function(settings) {
+          fixDataTableColumns();
+        }
+      });
+      $('#history-table').dataTable({
+        searching: false,
+        ordering: false,
+        responsive: true,
+        scrollX: true,
+        language: {
+          paginate: {
+            previous: '<',
+            next: '>'
+          }
+        },
+        fnDrawCallback: function(settings) {
+          fixDataTableColumns();
+        }
       });
     });
   .col-xs-12.col-md-12
@@ -93,58 +124,58 @@ block content
               strong #{marketdata.market_name} - #{marketdata.coin}/#{marketdata.exchange} - #{settings.locale.mkt_hours}
               if marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]'
                 span.fas.fa-chart-line.float-right.view-chart-disabled.iquidus.market-toggle(style='cursor: pointer;', data-toggle='tooltip', data-placement='bottom', title=settings.locale.mkt_no_chart)
-            table.table.table-bordered.right-border-0.summary-table
+            table.table.table-bordered.right-border-0.summary-table(style='border-top:0;margin-top:0 !important;')
               thead(class=theadClasses)
                 tr
                   if marketdata.data.summary.high != null
-                    th #{settings.locale.mkt_high}
+                    th.text-center #{settings.locale.mkt_high}
                   if marketdata.data.summary.low != null
-                    th #{settings.locale.mkt_low}
+                    th.text-center #{settings.locale.mkt_low}
                   if marketdata.data.summary.volume != null
-                    th #{settings.locale.mkt_volume}
+                    th.text-center #{settings.locale.mkt_volume}
                   if marketdata.data.summary.volume_btc != null
-                    th.d-none.d-xl-table-cell #{settings.locale.mkt_volume}
+                    th.text-center #{settings.locale.mkt_volume}
                       span.small  (#{marketdata.exchange})
                   if marketdata.data.summary.bid != null
-                    th.d-none.d-md-table-cell #{settings.locale.mkt_top_bid}
+                    th.text-center #{settings.locale.mkt_top_bid}
                   if marketdata.data.summary.ask != null
-                    th.d-none.d-md-table-cell #{settings.locale.mkt_top_ask}
+                    th.text-center #{settings.locale.mkt_top_ask}
                   if marketdata.data.summary.last != null
-                    th.d-none.d-xl-table-cell #{settings.locale.mkt_last}
+                    th.text-center #{settings.locale.mkt_last}
                   if marketdata.data.summary.prev != null
-                    th.d-none.d-xl-table-cell #{settings.locale.mkt_yesterday}
+                    th.text-center #{settings.locale.mkt_yesterday}
                   if marketdata.data.summary.change != null || (marketdata.data.summary.last != null && marketdata.data.summary.prev != null)
-                    th.d-none.d-xl-table-cell #{settings.locale.mkt_change}
+                    th.text-center #{settings.locale.mkt_change}
               tbody
                 tr
                   if marketdata.data.summary.high != null
-                    td #{parseFloat(marketdata.data.summary.high).toFixed(8)}
+                    td.text-center #{parseFloat(marketdata.data.summary.high).toFixed(8)}
                   if marketdata.data.summary.low != null
-                    td #{parseFloat(marketdata.data.summary.low).toFixed(8)}
+                    td.text-center #{parseFloat(marketdata.data.summary.low).toFixed(8)}
                   if marketdata.data.summary.volume != null
-                    td #{parseFloat(marketdata.data.summary.volume).toFixed(8)}
+                    td.text-center #{parseFloat(marketdata.data.summary.volume).toFixed(8)}
                   if marketdata.data.summary.volume_btc != null
-                    td.d-none.d-xl-table-cell #{parseFloat(marketdata.data.summary.volume_btc).toFixed(8)}
+                    td.text-center #{parseFloat(marketdata.data.summary.volume_btc).toFixed(8)}
                   if marketdata.data.summary.bid != null
-                    td.d-none.d-md-table-cell #{parseFloat(marketdata.data.summary.bid).toFixed(8)}
+                    td.text-center #{parseFloat(marketdata.data.summary.bid).toFixed(8)}
                   if marketdata.data.summary.ask != null
-                    td.d-none.d-md-table-cell #{parseFloat(marketdata.data.summary.ask).toFixed(8)}
+                    td.text-center #{parseFloat(marketdata.data.summary.ask).toFixed(8)}
                   if marketdata.data.summary.last != null
-                    td.d-none.d-xl-table-cell #{parseFloat(marketdata.data.summary.last).toFixed(8)}
+                    td.text-center #{parseFloat(marketdata.data.summary.last).toFixed(8)}
                   if marketdata.data.summary.prev != null
-                    td.d-none.d-xl-table-cell #{parseFloat(marketdata.data.summary.prev).toFixed(8)}
+                    td.text-center #{parseFloat(marketdata.data.summary.prev).toFixed(8)}
                   if marketdata.data.summary.change != null || (marketdata.data.summary.last != null && marketdata.data.summary.prev != null)
                     if marketdata.data.summary.change != null
                       if marketdata.data.summary.change == '' || marketdata.data.summary.change == '-'
-                        td.d-none.d-xl-table-cell.font-weight-bold 0.00 %
+                        td.text-center.font-weight-bold 0.00 %
                       else
                         - var price_change = parseFloat(marketdata.data.summary.change).toFixed(2);
                     else
                       - var price_change = (100 - ((parseFloat(marketdata.data.summary.prev) / parseFloat(marketdata.data.summary.last)) * 100)).toFixed(2);
                     if price_change >= 0
-                      td.d-none.d-xl-table-cell.text-success.font-weight-bold +#{price_change} %
+                      td.text-center.text-success.font-weight-bold +#{price_change} %
                     else
-                      td.d-none.d-xl-table-cell.text-danger.font-weight-bold #{price_change} %
+                      td.text-center.text-danger.font-weight-bold #{price_change} %
       if marketdata.data.chartdata != 'null' && marketdata.data.chartdata != '' && marketdata.data.chartdata != '[]'
         #marketChart.row
           .col-md-12.cardSpacer
@@ -161,20 +192,20 @@ block content
             table.table.table-striped.table-bordered.order-table
               thead(class=theadClasses)
                 tr
-                  th #{settings.locale.mkt_price}
+                  th.text-center #{settings.locale.mkt_price}
                     span.small  (#{marketdata.exchange})
-                  th #{settings.locale.mkt_amount}
+                  th.text-center #{settings.locale.mkt_amount}
                     span.small  (#{marketdata.coin})
-                  th.d-none.d-sm-table-cell #{settings.locale.mkt_total}
+                  th.text-center #{settings.locale.mkt_total}
                     span.small  (#{marketdata.exchange})
               tbody
                 each buy in marketdata.data.buys
                   tr
-                    td.text-success.font-weight-bold
+                    td.text-center.text-success.font-weight-bold
                       =parseFloat(buy.price).toFixed(8)
-                    td
+                    td.text-center
                       =parseFloat(buy.quantity).toFixed(8)
-                    td.d-none.d-sm-table-cell
+                    td.text-center
                       if buy.total != null
                         =parseFloat(buy.total).toFixed(8)
                       else
@@ -186,20 +217,20 @@ block content
             table.table.table-striped.table-bordered.order-table
               thead(class=theadClasses)
                 tr
-                  th #{settings.locale.mkt_price}
+                  th.text-center #{settings.locale.mkt_price}
                     span.small  (#{marketdata.exchange})
-                  th #{settings.locale.mkt_amount}
+                  th.text-center #{settings.locale.mkt_amount}
                     span.small  (#{marketdata.coin})
-                  th.d-none.d-sm-table-cell #{settings.locale.mkt_total}
+                  th.text-center #{settings.locale.mkt_total}
                     span.small  (#{marketdata.exchange})
               tbody
                 each sell in marketdata.data.sells
                   tr
-                    td.text-danger.font-weight-bold
+                    td.text-center.text-danger.font-weight-bold
                       =parseFloat(sell.price).toFixed(8)
-                    td
+                    td.text-center
                       =parseFloat(sell.quantity).toFixed(8)
-                    td.d-none.d-sm-table-cell
+                    td.text-center
                       if sell.total != null
                         =parseFloat(sell.total).toFixed(8)
                       else
@@ -212,39 +243,39 @@ block content
             table#history-table.table.table-hover.table-bordered.table-striped.table-paging.right-border-0(cellspacing='0')
               thead(class=theadClasses)
                 tr
-                  th #{settings.locale.mkt_price}
+                  th.text-center #{settings.locale.mkt_price}
                     span.small  (#{marketdata.exchange})
-                  th #{settings.locale.mkt_amount}
+                  th.text-center #{settings.locale.mkt_amount}
                     span.small  (#{marketdata.coin})
-                  th #{settings.locale.mkt_total}
+                  th.text-center #{settings.locale.mkt_total}
                     span.small  (#{marketdata.exchange})
-                  th.d-none.d-lg-table-cell #{settings.locale.mkt_time_stamp}
+                  th.text-center #{settings.locale.mkt_time_stamp}
               tbody
                 each order in marketdata.data.history
                   if order.ordertype != null
                     if order.ordertype.toUpperCase() == 'BUY'
                       tr
-                        td.text-success.font-weight-bold
+                        td.text-center.text-success.font-weight-bold
                           =parseFloat(order.price).toFixed(8)
-                        td
+                        td.text-center
                           =parseFloat(order.quantity).toFixed(8)
-                        td
+                        td.text-center
                           if order.total != null
                             =parseFloat(order.total).toFixed(8)
                           else
                             =parseFloat(parseFloat(order.price).toFixed(8) * parseFloat(order.quantity).toFixed(8)).toFixed(8)
-                        td.d-none.d-lg-table-cell
+                        td.text-center
                           =format_unixtime(new Date(order.timestamp), true)
                     else
                       tr
-                        td.text-danger.font-weight-bold
+                        td.text-center.text-danger.font-weight-bold
                           =parseFloat(order.price).toFixed(8)
-                        td
+                        td.text-center
                           =parseFloat(order.quantity).toFixed(8)
-                        td
+                        td.text-center
                           if order.total != null
                             =parseFloat(order.total).toFixed(8)
                           else
                             =parseFloat(parseFloat(order.price).toFixed(8) * parseFloat(order.quantity).toFixed(8)).toFixed(8)
-                        td.d-none.d-lg-table-cell
+                        td.text-center
                           =format_unixtime(new Date(order.timestamp), true)

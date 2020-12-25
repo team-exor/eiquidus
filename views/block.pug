@@ -7,6 +7,20 @@ block content
   - var theadClasses = [];
   if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
     - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+  script.
+    $(document).ready(function() {
+      $('#block-summary').dataTable({
+        info: false,
+        paging: false,
+        searching: false,
+        ordering: false,
+        responsive: true,
+        scrollX: true,
+        fnDrawCallback: function(settings) {
+          fixDataTableColumns();
+        }
+      })
+    });
   .col-xs-12.col-md-12
     .card.card-default.border-0.cardSpacer
       .card-header(style='padding-left:25px;padding-right:25px;')
@@ -15,63 +29,65 @@ block content
             a(href='/block/' + block.previousblockhash)
               span.fa.fa-chevron-left.iquidus.block-last(data-toggle='tooltip', data-placement='top', title=settings.locale.block_previous)
             strong.d-none.d-md-block #{settings.symbol} block: #{block.hash}
+            strong.d-block.d-md-none #{settings.locale.ex_summary}
           else
             strong.d-none.d-md-block(style='margin-left:10px;') #{settings.symbol} #{settings.locale.ex_block}: #{block.hash}
+            strong.d-block.d-md-none(style='margin-left:10px;') #{settings.locale.ex_summary}
           if block.nextblockhash != null
             a(href='/block/' + block.nextblockhash)
               span.fa.fa-chevron-right.iquidus.block-next(data-toggle='tooltip', data-placement='top', title=settings.locale.block_next)
-          a(href='/api/getblock?hash=' + block.hash, style='margin-left: auto;', data-toggle='tooltip', data-placement='top', title=settings.locale.view_raw_block_data)
+          a.d-none.d-md-block(href='/api/getblock?hash=' + block.hash, style='margin-left:auto;', data-toggle='tooltip', data-placement='top', title=settings.locale.view_raw_block_data)
             span.fa.fa-info-circle.iquidus
-      table.table.table-bordered.summary-table
+      table#block-summary.table.table-bordered.summary-table(style='border-top:0;margin-top:0 !important;')
         thead(class=theadClasses)
           tr
-            th #{settings.locale.height}
-            th #{settings.locale.difficulty}
-            th #{settings.locale.confirmations}
+            th.text-center #{settings.locale.height}
+            th.text-center #{settings.locale.difficulty}
+            th.text-center #{settings.locale.confirmations}
             if settings.heavy == true
-              th.d-none.d-sm-table-cell Vote
-            th.d-none.d-sm-table-cell #{settings.locale.size} (kB)
-            th.d-none.d-md-table-cell #{settings.locale.bits}
-            th.d-none.d-sm-table-cell #{settings.locale.nonce}
-            th.d-none.d-sm-table-cell #{settings.locale.timestamp}
+              th.text-center Vote
+            th.text-center #{settings.locale.size} (kB)
+            th.text-center #{settings.locale.bits}
+            th.text-center #{settings.locale.nonce}
+            th.text-center #{settings.locale.timestamp}
         tbody
           if block.confirmations >= confirmations
             tr.bg-success.text-dark
               - var block_size = block.size/1024
-              td=block.height
-              td=Number(block.difficulty).toFixed(4)
-              td=block.confirmations
+              td.text-center=block.height
+              td.text-center=Number(block.difficulty).toFixed(4)
+              td.text-center=block.confirmations
               if settings.heavy == true
-                td.d-none.d-sm-table-cell=block.vote
-              td.d-none.d-sm-table-cell=block_size.toFixed(2)
-              td.d-none.d-md-table-cell=block.bits
-              td.d-none.d-sm-table-cell=block.nonce
-              td.d-none.d-sm-table-cell=time
+                td.text-center=block.vote
+              td.text-center=block_size.toFixed(2)
+              td.text-center=block.bits
+              td.text-center=block.nonce
+              td.text-center=time
           else
             if block.confirmations < (confirmations / 2)
               tr.bg-danger
                 - var block_size = block.size/1024
-                td=block.height
-                td=Number(block.difficulty).toFixed(4)
-                td=block.confirmations
+                td.text-center=block.height
+                td.text-center=Number(block.difficulty).toFixed(4)
+                td.text-center=block.confirmations
                 if settings.heavy == true
-                  td.d-none.d-sm-table-cell=block.vote
-                td.d-none.d-sm-table-cell=block_size.toFixed(2)
-                td.d-none.d-md-table-cell=block.bits
-                td.d-none.d-sm-table-cell=block.nonce
-                td.d-none.d-sm-table-cell=time
+                  td.text-center=block.vote
+                td.text-center=block_size.toFixed(2)
+                td.text-center=block.bits
+                td.text-center=block.nonce
+                td.text-center=time
             else
               tr.table-warning
                 - var block_size = block.size/1024
-                td=block.height
-                td=Number(block.difficulty).toFixed(4)
-                td=block.confirmations
+                td.text-center=block.height
+                td.text-center=Number(block.difficulty).toFixed(4)
+                td.text-center=block.confirmations
                 if settings.heavy == true
-                  td.d-none.d-sm-table-cell=block.vote
-                td.d-none.d-sm-cell=block_size.toFixed(2)
-                td.d-none.d-md-table-cell=block.bits
-                td.d-none.d-sm-table-cell=block.nonce
-                td.d-none.d-sm-table-cell=time
+                  td.text-center=block.vote
+                td.text-center=block_size.toFixed(2)
+                td.text-center=block.bits
+                td.text-center=block.nonce
+                td.text-center=time
     if block.hash == settings.genesis_block
       .alert.alert-info(role='alert', style='text-align:center;')
         strong #{settings.locale.block_genesis}
@@ -82,27 +98,27 @@ block content
         table.table.table-bordered.table-striped.summary-table.mobile-border-right
           thead(class=theadClasses)
             tr
-              th.d-none.d-sm-table-cell #{settings.locale.tx_hash}
-              th #{settings.locale.tx_recipients}
-              th #{settings.locale.mkt_amount}
+              th.text-center.d-table-cell.d-md-none
+              th.d-none.d-md-table-cell #{settings.locale.tx_hash}
+              th.text-center #{settings.locale.tx_recipients}
+              th.text-center #{settings.locale.mkt_amount}
                 span.small  (#{settings.symbol})
-              th
           tbody
             each txn in txs
               tr
-                td.d-none.d-sm-table-cell
+                td.text-center.d-table-cell.d-md-none
+                  a(href='/tx/' + txn.txid)
+                    span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_tx)
+                td.d-none.d-md-table-cell
                   a.breakWord(href='/tx/' + txn.txid) #{txn.txid}
-                td #{txn.vout.length}
+                td.text-center #{txn.vout.length}
                 if txn.vout.length > 0
                   - var total = (txn.total / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                   - var totalParts = total.split('.');
-                  td #{totalParts[0]}.
+                  td.text-center #{totalParts[0]}.
                     span.decimal #{totalParts[1]}
                 else
                   - var total = (txn.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                   - var totalParts = total.split('.');
-                  td #{totalParts[0]}.
+                  td.text-center #{totalParts[0]}.
                     span.decimal #{totalParts[1]}
-                td.text-center
-                  a(href='/tx/' + txn.txid)
-                    span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_tx)
