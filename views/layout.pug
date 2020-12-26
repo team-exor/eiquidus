@@ -321,15 +321,20 @@ html(lang='en')
                 span.fab.fa-btc
                 span.margin-left-5 #{settings.locale.menu_richlist}
           if settings.display.markets == true
-            if settings.markets.market_dropdown_menu == true && Object.keys(settings.market_names).length > 1
+            if settings.markets.market_dropdown_menu == true && settings.market_data.length > 1
               li#markets.dropdown
                 a.nav-link.dropdown-toggle(data-toggle='dropdown', href='#' role='button' aria-haspopup='true' aria-expanded='false')
                   span.fas.fa-chart-line
                   span.margin-left-5 #{settings.locale.menu_markets}
                 div.dropdown-menu
-                  each mkt in settings.markets.enabled
-                    if settings.market_names[mkt] != null
-                      a.dropdown-item.loading(href='/markets/' + mkt) #{settings.market_names[mkt]}
+                  each mkt in settings.market_data
+                    if mkt != null && mkt.id != null
+                      a.dropdown-item.loading(href='/markets/' + mkt.id)
+                        if mkt.logo != null && mkt.logo != ''
+                          img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name, alt=mkt.name)
+                        else
+                          i.market-logo.fas.fa-question-circle
+                        span #{mkt.name}
             else
               li#markets
                 a.nav-link.loading(href='/markets/' + settings.markets.default)

@@ -194,7 +194,8 @@ router.get('/markets/:market', function(req, res) {
       res.render('./market', {
         active: 'markets',
         marketdata: {
-          market_name: exMarket.market_name,
+          market_name: (exMarket.market_name == null ? '' : exMarket.market_name),
+          market_logo: (exMarket.market_logo == null ? '' : exMarket.market_logo),
           coin: settings.markets.coin,
           exchange: settings.markets.exchange,
           data: data,

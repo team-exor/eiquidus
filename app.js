@@ -379,20 +379,33 @@ for (var i=1; i<6; i++) {
   app.set('panel'+i.toString(), ((panelorder.length >= i) ? panelorder[i-1].name : ''));
 }
 
-// Dynamically populate market names
-var market_names = {};
+// Dynamically populate market data
+var market_data = [];
 
 settings.markets.enabled.forEach(function (market) {
   // Check if market file exists
   if (db.fs.existsSync('./lib/markets/' + market + '.js')) {
     // Load market file
     var exMarket = require('./lib/markets/' + market);
-    // Save market_name from market file to settings
-    eval('market_names.' + market + ' = "' + exMarket.market_name + '";');
+    // Save market_name and market_logo from market file to settings
+    eval('market_data.push({id: "' + market + '", name: "' + (exMarket.market_name == null ? '' : exMarket.market_name) + '", logo: "' + (exMarket.market_logo == null ? '' : exMarket.market_logo) + '"});');
   }
 });
 
-app.set('market_names', market_names);
+// Sort market data by name
+market_data.sort(function(a, b) {
+  var name1 = a.name.toLowerCase();
+  var name2 = b.name.toLowerCase();
+
+  if (name1 < name2)
+    return -1;
+  else if (name1 > name2)
+    return 1;
+  else
+    return 0;
+});
+
+app.set('market_data', market_data);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

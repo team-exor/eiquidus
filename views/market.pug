@@ -49,7 +49,7 @@ block content
       });
     });
   .col-xs-12.col-md-12
-    if settings.markets.market_select_visible == true && settings.markets.enabled.length > 1
+    if settings.markets.market_select_visible == true && settings.market_data.length > 1
       .row
         .col-md-12.cardSpacer
           .card.card-default.border-0
@@ -57,14 +57,24 @@ block content
               strong #{settings.locale.mkt_select}
             .card-body
               ul.nav.nav-pills
-                each mkt in settings.markets.enabled
-                  if settings.market_names[mkt] != null
-                    if market == mkt
+                each mkt in settings.market_data
+                  if mkt != null && mkt.id != null
+                    if market == mkt.id
                       li.nav-item
-                        a.nav-link.active(href='/markets/' + mkt) #{settings.market_names[mkt]}
+                        a.nav-link.active(href='/markets/' + mkt.id)
+                          if mkt.logo != null && mkt.logo != ''
+                            img.align-top.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name, alt=mkt.name)
+                          else
+                            i.market-logo.fas.fa-question-circle
+                          span #{mkt.name}
                     else
                       li.nav-item
-                        a.nav-link(href='/markets/' + mkt) #{settings.market_names[mkt]}
+                        a.nav-link(href='/markets/' + mkt.id)
+                          if mkt.logo != null && mkt.logo != ''
+                            img.align-top.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name, alt=mkt.name)
+                          else
+                            i.market-logo.fas.fa-question-circle
+                          span #{mkt.name}
     block market_view
       script.
         $(document).ready(function() {
@@ -122,6 +132,8 @@ block content
         .col-md-12.cardSpacer
           .card.card-default.border-0
             .card-header
+              if marketdata.market_logo != null && marketdata.market_logo != ''
+                img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
               strong #{marketdata.market_name} - #{marketdata.coin}/#{marketdata.exchange} - #{settings.locale.mkt_hours}
               if marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]'
                 span.fas.fa-chart-line.float-right.view-chart-disabled.iquidus.market-toggle(style='cursor: pointer;', data-toggle='tooltip', data-placement='bottom', title=settings.locale.mkt_no_chart)
@@ -217,6 +229,8 @@ block content
           .col-md-12.cardSpacer
             .card.card-default.border-0
               .card-header
+                if marketdata.market_logo != null && marketdata.market_logo != ''
+                  img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
                 strong #{marketdata.market_name} - #{marketdata.coin}/#{marketdata.exchange} - #{settings.locale.mkt_hours}
               .card-body
                 div#chart(style='height:300px;')
@@ -224,6 +238,8 @@ block content
         .col-md-6.col-xs-12.cardSpacer
           .card.card-default.border-0.wrapper-border-0(class=theadClasses)
             .card-header(style='border-bottom-width:1px;')
+              if marketdata.market_logo != null && marketdata.market_logo != ''
+                img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
               strong #{settings.locale.mkt_buy_orders}
             table.table.table-striped.table-bordered.order-table
               thead(class=theadClasses)
@@ -255,6 +271,8 @@ block content
         .col-md-6.col-xs-12.cardSpacer
           .card.card-default.border-0.wrapper-border-0(class=theadClasses)
             .card-header(style='border-bottom-width:1px;')
+              if marketdata.market_logo != null && marketdata.market_logo != ''
+                img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
               strong #{settings.locale.mkt_sell_orders}
             table.table.table-striped.table-bordered.order-table
               thead(class=theadClasses)
@@ -287,6 +305,8 @@ block content
         .col-md-12
           .card.card-default.border-0
             .card-header
+              if marketdata.market_logo != null && marketdata.market_logo != ''
+                img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
               strong #{settings.locale.mkt_trade_history}
             table#history-table.table.table-hover.table-bordered.table-striped.table-paging.right-border-0(cellspacing='0')
               thead(class=theadClasses)
