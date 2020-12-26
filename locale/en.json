@@ -116,7 +116,7 @@
     "mkt_hours": "24 hours",
     "mkt_view_chart": "View 24 hour summary",
     "mkt_view_summary": "View 24 hour chart",
-    "mkt_no_chart": "Chart data is not available via markets API.",
+    "mkt_no_chart": "Chart data is not available via markets API",
     "mkt_high": "High",
     "mkt_low": "Low",
     "mkt_volume": "Volume",
