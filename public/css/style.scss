@@ -595,7 +595,7 @@ tr {
   margin-left: 10px;
 }
 
-.header-panel span {
+.header-panel span:not(.decimal) {
   margin: 0 5px 0 5px;
   top: 0;
 }

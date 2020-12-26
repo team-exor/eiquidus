@@ -14,7 +14,7 @@
       - var count = 0;
       each address in received
         - count = count + 1;
-        - var itemFixed = (parseInt(address.received) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+        - var itemFixed = Number(parseInt(address.received) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
         - var itemFixedParts = itemFixed.split(".");
         tr
           td.text-center

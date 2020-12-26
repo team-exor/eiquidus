@@ -36,19 +36,27 @@ block content
               th.text-center #{settings.locale.heavy_reward}
               th.text-center #{settings.locale.heavy_estnext}
           tbody
+            - var supplyValue = Number(heavy.supply).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            - var splitSupply = supplyValue.split('.');
+            - var capValue = Number(heavy.cap).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            - var splitCap = capValue.split('.');
+            - var rewardValue = Number(heavy.reward).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            - var splitReward = rewardValue.split('.');
+            - var nextValue = Number(heavy.estnext).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            - var splitNext = nextValue.split('.');
             tr
-              td.text-center
-                =heavy.supply
-              td.text-center
-                =heavy.cap
+              td.text-center #{splitSupply[0]}.
+                span.decimal #{splitSupply[1]}
+              td.text-center #{splitCap[0]}.
+                span.decimal #{splitCap[1]}
               td.text-center
                 =heavy.phase
               td.text-center
                 =heavy.maxvote
-              td.text-center
-                =heavy.reward
-              td.text-center
-                =heavy.estnext
+              td.text-center #{splitReward[0]}.
+                span.decimal #{splitReward[1]}
+              td.text-center #{splitNext[0]}.
+                span.decimal #{splitNext[1]}
   .row(style='margin-left:0;margin-right:0;')
     .col-md-3
       .card.card-default.border-0

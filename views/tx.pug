@@ -74,7 +74,7 @@ block content
                       tr.table-info.text-center
                         td #{settings.locale.new_coins}
                     else
-                      - var ramount = (address.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+                      - var ramount = Number(address.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                       - var ramountParts = ramount.split('.');
                       tr
                         td
@@ -105,7 +105,7 @@ block content
               tbody
                 each address in tx.vout
                   if tx.vout.length > 0
-                    - var ramount = (address.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+                    - var ramount = Number(address.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                     - var ramountParts = ramount.split('.');
                     tr
                       if address.addresses != 'private_tx'
@@ -127,7 +127,7 @@ block content
                         td(colspan='2')
                           =settings.locale.hidden_recipient
                   else
-                    - var ramount = (address.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+                    - var ramount = Number(address.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                     - var ramountParts = ramount.split('.');
                     tr
                       td

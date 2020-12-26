@@ -49,7 +49,7 @@ block content
           var txhash = data[2]; //variables for better readability
           var outputs = data[3]; //variables for better readability
           var amount = (data[4] / 100000000); //variables for better readability
-          var amountParts = amount.toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}).split('.');
+          var amountParts = Number(amount).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}).split('.');
           var amountStr = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
           var timestamp = data[5]; //variables for better readability
           if (amount > '#{flagb}') {

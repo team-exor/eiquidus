@@ -16,8 +16,9 @@
       each address in balance
         - count = count + 1;
         - var itemFixed = (parseInt(address.balance) / 100000000);
-        - var itemFixedParts = itemFixed.toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}).split(".");
-        - var percentage = (itemFixed / stats.supply) * 100;
+        - var itemFixedParts = Number(itemFixed).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}).split(".");
+        - var percent = Number((itemFixed / stats.supply) * 100).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':false});
+        - var percentParts = percent.split(".");
         tr
           td.text-center
             =count
@@ -29,5 +30,5 @@
             include ./rl_labels.pug
           td.text-center #{itemFixedParts[0]}.
             span.decimal #{itemFixedParts[1]}
-          td.text-center
-            =percentage.toFixed(2)
+          td.text-center #{percentParts[0]}.
+            span.decimal #{percentParts[1]}

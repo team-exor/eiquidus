@@ -45,7 +45,7 @@ script.
         var txhash = data[1]; //variables for better readability
         var out = data[2]; //variables for better readability
         var vin = data[3]; //variables for better readability
-        var balance = (data[4] / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}); //variables for better readability
+        var balance = Number(data[4] / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}); //variables for better readability
         var balanceParts = balance.split('.');
         $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
         $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-md-table-cell');
@@ -54,9 +54,9 @@ script.
         var rowclass = 'info';
 
         if (out > 0 && vin > 0) {
-          amount = (out - vin) / 100000000;
+          amount = Number((out - vin) / 100000000);
           if (amount < 0) {
-            amount = (amount * -1).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            amount = Number(amount * -1).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
             updown = '-';
           } else if (amount > 0) {
             amount = amount.toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
@@ -65,11 +65,11 @@ script.
             amount = amount.toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
           }
         } else if (out > 0) {
-          amount = (out / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+          amount = Number(out / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
           updown = '+';
           rowclass = 'bg-success';
         } else {
-          amount = (vin / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+          amount = Number(vin / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
           updown = '-';
           rowclass = 'bg-danger';
         }

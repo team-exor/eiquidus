@@ -1,11 +1,11 @@
 extends layout
 
 block content
-  - var balance = ((address.received - address.sent) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+  - var balance = Number((address.received - address.sent) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var balanceParts = balance.split('.');
-  - var sent = (address.sent /100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+  - var sent = Number(address.sent /100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var sentParts = sent.split('.');
-  - var received = (address.received / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+  - var received = Number(address.received / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var receivedParts = received.split('.');
   if address.a_id !== 'coinbase' || settings.show_sent_received == true
     script.
