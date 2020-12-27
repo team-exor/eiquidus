@@ -11,6 +11,7 @@
     "menu_movement": "Movement",
     "menu_node": "Nodes",
     "menu_network": "Network",
+    "menu_claim_address": "Claim Address",
 
     // explorer view
     "ex_title": "Block Explorer",

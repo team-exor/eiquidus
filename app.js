@@ -279,7 +279,7 @@ app.use('/ext/getaddresstxs/:address/:start/:length', function(req,res) {
   });
 });
 
-app.post('/address/:hash/claim', function(req, res) {
+app.post('/claim', function(req, res) {
   // initialize the bad-words filter
   var bad_word_lib = require('bad-words');
   var bad_word_filter = new bad_word_lib();
@@ -294,11 +294,17 @@ app.post('/address/:hash/claim', function(req, res) {
       if (body == false) {
         res.json({'status': 'failed', 'error': true, 'message': 'Invalid signature'});
       } else if (body == true) {
-        db.update_label(req.body.address, req.body.message, function() {
-          res.json({'status': 'success'});
+        db.update_label(req.body.address, req.body.message, function(val) {
+          // check if the update was successful
+          if (val == '')
+            res.json({'status': 'success'});
+          else if (val == 'no_address')
+            res.json({'status': 'failed', 'error': true, 'message': 'Wallet address ' + req.body.address + ' is not valid or does not have any transactions'});
+          else
+            res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
         });
       } else
-        res.json({'status': 'failed', 'error': true, 'message': 'There was an error. Check your console'});
+        res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
     });
   } else {
     // message was filtered which would change the signature

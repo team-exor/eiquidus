@@ -32,7 +32,7 @@ block content
             strong #{address.name}
           include ./includes/rl_labels.pug
           if !settings.labels[address.a_id] && settings.display.claim_address == true
-            a.badge.badge-pill.float-right.d-none.d-sm-block(href="/address/"+ address.a_id +"/claim" style="font-size:smaller;padding-bottom:0;")
+            a.badge.badge-pill.float-right.d-none.d-sm-block(href='/claim/' + address.a_id, style='font-size:smaller;padding-bottom:0;')
               if address.name == null || address.name == ''
                 =" Is this yours? Claim it now for free!"
               else

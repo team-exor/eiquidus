@@ -345,6 +345,11 @@ html(lang='en')
               a.nav-link(href='/info')
                 span.fa.fa-info-circle
                 span.margin-left-5 #{settings.locale.menu_api}
+          if settings.display.claim_address_header_menu == true && settings.display.claim_address == true
+            li#claim-address
+              a.nav-link.loading(href='/claim')
+                span.far.fa-address-card
+                span.margin-left-5 #{settings.locale.menu_claim_address}
     div#body-container(style='margin-top:' + (settings.sticky_header == true ? '80px;' : '20px'))
       if showSync != null && showSync == true
         .col-lg-12

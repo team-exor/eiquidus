@@ -3,25 +3,47 @@ extends layout
 block content
   script.
     $(function () {
+        function generateAlertHTML(alertClass, allowDismiss, headerText, msgText) {
+          return '<div class="alert alert-' + alertClass + (allowDismiss ? ' alert-dismissable' : '') + '" role="alert">' +
+            (allowDismiss ? '<button type="button" class="close" data-dismiss="alert">×</button>' : '') + 
+            '<div' + (msgText == null || msgText == '' ? '' : ' class="cardSpacer"') + '>' +
+            '<span class="fas ' + (alertClass == 'success' ? 'fa-check-circle' : (alertClass == 'danger' ? 'fa-exclamation-circle' : (alertClass == 'info' ? 'fa-info-circle' : 'fa-exclamation-triangle'))) + '" style="margin-right:5px"></span>' +
+            '<strong>' + headerText + '</strong>' +
+            '</div>' +
+            (msgText == null || msgText == '' ? '' : '<span>' + msgText + '</span>') +
+            '</div>';
+        }
         function displayAsText(str) {
           return str.replace(/</g, '&#60;').replace(/>/g, '&#62;');
         }
         function showClaimAlert(claimClass, warnMsg, removedClaim) {
           if ($('#claimAlert').length == 0)
             $('<div id="claimAlert"></div>').insertBefore('#claimForm');
-          $('#claimAlert').html('<div class="alert alert-' + claimClass + '"><div class="font-weight-bold" style="padding-bottom:10px;">' + (claimClass == 'success' ? (removedClaim ? 'Address claim removed successfully' : 'Address claimed successfully') : (claimClass == 'danger' ? 'Failed to claim address' : 'Required field missing')) + '</div> ' + (claimClass == 'success' ? 'This address will now be referred to as <strong>' + (removedClaim ? $('input#address').val() : displayAsText($('#message').val())) + '</strong> throughout the website' : warnMsg) + '.</div>');			
+          $('#claimAlert').html(generateAlertHTML(claimClass, true, (claimClass == 'success' ? (removedClaim ? 'Address claim removed successfully' : 'Address claimed successfully') : (claimClass == 'danger' ? 'Failed to claim address' : 'Required field missing')), (claimClass == 'success' ? '<strong>' + $('input#address').val() + '</strong> will now be referred to as <strong>' + (removedClaim ? $('input#address').val() : displayAsText($('#message').val())) + '</strong> throughout the website' : warnMsg) + '.'));
+          fixFooterHeightAndPosition();
         }
-
+        $('#claimInstructions').on('show.bs.collapse', function () {
+          $('#showClaimInstructions').html('<i class="fas fa-angle-down" style="margin-right:5px;"></i><span>Hide claim instructions</span>');
+        }).on('hide.bs.collapse', function () {
+          $('#showClaimInstructions').html('<i class="fas fa-angle-up" style="margin-right:5px;"></i><span>Show claim instructions</span>');
+        }).on('shown.bs.collapse', function () {
+          fixFooterHeightAndPosition();
+        }).on('hidden.bs.collapse', function () {
+          fixFooterHeightAndPosition();
+        });
         $('#claimForm').on('submit', function (e) {
           e.preventDefault();
           var address = $('input#address').val();
           var message = $('input#message').val();
           var signature = $('input#signature').val();
-          var url = '/address/'+address+'/claim';
+          var url = '/claim';
           
-          if (signature == null || signature.trim().length == 0) {
+          if (address == null || address.trim().length == 0) {
+            showClaimAlert('warning', 'Please enter the wallet address you wish to claim', false);
+            $('input#address').focus();
+          } else if (signature == null || signature.trim().length == 0) {
             showClaimAlert('warning', 'Please enter the signature value from your wallet software', false);
-            $('input#signature').focus();          
+            $('input#signature').focus();
           } else {
             $.ajax({
               type: 'post',
@@ -37,85 +59,35 @@ block content
             });
           }
         });
+        if ('!{hash}' != 'null' && '!{hash}' != '') {
+          $('<div id="claimAlert"></div>').insertBefore('#claimForm');
+          $('#claimAlert').html(generateAlertHTML('info', true, ('!{claim_name}' == '' ? 'Unc' : 'C') + 'laimed address', '<strong>!{hash}</strong> is currently ' + ('!{claim_name}' == '' ? 'un' : '') + 'claimed' + ('!{claim_name}' == '' ? '' : ' as <strong>' + displayAsText('!{claim_name}') + '.</strong>')));
+        }
       });
-  - var balance = Number((address.received - address.sent) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-  - var balanceParts = balance.split('.');
-  - var sent = Number(address.sent /100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-  - var sentParts = sent.split('.');
-  - var received = Number(address.received / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-  - var receivedParts = received.split('.');
-  if address.a_id !== 'coinbase' || settings.show_sent_received == true
-    script.
-      $(document).ready(function() {
-        $('.summary-table').dataTable({
-          info: false,
-          paging: false,
-          searching: false,
-          ordering: false,
-          responsive: true,
-          scrollX: true,
-          fnDrawCallback: function(settings) {
-            fixDataTableColumns();
-          }
-        })
-      });
-  .col-xs-12.col-md-12.cardSpacer
-    if address.a_id !== 'coinbase' || settings.show_sent_received == true
-      .card.card-default.border-0.card-address-summary.cardSpacer
-        .card-header(style='position:relative;')
-          if typeof address.name == null || address.name == ''
-            strong #{address.a_id}
-          else
-            strong #{address.name}
-          include ./includes/rl_labels.pug
-        table.table.table-bordered.table-striped.summary-table.mobile-border-right(style='border-top:0;margin-top:0 !important;')
-          - var theadClasses = [];
-          if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-            - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
-          thead(class=theadClasses)
-            tr
-              if address.a_id !== 'coinbase'
-                th.text-center #{settings.locale.rl_balance}
-                  span.small  (#{settings.symbol})
-              if settings.show_sent_received == true
-                th.text-center #{settings.locale.total_sent}
-                  span.small  (#{settings.symbol})
-              if address.a_id !== 'coinbase' && settings.show_sent_received == true
-                th.text-center #{settings.locale.total_received}
-                  span.small  (#{settings.symbol})
-              if address.a_id !== 'coinbase'
-                th.text-center #{settings.locale.a_qr}
-          tbody
-            tr
-              if address.a_id !== 'coinbase'
-                td.text-center.addr-summary #{balanceParts[0]}.
-                  span.decimal #{balanceParts[1]}
-              if settings.show_sent_received == true
-                td.text-center.addr-summary #{sentParts[0]}.
-                  span.decimal #{sentParts[1]}
-              if address.a_id !== 'coinbase' && settings.show_sent_received == true
-                td.text-center.addr-summary #{receivedParts[0]}.
-                  span.decimal #{receivedParts[1]}
-              if address.a_id !== 'coinbase'
-                td.text-center.addr-summary
-                  img.qrcode(src='/qr/' + address.a_id)
+  .col-xs-12.col-md-12
     .card.card-default.border-0.cardSpacer
       .card-header
-        strong Claim this Address
+        strong Claim Wallet Address
       .card-body
-        div.alert.alert-primary
+        a#showClaimInstructions.badge.badge-info(href='#claimInstructions', style='font-size:100%;margin-bottom:15px;', data-toggle='collapse' role='button' aria-expanded='false' aria-controls='claimInstructions')
+          i.fas.fa-angle-up(style='margin-right:5px;')
+          span Show claim instructions
+        div#claimInstructions.alert.alert-primary.collapse
           div
-            span You can use the
+            span Use the
             span.font-weight-bold  Sign Message
             span  feature from your
             span.font-weight-bold  #{settings.coin}
-            span  wallet to verify ownership of this address.
+            span  wallet to verify ownership of a wallet address that belongs to you.
           br
           div Enter the following data into the wallet software:
           br
           div
             span.font-weight-bold Address:
-            span  #{address.a_id}
+            if hash == null || hash == ''
+              span=' <wallet address from the form below>'
+            else
+              span  #{hash}
           div
             span.font-weight-bold Message:
             span=' <display name from the form below>'
@@ -125,11 +97,11 @@ block content
             span.font-weight-bold  Sign Message
             span  button in the wallet, and copy/paste the resulting
             span.font-weight-bold  Signature
-            span  in the form below.
+            span  at the bottom of this form.
           br
           div
             span Finally, click the
-            span.font-weight-bold  Submit
+            span.font-weight-bold  Claim
             span  button below to claim your address, which will display your custom display name instead of the default wallet address on this site.
           br
           div
@@ -139,7 +111,10 @@ block content
           .form-group
             fieldset.entryField
               label(for='address') Wallet Address
-              input#address.form-control(type='text' value=address.a_id readonly="")
+              if hash == null || hash == ''
+                input#address.form-control(type='text', maxlength='70')
+              else
+                input#address.form-control(type='text', value=hash, readonly='readonly', maxlength='70')
           .form-group
             fieldset.entryField
               label(for='message') Display Name
@@ -148,4 +123,4 @@ block content
             fieldset.entryField
               label(for='signature') Signature
               input#signature.form-control(type='text', placeholder='Signature', maxlength='100')
-          button.btn.btn-primary(type='submit') Submit
+          button.btn.btn-success(type='submit') Claim

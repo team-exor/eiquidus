@@ -113,6 +113,8 @@
     "network": true,
     // Enable/disable the ability for users to claim a wallet address. NOTE: Disabling this feature after addresses have already been claimed will effectively hide the claimed values and restore the original wallet addresses again
     "claim_address": true,
+    // Show/hide the "Claim Address" header menu item. NOTE: "claim_address" setting must also be enabled or else the header item will automatically be hidden as well
+    "claim_address_header_menu": true,
     // page_header_bgcolor: change the background color of the page header
     // page_footer_bgcolor: change the background color of the page footer
     // valid options: light, dark, primary, secondary, success, info, warning, danger or leave blank ( "" ) for default colors

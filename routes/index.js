@@ -166,15 +166,19 @@ function route_get_address(res, hash, count) {
 function route_get_claim_form(res, hash) {
   // check if claiming addresses is enabled
   if (settings.display.claim_address) {
-    db.get_address(hash, false, function(address) {
-      if (address)
-        res.render("claim_address", { active: "address", address: address, showSync: db.check_show_sync_message()});
-      else
-        route_get_index(res, hash + ' not found');
-    });
-  } else {
+    // check if a hash was passed in
+    if (hash == null || hash == '') {
+      // no hash so just load the claim page without an address
+      res.render("claim_address", { active: "claim-address", hash: hash, claim_name: '', showSync: db.check_show_sync_message()});
+    } else {
+      // lookup hash in the address collection
+      db.get_address(hash, false, function(address) {
+        // load the claim page regardless of whether the address exists or not
+        res.render("claim_address", { active: "claim-address", hash: hash, claim_name: (address == null || address.name == null ? '' : address.name), showSync: db.check_show_sync_message()});
+      });
+    }
+  } else
     route_get_address(res, hash, settings.txcount);
-  }
 }
 
 /* GET home page. */
@@ -287,7 +291,11 @@ router.get('/block/:hash', function(req, res) {
   route_get_block(res, req.params.hash);
 });
 
-router.get('/address/:hash/claim', function(req,res){
+router.get('/claim', function(req, res) {
+  route_get_claim_form(res, '');
+});
+
+router.get('/claim/:hash', function(req, res) {
   route_get_claim_form(res, req.params.hash);
 });
 
