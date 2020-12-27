@@ -254,6 +254,10 @@ html(lang='en')
           var oPanel = document.getElementById(sPanelName);
           if (typeof(oPanel) != 'undefined' && oPanel != null) document.getElementById(sPanelName).innerHTML=getActivePanel(sPanelID);
         }
+        $(document).on('click', 'button.close', function (e) {
+          e.preventDefault();
+          fixFooterHeightAndPosition();
+        });
         hideShowPanel('#{settings.panel1}', 'pnlOne');
         hideShowPanel('#{settings.panel2}', 'pnlTwo');
         hideShowPanel('#{settings.panel3}', 'pnlThree');
