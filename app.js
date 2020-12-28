@@ -369,21 +369,29 @@ app.set('social_link_percent_height_tablet', settings.social_link_percent_height
 app.set('social_link_percent_height_mobile', settings.social_link_percent_height_mobile);
 
 // determine panel offset based on which panels are enabled
-var paneltotal=5;
-var panelcount=(settings.display.networkpnl > 0 ? 1 : 0)+(settings.display.difficultypnl > 0 ? 1 : 0)+(settings.display.masternodespnl > 0 ? 1 : 0)+(settings.display.coinsupplypnl > 0 ? 1 : 0)+(settings.display.pricepnl > 0 ? 1 : 0);
-app.set('paneloffset', paneltotal+1-panelcount);
+var paneltotal = 5;
+var panelcount = (settings.display.networkpnl > 0 ? 1 : 0) +
+  (settings.display.difficultypnl > 0 ? 1 : 0) +
+  (settings.display.masternodespnl > 0 ? 1 : 0) +
+  (settings.display.coinsupplypnl > 0 ? 1 : 0) +
+  (settings.display.pricepnl > 0 ? 1 : 0) +
+  (settings.display.marketcappnl > 0 ? 1 : 0);
+app.set('paneloffset', paneltotal + 1 - panelcount);
 
 // determine panel order
 var panelorder = new Array();
+
 if (settings.display.networkpnl > 0) panelorder.push({name: 'networkpnl', val: settings.display.networkpnl});
 if (settings.display.difficultypnl > 0) panelorder.push({name: 'difficultypnl', val: settings.display.difficultypnl});
 if (settings.display.masternodespnl > 0) panelorder.push({name: 'masternodespnl', val: settings.display.masternodespnl});
 if (settings.display.coinsupplypnl > 0) panelorder.push({name: 'coinsupplypnl', val: settings.display.coinsupplypnl});
 if (settings.display.pricepnl > 0) panelorder.push({name: 'pricepnl', val: settings.display.pricepnl});
+if (settings.display.marketcappnl > 0) panelorder.push({name: 'marketcappnl', val: settings.display.marketcappnl});
+
 panelorder.sort(function(a,b) { return a.val - b.val; });
-for (var i=1; i<6; i++) {
+
+for (var i=1; i<6; i++)
   app.set('panel'+i.toString(), ((panelorder.length >= i) ? panelorder[i-1].name : ''));
-}
 
 // Dynamically populate market data
 var market_data = [];
