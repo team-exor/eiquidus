@@ -55,184 +55,212 @@ app.use(express.static(path.join(__dirname, 'public')));
 // routes
 app.use('/api', nodeapi.app);
 app.use('/', routes);
-app.use('/ext/getmoneysupply', function(req,res) {
-  lib.get_supply(function(supply) {
-    res.setHeader('content-type', 'text/plain');
-    res.end((supply ? supply.toString() : '0'));
-  });
+
+app.use('/ext/getmoneysupply', function(req, res) {
+  // check if the getmoneysupply api is enabled
+  if (settings.public_api.ext['getmoneysupply']) {
+    lib.get_supply(function(supply) {
+      res.setHeader('content-type', 'text/plain');
+      res.end((supply ? supply.toString() : '0'));
+    });
+  } else
+    res.end('This method is disabled');
 });
 
-app.use('/ext/getaddress/:hash', function(req,res){
-  db.get_address(req.params.hash, false, function(address){
-    db.get_address_txs_ajax(req.params.hash, 0, settings.txcount, function(txs, count){
-      if (address) {
-        var last_txs = [];
-        for(i=0; i<txs.length; i++){
-          if(typeof txs[i].txid !== "undefined") {
-            var out = 0,
-            vin = 0,
-            tx_type = 'vout',
-            row = {};
-            txs[i].vout.forEach(function (r) {
-              if (r.addresses == req.params.hash) {
-                out += r.amount;
-              }
-            });
-            txs[i].vin.forEach(function (s) {
-              if (s.addresses == req.params.hash) {
-                vin += s.amount;
-              }
-            });
-            if (vin > out) {
-              tx_type = 'vin';
+app.use('/ext/getaddress/:hash', function(req, res) {
+  // check if the getaddress api is enabled
+  if (settings.public_api.ext['getaddress']) {
+    db.get_address(req.params.hash, false, function(address) {
+      db.get_address_txs_ajax(req.params.hash, 0, settings.txcount, function(txs, count) {
+        if (address) {
+          var last_txs = [];
+          for (i = 0; i < txs.length; i++) {
+            if (typeof txs[i].txid !== "undefined") {
+              var out = 0,
+              vin = 0,
+              tx_type = 'vout',
+              row = {};
+              txs[i].vout.forEach(function (r) {
+                if (r.addresses == req.params.hash)
+                  out += r.amount;
+              });
+              txs[i].vin.forEach(function (s) {
+                if (s.addresses == req.params.hash)
+                  vin += s.amount;
+              });
+              if (vin > out)
+                tx_type = 'vin';
+              row['addresses'] = txs[i].txid;
+              row['type'] = tx_type;
+              last_txs.push(row);
             }
-            row['addresses'] = txs[i].txid;
-            row['type'] = tx_type;
-            last_txs.push(row);
           }
-        }
-        var a_ext = {
-          address: address.a_id,
-          sent: (address.sent / 100000000),
-          received: (address.received / 100000000),
-          balance: (address.balance / 100000000).toString().replace(/(^-+)/mg, ''),
-          last_txs: last_txs
-        };
-        res.send(a_ext);
-      } else {
-        res.send({ error: 'address not found.', hash: req.params.hash});
-      }
+          var a_ext = {
+            address: address.a_id,
+            sent: (address.sent / 100000000),
+            received: (address.received / 100000000),
+            balance: (address.balance / 100000000).toString().replace(/(^-+)/mg, ''),
+            last_txs: last_txs
+          };
+          res.send(a_ext);
+        } else
+          res.send({ error: 'address not found.', hash: req.params.hash});
+      });
     });
-  });
+  } else
+    res.end('This method is disabled');
 });
 
 app.use('/ext/gettx/:txid', function(req, res) {
-  var txid = req.params.txid;
-  db.get_tx(txid, function(tx) {
-    if (tx) {
-      lib.get_blockcount(function(blockcount) {
-        res.send({ active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0)});
-      });
-    }
-    else {
-      lib.get_rawtransaction(txid, function(rtx) {
-        if (rtx && rtx.txid) {
-          lib.prepare_vin(rtx, function(vin) {
-            lib.prepare_vout(rtx.vout, rtx.txid, vin, ((typeof rtx.vjoinsplit === 'undefined' || rtx.vjoinsplit == null) ? [] : rtx.vjoinsplit), function(rvout, rvin) {
-              lib.calculate_total(rvout, function(total){
-                if (!rtx.confirmations > 0) {
-                  var utx = {
-                    txid: rtx.txid,
-                    vin: rvin,
-                    vout: rvout,
-                    total: total.toFixed(8),
-                    timestamp: rtx.time,
-                    blockhash: '-',
-                    blockindex: -1,
-                  };
-                  res.send({ active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount:-1});
-                } else {
-                  var utx = {
-                    txid: rtx.txid,
-                    vin: rvin,
-                    vout: rvout,
-                    total: total.toFixed(8),
-                    timestamp: rtx.time,
-                    blockhash: rtx.blockhash,
-                    blockindex: rtx.blockheight,
-                  };
-                  lib.get_blockcount(function(blockcount) {
-                    res.send({ active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0)});
-                  });
-                }
+  // check if the gettx api is enabled
+  if (settings.public_api.ext['gettx']) {
+    var txid = req.params.txid;
+    db.get_tx(txid, function(tx) {
+      if (tx) {
+        lib.get_blockcount(function(blockcount) {
+          res.send({ active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0)});
+        });
+      }
+      else {
+        lib.get_rawtransaction(txid, function(rtx) {
+          if (rtx && rtx.txid) {
+            lib.prepare_vin(rtx, function(vin) {
+              lib.prepare_vout(rtx.vout, rtx.txid, vin, ((typeof rtx.vjoinsplit === 'undefined' || rtx.vjoinsplit == null) ? [] : rtx.vjoinsplit), function(rvout, rvin) {
+                lib.calculate_total(rvout, function(total) {
+                  if (!rtx.confirmations > 0) {
+                    var utx = {
+                      txid: rtx.txid,
+                      vin: rvin,
+                      vout: rvout,
+                      total: total.toFixed(8),
+                      timestamp: rtx.time,
+                      blockhash: '-',
+                      blockindex: -1,
+                    };
+                    res.send({ active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount:-1});
+                  } else {
+                    var utx = {
+                      txid: rtx.txid,
+                      vin: rvin,
+                      vout: rvout,
+                      total: total.toFixed(8),
+                      timestamp: rtx.time,
+                      blockhash: rtx.blockhash,
+                      blockindex: rtx.blockheight,
+                    };
+                    lib.get_blockcount(function(blockcount) {
+                      res.send({ active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0)});
+                    });
+                  }
+                });
               });
             });
-          });
-        } else {
-          res.send({ error: 'tx not found.', hash: txid});
-        }
-      });
-    }
-  });
-});
-
-app.use('/ext/getbalance/:hash', function(req,res){
-  db.get_address(req.params.hash, false, function(address){
-    if (address) {
-      res.setHeader('content-type', 'text/plain');
-      res.end((address.balance / 100000000).toString().replace(/(^-+)/mg, ''));
-    } else {
-      res.send({ error: 'address not found.', hash: req.params.hash})
-    }
-  });
-});
-
-app.use('/ext/getdistribution', function(req,res){
-  db.get_richlist(settings.coin, function(richlist){
-    db.get_stats(settings.coin, function(stats){
-      db.get_distribution(richlist, stats, function(dist){
-        res.send(dist);
-      });
+          } else {
+            res.send({ error: 'tx not found.', hash: txid});
+          }
+        });
+      }
     });
-  });
+  } else
+    res.end('This method is disabled');
 });
 
-app.use('/ext/getcurrentprice', function(req,res){
-  db.get_stats(settings.coin, function (stats) {
-	  eval('var p_ext = { "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, }');
-      res.send(p_ext);
-  });
+app.use('/ext/getbalance/:hash', function(req, res) {
+  // check if the getbalance api is enabled
+  if (settings.public_api.ext['getbalance']) {
+    db.get_address(req.params.hash, false, function(address) {
+      if (address) {
+        res.setHeader('content-type', 'text/plain');
+        res.end((address.balance / 100000000).toString().replace(/(^-+)/mg, ''));
+      } else
+        res.send({ error: 'address not found.', hash: req.params.hash });
+    });
+  } else
+    res.end('This method is disabled');
 });
 
-app.use('/ext/getbasicstats', function(req,res) {
-  lib.get_blockcount(function(blockcount) {
-    lib.get_supply(function(supply) {
-      db.get_stats(settings.coin, function (stats) {
-        lib.get_masternodecount(function(masternodestotal) {
-          eval('var p_ext = { "block_count": (blockcount ? blockcount : 0), "money_supply": (supply ? supply : 0), "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, "masternode_count": masternodestotal.total }');
-          res.send(p_ext);
+app.use('/ext/getdistribution', function(req, res) {
+  // check if the getdistribution api is enabled
+  if (settings.public_api.ext['getdistribution']) {
+    db.get_richlist(settings.coin, function(richlist) {
+      db.get_stats(settings.coin, function(stats) {
+        db.get_distribution(richlist, stats, function(dist) {
+          res.send(dist);
         });
       });
     });
-  });
+  } else
+    res.end('This method is disabled');
+});
+
+app.use('/ext/getcurrentprice', function(req, res) {
+  // check if the getcurrentprice api is enabled
+  if (settings.public_api.ext['getcurrentprice']) {
+    db.get_stats(settings.coin, function (stats) {
+      eval('var p_ext = { "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, }');
+        res.send(p_ext);
+    });
+  } else
+    res.end('This method is disabled');
+});
+
+app.use('/ext/getbasicstats', function(req, res) {
+  // check if the getbasicstats api is enabled
+  if (settings.public_api.ext['getbasicstats']) {
+    lib.get_blockcount(function(blockcount) {
+      lib.get_supply(function(supply) {
+        db.get_stats(settings.coin, function (stats) {
+          lib.get_masternodecount(function(masternodestotal) {
+            eval('var p_ext = { "block_count": (blockcount ? blockcount : 0), "money_supply": (supply ? supply : 0), "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, "masternode_count": masternodestotal.total }');
+            res.send(p_ext);
+          });
+        });
+      });
+    });
+  } else
+    res.end('This method is disabled');
 });
 
 app.use('/ext/getlasttxs/:min', function(req, res) {
-  var min = req.params.min, start, length;
-  // split url suffix by forward slash and remove blank entries
-  var split = req.url.split('/').filter(function(v) { return v; });
-  // determine how many parameters were passed
-  switch (split.length) {
-    case 2:
-      // capture start and length
-      start = split[0];
-      length = split[1];
-      break;
-    default:
-      if (split.length == 1) {
-        // capture start
-        start = split[0];
-      } else if (split.length > 2) {
+  // check if the getlasttxs api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
+  if (settings.public_api.ext['getlasttxs'] || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+    var min = req.params.min, start, length;
+    // split url suffix by forward slash and remove blank entries
+    var split = req.url.split('/').filter(function(v) { return v; });
+    // determine how many parameters were passed
+    switch (split.length) {
+      case 2:
         // capture start and length
         start = split[0];
         length = split[1];
-      }
-      break;
-  }
+        break;
+      default:
+        if (split.length == 1) {
+          // capture start
+          start = split[0];
+        } else if (split.length > 2) {
+          // capture start and length
+          start = split[0];
+          length = split[1];
+        }
+        break;
+    }
 
-  // fix parameters
-  if (typeof length === 'undefined' || isNaN(length) || length > settings.index.last_txs)
-    length = settings.index.last_txs;
-  if (typeof start === 'undefined' || isNaN(start) || start < 0)
-    start = 0;
-  if (typeof min === 'undefined' || isNaN(min) || min < 0)
-    min  = 0;
-  else
-    min  = (min * 100000000);
+    // fix parameters
+    if (typeof length === 'undefined' || isNaN(length) || length > settings.index.last_txs)
+      length = settings.index.last_txs;
+    if (typeof start === 'undefined' || isNaN(start) || start < 0)
+      start = 0;
+    if (typeof min === 'undefined' || isNaN(min) || min < 0)
+      min  = 0;
+    else
+      min  = (min * 100000000);
 
-  db.get_last_txs(start, length, min, function(data, count) {
-    res.json({"data":data, "recordsTotal": count, "recordsFiltered": count});
-  });
+    db.get_last_txs(start, length, min, function(data, count) {
+      res.json({"data":data, "recordsTotal": count, "recordsFiltered": count});
+    });
+  } else
+    res.end('This method is disabled');
 });
 
 app.use('/ext/getaddresstxs/:address/:start/:length', function(req,res) {
@@ -362,6 +390,7 @@ app.set('labels', settings.labels);
 app.set('homelink', settings.homelink);
 app.set('logoheight', settings.logoheight);
 app.set('burned_coins', settings.burned_coins);
+app.set('public_api', settings.public_api);
 app.set('api_cmds', settings.api_cmds);
 
 app.set('sticky_header', settings.sticky_header);

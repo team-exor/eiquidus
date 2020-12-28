@@ -271,6 +271,41 @@
   //  }
   //]
   "burned_coins": [],
+  
+  // Enable/disable the use of specific public apis
+  // Setting any of these apis to false will remove the api definition from the /info page and will return a "This method is disabled" msg if the api endpoint is called
+  "public_api": {
+    "rpc": {
+      "getdifficulty": true,
+      "getconnectioncount": true,
+      "getblockcount": true,
+      "getblockhash": true,
+      "getblock": true,
+      "getrawtransaction": true,
+      "getnetworkhashps": true,
+      "getvotelist": true,
+      "getmasternodecount": true,
+      "getmasternodelist": true,
+      "getmaxmoney": true,
+      "getmaxvote": true,
+      "getvote": true,
+      "getphase": true,
+      "getreward": true,
+      "getsupply": true,
+      "getnextrewardestimate": true,
+      "getnextrewardwhenstr": true
+    },
+    "ext": {
+      "getmoneysupply": true,
+      "getdistribution": true,
+      "getaddress": true,
+      "gettx": true,
+      "getbalance": true,
+      "getlasttxs": true,
+      "getcurrentprice": true,
+      "getbasicstats": true
+    }
+  },
 
   // Customized API commands
   // Not all blockchains utilize the same rpc cmds for accessing the internal daemon api.
