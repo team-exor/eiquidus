@@ -17,11 +17,16 @@
 
   // logo
   "logo": "/img/logo.png",
+  // header logo. only displayed if the "homelink" setting is set to "logo"
+  "headerlogo": "/img/header_logo.png",
 
   // favicon
   "favicon": "public/favicon.ico",
   
-  // home link (valid options are: title, coin, logo)
+  // home link determines what is displayed in the top-left corner of the header menu (valid options are: title, coin, logo)
+  // title: display "title" text setting
+  // coin: display "coin" text setting
+  // logo: display the "headerlogo" image if it's set to a valid image, otherwise display the "logo" image
   "homelink":  "coin",
   
   // home link logo height (value in px, only valid if using homelink = 'logo')

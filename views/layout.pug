@@ -312,7 +312,7 @@ html(lang='en')
         a.navbar-brand(href='/', style='order:-1;') #{settings.coin}
       else if settings.homelink == 'logo'
         a(href='/', alt=settings.coin + ' Home', title=settings.coin + ' Home', style='order:-1;', data-toggle='tooltip', data-placement='bottom')
-          img.logo-main(src=settings.logo, style='margin:0;max-height:' + settings.logoheight + 'px;')
+          img.logo-main(src=(settings.headerlogo == null || settings.headerlogo == '' ? settings.logo : settings.headerlogo), style='margin:0;max-height:' + settings.logoheight + 'px;')
       .collapse.navbar-collapse(id='navbar-collapse')
         ul.navbar-nav.mr-auto
           li#home

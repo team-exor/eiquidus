@@ -350,6 +350,13 @@ app.set('nethash', settings.nethash);
 app.set('nethash_units', settings.nethash_units);
 app.set('show_sent_received', settings.show_sent_received);
 app.set('logo', settings.logo);
+
+// Check if header logo file exists
+if (db.fs.existsSync(path.join('./public', settings.headerlogo)))
+  app.set('headerlogo', settings.headerlogo);
+else
+  app.set('headerlogo', '');
+
 app.set('theme', settings.theme);
 app.set('labels', settings.labels);
 app.set('homelink', settings.homelink);
