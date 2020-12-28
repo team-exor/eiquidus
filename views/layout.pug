@@ -228,9 +228,12 @@ html(lang='en')
         function getMarketCapPanel() {
           return '<div class="card-header"><strong>Market Cap <span class="small">(#{settings.markets.exchange})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="glyphicon fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
         }
-        function getActivePanel(nPanelName) {
+        function getLogoPanel() {
+          return '<img src="#{settings.logo}" style="margin-top:-15px;height:128px;" alt="#{settings.coin} Logo" title="#{settings.coin} Logo" />';
+        }
+        function getActivePanel(panelName) {
           var sReturn='';
-          switch (nPanelName) {
+          switch (panelName) {
             case "networkpnl":
               sReturn=getNetworkPanel();
               break;
@@ -249,12 +252,22 @@ html(lang='en')
             case "marketcappnl":
               sReturn=getMarketCapPanel();
               break;
+            case "logopnl":
+              sReturn=getLogoPanel();
+              break;
           }
           return sReturn;
         }
-        function hideShowPanel(sPanelID, sPanelName) {
-          var oPanel = document.getElementById(sPanelName);
-          if (typeof(oPanel) != 'undefined' && oPanel != null) document.getElementById(sPanelName).innerHTML=getActivePanel(sPanelID);
+        function hideShowPanel(panelID, panelName) {
+          var oPanel = document.getElementById(panelName);
+          if (typeof(oPanel) != 'undefined' && oPanel != null) {
+            document.getElementById(panelName).innerHTML=getActivePanel(panelID);
+
+            if (panelID == 'logopnl') {
+              // Remove css classes from logo panel
+              $(oPanel).removeClass();
+            }
+          }
         }
         $(document).on('click', 'button.close', function (e) {
           e.preventDefault();

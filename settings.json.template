@@ -131,7 +131,8 @@
     "masternodespnl": 3,
     "coinsupplypnl": 4,
     "pricepnl": 5,
-    "marketcappnl": 0
+    "marketcappnl": 0,
+    "logopnl": 0
   },
 
   // index page (valid options for difficulty are POW, POS or Hybrid)

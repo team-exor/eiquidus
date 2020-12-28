@@ -375,7 +375,8 @@ var panelcount = (settings.display.networkpnl > 0 ? 1 : 0) +
   (settings.display.masternodespnl > 0 ? 1 : 0) +
   (settings.display.coinsupplypnl > 0 ? 1 : 0) +
   (settings.display.pricepnl > 0 ? 1 : 0) +
-  (settings.display.marketcappnl > 0 ? 1 : 0);
+  (settings.display.marketcappnl > 0 ? 1 : 0) +
+  (settings.display.logopnl > 0 ? 1 : 0);
 app.set('paneloffset', paneltotal + 1 - panelcount);
 
 // determine panel order
@@ -387,6 +388,7 @@ if (settings.display.masternodespnl > 0) panelorder.push({name: 'masternodespnl'
 if (settings.display.coinsupplypnl > 0) panelorder.push({name: 'coinsupplypnl', val: settings.display.coinsupplypnl});
 if (settings.display.pricepnl > 0) panelorder.push({name: 'pricepnl', val: settings.display.pricepnl});
 if (settings.display.marketcappnl > 0) panelorder.push({name: 'marketcappnl', val: settings.display.marketcappnl});
+if (settings.display.logopnl > 0) panelorder.push({name: 'logopnl', val: settings.display.logopnl});
 
 panelorder.sort(function(a,b) { return a.val - b.val; });
 
