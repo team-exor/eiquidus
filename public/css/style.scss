@@ -3,6 +3,7 @@
 @use './themes/Cosmo/variables' as Cosmo;
 @use './themes/Cyborg/variables' as Cyborg;
 @use './themes/Darkly/variables' as Darkly;
+@use './themes/Exor/variables' as Exor;
 @use './themes/Flatly/variables' as Flatly;
 @use './themes/Journal/variables' as Journal;
 @use './themes/Litera/variables' as Litera;
@@ -30,6 +31,8 @@
     border-color: Cyborg.$table-border-color;
   } @else if theme-selector.$theme-name == "Darkly" {
     border-color: Darkly.$table-border-color;
+  } @else if theme-selector.$theme-name == "Exor" {
+    border-color: Exor.$table-border-color;
   } @else if theme-selector.$theme-name == "Flatly" {
     border-color: Flatly.$gray-300;
   } @else if theme-selector.$theme-name == "Journal" {
@@ -78,6 +81,8 @@
     border-color: #757575;  /* Hardcoded value not present in _variables.scss */
   } @else if theme-selector.$theme-name == "Darkly" {
     border-color: #434343;  /* Hardcoded value not present in _variables.scss */
+  } @else if theme-selector.$theme-name == "Exor" {
+    border-color: Exor.$table-border-color;
   } @else if theme-selector.$theme-name == "Flatly" {
     border-color: #454d55;  /* Hardcoded value not present in _variables.scss */
   } @else if theme-selector.$theme-name == "Journal" {
@@ -126,6 +131,8 @@
     border-color: Cyborg.$gray-700;
   } @else if theme-selector.$theme-name == "Darkly" {
     border-color: Darkly.$gray-700;
+  } @else if theme-selector.$theme-name == "Exor" {
+    border-color: Exor.$gray-700;
   } @else if theme-selector.$theme-name == "Flatly" {
     border-color: Flatly.$gray-300;
   } @else if theme-selector.$theme-name == "Journal" {
@@ -178,6 +185,9 @@
   } @else if theme-selector.$theme-name == "Darkly" {
     color: Darkly.$white;
     background-color: Darkly.$gray-800;
+  } @else if theme-selector.$theme-name == "Exor" {
+    color: Exor.$white;
+    background-color: Exor.$gray-800;
   } @else if theme-selector.$theme-name == "Flatly" {
     color: Flatly.$white;
     background-color: Flatly.$gray-800;
@@ -250,6 +260,9 @@
   } @else if theme-selector.$theme-name == "Darkly" {
     color: Darkly.$gray-700;
     background-color: Darkly.$gray-200;
+  } @else if theme-selector.$theme-name == "Exor" {
+    color: Exor.$gray-700;
+    background-color: Exor.$gray-200;
   } @else if theme-selector.$theme-name == "Flatly" {
     color: Flatly.$gray-700;
     background-color: Flatly.$gray-200;
