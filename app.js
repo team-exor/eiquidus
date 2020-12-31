@@ -375,6 +375,46 @@ app.use('/ext/getmasternodelist', function(req, res) {
     res.end('This method is disabled');
 });
 
+// returns a list of masternode reward txs for a single masternode address from a specific block height
+app.use('/ext/getmasternoderewards/:hash/:since', function(req, res) {
+  // check if the getmasternoderewards api is enabled
+  if (settings.public_api.ext['getmasternoderewards']) {
+    db.get_masternode_rewards(req.params.hash, req.params.since, function(rewards) {
+      if (rewards != null) {
+        // loop through the tx list to fix vout values and remove unnecessary data such as the always empty vin array and the mongo _id and __v keys
+        for (i = 0; i < rewards.length; i++) {
+          // remove unnecessary data keys
+          delete rewards[i]['vin'];
+          delete rewards[i]['_id'];
+          delete rewards[i]['__v'];
+          // convert amounts from satoshis
+          rewards[i]['total'] = rewards[i]['total'] / 100000000;
+          rewards[i]['vout']['amount'] = rewards[i]['vout']['amount'] / 100000000;
+        }
+        // return list of masternode rewards
+        res.json(rewards);
+      } else
+        res.send({error: "failed to retrieve masternode rewards", hash: req.params.hash, since: req.params.since});
+    });
+  } else
+    res.end('This method is disabled');
+});
+
+// returns the total masternode rewards received for a single masternode address from a specific block height
+app.use('/ext/getmasternoderewardstotal/:hash/:since', function(req, res) {
+  // check if the getmasternoderewardstotal api is enabled
+  if (settings.public_api.ext['getmasternoderewardstotal']) {
+    db.get_masternode_rewards_totals(req.params.hash, req.params.since, function(total_rewards) {
+      if (total_rewards != null) {
+        // return the total of masternode rewards
+        res.json(total_rewards);
+      } else
+        res.send({error: "failed to retrieve masternode rewards", hash: req.params.hash, since: req.params.since});
+    });
+  } else
+    res.end('This method is disabled');
+});
+
 // locals
 app.set('title', settings.title);
 app.set('explorer_version', package_metadata.version);

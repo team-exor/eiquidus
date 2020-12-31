@@ -305,7 +305,9 @@
       "getlasttxs": true,
       "getcurrentprice": true,
       "getbasicstats": true,
-      "getmasternodelist": true
+      "getmasternodelist": true,
+      "getmasternoderewards": true,
+      "getmasternoderewardstotal": true
     }
   },
 
