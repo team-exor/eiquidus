@@ -196,7 +196,14 @@ router.get('/', function(req, res) {
 });
 
 router.get('/info', function(req, res) {
-  res.render('info', { active: 'info', address: settings.address, hashes: settings.api, showSync: db.check_show_sync_message() });
+  // ensure api page is enabled
+  if (settings.display.api == true) {
+    // load the api page
+    res.render('info', { active: 'info', address: settings.address, hashes: settings.api, showSync: db.check_show_sync_message() });
+  } else {
+    // api page is not enabled so default to the index page
+    route_get_index(res, null);
+  }
 });
 
 router.get('/markets/:market', function(req, res) {

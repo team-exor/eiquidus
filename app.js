@@ -58,7 +58,7 @@ app.use('/', routes);
 
 app.use('/ext/getmoneysupply', function(req, res) {
   // check if the getmoneysupply api is enabled
-  if (settings.public_api.ext['getmoneysupply']) {
+  if (settings.display.api == true && settings.public_api.ext['getmoneysupply']) {
     lib.get_supply(function(supply) {
       res.setHeader('content-type', 'text/plain');
       res.end((supply ? supply.toString() : '0'));
@@ -69,7 +69,7 @@ app.use('/ext/getmoneysupply', function(req, res) {
 
 app.use('/ext/getaddress/:hash', function(req, res) {
   // check if the getaddress api is enabled
-  if (settings.public_api.ext['getaddress']) {
+  if (settings.display.api == true && settings.public_api.ext['getaddress']) {
     db.get_address(req.params.hash, false, function(address) {
       db.get_address_txs_ajax(req.params.hash, 0, settings.txcount, function(txs, count) {
         if (address) {
@@ -113,7 +113,7 @@ app.use('/ext/getaddress/:hash', function(req, res) {
 
 app.use('/ext/gettx/:txid', function(req, res) {
   // check if the gettx api is enabled
-  if (settings.public_api.ext['gettx']) {
+  if (settings.display.api == true && settings.public_api.ext['gettx']) {
     var txid = req.params.txid;
     db.get_tx(txid, function(tx) {
       if (tx) {
@@ -167,7 +167,7 @@ app.use('/ext/gettx/:txid', function(req, res) {
 
 app.use('/ext/getbalance/:hash', function(req, res) {
   // check if the getbalance api is enabled
-  if (settings.public_api.ext['getbalance']) {
+  if (settings.display.api == true && settings.public_api.ext['getbalance']) {
     db.get_address(req.params.hash, false, function(address) {
       if (address) {
         res.setHeader('content-type', 'text/plain');
@@ -181,7 +181,7 @@ app.use('/ext/getbalance/:hash', function(req, res) {
 
 app.use('/ext/getdistribution', function(req, res) {
   // check if the getdistribution api is enabled
-  if (settings.public_api.ext['getdistribution']) {
+  if (settings.display.api == true && settings.public_api.ext['getdistribution']) {
     db.get_richlist(settings.coin, function(richlist) {
       db.get_stats(settings.coin, function(stats) {
         db.get_distribution(richlist, stats, function(dist) {
@@ -195,7 +195,7 @@ app.use('/ext/getdistribution', function(req, res) {
 
 app.use('/ext/getcurrentprice', function(req, res) {
   // check if the getcurrentprice api is enabled
-  if (settings.public_api.ext['getcurrentprice']) {
+  if (settings.display.api == true && settings.public_api.ext['getcurrentprice']) {
     db.get_stats(settings.coin, function (stats) {
       eval('var p_ext = { "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, }');
         res.send(p_ext);
@@ -206,7 +206,7 @@ app.use('/ext/getcurrentprice', function(req, res) {
 
 app.use('/ext/getbasicstats', function(req, res) {
   // check if the getbasicstats api is enabled
-  if (settings.public_api.ext['getbasicstats']) {
+  if (settings.display.api == true && settings.public_api.ext['getbasicstats']) {
     // lookup stats
     db.get_stats(settings.coin, function (stats) {
       // lookup coin supply
@@ -234,7 +234,7 @@ app.use('/ext/getbasicstats', function(req, res) {
 
 app.use('/ext/getlasttxs/:min', function(req, res) {
   // check if the getlasttxs api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
-  if (settings.public_api.ext['getlasttxs'] || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+  if ((settings.display.api == true && settings.public_api.ext['getlasttxs']) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
     var min = req.params.min, start, length;
     // split url suffix by forward slash and remove blank entries
     var split = req.url.split('/').filter(function(v) { return v; });
@@ -360,7 +360,7 @@ app.use('/ext/connections', function(req,res){
 // get the list of masternodes from local collection
 app.use('/ext/getmasternodelist', function(req, res) {
   // check if the getmasternodelist api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
-  if (settings.public_api.ext['getmasternodelist'] || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+  if ((settings.display.api == true && settings.public_api.ext['getmasternodelist']) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
     // get the masternode list from local collection
     db.get_masternodes(function(masternodes) {
       // loop through masternode list and remove the mongo _id and __v keys
@@ -378,7 +378,7 @@ app.use('/ext/getmasternodelist', function(req, res) {
 // returns a list of masternode reward txs for a single masternode address from a specific block height
 app.use('/ext/getmasternoderewards/:hash/:since', function(req, res) {
   // check if the getmasternoderewards api is enabled
-  if (settings.public_api.ext['getmasternoderewards']) {
+  if (settings.display.api == true && settings.public_api.ext['getmasternoderewards']) {
     db.get_masternode_rewards(req.params.hash, req.params.since, function(rewards) {
       if (rewards != null) {
         // loop through the tx list to fix vout values and remove unnecessary data such as the always empty vin array and the mongo _id and __v keys
@@ -403,7 +403,7 @@ app.use('/ext/getmasternoderewards/:hash/:since', function(req, res) {
 // returns the total masternode rewards received for a single masternode address from a specific block height
 app.use('/ext/getmasternoderewardstotal/:hash/:since', function(req, res) {
   // check if the getmasternoderewardstotal api is enabled
-  if (settings.public_api.ext['getmasternoderewardstotal']) {
+  if (settings.display.api == true && settings.public_api.ext['getmasternoderewardstotal']) {
     db.get_masternode_rewards_totals(req.params.hash, req.params.since, function(total_rewards) {
       if (total_rewards != null) {
         // return the total of masternode rewards
