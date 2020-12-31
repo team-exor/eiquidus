@@ -115,6 +115,8 @@
     "search": true,
     "movement": true,
     "network": true,
+    // Show/hide the "Masternodes" header menu item
+    "masternodes": true,
     // Enable/disable the ability for users to claim a wallet address. NOTE: Disabling this feature after addresses have already been claimed will effectively hide the claimed values and restore the original wallet addresses again
     "claim_address": true,
     // Show/hide the "Claim Address" header menu item. NOTE: "claim_address" setting must also be enabled or else the header item will automatically be hidden as well
@@ -285,7 +287,6 @@
       "getnetworkhashps": true,
       "getvotelist": true,
       "getmasternodecount": true,
-      "getmasternodelist": true,
       "getmaxmoney": true,
       "getmaxvote": true,
       "getvote": true,
@@ -303,7 +304,8 @@
       "getbalance": true,
       "getlasttxs": true,
       "getcurrentprice": true,
-      "getbasicstats": true
+      "getbasicstats": true,
+      "getmasternodelist": true
     }
   },
 

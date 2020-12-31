@@ -115,6 +115,7 @@ sync.sh (located in scripts/) is used for updating the local databases. This scr
     reindex-txcount  Rescan and flatten the tx count value for faster access
     market           Updates market summaries, orderbooks, trade history + charts
     peers            Updates peer info based on local wallet connections
+    masternodes      Updates the list of active masternodes on the network
 
     Notes:
     - 'current block' is the latest created block when script is executed.
@@ -126,11 +127,12 @@ sync.sh (located in scripts/) is used for updating the local databases. This scr
 
 **crontab**
 
-*Example crontab; update index every minute, market data every 2 minutes and peers every 5 minutes*
+*Example crontab; update index every minute, market data every 2 minutes, peers and masternodes every 5 minutes*
 
-	*/1 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs update > /dev/null 2>&1
-    */2 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs market > /dev/null 2>&1
-    */5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs peers > /dev/null 2>&1
+  */1 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs update > /dev/null 2>&1
+  */2 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs market > /dev/null 2>&1
+  */5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs peers > /dev/null 2>&1
+  */5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs masternodes > /dev/null 2>&1
 
 ### Wallet
 

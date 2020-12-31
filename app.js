@@ -346,6 +346,24 @@ app.use('/ext/connections', function(req,res){
   });
 });
 
+// get the list of masternodes from local collection
+app.use('/ext/getmasternodelist', function(req, res) {
+  // check if the getmasternodelist api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
+  if (settings.public_api.ext['getmasternodelist'] || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+    // get the masternode list from local collection
+    db.get_masternodes(function(masternodes) {
+      // loop through masternode list and remove the mongo _id and __v keys
+      for (i = 0; i < masternodes.length; i++) {
+        delete masternodes[i]['_doc']['_id'];
+        delete masternodes[i]['_doc']['__v'];
+      }
+      // return masternode list
+      res.send(masternodes);
+    });
+  } else
+    res.end('This method is disabled');
+});
+
 // locals
 app.set('title', settings.title);
 app.set('explorer_version', package_metadata.version);
@@ -390,8 +408,11 @@ app.set('labels', settings.labels);
 app.set('homelink', settings.homelink);
 app.set('logoheight', settings.logoheight);
 app.set('burned_coins', settings.burned_coins);
-app.set('public_api', settings.public_api);
 app.set('api_cmds', settings.api_cmds);
+
+// Always disable the rpc masternode list cmd from public apis
+settings.public_api['rpc']['getmasternodelist'] = false;
+app.set('public_api', settings.public_api);
 
 app.set('sticky_header', settings.sticky_header);
 app.set('sticky_footer', settings.sticky_footer);

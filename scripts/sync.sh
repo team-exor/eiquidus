@@ -34,6 +34,10 @@ if [ -n "${1}" ]; then
       # Peers update
       MODE="peers"
       ;;
+    "masternodes")
+      # Masternodes update
+      MODE="masternodes"
+      ;;
     *)
       # Check if this is a file that exists on the filesystem
       if [ -f ${1} ]; then
@@ -75,7 +79,11 @@ if [ -n "${1}" ]; then
         "peers")
           # Peers update
           MODE="peers"
-          ;;		  
+          ;;
+        "masternodes")
+          # Masternodes update
+          MODE="masternodes"
+          ;;
       esac
     elif [ -n "${NODE_PATH}" ]; then
       # Node path was specified but no mode, so default to 'index update' mode 
@@ -90,7 +98,7 @@ fi
 if [ -n "${MODE}" ]; then
   # Mode is set
   # Check if the desired mode requires a lock
-  if [ "${MODE}" != "peers" ]; then
+  if [ "${MODE}" != "peers" ] && [ "${MODE}" != "masternodes" ]; then
     # A lock is required
     # Check if the script is already running (tmp/index.pid file already exists)
     if [ -f "${EXPLORER_PATH}/tmp/index.pid" ]; then

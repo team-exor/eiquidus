@@ -23,6 +23,7 @@ function usage() {
   console.log('reindex-txcount  Rescan and flatten the tx count value for faster access');
   console.log('market           Updates market summaries, orderbooks, trade history + charts');
   console.log('peers            Updates peer info based on local wallet connections');
+  console.log('masternodes      Updates the list of active masternodes on the network');
   console.log('');
   console.log('Notes:');
   console.log('- \'current block\' is the latest created block when script is executed.');
@@ -63,6 +64,8 @@ if (process.argv[2] == 'index') {
   database = 'market';
 } else if (process.argv[2] == 'peers') {
   database = 'peers';
+} else if (process.argv[2] == 'masternodes') {
+  database = 'masternodes';
 } else {
   usage();
 }
@@ -231,6 +234,42 @@ if (database == 'peers') {
           });
         } else {
           console.log('no peers found');
+          exit();
+        }
+      });
+    }
+  });
+} else if (database == 'masternodes') {
+  console.log('syncing masternodes.. please wait..');
+  // syncing masternodes does not require a lock
+  mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: false }, function(err) {
+    if (err) {
+      console.log('Unable to connect to database: %s', dbString);
+      console.log('Aborting');
+      exit();
+    } else {
+      lib.get_masternodelist(function (body) {
+        if (body != null) {
+          lib.syncLoop(body.length, function (loop) {
+            var i = loop.iteration();
+            db.save_masternode(body[i], function (success) {
+              if (success)
+                loop.next();
+              else {
+                console.log('error: cannot save masternode %s.', (body[i].addr ? body[i].addr : 'UNKNOWN'));
+                exit();
+              }
+            });
+          }, function () {
+            db.remove_old_masternodes(function (cb) {
+              db.update_last_updated_stats(settings.coin, { masternodes_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+                console.log('masternode sync complete');
+                exit();
+              });
+            });
+          });
+        } else {
+          console.log('no masternodes found');
           exit();
         }
       });

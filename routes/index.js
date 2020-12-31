@@ -255,6 +255,20 @@ router.get('/network', function(req, res) {
   res.render('network', {active: 'network', showSync: db.check_show_sync_message()});
 });
 
+// masternode list page
+router.get('/masternodes', function(req, res) {
+  // ensure masternode page is enabled
+  if (settings.display.masternodes == true) {
+    // lookup last updated date
+    db.get_stats(settings.coin, function (stats) {
+      res.render('masternodes', {active: 'masternodes', last_updated: stats.masternodes_last_updated, showSync: db.check_show_sync_message()});
+    });
+  } else {
+    // masternode page is not enabled so default to the index page
+    route_get_index(res, null);
+  }
+});
+
 router.get('/reward', function(req, res) {
   if (settings.heavy) {
     db.get_stats(settings.coin, function (stats) {

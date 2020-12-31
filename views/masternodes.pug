@@ -1,0 +1,115 @@
+extends layout
+
+block content
+  include ./includes/common.pug
+  script.
+    function secondsToHms(d) {
+        d = Number(d);
+        var h = Math.floor(d / 3600);
+        var m = Math.floor(d % 3600 / 60);
+        var s = Math.floor(d % 3600 % 60);
+        var dy = Math.floor(h / 24);
+        var h = h % 24;
+        return ('0' + dy).slice(-2) + " day" + (('0' + dy).slice(-2) == 1 ? "" : "s") + " " + ('0' + h).slice(-2) + "h " + ('0' + m).slice(-2) + "m " + ('0' + s).slice(-2) + "s";
+    }
+    $(document).ready(function() {
+      var labels = !{JSON.stringify(settings.labels)};
+      var ctable = $('#masternodes-table').dataTable({
+        autoWidth: true,
+        searching: true,
+        ordering: true,
+        order: [[ 5, 'desc' ]],
+        responsive: true,
+        lengthChange: true,
+        processing: true,
+        scrollX: true,
+        language: {
+          paginate: {
+            previous: '<',
+            next: '>'
+          }
+        },
+        ajax: {
+          url: '/ext/getmasternodelist',
+          dataSrc: function(json) {
+            for (i = 0; i < json.length; i++) {
+              var addr = json[i]['addr'];
+              json[i]['address'] = "<a href='/address/" + json[i]['address'] + "'>" + json[i]['address'] + "</a>";
+              json[i]['lastseen'] = new Date((json[i]['lastseen']) * 1000).toLocaleString();
+              if (typeof json[i]['lastpaid'] != 'undefined')
+                json[i]['lastpaid'] = new Date((json[i]['lastpaid']) * 1000).toLocaleString();
+              else
+                json[i]['lastpaid'] = '<em>N/A</em>';
+              if (json[i]['activetime'])
+                json[i]['activetime'] = secondsToHms(json[i]['activetime']);
+              else
+                json[i]['activetime'] = '<em>N/A</em>';
+              json[i]['addr'] = "<a href='/address/" + json[i]['addr'] + "'>" + json[i]['addr'] + (json[i]['claim_name'] != null && json[i]['claim_name'] != '' ? ' <span class="small">(' + json[i]['claim_name'] + ')</span>' : '') + "</a>";
+
+              if (labels[addr] != null) {
+                if (labels[addr].type)
+                  json[i]['addr'] = '<div><label class="badge badge-' + labels[addr].type + '" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-toggle="tooltip" data-placement="top"><span class="fa fa-question-circle" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
+                else
+                  json[i]['addr'] = '<div><label class="badge badge-default" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-toggle="tooltip" data-placement="top"><span class="fa fa-question-circle" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
+              }
+            }
+            return json;
+          }
+        },
+        columns: [
+          { data: 'rank' },
+          { data: 'network' },
+          { data: 'addr' },
+          { data: 'version' },
+          { data: 'lastseen' },
+          { data: 'lastpaid' },
+          { data: 'activetime' },
+          { data: 'status' }
+        ],
+        rowCallback: function(row, data, index) {
+          $("td:eq(2)", row).addClass("breakWord");
+
+          switch (data['status'].toUpperCase()) {
+            case 'ENABLED':
+              $("td:eq(7)", row).addClass('bg-success');
+              break;
+            case 'REMOVE':
+              $("td:eq(7)", row).addClass('bg-danger');
+              break;
+            case 'EXPIRED':
+              $("td:eq(7)", row).addClass('bg-warning');
+              break;
+            default:
+              $("td:eq(7)", row).addClass('bg-info');
+              break;
+          }
+        },
+        fnDrawCallback: function(settings) {
+          fixDataTableColumns();
+          fixFooterHeightAndPosition();
+        }
+      });
+    });
+  .col-md-12.cardSpacer
+    .text-center(style='margin-bottom:15px;')
+      i The current listing of all masternodes known to be active on the network.
+    div.font-weight-bold(style='margin-bottom:15px;') Last updated:
+      span.font-weight-normal=(last_updated == null ? ' N/A' : ' ' + format_unixtime(last_updated))
+    .card.card-default
+      .card-header
+        strong Masternodes
+      table#masternodes-table.table.table-bordered.table-striped.table-hover
+        - var theadClasses = [];
+        if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+          - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+        thead(class=theadClasses)
+          tr
+            th.text-center Pay rank
+            th.text-center Protocol
+            th.text-center Address
+            th.text-center Protocol
+            th.text-center Last seen
+            th.text-center Last paid
+            th.text-center Active since
+            th.text-center Status
+        tbody.text-center

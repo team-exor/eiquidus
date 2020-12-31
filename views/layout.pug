@@ -324,6 +324,11 @@ html(lang='en')
               a.nav-link(href='/reward')
                 span.fa.fa-star
                 span.margin-left-5 #{settings.locale.menu_reward}
+          if settings.display.masternodes == true
+            li#masternodes
+              a.nav-link(href='/masternodes')
+                span.fa.fa-share-alt
+                span.margin-left-5 Masternodes
           if settings.display.movement == true
             li#movement
               a.nav-link.loading(href='/movement')
@@ -332,7 +337,7 @@ html(lang='en')
           if settings.display.network == true
             li#network
               a.nav-link(href='/network')
-                span.fa.fa-share-alt
+                span.fas.fa-network-wired
                 span.margin-left-5 #{settings.locale.menu_network}
           if settings.display.richlist == true
             li#richlist
