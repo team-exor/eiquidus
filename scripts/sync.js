@@ -229,8 +229,11 @@ if (database == 'peers') {
               }
             });
           }, function() {
-            console.log('peer sync complete');
-            exit();
+            // update network_last_updated value
+            db.update_last_updated_stats(settings.coin, { network_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+              console.log('peer sync complete');
+              exit();
+            });
           });
         } else {
           console.log('no peers found');
@@ -296,43 +299,47 @@ if (database == 'peers') {
                 exit();
               } else {
                 db.update_db(settings.coin, function(stats){
-                  if (settings.heavy == true) {
-                    db.update_heavy(settings.coin, stats.count, 20, function(){
-                      });
-                    }
-                    if (mode == 'reindex') {
-                      Tx.deleteMany({}, function(err) {
-                        console.log('TXs cleared.');
-                        Address.deleteMany({}, function(err2) {
-                          console.log('Addresses cleared.');
-                          AddressTx.deleteMany({}, function(err3) {
-                            console.log('Address TXs cleared.');
-                            Richlist.updateOne({coin: settings.coin}, {
-                              received: [],
-                              balance: [],
-                            }, function(err3) {
-                              Stats.updateOne({coin: settings.coin}, {
-                                last: 0,
-                                count: 0,
-                                supply: 0
-                              }, function() {
-                                console.log('index cleared (reindex)');
-                              });
+                  if (settings.heavy == true)
+                    db.update_heavy(settings.coin, stats.count, 20, function() {});
+                  if (mode == 'reindex') {
+                    Tx.deleteMany({}, function(err) {
+                      console.log('TXs cleared.');
+                      Address.deleteMany({}, function(err2) {
+                        console.log('Addresses cleared.');
+                        AddressTx.deleteMany({}, function(err3) {
+                          console.log('Address TXs cleared.');
+                          Richlist.updateOne({coin: settings.coin}, {
+                            received: [],
+                            balance: [],
+                          }, function(err3) {
+                            Stats.updateOne({coin: settings.coin}, {
+                              last: 0,
+                              count: 0,
+                              supply: 0
+                            }, function() {
+                              console.log('index cleared (reindex)');
+                            });
 
-                              // Check if there are more than 1000 blocks to index
-                              var showSync = check_show_sync_message(stats.count);
+                            // Check if there are more than 1000 blocks to index
+                            var showSync = check_show_sync_message(stats.count);
 
-                              db.update_tx_db(settings.coin, 1, stats.count, stats.txes, settings.update_timeout, function(){
-                                db.update_richlist('received', function(){
-                                  db.update_richlist('balance', function(){
-                                    db.get_stats(settings.coin, function(nstats){
-                                      // Check if the sync msg was showing
-                                      if (showSync) {
-                                        // Remove the sync msg
-                                        remove_sync_message();
-                                      }
-                                      console.log('reindex complete (block: %s)', nstats.last);
-                                      exit();
+                            db.update_tx_db(settings.coin, 1, stats.count, stats.txes, settings.update_timeout, function() {
+                              db.update_richlist('received', function() {
+                                db.update_richlist('balance', function() {
+                                  db.get_stats(settings.coin, function(nstats) {
+                                    // Check if the sync msg was showing
+                                    if (showSync) {
+                                      // Remove the sync msg
+                                      remove_sync_message();
+                                    }
+                                    // update richlist_last_updated value
+                                    db.update_last_updated_stats(settings.coin, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+                                      // update blockchain_last_updated value
+                                      db.update_last_updated_stats(settings.coin, { blockchain_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+                                        console.log('reindex complete (block: %s)', nstats.last);
+                                        exit();
+                                      });
+                                    });
                                   });
                                 });
                               });
@@ -366,8 +373,14 @@ if (database == 'peers') {
                               // Remove the sync msg
                               remove_sync_message();
                             }
-                            console.log('update complete (block: %s)', nstats.last);
-                            exit();
+                            // update richlist_last_updated value
+                            db.update_last_updated_stats(settings.coin, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+                              // update blockchain_last_updated value
+                              db.update_last_updated_stats(settings.coin, { blockchain_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+                                console.log('update complete (block: %s)', nstats.last);
+                                exit();
+                              });
+                            });
                           });
                         });
                       });
@@ -383,8 +396,11 @@ if (database == 'peers') {
                           db.update_richlist('received', function() {
                             console.log('richlist updated received.');
                             db.update_richlist('balance', function() {
-                              console.log('richlist update complete');
-                              exit();
+                              // update richlist_last_updated value
+                              db.update_last_updated_stats(settings.coin, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+                                console.log('richlist update complete');
+                                exit();
+                              });
                             });
                           });
                         });
@@ -393,6 +409,18 @@ if (database == 'peers') {
                   } else if (mode == 'reindex-txcount') {
                     console.log('calculating tx count.. please wait..');
                     // Resetting the transaction counter requires a single lookup on the txes collection to find all txes that have a positive or zero total and 1 or more vout
+                    Tx.find({'total': {$gte: 0}, 'vout': { $gte: { $size: 1 }}}).countDocuments(function(err, count) {
+                      console.log('found tx count: ' + count.toString());
+                      Stats.updateOne({coin: settings.coin}, {
+                        txes: count
+                      }, function() {
+                        console.log('tx count update complete');
+                        exit();
+                      });
+                    });
+                  } else if (mode == 'reindex-last') {
+                    console.log('calculating last tx.. please wait..');
+                    // Resetting the last counter requires a single lookup on the txes collection to find all txes that have a positive or zero total and 1 or more vout
                     Tx.find({'total': {$gte: 0}, 'vout': { $gte: { $size: 1 }}}).countDocuments(function(err, count) {
                       console.log('found tx count: ' + count.toString());
                       Stats.updateOne({coin: settings.coin}, {
@@ -482,5 +510,11 @@ function remove_sync_message() {
 
 function get_last_usd_price() {
   // Get the last usd price for coinstats
-  db.get_last_usd_price(function(retVal) { exit(); });
+  db.get_last_usd_price(function(retVal) {
+    // update markets_last_updated value
+    db.update_last_updated_stats(settings.coin, { markets_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+      console.log('market sync complete');
+      exit();
+    });
+  });
 }

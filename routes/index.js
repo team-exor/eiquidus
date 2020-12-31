@@ -150,7 +150,16 @@ function route_get_tx(res, txid) {
 }
 
 function route_get_index(res, error) {
-  res.render('index', { active: 'home', error: error, showSync: db.check_show_sync_message()});
+  // check if index page should show last updated date
+  if (settings.index.show_last_updated == true) {
+    // lookup last updated date
+    db.get_stats(settings.coin, function (stats) {
+      res.render('index', { active: 'home', error: error, last_updated: stats.blockchain_last_updated, showSync: db.check_show_sync_message()});
+    });
+  } else {
+    // skip lookup up the last updated date and display the page now
+    res.render('index', { active: 'home', error: error, last_updated: null, showSync: db.check_show_sync_message()});
+  }
 }
 
 function route_get_address(res, hash, count) {
@@ -191,36 +200,67 @@ router.get('/info', function(req, res) {
 });
 
 router.get('/markets/:market', function(req, res) {
-  var market = req.params['market'];
-  if (settings.markets.enabled.indexOf(market) != -1) {
-    db.get_market(market, function(data) {
-      var exMarket = require('../lib/markets/' + market);
-      res.render('./market', {
-        active: 'markets',
-        marketdata: {
-          market_name: (exMarket.market_name == null ? '' : exMarket.market_name),
-          market_logo: (exMarket.market_logo == null ? '' : exMarket.market_logo),
-          coin: settings.markets.coin,
-          exchange: settings.markets.exchange,
-          data: data,
-        },
-        market: market,
-        showSync: db.check_show_sync_message()
+  // ensure markets page is enabled
+  if (settings.display.markets == true) {
+    var market_id = req.params['market'];
+
+    if (settings.markets.enabled.indexOf(market_id) != -1) {
+      // lookup market data
+      db.get_market(market_id, function(data) {
+        // load market data
+        var market_data = require('../lib/markets/' + market_id);
+        // check if markets page should show last updated date
+        if (settings.markets_page.show_last_updated == true) {
+          // lookup last updated date
+          db.get_stats(settings.coin, function (stats) {
+            res.render('./market', {
+              active: 'markets',
+              marketdata: {
+                market_name: (market_data.market_name == null ? '' : market_data.market_name),
+                market_logo: (market_data.market_logo == null ? '' : market_data.market_logo),
+                coin: settings.markets.coin,
+                exchange: settings.markets.exchange,
+                data: data,
+              },
+              market: market_id,
+              last_updated: stats.markets_last_updated,
+              showSync: db.check_show_sync_message()
+            });
+          });
+        } else {
+          // skip lookup up the last updated date and display the page now
+          res.render('./market', {
+            active: 'markets',
+            marketdata: {
+              market_name: (market_data.market_name == null ? '' : market_data.market_name),
+              market_logo: (market_data.market_logo == null ? '' : market_data.market_logo),
+              coin: settings.markets.coin,
+              exchange: settings.markets.exchange,
+              data: data,
+            },
+            market: market_id,
+            last_updated: null,
+            showSync: db.check_show_sync_message()
+          });
+        }
       });
-    });
+    } else {
+      // selected market is not enabled so default to the index page
+      route_get_index(res, null);
+    }
   } else {
+    // markets page is not enabled so default to the index page
     route_get_index(res, null);
   }
 });
 
 router.get('/richlist', function(req, res) {
-  if (settings.display.richlist == true ) {
+  // ensure richlist page is enabled
+  if (settings.display.richlist == true) {
     db.get_stats(settings.coin, function (stats) {
-      db.get_richlist(settings.coin, function(richlist){
-        //console.log(richlist);
+      db.get_richlist(settings.coin, function(richlist) {
         if (richlist) {
           db.get_distribution(richlist, stats, function(distribution) {
-            //console.log(distribution);
             res.render('richlist', {
               active: 'richlist',
               balance: richlist.balance,
@@ -234,35 +274,74 @@ router.get('/richlist', function(req, res) {
               show_dist: settings.richlist.distribution,
               show_received: settings.richlist.received,
               show_balance: settings.richlist.balance,
-              showSync: db.check_show_sync_message()			  
+              last_updated: (settings.richlist_page.show_last_updated == true ? stats.richlist_last_updated : null),
+              showSync: db.check_show_sync_message()
             });
           });
         } else {
+          // richlist data not found so default to the index page
           route_get_index(res, null);
         }
       });
     });
   } else {
+    // richlist page is not enabled so default to the index page
     route_get_index(res, null);
   }
 });
 
 router.get('/movement', function(req, res) {
-  res.render('movement', {active: 'movement', flaga: settings.movement.low_flag, flagb: settings.movement.high_flag, min_amount:settings.movement.min_amount, showSync: db.check_show_sync_message()});
+  // ensure movement page is enabled
+  if (settings.display.movement == true) {
+    // check if movement page should show last updated date
+    if (settings.movement_page.show_last_updated == true) {
+      // lookup last updated date
+      db.get_stats(settings.coin, function (stats) {
+        res.render('movement', {active: 'movement', flaga: settings.movement.low_flag, flagb: settings.movement.high_flag, min_amount:settings.movement.min_amount, last_updated: stats.blockchain_last_updated, showSync: db.check_show_sync_message()});
+      });
+    } else {
+      // skip lookup up the last updated date and display the page now
+      res.render('movement', {active: 'movement', flaga: settings.movement.low_flag, flagb: settings.movement.high_flag, min_amount:settings.movement.min_amount, last_updated: null, showSync: db.check_show_sync_message()});
+    }
+  } else {
+    // movement page is not enabled so default to the index page
+    route_get_index(res, null);
+  }
 });
 
 router.get('/network', function(req, res) {
-  res.render('network', {active: 'network', showSync: db.check_show_sync_message()});
+  // ensure network page is enabled
+  if (settings.display.network == true) {
+    // check if network page should show last updated date
+    if (settings.network_page.show_last_updated == true) {
+      // lookup last updated date
+      db.get_stats(settings.coin, function (stats) {
+        res.render('network', {active: 'network', last_updated: stats.network_last_updated, showSync: db.check_show_sync_message()});
+      });
+    } else {
+      // skip lookup up the last updated date and display the page now
+      res.render('network', {active: 'network', last_updated: null, showSync: db.check_show_sync_message()});
+    }
+  } else {
+    // network page is not enabled so default to the index page
+    route_get_index(res, null);
+  }
 });
 
 // masternode list page
 router.get('/masternodes', function(req, res) {
   // ensure masternode page is enabled
   if (settings.display.masternodes == true) {
-    // lookup last updated date
-    db.get_stats(settings.coin, function (stats) {
-      res.render('masternodes', {active: 'masternodes', last_updated: stats.masternodes_last_updated, showSync: db.check_show_sync_message()});
-    });
+    // check if masternodes page should show last updated date
+    if (settings.masternodes_page.show_last_updated == true) {
+      // lookup last updated date
+      db.get_stats(settings.coin, function (stats) {
+        res.render('masternodes', {active: 'masternodes', last_updated: stats.masternodes_last_updated, showSync: db.check_show_sync_message()});
+      });
+    } else {
+      // skip lookup up the last updated date and display the page now
+      res.render('masternodes', {active: 'masternodes', last_updated: null, showSync: db.check_show_sync_message()});
+    }
   } else {
     // masternode page is not enabled so default to the index page
     route_get_index(res, null);
@@ -270,29 +349,36 @@ router.get('/masternodes', function(req, res) {
 });
 
 router.get('/reward', function(req, res) {
-  if (settings.heavy) {
+  // ensure reward page is enabled
+  if (settings.heavy == true) {
     db.get_stats(settings.coin, function (stats) {
-      console.log(stats);
       db.get_heavy(settings.coin, function (heavy) {
         if (!heavy)
           heavy = { coin: settings.coin, lvote: 0, reward: 0, supply: 0, cap: 0, estnext: 0, phase: 'N/A', maxvote: 0, nextin: 'N/A', votes: [] };
 
         var votes = heavy.votes;
 
-        votes.sort(function (a,b) {
-          if (a.count < b.count) {
+        votes.sort(function (a, b) {
+          if (a.count < b.count)
             return -1;
-          } else if (a.count > b.count) {
+          else if (a.count > b.count)
             return 1;
-          } else {
+          else
             return 0;
-          }
         });
 
-        res.render('reward', { active: 'reward', stats: stats, heavy: heavy, votes: votes, showSync: db.check_show_sync_message() });
+        res.render('reward', {
+          active: 'reward',
+          stats: stats,
+          heavy: heavy,
+          votes: votes,
+          last_updated: (settings.reward_page.show_last_updated == true ? stats.reward_last_updated : null),
+          showSync: db.check_show_sync_message()
+        });
       });
     });
   } else {
+    // reward page is not enabled so default to the index page
     route_get_index(res, null);
   }
 });

@@ -437,6 +437,12 @@ app.set('website', settings.website);
 
 app.set('genesis_block', settings.genesis_block);
 app.set('index', settings.index);
+app.set('reward_page', settings.reward_page);
+app.set('masternodes_page', settings.masternodes_page);
+app.set('movement_page', settings.movement_page);
+app.set('network_page', settings.network_page);
+app.set('richlist_page', settings.richlist_page);
+app.set('markets_page', settings.markets_page);
 app.set('use_rpc', settings.use_rpc);
 app.set('heavy', settings.heavy);
 app.set('save_stats_after_sync_blocks', settings.save_stats_after_sync_blocks);

@@ -77,6 +77,9 @@ block content
           strong #{settings.locale.ex_error}
         div #{error}
   .col-md-12.cardSpacer
+    if settings.index.show_last_updated == true
+      div.font-weight-bold(style='margin-bottom:15px;') Blockchain data last updated:
+        span.font-weight-normal=(last_updated == null || last_updated == '0' ? ' N/A' : ' ' + format_unixtime(last_updated))
     .card.card-default.border-0.cardSpacer
       .card-header
         strong #{settings.locale.ex_latest_transactions}

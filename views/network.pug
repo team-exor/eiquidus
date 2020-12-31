@@ -1,10 +1,14 @@
 extends layout
 
 block content
+  include ./includes/common.pug
   .col-md-12.cardSpacer
     .text-center(style='margin-bottom:15px;')
       i #{settings.locale.net_warning}
     .container
+      if settings.network_page.show_last_updated == true
+        div.font-weight-bold(style='margin-bottom:15px;') Network data last updated:
+          span.font-weight-normal=(last_updated == null || last_updated == '0' ? ' N/A' : ' ' + format_unixtime(last_updated))
       ul.nav.nav-tabs(role='tablist')
         li.nav-item(role='presentation')
           a.nav-link.active(href='#connections', aria-controls='connections', role='tab', data-toggle='tab') #{settings.locale.net_connections}

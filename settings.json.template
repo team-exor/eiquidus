@@ -144,10 +144,48 @@
 
   // index page (valid options for difficulty are POW, POS or Hybrid)
   "index": {
+    // show_last_updated: determine whether to show a label above the transaction data with the last updated date
+    "show_last_updated": true,
     "show_hashrate": true,
     "difficulty": "POS",
     "last_txs": 100,
     "txs_per_page": 10
+  },
+
+  // reward page
+  "reward_page": {
+    // show_last_updated: determine whether to show a label above the reward data with the last updated date
+    "show_last_updated": true
+  },
+
+  // masternodes page
+  "masternodes_page": {
+    // show_last_updated: determine whether to show a label above the masternode data with the last updated date
+    "show_last_updated": true
+  },
+
+  // movement page
+  "movement_page": {
+    // show_last_updated: determine whether to show a label above the movement data with the last updated date
+    "show_last_updated": true
+  },
+
+  // network page
+  "network_page": {
+    // show_last_updated: determine whether to show a label above the network data with the last updated date
+    "show_last_updated": true
+  },
+
+  // richlist page
+  "richlist_page": {
+    // show_last_updated: determine whether to show a label above the richlist data with the last updated date
+    "show_last_updated": true
+  },
+
+  // markets page
+  "markets_page": {
+    // show_last_updated: determine whether to show a label above the market data with the last updated date
+    "show_last_updated": true
   },
 
   // ensure links on API page are valid
