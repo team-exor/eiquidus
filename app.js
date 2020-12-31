@@ -207,13 +207,24 @@ app.use('/ext/getcurrentprice', function(req, res) {
 app.use('/ext/getbasicstats', function(req, res) {
   // check if the getbasicstats api is enabled
   if (settings.public_api.ext['getbasicstats']) {
-    lib.get_blockcount(function(blockcount) {
+    // lookup stats
+    db.get_stats(settings.coin, function (stats) {
+      // lookup coin supply
       lib.get_supply(function(supply) {
-        db.get_stats(settings.coin, function (stats) {
-          lib.get_masternodecount(function(masternodestotal) {
-            eval('var p_ext = { "block_count": (blockcount ? blockcount : 0), "money_supply": (supply ? supply : 0), "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, "masternode_count": masternodestotal.total }');
+        // lookup block count
+        lib.get_blockcount(function(blockcount) {
+          // check if the masternode count api is enabled
+          if (settings.public_api.rpc['getmasternodecount'] == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') {
+            // masternode count api is available
+            lib.get_masternodecount(function(masternodestotal) {
+              eval('var p_ext = { "block_count": (blockcount ? blockcount : 0), "money_supply": (supply ? supply : 0), "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, "masternode_count": masternodestotal.total }');
+              res.send(p_ext);
+            });
+          } else {
+            // masternode count api is not available
+            eval('var p_ext = { "block_count": (blockcount ? blockcount : 0), "money_supply": (supply ? supply : 0), "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price }');
             res.send(p_ext);
-          });
+          }
         });
       });
     });

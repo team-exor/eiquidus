@@ -203,7 +203,7 @@ block content
                 p
                   div.font-weight-bold getbasicstats
                   div
-                    em Returns basic statistics about the coin including: block count, circulating supply, USD price, BTC price and # of masternodes
+                    em="Returns basic statistics about the coin including: block count, circulating supply, USD price, BTC price" + (settings.public_api.rpc['getmasternodecount'] == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '' ? ', ' + '# of masternodes' : '')
                   a(href='/ext/getbasicstats') #{address}/ext/getbasicstats
             if settings.public_api.ext['getmasternodelist'] == true && settings.api_cmds['getmasternodelist'] != null && settings.api_cmds['getmasternodelist'] != ''
               li
