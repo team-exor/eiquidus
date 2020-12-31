@@ -129,10 +129,10 @@ sync.sh (located in scripts/) is used for updating the local databases. This scr
 
 *Example crontab; update index every minute, market data every 2 minutes, peers and masternodes every 5 minutes*
 
-  */1 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs update > /dev/null 2>&1
-  */2 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs market > /dev/null 2>&1
-  */5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs peers > /dev/null 2>&1
-  */5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs masternodes > /dev/null 2>&1
+    */1 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs update > /dev/null 2>&1
+    */2 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs market > /dev/null 2>&1
+    */5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs peers > /dev/null 2>&1
+    */5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs masternodes > /dev/null 2>&1
 
 ### Wallet
 
