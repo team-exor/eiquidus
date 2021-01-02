@@ -11,7 +11,7 @@ block content
           em #{settings.locale.api_message}
         hr
         - var hide_rpc_api_section = !(settings.public_api.rpc['getdifficulty'] == true && settings.api_cmds['getdifficulty'] != null && settings.api_cmds['getdifficulty'] != '') && !(settings.public_api.rpc['getconnectioncount'] == true && settings.api_cmds['getconnectioncount'] != null && settings.api_cmds['getconnectioncount'] != '') && !(settings.public_api.rpc['getblockcount'] == true && settings.api_cmds['getblockcount'] != null && settings.api_cmds['getblockcount'] != '') && !(settings.public_api.rpc['getblockhash'] == true && settings.api_cmds['getblockhash'] != null && settings.api_cmds['getblockhash'] != '') && !(settings.public_api.rpc['getblock'] == true && settings.api_cmds['getblock'] != null && settings.api_cmds['getblock'] != '') && !(settings.public_api.rpc['getrawtransaction'] == true && settings.api_cmds['getrawtransaction'] != null && settings.api_cmds['getrawtransaction'] != '') && !(settings.public_api.rpc['getnetworkhashps'] == true && settings.index.show_hashrate == true && settings.api_cmds['getnetworkhashps'] != null && settings.api_cmds['getnetworkhashps'] != '') && !(settings.public_api.rpc['getvotelist'] == true && settings.api_cmds['getvotelist'] != null && settings.api_cmds['getvotelist'] != '') && !(settings.public_api.rpc['getmasternodecount'] == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') && (!settings.heavy || (!(settings.public_api.rpc['getmaxmoney'] == true && settings.api_cmds.heavies['getmaxmoney'] != null && settings.api_cmds.heavies['getmaxmoney'] != '') && !(settings.public_api.rpc['getmaxvote'] == true && settings.api_cmds.heavies['getmaxvote'] != null && settings.api_cmds.heavies['getmaxvote'] != '') && !(settings.public_api.rpc['getvote'] == true && settings.api_cmds.heavies['getvote'] != null && settings.api_cmds.heavies['getvote'] != '') && !(settings.public_api.rpc['getphase'] == true && settings.api_cmds.heavies['getphase'] != null && settings.api_cmds.heavies['getphase'] != '') && !(settings.public_api.rpc['getreward'] == true && settings.api_cmds.heavies['getreward'] != null && settings.api_cmds.heavies['getreward'] != '') && !(settings.public_api.rpc['getsupply'] == true && settings.api_cmds.heavies['getsupply'] != null && settings.api_cmds.heavies['getsupply'] != '') && !(settings.public_api.rpc['getnextrewardestimate'] == true && settings.api_cmds.heavies['getnextrewardestimate'] != null && settings.api_cmds.heavies['getnextrewardestimate'] != '') && !(settings.public_api.rpc['getnextrewardwhenstr'] == true && settings.api_cmds.heavies['getnextrewardwhenstr'] != null && settings.api_cmds.heavies['getnextrewardwhenstr'] != '')));
-        - var hide_ext_api_section = !settings.public_api.ext['getmoneysupply'] && !settings.public_api.ext['getdistribution'] && !settings.public_api.ext['getaddress'] && !settings.public_api.ext['gettx'] && !settings.public_api.ext['getbalance'] && !settings.public_api.ext['getlasttxs'] && !settings.public_api.ext['getcurrentprice'] && !settings.public_api.ext['getbasicstats'] && !(settings.public_api.ext['getmasternodelist'] == true && settings.api_cmds['getmasternodelist'] != null && settings.api_cmds['getmasternodelist'] != '') && !settings.public_api.ext['getmasternoderewards'] && !settings.public_api.ext['getmasternoderewardstotal'];
+        - var hide_ext_api_section = !settings.public_api.ext['getmoneysupply'] && !settings.public_api.ext['getdistribution'] && !settings.public_api.ext['getaddress'] && !settings.public_api.ext['getaddresstxs'] && !settings.public_api.ext['gettx'] && !settings.public_api.ext['getbalance'] && !settings.public_api.ext['getlasttxs'] && !settings.public_api.ext['getcurrentprice'] && !settings.public_api.ext['getbasicstats'] && !settings.public_api.ext['getsummary'] && !(settings.public_api.ext['getmasternodelist'] == true && settings.api_cmds['getmasternodelist'] != null && settings.api_cmds['getmasternodelist'] != '') && !settings.public_api.ext['getmasternoderewards'] && !settings.public_api.ext['getmasternoderewardstotal'];
         if !hide_rpc_api_section
           h3 #{settings.locale.api_calls}
           p
@@ -167,6 +167,13 @@ block content
                   div
                     em Returns information for given address
                   a(href='/ext/getaddress/' + hashes.address) #{address}/ext/getaddress/#{hashes.address}
+            if settings.public_api.ext['getaddresstxs'] == true
+              li
+                p
+                  div.font-weight-bold getaddresstxs (/ext/getaddresstxs/hash/start/length)
+                  div
+                    em Returns last [length] transactions for address [hash], starting from offset [start]
+                  a(href='/ext/getaddresstxs/' + hashes.address + '/0/50') #{address}/ext/getaddresstxs/#{hashes.address}/0/50
             if settings.public_api.ext['gettx'] == true
               li
                 p
@@ -186,9 +193,7 @@ block content
                 p
                   div.font-weight-bold getlasttxs (/ext/getlasttxs/min/start/length)
                   div
-                    em Returns last [length] transactions greater than [min], starting from offset [start]
-                  div
-                    em Note: returned values are in satoshis
+                    em Returns last [length] transactions greater than [min] coins, starting from offset [start]
                   div
                     a(href='/ext/getlasttxs/100/0/100') #{address}/ext/getlasttxs/100/0/100
             if settings.public_api.ext['getcurrentprice'] == true
@@ -205,6 +210,13 @@ block content
                   div
                     em="Returns basic statistics about the coin including: block count, circulating supply, USD price, BTC price" + (settings.public_api.rpc['getmasternodecount'] == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '' ? ', ' + '# of masternodes' : '')
                   a(href='/ext/getbasicstats') #{address}/ext/getbasicstats
+            if settings.public_api.ext['getsummary'] == true
+              li
+                p
+                  div.font-weight-bold getsummary
+                  div
+                    em="Returns a summary of coin data including: difficulty, hybrid difficulty, circulating supply, hash rate, BTC price, network connection count, block count" + (settings.public_api.rpc['getmasternodecount'] == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '' ? ', ' + 'count of online masternodes' + ', ' + 'count of offline masternodes' : '')
+                  a(href='/ext/getsummary') #{address}/ext/getsummary
             if settings.public_api.ext['getmasternodelist'] == true && settings.api_cmds['getmasternodelist'] != null && settings.api_cmds['getmasternodelist'] != ''
               li
                 p

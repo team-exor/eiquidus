@@ -32,7 +32,7 @@ block content
         ajax: {
           url: '/ext/getlasttxs/0',
           beforeSend: function(jqXHR, settings) {
-            settings.url = settings.url.substring(0, settings.url.indexOf('?')) + '/' + getParameterByName('start', settings.url) + '/' + getParameterByName('length', settings.url);
+            settings.url = settings.url.substring(0, settings.url.indexOf('?')) + '/' + getParameterByName('start', settings.url) + '/' + getParameterByName('length', settings.url) + '/internal';
             return true;
           }
         },
@@ -47,10 +47,10 @@ block content
           var blockhash = data[1]; //variables for better readability
           var txhash = data[2]; //variables for better readability
           var outputs = data[3]; //variables for better readability
-          var amount = Number(data[4] / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}); //variables for better readability
+          var amount = Number(data[4]).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}); //variables for better readability
           var amountParts = amount.split('.');
           var amount = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
-          var timestamp = data[5];
+          var timestamp = new Date(data[5] * 1000).toUTCString();
           $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
           $("td:eq(1)", row).html('<a href="/block/' + blockhash + '">' + blockindex + '</a>');
           $("td:eq(2)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass("text-center breakWord d-none d-md-table-cell");

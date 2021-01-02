@@ -114,32 +114,37 @@ html(lang='en')
           }
         }
         function update_stats() {
-          $.ajax({url: '/ext/summary', success: function(json) {
-            var mnOnlineText = json.data[0].masternodeCountOnline+" node"+(json.data[0].masternodeCountOnline == 1 ? "" : "s")+" online";
-            var mnOfflineText = json.data[0].masternodeCountOffline+" unreachable node"+(json.data[0].masternodeCountOffline == 1 ? "" : "s");
+          $.ajax({url: '/ext/getsummary', headers: {Accept: 'application/json, text/javascript, */*; q=0.01'}, success: function(json) {
+            if (json.masternodeCountOnline == null)
+              json.masternodeCountOnline = '-';
+            if (json.masternodeCountOffline == null)
+              json.masternodeCountOffline = '-';
 
-            $("#masternodeCountOnline").text(json.data[0].masternodeCountOnline).prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-original-title", mnOnlineText);
-            $("#masternodeCountOffline").text(json.data[0].masternodeCountOffline).prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-original-title", mnOfflineText);
+            var mnOnlineText = json.masternodeCountOnline+" node"+(json.masternodeCountOnline == 1 ? "" : "s")+" online";
+            var mnOfflineText = json.masternodeCountOffline+" unreachable node"+(json.masternodeCountOffline == 1 ? "" : "s");
+
+            $("#masternodeCountOnline").text(json.masternodeCountOnline).prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-original-title", mnOnlineText);
+            $("#masternodeCountOffline").text(json.masternodeCountOffline).prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-original-title", mnOfflineText);
             $("#spnMasternodeCountOnline").prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-original-title", mnOnlineText);
             $("#spnMasternodeCountOffline").prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-original-title", mnOfflineText);
             showTopPanelData('masternodepanel', 'masternodePanelLoading');
 
-            var supplyString = json.data[0].supply;
-            var diffString = json.data[0].difficulty;
-            var hashrateString = json.data[0].hashrate;
+            var supplyString = json.supply;
+            var diffString = json.difficulty;
+            var hashrateString = json.hashrate;
             var splitValue, splitParts;
 
-            if (!isNaN(json.data[0].difficulty))
-              diffString = Number(json.data[0].difficulty).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':true});
-            if (!isNaN(json.data[0].supply))
-              supplyString = parseInt(parseFloat(json.data[0].supply).toFixed(0)).toLocaleString('en');
-            if (!isNaN(json.data[0].hashrate))
-              hashrateString = Number(json.data[0].hashrate).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            if (!isNaN(json.difficulty))
+              diffString = Number(json.difficulty).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':true});
+            if (!isNaN(json.supply))
+              supplyString = parseInt(parseFloat(json.supply).toFixed(0)).toLocaleString('en');
+            if (!isNaN(json.hashrate))
+              hashrateString = Number(json.hashrate).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
 
             $("#lblX1").text(' ');
 
             $("#supply").text(supplyString);
-            splitValue = Number(parseFloat(json.data[0].lastPrice).toFixed(8) * parseInt(parseFloat(json.data[0].supply).toFixed(0))).toLocaleString('en');
+            splitValue = Number(parseFloat(json.lastPrice).toFixed(8) * parseInt(parseFloat(json.supply).toFixed(0))).toLocaleString('en');
             splitParts = splitValue.split('.');
             showTopPanelData('supplypanel', 'supplyPanelLoading');
 
@@ -149,10 +154,10 @@ html(lang='en')
             splitParts = diffString.split('.');
             $("#difficulty").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
 
-            if (json.data[0].difficultyHybrid == null || json.data[0].difficultyHybrid == '') {
+            if (json.difficultyHybrid == null || json.difficultyHybrid == '') {
               $("#difficultyHybrid").html('0.<span class="decimal">00</span>');
             } else {
-              splitValue = Number(json.data[0].difficultyHybrid).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+              splitValue = Number(json.difficultyHybrid).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
               splitParts = splitValue.split('.');
               $("#difficultyHybrid").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
             }
@@ -163,13 +168,13 @@ html(lang='en')
             $("#hashrate").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
             showTopPanelData('hashratepanel', 'hashratePanelLoading');
 
-            splitValue = Number(json.data[0].lastPrice).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            splitValue = Number(json.lastPrice).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
             splitParts = splitValue.split('.');
             $("#lastPrice").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
             showTopPanelData('pricepanel', 'pricePanelLoading');
 
-            $("#lblConnections").text(json.data[0].connections + ' connections');
-            $("#lblBlockcount").text(json.data[0].blockcount + ' blocks');
+            $("#lblConnections").text(json.connections + ' connections');
+            $("#lblBlockcount").text(json.blockcount + ' blocks');
           }});
         }
         $('.iquidus').css('color',$('.table').css('color'));

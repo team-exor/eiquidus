@@ -30,7 +30,7 @@ script.
       ajax: {
         url: '/ext/getaddresstxs/' + hashAddress,
         beforeSend: function(jqXHR, settings) {
-          settings.url = settings.url.substring(0, settings.url.indexOf('?')) + '/' + getParameterByName('start', settings.url) + '/' + getParameterByName('length', settings.url);
+          settings.url = settings.url.substring(0, settings.url.indexOf('?')) + '/' + getParameterByName('start', settings.url) + '/' + getParameterByName('length', settings.url) + '/internal';
           return true;
         }
       },
@@ -41,11 +41,11 @@ script.
         }
       },
       rowCallback: function (row, data, index) {
-        var timestamp = data[0]; //variables for better readability
+        var timestamp = new Date(data[0] * 1000).toUTCString(); //variables for better readability
         var txhash = data[1]; //variables for better readability
         var out = data[2]; //variables for better readability
         var vin = data[3]; //variables for better readability
-        var balance = Number(data[4] / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}); //variables for better readability
+        var balance = data[4].toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}); //variables for better readability
         var balanceParts = balance.split('.');
         $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
         $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-md-table-cell');
@@ -54,7 +54,7 @@ script.
         var rowclass = 'info';
 
         if (out > 0 && vin > 0) {
-          amount = Number((out - vin) / 100000000);
+          amount = Number(out - vin);
           if (amount < 0) {
             amount = Number(amount * -1).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
             updown = '-';
@@ -65,11 +65,11 @@ script.
             amount = amount.toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
           }
         } else if (out > 0) {
-          amount = Number(out / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+          amount = Number(out).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
           updown = '+';
           rowclass = 'bg-success';
         } else {
-          amount = Number(vin / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+          amount = Number(vin).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
           updown = '-';
           rowclass = 'bg-danger';
         }

@@ -56,6 +56,41 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api', nodeapi.app);
 app.use('/', routes);
 
+// post method to claim an address using verifymessage functionality
+app.post('/claim', function(req, res) {
+  // initialize the bad-words filter
+  var bad_word_lib = require('bad-words');
+  var bad_word_filter = new bad_word_lib();
+
+  // clean the message (Display name) of bad words
+  var message = (req.body.message == null || req.body.message == '' ? '' : bad_word_filter.clean(req.body.message));
+
+  // check if the message was filtered
+  if (message == req.body.message) {
+    // call the verifymessage api
+    lib.verify_message(req.body.address, req.body.signature, req.body.message, function(body) {
+      if (body == false) {
+        res.json({'status': 'failed', 'error': true, 'message': 'Invalid signature'});
+      } else if (body == true) {
+        db.update_label(req.body.address, req.body.message, function(val) {
+          // check if the update was successful
+          if (val == '')
+            res.json({'status': 'success'});
+          else if (val == 'no_address')
+            res.json({'status': 'failed', 'error': true, 'message': 'Wallet address ' + req.body.address + ' is not valid or does not have any transactions'});
+          else
+            res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
+        });
+      } else
+        res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
+    });
+  } else {
+    // message was filtered which would change the signature
+    res.json({'status': 'failed', 'error': true, 'message': 'Display name contains bad words and cannot be saved: ' + message});
+  }
+});
+
+// extended apis
 app.use('/ext/getmoneysupply', function(req, res) {
   // check if the getmoneysupply api is enabled
   if (settings.display.api == true && settings.public_api.ext['getmoneysupply']) {
@@ -235,7 +270,7 @@ app.use('/ext/getbasicstats', function(req, res) {
 app.use('/ext/getlasttxs/:min', function(req, res) {
   // check if the getlasttxs api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
   if ((settings.display.api == true && settings.public_api.ext['getlasttxs']) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
-    var min = req.params.min, start, length;
+    var min = req.params.min, start, length, internal = false;
     // split url suffix by forward slash and remove blank entries
     var split = req.url.split('/').filter(function(v) { return v; });
     // determine how many parameters were passed
@@ -249,10 +284,13 @@ app.use('/ext/getlasttxs/:min', function(req, res) {
         if (split.length == 1) {
           // capture start
           start = split[0];
-        } else if (split.length > 2) {
+        } else if (split.length >= 2) {
           // capture start and length
           start = split[0];
           length = split[1];
+          // check if this is an internal request
+          if (split.length > 2 && split[2] == 'internal')
+            internal = true;
         }
         break;
     }
@@ -267,94 +305,154 @@ app.use('/ext/getlasttxs/:min', function(req, res) {
     else
       min  = (min * 100000000);
 
-    db.get_last_txs(start, length, min, function(data, count) {
-      res.json({"data":data, "recordsTotal": count, "recordsFiltered": count});
+    db.get_last_txs(start, length, min, internal, function(data, count) {
+      // check if this is an internal request
+      if (internal) {
+        // display data formatted for internal datatable
+        res.json({"data": data, "recordsTotal": count, "recordsFiltered": count});
+      } else {
+        // display data in more readable format for public api
+        res.json(data);
+      }
     });
   } else
     res.end('This method is disabled');
 });
 
-app.use('/ext/getaddresstxs/:address/:start/:length', function(req,res) {
-  // fix parameters
-  if (typeof req.params.length === 'undefined' || isNaN(req.params.length) || req.params.length > settings.txcount)
-    req.params.length = settings.txcount;
-  if (typeof req.params.start === 'undefined' || isNaN(req.params.start) || req.params.start < 0)
-    req.params.start = 0;
-  if (typeof req.params.min === 'undefined' || isNaN(req.params.min) || req.params.min < 0)
-    req.params.min  = 0;
-  else
-    req.params.min  = (req.params.min * 100000000);
+app.use('/ext/getaddresstxs/:address/:start/:length', function(req, res) {
+  // check if the getaddresstxs api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
+  if ((settings.display.api == true && settings.public_api.ext['getaddresstxs']) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+    var internal = false;
+    // split url suffix by forward slash and remove blank entries
+    var split = req.url.split('/').filter(function(v) { return v; });
+    // check if this is an internal request
+    if (split.length > 0 && split[0] == 'internal')
+      internal = true;
+    // fix parameters
+    if (typeof req.params.length === 'undefined' || isNaN(req.params.length) || req.params.length > settings.txcount)
+      req.params.length = settings.txcount;
+    if (typeof req.params.start === 'undefined' || isNaN(req.params.start) || req.params.start < 0)
+      req.params.start = 0;
+    if (typeof req.params.min === 'undefined' || isNaN(req.params.min) || req.params.min < 0)
+      req.params.min  = 0;
+    else
+      req.params.min  = (req.params.min * 100000000);
 
-  db.get_address_txs_ajax(req.params.address, req.params.start, req.params.length, function(txs, count) {
-    var data = [];
-    for (i = 0; i < txs.length; i++) {
-      if (typeof txs[i].txid !== "undefined") {
-        var out = 0;
-        var vin = 0;
+    db.get_address_txs_ajax(req.params.address, req.params.start, req.params.length, function(txs, count) {
+      var data = [];
 
-        txs[i].vout.forEach(function(r) {
-          if (r.addresses == req.params.address) {
-            out += r.amount;
+      for (i = 0; i < txs.length; i++) {
+        if (typeof txs[i].txid !== "undefined") {
+          var out = 0;
+          var vin = 0;
+
+          txs[i].vout.forEach(function(r) {
+            if (r.addresses == req.params.address)
+              out += r.amount;
+          });
+
+          txs[i].vin.forEach(function(s) {
+            if (s.addresses == req.params.address)
+              vin += s.amount;
+          });
+
+          if (internal) {
+            var row = [];
+            row.push(txs[i].timestamp);
+            row.push(txs[i].txid);
+            row.push(Number(out / 100000000));
+            row.push(Number(vin / 100000000));
+            row.push(Number(txs[i].balance / 100000000));
+            data.push(row);
+          } else {
+            data.push({
+              timestamp: txs[i].timestamp,
+              txid: txs[i].txid,
+              sent: Number(out / 100000000),
+              received: Number(vin / 100000000),
+              balance: Number(txs[i].balance / 100000000)
+            });
           }
-        });
-
-        txs[i].vin.forEach(function(s) {
-          if (s.addresses == req.params.address) {
-            vin += s.amount;
-          }
-        });
-
-        var row = [];
-        row.push(new Date((txs[i].timestamp) * 1000).toUTCString());
-        row.push(txs[i].txid);
-        row.push(out);
-        row.push(vin);
-        row.push(txs[i].balance);
-        data.push(row);
+        }
       }
-    }
 
-    res.json({"data":data, "recordsTotal": count, "recordsFiltered": count});
-  });
-});
-
-app.post('/claim', function(req, res) {
-  // initialize the bad-words filter
-  var bad_word_lib = require('bad-words');
-  var bad_word_filter = new bad_word_lib();
-
-  // clean the message (Display name) of bad words
-  var message = (req.body.message == null || req.body.message == '' ? '' : bad_word_filter.clean(req.body.message));
-
-  // check if the message was filtered
-  if (message == req.body.message) {
-    // call the verifymessage api
-    lib.verify_message(req.body.address, req.body.signature, req.body.message, function(body) {
-      if (body == false) {
-        res.json({'status': 'failed', 'error': true, 'message': 'Invalid signature'});
-      } else if (body == true) {
-        db.update_label(req.body.address, req.body.message, function(val) {
-          // check if the update was successful
-          if (val == '')
-            res.json({'status': 'success'});
-          else if (val == 'no_address')
-            res.json({'status': 'failed', 'error': true, 'message': 'Wallet address ' + req.body.address + ' is not valid or does not have any transactions'});
-          else
-            res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
-        });
-      } else
-        res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
+      // check if this is an internal request
+      if (internal) {
+        // display data formatted for internal datatable
+        res.json({"data": data, "recordsTotal": count, "recordsFiltered": count});
+      } else {
+        // display data in more readable format for public api
+        res.json(data);
+      }
     });
-  } else {
-    // message was filtered which would change the signature
-    res.json({'status': 'failed', 'error': true, 'message': 'Display name contains bad words and cannot be saved: ' + message});
-  }
+  } else
+    res.end('This method is disabled');
 });
 
-app.use('/ext/connections', function(req,res){
-  db.get_peers(function(peers){
-    res.send({data: peers});
-  });
+app.use('/ext/getsummary', function(req, res) {
+  // check if the getsummary api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
+  if ((settings.display.api == true && settings.public_api.ext['getsummary']) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+    lib.get_difficulty(function(difficulty) {
+      difficultyHybrid = '';
+      if (difficulty && difficulty['proof-of-work']) {
+        if (settings.index.difficulty == 'Hybrid') {
+          difficultyHybrid = 'POS: ' + difficulty['proof-of-stake'];
+          difficulty = 'POW: ' + difficulty['proof-of-work'];
+        } else if (settings.index.difficulty == 'POW')
+          difficulty = difficulty['proof-of-work'];
+        else
+          difficulty = difficulty['proof-of-stake'];
+      }
+      lib.get_hashrate(function(hashrate) {
+        lib.get_connectioncount(function(connections) {
+          lib.get_blockcount(function(blockcount) {
+            db.get_stats(settings.coin, function (stats) {
+              lib.get_masternodecount(function(masternodestotal) {
+                if (hashrate == 'There was an error. Check your console.')
+                  hashrate = 0;
+                // check if the masternode count api is enabled
+                if (settings.public_api.rpc['getmasternodecount'] == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') {
+                  // masternode count api is available
+                  var mn_total = 0;
+                  var mn_enabled = 0;
+
+                  if (masternodestotal) {
+                    if (masternodestotal.total)
+                      mn_total = masternodestotal.total;
+                    if (masternodestotal.enabled)
+                      mn_enabled = masternodestotal.enabled;
+                  }
+                  res.send({
+                    difficulty: (difficulty ? difficulty : '-'),
+                    difficultyHybrid: difficultyHybrid,
+                    supply: (stats == null || stats.supply == null ? 0 : stats.supply),
+                    hashrate: hashrate,
+                    lastPrice: (stats == null || stats.last_price == null ? 0 : stats.last_price),
+                    connections: (connections ? connections : '-'),
+                    masternodeCountOnline: (masternodestotal ? mn_enabled : '-'),
+                    masternodeCountOffline: (masternodestotal ? Math.floor(mn_total - mn_enabled) : '-'),
+                    blockcount: (blockcount ? blockcount : '-')
+                  });
+                } else {
+                  // masternode count api is not available
+                  res.send({
+                    difficulty: (difficulty ? difficulty : '-'),
+                    difficultyHybrid: difficultyHybrid,
+                    supply: (stats == null || stats.supply == null ? 0 : stats.supply),
+                    hashrate: hashrate,
+                    lastPrice: (stats == null || stats.last_price == null ? 0 : stats.last_price),
+                    connections: (connections ? connections : '-'),
+                    blockcount: (blockcount ? blockcount : '-')
+                  });
+                }
+              });
+            });
+          });
+        });
+      });
+    });
+  } else
+    res.end('This method is disabled');
 });
 
 // get the list of masternodes from local collection
