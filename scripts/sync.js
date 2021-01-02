@@ -320,18 +320,15 @@ if (database == 'peers') {
                               console.log('index cleared (reindex)');
                             });
 
-                            // Check if there are more than 1000 blocks to index
-                            var showSync = check_show_sync_message(stats.count);
+                            // Check if there are more than 1000 blocks to index and show a sync msg
+                            check_show_sync_message(stats.count);
 
                             db.update_tx_db(settings.coin, 1, stats.count, stats.txes, settings.update_timeout, function() {
                               db.update_richlist('received', function() {
                                 db.update_richlist('balance', function() {
                                   db.get_stats(settings.coin, function(nstats) {
-                                    // Check if the sync msg was showing
-                                    if (showSync) {
-                                      // Remove the sync msg
-                                      remove_sync_message();
-                                    }
+                                    // always check for and remove the sync msg if exists
+                                    remove_sync_message();
                                     // update richlist_last_updated value
                                     db.update_last_updated_stats(settings.coin, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
                                       // update blockchain_last_updated value
@@ -361,18 +358,15 @@ if (database == 'peers') {
                     var last = (stats.last ? stats.last : 0);
                     // Get the total number of blocks
                     var count = (stats.count ? stats.count : 0);
-                    // Check if there are more than 1000 blocks to index
-                    var showSync = check_show_sync_message(count - last);
+                    // Check if there are more than 1000 blocks to index and show a sync msg
+                    check_show_sync_message(count - last);
 
                     db.update_tx_db(settings.coin, last, count, stats.txes, settings.update_timeout, function(){
                       db.update_richlist('received', function(){
                         db.update_richlist('balance', function(){
                           db.get_stats(settings.coin, function(nstats){
-                            // Check if the sync msg was showing
-                            if (showSync) {
-                              // Remove the sync msg
-                              remove_sync_message();
-                            }
+                            // always check for and remove the sync msg if exists
+                            remove_sync_message();
                             // update richlist_last_updated value
                             db.update_last_updated_stats(settings.coin, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
                               // update blockchain_last_updated value
