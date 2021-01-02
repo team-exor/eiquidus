@@ -32,6 +32,9 @@ block content
           }
         );
       });
+  - var theadClasses = [];
+  if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+    - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
   .row(style='margin-left:0;margin-right:0;')
     div(class=(show_dist == true ? 'col-xs-12 col-lg-8' : 'col-12'))
       .container
@@ -45,18 +48,70 @@ block content
             a.nav-link(href='#received', aria-controls='received', role='tab', data-toggle='tab') #{settings.locale.rl_received_coins}
       .tab-content
         #balance.container.tab-pane.active(style='margin-top:0;')
-          include ./includes/rl_balance.pug
+          .card.card-default.border-0
+            table.table.table-hover.table-bordered.table-striped.summary-table.right-border-0(style='margin-bottom:0;', cellspacing='0')
+              thead(class=theadClasses)
+                tr
+                  th.text-center
+                    span.fa.fa-flag-checkered
+                  th #{settings.locale.tx_address}
+                  th.text-center #{settings.locale.rl_balance}
+                    span.small  (#{settings.symbol})
+                  th.text-center %
+              tbody
+                - var count = 0;
+                each address in balance
+                  - count = count + 1;
+                  - var itemFixed = (parseInt(address.balance) / 100000000);
+                  - var itemFixedParts = Number(itemFixed).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}).split(".");
+                  - var percent = Number((itemFixed / stats.supply) * 100).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':false});
+                  - var percentParts = percent.split(".");
+                  tr
+                    td.text-center
+                      =count
+                    td
+                      if settings.display.claim_address == false || address.name == null || address.name == ''
+                        a.breakWord(href='/address/' + address.a_id) #{address.a_id}
+                      else
+                        a.breakWord(href='/address/' + address.a_id) #{address.name}
+                      include ./includes/rl_labels.pug
+                    td.text-center #{itemFixedParts[0]}.
+                      span.decimal #{itemFixedParts[1]}
+                    td.text-center #{percentParts[0]}.
+                      span.decimal #{percentParts[1]}
         #received.container.tab-pane(style='margin-top:0;')
-          include ./includes/rl_received.pug
+          .card.card-default.border-0
+            table.table.table-hover.table-bordered.table-striped.summary-table.right-border-0(style='margin-bottom:0;', cellspacing='0')
+              thead(class=theadClasses)
+                tr
+                  th.text-center
+                    span.fa.fa-flag-checkered
+                  th #{settings.locale.tx_address}
+                  th.text-center #{settings.locale.rl_received}
+                    span.small  (#{settings.symbol})
+              tbody
+                - var count = 0;
+                each address in received
+                  - count = count + 1;
+                  - var itemFixed = Number(parseInt(address.received) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+                  - var itemFixedParts = itemFixed.split(".");
+                  tr
+                    td.text-center
+                      =count
+                    td
+                      if settings.display.claim_address == false || address.name == null || address.name == ''
+                        a.breakWord(href='/address/' + address.a_id) #{address.a_id}
+                      else
+                        a.breakWord(href='/address/' + address.a_id) #{address.name}
+                      include ./includes/rl_labels.pug
+                    td.text-center #{itemFixedParts[0]}.
+                      span.decimal #{itemFixedParts[1]}
     if show_dist == true
       .col-xs-12.col-lg-4
         #summary-panel.card.card-default.border-0(style='margin-top:34px;')
           .card-header
             strong #{settings.locale.rl_wealth}
           table.table.table-hover.table-bordered.summary-table.right-border-0(style='margin-bottom:0;')
-            - var theadClasses = [];
-            if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-              - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
             thead(class=theadClasses)
               tr
                 th

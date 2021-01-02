@@ -2,6 +2,127 @@ extends layout
 
 block content
   include ./includes/common.pug
+  script.
+    $(document).ready(function() {
+      $('#connections-table').dataTable({
+        autoWidth: true,
+        searching: false,
+        ordering: false,
+        responsive: true,
+        lengthChange: true,
+        processing: true,
+        scrollX: true,
+        language: {
+          paginate: {
+            previous: '<',
+            next: '>'
+          }
+        },
+        ajax: {
+          url: '/ext/getnetworkpeers/internal',
+          dataSrc: function (json) {
+            return json.data;
+          }
+        },
+        rowCallback: function (row, data, index) {
+          var flagBlock = '';
+          if (data['country_code'].length > 1) {
+            flagBlock = '<div class="margin-left-5 flag-icon flag-icon-'+data['country_code'].toLowerCase()+'"></div>';
+          }
+          $("td:eq(0)", row).html(data['address']).addClass('breakWord');
+          $("td:eq(1)", row).html(data['protocol']);
+          $("td:eq(2)", row).html(data['version']);
+          $("td:eq(3)", row).html(data['country']+flagBlock);
+        },
+        fnDrawCallback: function(settings) {
+          fixDataTableColumns();
+          fixFooterHeightAndPosition();
+        },
+        columns: [
+          { data: 'address', width: '25%' },
+          { data: 'protocol', width: '25%' },
+          { data: 'version', width:'25%' },
+          { data: 'country', width: '25%'}
+        ]
+      });
+      $('#addnodes-table').dataTable({
+        autoWidth: true,
+        searching: false,
+        ordering: false,
+        responsive: true,
+        lengthChange: true,
+        processing: true,
+        scrollX: true,
+        language: {
+          paginate: {
+            previous: '<',
+            next: '>'
+          }
+        },
+        ajax: {
+          url: '/ext/getnetworkpeers/internal',
+          dataSrc: function (json) {
+            var rows = [];
+            for (var i=0; i<json.data.length; i++) {
+              rows.push({'nodes':'addnode='+json.data[i]['address']+':'+json.data[i]['port']});
+            }
+            return rows;
+          }
+        },
+        fnDrawCallback: function(settings) {
+          fixDataTableColumns();
+          fixFooterHeightAndPosition();
+        },
+        columns: [
+          {data: 'nodes', width: '100%'}
+        ],
+        columnDefs: [
+          {targets: '_all', className: 'text-left'}
+        ]
+      });
+      $('#addnodes2-table').dataTable({
+        autoWidth: true,
+        searching: false,
+        ordering: false,
+        responsive: true,
+        lengthChange: true,
+        processing: true,
+        scrollX: true,
+        language: {
+          paginate: {
+            previous: '<',
+            next: '>'
+          }
+        },
+        ajax: {
+          url: '/ext/getnetworkpeers/internal',
+          dataSrc: function (json) {
+            var rows = [];
+            for (var i=0; i<json.data.length; i++) {
+              rows.push({'nodes':'addnode '+json.data[i]['address']+':'+json.data[i]['port']+' onetry'});
+            }
+            return rows;
+          }
+        },
+        fnDrawCallback: function(settings) {
+          fixDataTableColumns();
+          fixFooterHeightAndPosition();
+        },
+        columns: [
+          {data: 'nodes', width: '100%'}
+        ],
+        columnDefs: [
+          {targets: '_all', className: 'text-left'}
+        ]
+      });
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        fixDataTableColumns();
+        fixFooterHeightAndPosition();
+      });
+    });
+  - var theadClasses = [];
+  if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
+    - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
   .col-md-12.cardSpacer
     .text-center(style='margin-bottom:15px;')
       i #{settings.locale.net_warning}
@@ -16,6 +137,32 @@ block content
           a.nav-link(href='#addnodes', aria-controls='addnodes', role='tab', data-toggle='tab') #{settings.locale.net_addnodes}
     .tab-content
       #connections.container.tab-pane.active(style='margin-top:0;border-top:0;')
-        include ./includes/net_list.pug
+        .card.card-default.border-0
+          table#connections-table.table.table-bordered.table-striped.table-paging.mobile-border-right
+            thead(class=theadClasses)
+              tr
+                th.text-center #{settings.locale.net_address}
+                th.text-center #{settings.locale.net_protocol}
+                th.text-center #{settings.locale.net_subversion}
+                th.text-center #{settings.locale.net_country}
+            tbody.text-center
       #addnodes.container.tab-pane(style='margin-top:0;border-top:0;')
-        include ./includes/net_addnodes.pug
+        .card.card-default.border-0
+          .card-body.border-top-0
+            :markdown-it
+              If you have trouble syncing your wallet, add these lines to your coin daemon .conf file and restart the wallet.
+              
+              *Typically you can access the config file through QT-wallet menu, Tools > Open Wallet Configuration File*
+          table#addnodes-table.table.table-bordered.table-striped.table-paging.mobile-border-right
+            thead(class=theadClasses)
+              tr
+                th AddNode Config Lines
+            tbody.text-center
+          .card-body.border-top-0
+            :markdown-it
+              Alternatively you can try one of these lines in the coin wallet debug window, or add them with *coindaemon*-cli
+          table#addnodes2-table.table.table-bordered.table-striped.table-paging.mobile-border-right
+            thead(class=theadClasses)
+              tr
+                th OneTry Node Lines
+            tbody.text-center
