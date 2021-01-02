@@ -197,7 +197,7 @@
   },
 
   // market settings
-  //included markets: altmarkets, bittrex, bleutrade, crex, fides, poloniex, stex, yobit
+  //included markets: altmarkets, bittrex, bleutrade, crex, poloniex, stex, yobit
   //default market is loaded by default and determines last price in header
   "markets": {
     "coin": "EXOR",
