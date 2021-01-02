@@ -455,6 +455,36 @@ app.use('/ext/getsummary', function(req, res) {
     res.end('This method is disabled');
 });
 
+app.use('/ext/getnetworkpeers', function(req, res) {
+  // check if the getnetworkpeers api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
+  if ((settings.display.api == true && settings.public_api.ext['getnetworkpeers']) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+    var internal = false;
+    // split url suffix by forward slash and remove blank entries
+    var split = req.url.split('/').filter(function(v) { return v; });
+    // check if this is an internal request
+    if (split.length > 0 && split[0].indexOf('internal') > -1)
+      internal = true;
+
+    // get list of peers
+    db.get_peers(function(peers) {
+      // loop through peers list and remove the mongo _id and __v keys
+      for (i = 0; i < peers.length; i++) {
+        delete peers[i]['_doc']['_id'];
+        delete peers[i]['_doc']['__v'];
+      }
+      // check if this is an internal request
+      if (internal) {
+        // display data formatted for internal datatable
+        res.json({"data": peers});
+      } else {
+        // display data in more readable format for public api
+        res.json(peers);
+      }
+    });
+  } else
+    res.end('This method is disabled');
+});
+
 // get the list of masternodes from local collection
 app.use('/ext/getmasternodelist', function(req, res) {
   // check if the getmasternodelist api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)

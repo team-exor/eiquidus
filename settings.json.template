@@ -345,6 +345,7 @@
       "getcurrentprice": true,
       "getbasicstats": true,
       "getsummary": true,
+      "getnetworkpeers": true,
       "getmasternodelist": true,
       "getmasternoderewards": true,
       "getmasternoderewardstotal": true
