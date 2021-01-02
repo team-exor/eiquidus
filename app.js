@@ -551,17 +551,7 @@ app.set('coin', settings.coin);
 app.set('locale', locale);
 app.set('display', settings.display);
 app.set('markets', settings.markets);
-app.set('twitter', settings.twitter);
-app.set('facebook', settings.facebook);
-app.set('googleplus', settings.googleplus);
-app.set('bitcointalk', settings.bitcointalk);
-app.set('github', settings.github);
-app.set('slack', settings.slack);
-app.set('discord', settings.discord);
-app.set('telegram', settings.telegram);
-app.set('reddit', settings.reddit);
-app.set('youtube', settings.youtube);
-app.set('website', settings.website);
+app.set('social_links', settings.social_links);
 
 app.set('genesis_block', settings.genesis_block);
 app.set('index', settings.index);

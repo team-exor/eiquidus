@@ -354,10 +354,6 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   .social-link {
     margin-right: 0.2rem;
     font-size: 100%;
-    img {
-      width: 40px;
-      margin: 5px 5px;
-    }
   }
 }
 
@@ -688,4 +684,8 @@ tr {
 
 .market-logo {
   margin-right: 7px;
+}
+
+.vertical-align-middle {
+  vertical-align: middle !important;
 }

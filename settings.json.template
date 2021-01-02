@@ -101,17 +101,6 @@
     "api": true,
     "markets": true,
     "richlist": true,
-    "twitter": false,
-    "facebook": false,
-    "googleplus": false,
-    "bitcointalk": false,
-    "website": false,
-    "slack": false,
-    "github": false,
-    "discord": false,
-    "telegram": false,
-    "reddit": false,
-    "youtube": false,
     "search": true,
     "movement": true,
     "network": true,
@@ -232,18 +221,53 @@
     "high_flag": 5000
   },
 
-  // twitter, facebook, googleplus, bitcointalk, github, slack, discord, telegram, reddit, youtube, website
-  "twitter": "your-twitter-username",
-  "facebook": "your-facebook-username",
-  "googleplus": "your-google-plus-username",
-  "bitcointalk": "your-bitcointalk-topic-value",
-  "github": "your-github-username/your-github-repo",
-  "slack": "your-full-slack-invite-url",
-  "discord": "your-full-discord-invite-url",
-  "telegram": "your-telegram-group-or-channel-name",
-  "reddit": "your-subreddit-name",
-  "youtube": "your-full-youtube-url",
-  "website": "your-full-website-url",
+  // Add as many custom social links to be displayed in the Explorer footer as desired
+  // For each entry you must fill in the fontawesome_class or image_url to determine the image or icon to show for the url link. It is not necessary to fill in both as only the 1st filled-in value will be used
+  // A few samples have been provided:
+  "social_links": [
+    {
+      "enabled": true,
+      "tooltip_text": "Exor Github",
+      "url": "https://github.com/team-exor",
+      "fontawesome_class": "fab fa-github",
+      "image_url": ""
+    },
+    {
+      "enabled": true,
+      "tooltip_text": "Exor Twitter",
+      "url": "https://twitter.com/ExorOfficial",
+      "fontawesome_class": "fab fa-twitter",
+      "image_url": ""
+    },
+    {
+      "enabled": true,
+      "tooltip_text": "Exor Discord",
+      "url": "https://discord.gg/dSuGm3y",
+      "fontawesome_class": "fab fa-discord",
+      "image_url": ""
+    },
+    {
+      "enabled": true,
+      "tooltip_text": "Exor Telegram",
+      "url": "https://t.me/Exorofficial",
+      "fontawesome_class": "fab fa-telegram",
+      "image_url": ""
+    },
+    {
+      "enabled": true,
+      "tooltip_text": "Exor Website",
+      "url": "https://exor.io",
+      "fontawesome_class": "",
+      "image_url": "/img/external.png"
+    },
+    {
+      "enabled": true,
+      "tooltip_text": "Exor Coingecko",
+      "url": "https://www.coingecko.com/en/coins/exor",
+      "fontawesome_class": "",
+      "image_url": "/img/coingecko.png"
+    }
+  ],
 
   //genesis
   "genesis_tx": "dd1d332ad2d8d8f49195056d482ae3c96fd2d16e9d166413b27ca7f19775644c",

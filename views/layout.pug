@@ -69,6 +69,7 @@ html(lang='en')
       function fixSocialLinkFontSize() {
         var fontSize = $('#footer-container').height() * (getSocialLinkHeight() / 100);
         $('#footer-container .social-link').css('font-size', fontSize);
+        $('#footer-container .social-link > img').css('width', fontSize + 'px').css('height', fontSize + 'px');
       }
       function getSocialLinkHeight() {
         var retVal = 70;
@@ -417,52 +418,15 @@ html(lang='en')
       block content
     div#footer-container(class=footerClasses, role='navigation')
       .col-4.navbar-nav
-        if settings.display.github || settings.display.discord || settings.display.telegram || settings.display.reddit || settings.display.youtube || settings.display.slack || settings.display.twitter || settings.display.facebook || settings.display.googleplus || settings.display.bitcointalk || settings.display.website
-          ul.nav.justify-content-left
-            if settings.display.github
+        ul.nav.justify-content-left
+          each social in settings.social_links
+            if social.enabled
               li.float-left
-                a#github-icon.nav-link.social-link.border-0(href="https://github.com/" + settings.github, target='_blank', alt=settings.coin + ' Github', title=settings.coin + ' Github', data-toggle='tooltip', data-placement='top')
-                  span.glyphicon.fab.fa-github
-            if settings.display.discord
-              li.float-left
-                a#discord-icon.nav-link.social-link.border-0(href=settings.discord, target='_blank', alt=settings.coin + ' Discord', title=settings.coin + ' Discord', data-toggle='tooltip', data-placement='top')
-                  span.glyphicon.fab.fa-discord
-            if settings.display.telegram
-              li.float-left
-                a#telegram-icon.nav-link.social-link.border-0(href="https://t.me/" + settings.telegram, target='_blank', alt=settings.coin + ' Telegram', title=settings.coin + ' Telegram', data-toggle='tooltip', data-placement='top')
-                  span.glyphicon.fab.fa-telegram
-            if settings.display.reddit
-              li.float-left
-                a#reddit-icon.nav-link.social-link.border-0(href="https://reddit.com/r/" + settings.reddit, target='_blank', alt=settings.coin + ' Reddit', title=settings.coin + ' Reddit', data-toggle='tooltip', data-placement='top')
-                  span.glyphicon.fab.fa-reddit
-            if settings.display.youtube
-              li.float-left
-                a#youtube-icon.nav-link.social-link.border-0(href=settings.youtube, target='_blank', alt=settings.coin + ' YouTube', title=settings.coin + ' YouTube', data-toggle='tooltip', data-placement='top')
-                  span.glyphicon.fab.fa-youtube
-            if settings.display.slack
-              li.float-left
-                a#slack-icon.nav-link.social-link.border-0(href=settings.slack, target='_blank', alt=settings.coin + ' Slack', title=settings.coin + ' Slack', data-toggle='tooltip', data-placement='top')
-                  span.glyphicon.fab.fa-slack
-            if settings.display.twitter
-              li.float-left
-                a#twitter-icon.nav-link.social-link.border-0(href="https://twitter.com/" + settings.twitter, target='_blank', alt=settings.coin + ' Twitter', title=settings.coin + ' Twitter', data-toggle='tooltip', data-placement='top')
-                  span.glyphicon.fab.fa-twitter
-            if settings.display.facebook
-              li.float-left
-                a#facebook-icon.nav-link.social-link.border-0(href="https://www.facebook.com/" + settings.facebook, target='_blank', alt=settings.coin + ' Facebook', title=settings.coin + ' Facebook', data-toggle='tooltip', data-placement='top')
-                  span.glyphicon.fab.fa-facebook
-            if settings.display.googleplus
-              li.float-left
-                a#googleplus-icon.nav-link.social-link.border-0(href="https://plus.google.com/" + settings.googleplus, target='_blank', alt=settings.coin + ' Google+', title=settings.coin + ' Google+', data-toggle='tooltip', data-placement='top')
-                  span.glyphicon.fab.fa-google-plus
-            if settings.display.bitcointalk
-              li.float-left
-                a#bitcointalk-icon.nav-link.social-link.border-0(href="https://bitcointalk.org/index.php?topic=" + settings.bitcointalk, target='_blank', alt=settings.coin + ' Bitcointalk', title=settings.coin + ' Bitcointalk', data-toggle='tooltip', data-placement='top')
-                  span.glyphicon.fab.fa-btc
-            if settings.display.website
-              li.float-left
-                a#website-icon.nav-link.social-link.border-0(href=settings.website, target='_blank', alt=settings.coin + ' Website', title=settings.coin + ' Website', data-toggle='tooltip', data-placement='top')
-                  span.glyphicon.fa.fa-link
+                a.nav-link.social-link.border-0(href=social.url, target='_blank', alt=social.tooltip_text, title=social.tooltip_text, data-toggle='tooltip', data-placement='top')
+                  if social.fontawesome_class != null && social.fontawesome_class != ''
+                    span(class='vertical-align-middle ' + social.fontawesome_class)
+                  else
+                    img(class='vertical-align-middle', src=social.image_url)
       .col-4.navbar-nav
         ul.nav.justify-content-center
           li.text-center
