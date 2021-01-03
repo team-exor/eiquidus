@@ -54,7 +54,7 @@ block content
           $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-md-table-cell');
           var amount = 0;
           var updown = '';
-          var rowclass = 'info';
+          var rowclass = 'bg-info';
 
           if (out > 0 && vin > 0) {
             amount = Number(out - vin);
