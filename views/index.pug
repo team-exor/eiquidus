@@ -3,20 +3,38 @@ extends layout
 block content
   include ./includes/common.pug
   script.
-    var setting_maxTxCount = parseInt("#{settings.index.last_txs}");
-    var setting_txPerPage = parseInt("#{settings.index.txs_per_page}");
+    var setting_maxTxCount = parseInt("#{settings.api_page.public_apis.ext.getlasttxs.max_items_per_query}");
+    var setting_txPerPage = parseInt("#{settings.index_page.transaction_table.items_per_page}");
+    var lengthMenuOptsAdd = !{JSON.stringify(settings.index_page.transaction_table.page_length_options)};
     var lengthMenuOpts = [];
-    var lengthMenuOptsAdd = [ 10, 25, 50, 75, 100, 250, 500, 1000 ];
-    for (i=0; i < lengthMenuOptsAdd.length; i++) {
+    var addedLength = false;
+    for (i = 0; i < lengthMenuOptsAdd.length; i++) {
       if (setting_maxTxCount >= lengthMenuOptsAdd[i]) {
+        if (!addedLength) {
+          if (lengthMenuOptsAdd[i] > setting_txPerPage) {
+            lengthMenuOpts.push(setting_txPerPage);
+            addedLength = true;
+          }
+        }
+
         lengthMenuOpts.push(lengthMenuOptsAdd[i]);
+
+        if (!addedLength) {
+          if (lengthMenuOptsAdd[i] > setting_txPerPage)
+            lengthMenuOpts.push(setting_txPerPage);
+          if (lengthMenuOptsAdd[i] == setting_txPerPage || lengthMenuOptsAdd[i] > setting_txPerPage)
+            addedLength = true;
+        }
       }
     }
-    if (setting_maxTxCount < setting_txPerPage) {
+    if (!addedLength && setting_txPerPage <= setting_maxTxCount && setting_txPerPage != lengthMenuOpts[lengthMenuOpts.length - 1])
+      lengthMenuOpts.push(setting_txPerPage);
+    if (!addedLength && setting_txPerPage > setting_maxTxCount && setting_maxTxCount != lengthMenuOpts[lengthMenuOpts.length - 1])
+      lengthMenuOpts.push(setting_maxTxCount);
+    if (setting_maxTxCount < setting_txPerPage)
       var displayLengthMax = setting_maxTxCount;
-    } else {
+    else
       var displayLengthMax = setting_txPerPage;
-    }
     $(document).ready(function() {
       var rtable = $('#recent-table').dataTable({
         autoWidth: false,
@@ -64,9 +82,12 @@ block content
           enableTooltips();
         }
       });
-      setInterval( function () {
-        rtable.api().ajax.reload(null, false);
-      }, 60000 );
+      var setting_reload_table_seconds = parseInt("#{settings.index_page.transaction_table.reload_table_seconds}");
+      if (setting_reload_table_seconds > 0) {
+        setInterval( function () {
+          rtable.api().ajax.reload(null, false);
+        }, (setting_reload_table_seconds * 1000) );
+      }
     });
   if error !== null
     .col-12
@@ -77,7 +98,7 @@ block content
           strong #{settings.locale.ex_error}
         div #{error}
   .col-md-12.cardSpacer
-    if settings.index.show_last_updated == true
+    if settings.index_page.show_last_updated == true
       div.font-weight-bold(style='margin-bottom:15px;') Blockchain data last updated:
         span.font-weight-normal=(last_updated == null || last_updated == '0' ? ' N/A' : ' ' + format_unixtime(last_updated))
     .card.card-default.border-0.cardSpacer
@@ -85,8 +106,8 @@ block content
         strong #{settings.locale.ex_latest_transactions}
       table#recent-table.table.table-bordered.table-striped.table-paging
         - var theadClasses = [];
-        if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-          - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+        if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
+          - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
         thead(class=theadClasses)
           tr
             th.d-table-cell.d-md-none
@@ -94,6 +115,6 @@ block content
             th.text-center.d-none.d-md-table-cell #{settings.locale.tx_hash}
             th.text-center.d-none.d-sm-table-cell #{settings.locale.tx_recipients}
             th.text-center #{settings.locale.mkt_amount}
-              span.small  (#{settings.symbol})
+              span.small  (#{settings.coin.symbol})
             th.text-center #{settings.locale.timestamp}
         tbody.text-center

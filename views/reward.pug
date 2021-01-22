@@ -14,27 +14,27 @@ block content
         fnDrawCallback: function(settings) {
           fixDataTableColumns();
         }
-      })
+      });
     });
   .row(style='margin-left:0;margin-right:0;')
     .col-xs-12.col-md-12
-      if settings.reward_page.show_last_updated == true
+      if settings.blockchain_specific.heavycoin.reward_page.show_last_updated == true
         div.font-weight-bold(style='margin-bottom:15px;') Reward data last updated:
           span.font-weight-normal=(last_updated == null || last_updated == '0' ? ' N/A' : ' ' + format_unixtime(last_updated))
       .card.card-default.border-0.card-address-summary
         .card-header(style='position:relative;')
           strong #{settings.locale.heavy_title}
-            span.small  (#{settings.symbol})
+            span.small  (#{settings.coin.symbol})
         table.table.table-bordered.table-striped.summary-table(style='border-top:0;border-bottom:0;margin-top:0 !important;')
           - var theadClasses = [];
-          if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-            - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+          if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
+            - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
           thead(class=theadClasses)
             tr
               th.text-center #{settings.locale.ex_supply}
-                span.small  (#{settings.symbol})
+                span.small  (#{settings.coin.symbol})
               th.text-center #{settings.locale.heavy_cap}
-                span.small  (#{settings.symbol})
+                span.small  (#{settings.coin.symbol})
               th.text-center #{settings.locale.heavy_phase}
               th.text-center #{settings.locale.heavy_maxvote}
               th.text-center #{settings.locale.heavy_reward}

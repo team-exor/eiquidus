@@ -11,11 +11,7 @@ var HeavySchema = new Schema({
   phase: { type: String, default:  'N/A'},
   maxvote: { type: Number, default: 0 },
   nextin: { type: String, default: 'N/A'},
-  votes: { type: Array, default: [] },
+  votes: { type: Array, default: [] }
 });
 
 module.exports = mongoose.model('Heavy', HeavySchema);
-
-/*
-votes : [{ count: 0, reward: 0, vote: 0}]
-*/

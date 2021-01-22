@@ -4,15 +4,34 @@ block content
   include ./includes/common.pug
   script.
     var hashAddress = "#{address.a_id}";
-    var setting_maxTxCount = parseInt("#{settings.txcount}");
-    var setting_txPerPage = parseInt("#{settings.txcount_per_page}");
+    var setting_maxTxCount = parseInt("#{settings.api_page.public_apis.ext.getaddresstxs.max_items_per_query}");
+    var setting_txPerPage = parseInt("#{settings.address_page.history_table.items_per_page}");
+    var lengthMenuOptsAdd = !{JSON.stringify(settings.address_page.history_table.page_length_options)};
     var lengthMenuOpts = [];
-    var lengthMenuOptsAdd = [ 10, 25, 50, 75, 100, 250, 500, 1000 ];
-    for (i=0; i < lengthMenuOptsAdd.length; i++) {
+    var addedLength = false;
+    for (i = 0; i < lengthMenuOptsAdd.length; i++) {
       if (setting_maxTxCount >= lengthMenuOptsAdd[i]) {
+        if (!addedLength) {
+          if (lengthMenuOptsAdd[i] > setting_txPerPage) {
+            lengthMenuOpts.push(setting_txPerPage);
+            addedLength = true;
+          }
+        }
+
         lengthMenuOpts.push(lengthMenuOptsAdd[i]);
+
+        if (!addedLength) {
+          if (lengthMenuOptsAdd[i] > setting_txPerPage)
+            lengthMenuOpts.push(setting_txPerPage);
+          if (lengthMenuOptsAdd[i] == setting_txPerPage || lengthMenuOptsAdd[i] > setting_txPerPage)
+            addedLength = true;
+        }
       }
     }
+    if (!addedLength && setting_txPerPage <= setting_maxTxCount && setting_txPerPage != lengthMenuOpts[lengthMenuOpts.length - 1])
+      lengthMenuOpts.push(setting_txPerPage);
+    if (!addedLength && setting_txPerPage > setting_maxTxCount && setting_maxTxCount != lengthMenuOpts[lengthMenuOpts.length - 1])
+      lengthMenuOpts.push(setting_maxTxCount);
     if (setting_maxTxCount < setting_txPerPage) {
       var displayLengthMax = setting_maxTxCount;
     } else {
@@ -94,7 +113,7 @@ block content
   - var sentParts = sent.split('.');
   - var received = Number(address.received / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var receivedParts = received.split('.');
-  if address.a_id !== 'coinbase' || settings.show_sent_received == true
+  if address.a_id !== 'coinbase' || settings.address_page.show_sent_received == true
     script.
       $(document).ready(function() {
         $('.summary-table').dataTable({
@@ -109,36 +128,36 @@ block content
           }
         })
       });
+  - var theadClasses = [];
+  if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
+    - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
   .col-xs-12.col-md-12
-    if address.a_id !== 'coinbase' || settings.show_sent_received == true
+    if address.a_id !== 'coinbase' || settings.address_page.show_sent_received == true
       .card.card-default.border-0.card-address-summary.cardSpacer
         .card-header(style='position:relative;')
-          if settings.display.claim_address == false || address.name == null || address.name == ''
+          if settings.claim_address_page.enabled == false || address.name == null || address.name == ''
             strong #{address.a_id}
           else
             strong #{address.name}
           include ./includes/rl_labels.pug
-          if !settings.labels[address.a_id] && settings.display.claim_address == true
+          if (!settings.labels[address.a_id] || !settings.labels[address.a_id].enabled) && settings.claim_address_page.enabled == true
             a.badge.badge-pill.float-right.d-none.d-sm-block(href='/claim/' + address.a_id, style='font-size:smaller;padding-bottom:0;')
               if address.name == null || address.name == ''
                 =" Is this yours? Claim it now for free!"
               else
                 =" Update claimed address"
         table.table.table-bordered.table-striped.summary-table.mobile-border-right(style='border-top:0;margin-top:0 !important;')
-          - var theadClasses = [];
-          if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-            - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
           thead(class=theadClasses)
             tr
               if address.a_id !== 'coinbase'
                 th.text-center #{settings.locale.rl_balance}
-                  span.small  (#{settings.symbol})
-              if settings.show_sent_received == true
+                  span.small  (#{settings.coin.symbol})
+              if settings.address_page.show_sent_received == true
                 th.text-center #{settings.locale.total_sent}
-                  span.small  (#{settings.symbol})
-              if address.a_id !== 'coinbase' && settings.show_sent_received == true
+                  span.small  (#{settings.coin.symbol})
+              if address.a_id !== 'coinbase' && settings.address_page.show_sent_received == true
                 th.text-center #{settings.locale.total_received}
-                  span.small  (#{settings.symbol})
+                  span.small  (#{settings.coin.symbol})
               if address.a_id !== 'coinbase'
                 th.text-center #{settings.locale.a_qr}
           tbody
@@ -146,10 +165,10 @@ block content
               if address.a_id !== 'coinbase'
                 td.text-center.addr-summary #{balanceParts[0]}.
                   span.decimal #{balanceParts[1]}
-              if settings.show_sent_received == true
+              if settings.address_page.show_sent_received == true
                 td.text-center.addr-summary #{sentParts[0]}.
                   span.decimal #{sentParts[1]}
-              if address.a_id !== 'coinbase' && settings.show_sent_received == true
+              if address.a_id !== 'coinbase' && settings.address_page.show_sent_received == true
                 td.text-center.addr-summary #{receivedParts[0]}.
                   span.decimal #{receivedParts[1]}
               if address.a_id !== 'coinbase'
@@ -159,16 +178,13 @@ block content
       .card-header
         strong #{settings.locale.ex_latest_transactions}
       table#address-txs.table.table-bordered.table-striped.table-paging.mobile-border-right
-        - var theadClasses = [];
-        if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-          - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
         thead(class=theadClasses)
           tr
             th.d-table-cell.d-md-none
             th.d-none.d-md-table-cell #{settings.locale.tx_hash}
             th.text-center #{settings.locale.mkt_amount}
-              span.small  (#{settings.symbol})
+              span.small  (#{settings.coin.symbol})
             th.text-center #{settings.locale.rl_balance}
-              span.small  (#{settings.symbol})
+              span.small  (#{settings.coin.symbol})
             th.text-center #{settings.locale.timestamp}
         tbody

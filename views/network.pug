@@ -3,7 +3,23 @@ extends layout
 block content
   include ./includes/common.pug
   script.
+    function generateLengthMenu(setting_txPerPage, lengthMenuOpts) {
+      var addedLength = false;
+      for (i = 0; i < lengthMenuOpts.length; i++) {
+        if (!addedLength) {
+          if (lengthMenuOpts[i] > setting_txPerPage) {
+            lengthMenuOpts.splice(i, 0, setting_txPerPage);
+            addedLength = true;
+          } else if (lengthMenuOpts[i] == setting_txPerPage)
+            addedLength = true;
+        }
+      }
+      if (!addedLength && setting_txPerPage != lengthMenuOpts[lengthMenuOpts.length - 1])
+        lengthMenuOpts.push(setting_txPerPage);
+      return lengthMenuOpts;
+    }
     $(document).ready(function() {
+      var setting_txPerPage = parseInt("#{settings.network_page.connections_table.items_per_page}");
       $('#connections-table').dataTable({
         autoWidth: true,
         searching: false,
@@ -11,6 +27,8 @@ block content
         responsive: true,
         lengthChange: true,
         processing: true,
+        iDisplayLength: setting_txPerPage,
+        lengthMenu: generateLengthMenu(setting_txPerPage, !{JSON.stringify(settings.network_page.connections_table.page_length_options)}),
         scrollX: true,
         language: {
           paginate: {
@@ -45,6 +63,7 @@ block content
           { data: 'country', width: '25%'}
         ]
       });
+      setting_txPerPage = parseInt("#{settings.network_page.addnodes_table.items_per_page}");
       $('#addnodes-table').dataTable({
         autoWidth: true,
         searching: false,
@@ -52,6 +71,8 @@ block content
         responsive: true,
         lengthChange: true,
         processing: true,
+        iDisplayLength: setting_txPerPage,
+        lengthMenu: generateLengthMenu(setting_txPerPage, !{JSON.stringify(settings.network_page.addnodes_table.page_length_options)}),
         scrollX: true,
         language: {
           paginate: {
@@ -80,13 +101,16 @@ block content
           {targets: '_all', className: 'text-left'}
         ]
       });
-      $('#addnodes2-table').dataTable({
+      setting_txPerPage = parseInt("#{settings.network_page.onetry_table.items_per_page}");
+      $('#onetry-table').dataTable({
         autoWidth: true,
         searching: false,
         ordering: false,
         responsive: true,
         lengthChange: true,
         processing: true,
+        iDisplayLength: setting_txPerPage,
+        lengthMenu: generateLengthMenu(setting_txPerPage, !{JSON.stringify(settings.network_page.onetry_table.page_length_options)}),
         scrollX: true,
         language: {
           paginate: {
@@ -121,8 +145,8 @@ block content
       });
     });
   - var theadClasses = [];
-  if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-    - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+  if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
+    - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
   .col-md-12.cardSpacer
     .text-center(style='margin-bottom:15px;')
       i #{settings.locale.net_warning}
@@ -161,7 +185,7 @@ block content
           .card-body.border-top-0
             :markdown-it
               Alternatively you can try one of these lines in the coin wallet debug window, or add them with *coindaemon*-cli
-          table#addnodes2-table.table.table-bordered.table-striped.table-paging.mobile-border-right
+          table#onetry-table.table.table-bordered.table-striped.table-paging.mobile-border-right
             thead(class=theadClasses)
               tr
                 th OneTry Node Lines

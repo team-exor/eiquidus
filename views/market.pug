@@ -3,8 +3,8 @@ extends layout
 block content
   include ./includes/common.pug
   - var theadClasses = [];
-  if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-    - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+  if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
+    - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
   if marketdata.data != null && marketdata.data.buys != null && marketdata.data.buys.length > 0 && marketdata.data.sells != null && marketdata.data.sells.length > 0 && marketdata.data.history != null && marketdata.data.history.length > 0
     script.
       $(document).ready(function() {
@@ -53,7 +53,7 @@ block content
     if settings.markets_page.show_last_updated == true
       div.font-weight-bold(style='margin-bottom:15px;') Market data last updated:
         span.font-weight-normal=(last_updated == null || last_updated == '0' ? ' N/A' : ' ' + format_unixtime(last_updated))
-    if settings.markets.market_select_visible == true && settings.market_data.length > 1
+    if settings.markets_page.show_market_select == true && settings.market_count > 1
       .row
         .col-md-12.cardSpacer
           .card.card-default.border-0
@@ -63,22 +63,25 @@ block content
               ul.nav.nav-pills
                 each mkt in settings.market_data
                   if mkt != null && mkt.id != null
-                    if market == mkt.id
-                      li.nav-item
-                        a.nav-link.active(href='/markets/' + mkt.id)
-                          if mkt.logo != null && mkt.logo != ''
-                            img.align-top.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name, alt=mkt.name)
-                          else
-                            i.market-logo.fas.fa-question-circle
-                          span #{mkt.name}
-                    else
-                      li.nav-item
-                        a.nav-link(href='/markets/' + mkt.id)
-                          if mkt.logo != null && mkt.logo != ''
-                            img.align-top.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name, alt=mkt.name)
-                          else
-                            i.market-logo.fas.fa-question-circle
-                          span #{mkt.name}
+                    each pair in mkt.trading_pairs
+                      if market == mkt.id && marketdata.coin.toLowerCase() + '/' + marketdata.exchange.toLowerCase() == pair.toLowerCase()
+                        li.nav-item
+                          a.nav-link.active(href='/markets/' + mkt.id + '/' + pair)
+                            if mkt.logo != null && mkt.logo != ''
+                              img.align-top.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair + ')', alt=mkt.name + ' (' + pair + ')')
+                            else
+                              i.market-logo.fas.fa-question-circle
+                            span #{mkt.name}
+                              span.small  (#{pair})
+                      else
+                        li.nav-item
+                          a.nav-link(href='/markets/' + mkt.id + '/' + pair)
+                            if mkt.logo != null && mkt.logo != ''
+                              img.align-top.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair + ')', alt=mkt.name + ' (' + pair + ')')
+                            else
+                              i.market-logo.fas.fa-question-circle
+                            span #{mkt.name}
+                              span.small  (#{pair})
     if marketdata.data != null && marketdata.data.buys != null && marketdata.data.buys.length > 0 && marketdata.data.sells != null && marketdata.data.sells.length > 0 && marketdata.data.history != null && marketdata.data.history.length > 0
       block market_view
         script.
@@ -139,7 +142,9 @@ block content
               .card-header
                 if marketdata.market_logo != null && marketdata.market_logo != ''
                   img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
-                strong #{marketdata.market_name} - #{marketdata.coin}/#{marketdata.exchange} - #{settings.locale.mkt_hours}
+                strong #{marketdata.market_name}
+                span.small  (#{marketdata.coin}/#{marketdata.exchange})
+                strong  - #{settings.locale.mkt_hours}
                 if marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]'
                   span.fas.fa-chart-line.float-right.view-chart-disabled.iquidus.market-toggle(style='cursor: pointer;', data-toggle='tooltip', data-placement='bottom', title=settings.locale.mkt_no_chart)
               table.table.table-bordered.right-border-0.summary-table(style='border-top:0;margin-top:0 !important;')

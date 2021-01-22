@@ -1,6 +1,6 @@
 if address.a_id == null
   - address.a_id = address.addresses;
-if settings.labels[address.a_id]
+if settings.labels[address.a_id] != null && settings.labels[address.a_id].enabled == true
   if settings.labels[address.a_id].type
     label(class='badge badge-' + settings.labels[address.a_id].type + ' float-right d-none d-' + (active == 'richlist' ? 'md' : (active == 'tx' ? 'lg' : 'sm')) + '-block', style='margin-left:15px;margin-bottom:0;')
       =settings.labels[address.a_id].label

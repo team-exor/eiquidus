@@ -4,8 +4,8 @@ html(lang='en')
     meta(charset='UTF-8')
     meta(name='viewport' content='width=device-width, initial-scale=1')
     meta(http-equiv='Content-Language', content='en')
-    title=settings.title
-    link(rel='stylesheet', href='/css/themes/' + settings.theme + '/bootstrap.min.css')
+    title=settings.shared_pages.page_title
+    link(rel='stylesheet', href='/css/themes/' + settings.shared_pages.theme + '/bootstrap.min.css')
     link(rel='stylesheet', href='//use.fontawesome.com/releases/v5.15.1/css/all.css')
     if active == 'markets' || active == 'richlist'
       link(rel='stylesheet', href='/css/jquery.jqplot.min.css')
@@ -41,16 +41,16 @@ html(lang='en')
 
         if (screenWidth <= 575) {
           // Mobile
-          $('#footer-container').css('height', '!{settings.footer_height_mobile}');
+          $('#footer-container').css('height', '!{settings.shared_pages.page_footer.footer_height_mobile}');
         } else if (screenWidth >= 576 && screenWidth <= 991) {
           // Tablet
-          $('#footer-container').css('height', '!{settings.footer_height_tablet}');
+          $('#footer-container').css('height', '!{settings.shared_pages.page_footer.footer_height_tablet}');
         } else {
           // Desktop
-          $('#footer-container').css('height', '!{settings.footer_height_desktop}');
+          $('#footer-container').css('height', '!{settings.shared_pages.page_footer.footer_height_desktop}');
         }
 
-        if (!#{settings.sticky_footer}) {
+        if (!#{settings.shared_pages.page_footer.sticky_footer}) {
           // Wait a tick before fixing footer position to give time for elements to be rendered
           var nonStickyFooterSetIntervalID = setInterval(function() {
             // Stop setInterval from running again
@@ -77,13 +77,13 @@ html(lang='en')
 
         if (screenWidth <= 575) {
           // Mobile
-          retVal = !{settings.social_link_percent_height_mobile};
+          retVal = !{settings.shared_pages.page_footer.social_link_percent_height_mobile};
         } else if (screenWidth >= 576 && screenWidth <= 991) {
           // Tablet
-          retVal = !{settings.social_link_percent_height_tablet};
+          retVal = !{settings.shared_pages.page_footer.social_link_percent_height_tablet};
         } else {
           // Desktop
-          retVal = !{settings.social_link_percent_height_desktop};
+          retVal = !{settings.shared_pages.page_footer.social_link_percent_height_desktop};
         }
 
         return retVal;
@@ -136,16 +136,14 @@ html(lang='en')
             var splitValue, splitParts;
 
             if (!isNaN(json.difficulty))
-              diffString = Number(json.difficulty).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':true});
+              diffString = Number(json.difficulty).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
             if (!isNaN(json.supply))
               supplyString = parseInt(parseFloat(json.supply).toFixed(0)).toLocaleString('en');
             if (!isNaN(json.hashrate))
               hashrateString = Number(json.hashrate).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
 
-            $("#lblX1").text(' ');
-
             $("#supply").text(supplyString);
-            splitValue = Number(parseFloat(json.lastPrice).toFixed(8) * parseInt(parseFloat(json.supply).toFixed(0))).toLocaleString('en');
+            splitValue = Number(parseFloat(json.lastPrice).toFixed(8) * parseInt(parseFloat(json.supply).toFixed(0))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
             splitParts = splitValue.split('.');
             showTopPanelData('supplypanel', 'supplyPanelLoading');
 
@@ -155,18 +153,21 @@ html(lang='en')
             splitParts = diffString.split('.');
             $("#difficulty").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
 
-            if (json.difficultyHybrid == null || json.difficultyHybrid == '') {
-              $("#difficultyHybrid").html('0.<span class="decimal">00</span>');
-            } else {
-              splitValue = Number(json.difficultyHybrid).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-              splitParts = splitValue.split('.');
+            if (json.difficultyHybrid == null || json.difficultyHybrid == '')
+              $("#difficultyHybrid").html('-');
+            else {
+              splitParts = json.difficultyHybrid.split('.');
               $("#difficultyHybrid").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
             }
 
             showTopPanelData('difficultypanel', 'difficultyPanelLoading');
 
-            splitParts = hashrateString.split('.');
-            $("#hashrate").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+            if (hashrateString == null || hashrateString == '' || hashrateString == '-')
+              $("#hashrate").html('-');
+            else {
+              splitParts = hashrateString.split('.');
+              $("#hashrate").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+            }
             showTopPanelData('hashratepanel', 'hashratePanelLoading');
 
             splitValue = Number(json.lastPrice).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
@@ -189,7 +190,7 @@ html(lang='en')
         update_stats();
         function getNetworkPanel() {
           var networkSuffix='';
-          switch ('#{settings.nethash_units}') {
+          switch ('#{settings.shared_pages.page_header.panels.network_panel.nethash_units}') {
             case "K":
               networkSuffix='(KH/s)';
               break;
@@ -210,55 +211,52 @@ html(lang='en')
               break;
           }
           var hashRateType='<label id="hashrate"></label>';
-          if ('#{settings.index.difficulty}' == 'Hybrid') hashRateType+='<br /><label id="lblX1"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small">'+networkSuffix+'</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="glyphicon fa fa-cogs"></span>'+hashRateType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small">'+networkSuffix+'</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="fa fa-cogs"></span>'+hashRateType+'</div></div>';
         }
         function getDifficultyPanel() {
           var difficultyType='<label id="difficulty"></label>';
-          if ('#{settings.index.difficulty}' == 'Hybrid') difficultyType+='<br /><label id="difficultyHybrid"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.difficulty}</strong></div><div class="card-body"><div id="difficultyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="difficultypanel" class="header-panel" style="display:none;"><span class="glyphicon fas fa-sliders-h"></span>'+difficultyType+'</div></div>';
+          if ('#{settings.shared_pages.difficulty}' == 'Hybrid') difficultyType+='<br /><span class="fas fa-sliders-h"></span><label id="difficultyHybrid"></label>';
+          return '<div class="card-header"><strong>#{settings.locale.difficulty}</strong></div><div class="card-body"><div id="difficultyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="difficultypanel" class="header-panel" style="display:none;"><span class="fas fa-sliders-h"></span>'+difficultyType+'</div></div>';
         }
         function getMasternodesPanel() {
-          return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="masternodepanel" class="header-panel" style="display:none;"><span id="spnMasternodeCountOnline" class="glyphicon fa fa-check-circle" data-toggle="tooltip" data-placement="top"></span><label id="masternodeCountOnline" data-toggle="tooltip" data-placement="top"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline" data-toggle="tooltip" data-placement="top"></label><span id="spnMasternodeCountOffline" class="glyphicon fa fa-exclamation-triangle" data-toggle="tooltip" data-placement="top"></span></div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="masternodepanel" class="header-panel" style="display:none;"><span id="spnMasternodeCountOnline" class="fa fa-check-circle" data-toggle="tooltip" data-placement="top"></span><label id="masternodeCountOnline" data-toggle="tooltip" data-placement="top"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline" data-toggle="tooltip" data-placement="top"></label><span id="spnMasternodeCountOffline" class="fa fa-exclamation-triangle" data-toggle="tooltip" data-placement="top"></span></div></div>';
         }
         function getCoinSupplyPanel() {
           var supplyType='<label id="supply"></label>';
-          if ('#{settings.index.difficulty}' == 'Hybrid') supplyType+='<br /><label id="lblX1"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small">(#{settings.symbol})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="glyphicon fa fa-chart-pie"></span>'+supplyType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small">(#{settings.coin.symbol})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa fa-chart-pie"></span>'+supplyType+'</div></div>';
         }
         function getPricePanel() {
           var priceType='<label id="lastPrice">-</label>';
-          if ('#{settings.index.difficulty}' == 'Hybrid') priceType+='<br /><label id="lblX1"></label>';
-          return '<div class="card-header"><strong>Price <span class="small">(#{settings.markets.exchange})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="glyphicon fa fa-rocket"></span>'+priceType+'</div></div>';
+          return '<div class="card-header"><strong>Price <span class="small">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="fa fa-rocket"></span>'+priceType+'</div></div>';
         }
         function getMarketCapPanel() {
-          return '<div class="card-header"><strong>Market Cap <span class="small">(#{settings.markets.exchange})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="glyphicon fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
+          return '<div class="card-header"><strong>Market Cap <span class="small">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
         }
         function getLogoPanel() {
-          return '<img src="#{settings.logo}" style="margin-top:-15px;height:128px;" alt="#{settings.coin} Logo" title="#{settings.coin} Logo" />';
+          return '<img src="#{settings.shared_pages.logo}" style="margin-top:-15px;height:128px;" alt="#{settings.coin.name} Logo" title="#{settings.coin.name} Logo" />';
         }
         function getActivePanel(panelName) {
           var sReturn='';
           switch (panelName) {
-            case "networkpnl":
+            case "network_panel":
               sReturn=getNetworkPanel();
               break;
-            case "difficultypnl":
+            case "difficulty_panel":
               sReturn=getDifficultyPanel();
               break;
-            case "masternodespnl":
+            case "masternodes_panel":
               sReturn=getMasternodesPanel();
               break;
-            case "coinsupplypnl":
+            case "coin_supply_panel":
               sReturn=getCoinSupplyPanel();
               break;
-            case "pricepnl":
+            case "price_panel":
               sReturn=getPricePanel();
               break;
-            case "marketcappnl":
+            case "market_cap_panel":
               sReturn=getMarketCapPanel();
               break;
-            case "logopnl":
+            case "logo_panel":
               sReturn=getLogoPanel();
               break;
           }
@@ -269,7 +267,7 @@ html(lang='en')
           if (typeof(oPanel) != 'undefined' && oPanel != null) {
             document.getElementById(panelName).innerHTML=getActivePanel(panelID);
 
-            if (panelID == 'logopnl') {
+            if (panelID == 'logo_panel') {
               // Remove css classes from logo panel
               $(oPanel).removeClass();
             }
@@ -290,68 +288,68 @@ html(lang='en')
   body
     - var navbarClasses = ['nav','navbar','navbar-expand-lg'];
     - var footerClasses = ['nav','navbar','navbar-default','d-none','d-md-flex','d-flex','footer'];
-    if settings.sticky_header == true
+    if settings.shared_pages.page_header.sticky_header == true
       - navbarClasses.push('fixed-top');
-    if settings.sticky_footer == true
+    if settings.shared_pages.page_footer.sticky_footer == true
       - footerClasses.push('fixed-bottom');
-    if settings.display.page_header_bgcolor != null && settings.display.page_header_bgcolor != ''
-      - navbarClasses.push('bg-' + settings.display.page_header_bgcolor);
-      if settings.display.page_header_bgcolor.toString().toLowerCase() == 'dark' || settings.display.page_header_bgcolor.toString().toLowerCase() == 'light'
-        - navbarClasses.push('navbar-' + settings.display.page_header_bgcolor);
+    if settings.shared_pages.page_header.bgcolor != null && settings.shared_pages.page_header.bgcolor != ''
+      - navbarClasses.push('bg-' + settings.shared_pages.page_header.bgcolor);
+      if settings.shared_pages.page_header.bgcolor.toString().toLowerCase() == 'dark' || settings.shared_pages.page_header.bgcolor.toString().toLowerCase() == 'light'
+        - navbarClasses.push('navbar-' + settings.shared_pages.page_header.bgcolor);
     else
       - navbarClasses.push('bg-primary');
       - navbarClasses.push('navbar-dark');
-    if settings.display.page_footer_bgcolor != null && settings.display.page_footer_bgcolor != ''
-      - footerClasses.push('bg-' + settings.display.page_footer_bgcolor);
-      if settings.display.page_footer_bgcolor.toString().toLowerCase() == 'dark' || settings.display.page_footer_bgcolor.toString().toLowerCase() == 'light'
-        - footerClasses.push('navbar-' + settings.display.page_footer_bgcolor);
+    if settings.shared_pages.page_footer.bgcolor != null && settings.shared_pages.page_footer.bgcolor != ''
+      - footerClasses.push('bg-' + settings.shared_pages.page_footer.bgcolor);
+      if settings.shared_pages.page_footer.bgcolor.toString().toLowerCase() == 'dark' || settings.shared_pages.page_footer.bgcolor.toString().toLowerCase() == 'light'
+        - footerClasses.push('navbar-' + settings.shared_pages.page_footer.bgcolor);
     else
       - footerClasses.push('bg-primary');
       - footerClasses.push('navbar-dark');
-    div(class=navbarClasses, role='navigation', style=settings.homelink == 'logo' ? 'padding-left:0;' : '')
+    div(class=navbarClasses, role='navigation', style=settings.shared_pages.page_header.home_link == 'logo' ? 'padding-left:0;' : '')
       .navbar-header
         button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbar-collapse')
           span.navbar-toggler-icon
-      if settings.homelink == 'title'
-        a.navbar-brand(href='/', style='order:-1;') #{settings.title}
-      else if settings.homelink == 'coin'
-        a.navbar-brand(href='/', style='order:-1;') #{settings.coin}
-      else if settings.homelink == 'logo'
-        a(href='/', alt=settings.coin + ' Home', title=settings.coin + ' Home', style='order:-1;', data-toggle='tooltip', data-placement='bottom')
-          img.logo-main(src=(settings.headerlogo == null || settings.headerlogo == '' ? settings.logo : settings.headerlogo), style='margin:0;max-height:' + settings.logoheight + 'px;')
+      if settings.shared_pages.page_header.home_link == 'title'
+        a.navbar-brand(href='/', style='order:-1;') #{settings.shared_pages.page_title}
+      else if settings.shared_pages.page_header.home_link == 'coin'
+        a.navbar-brand(href='/', style='order:-1;') #{settings.coin.name}
+      else if settings.shared_pages.page_header.home_link == 'logo'
+        a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='order:-1;', data-toggle='tooltip', data-placement='bottom')
+          img.logo-main(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0;max-height:' + settings.shared_pages.page_header.home_link_logo_height + 'px;')
       .collapse.navbar-collapse(id='navbar-collapse')
         ul.navbar-nav.mr-auto
           li#home
             a.nav-link(href='/')
               span.fa.fa-search
               span.margin-left-5 #{settings.locale.menu_explorer}
-          if settings.heavy == true
+          if settings.blockchain_specific.heavycoin.enabled == true && settings.blockchain_specific.heavycoin.reward_page.enabled == true
             li#reward
               a.nav-link(href='/reward')
                 span.fa.fa-star
                 span.margin-left-5 #{settings.locale.menu_reward}
-          if settings.display.masternodes == true
+          if settings.masternodes_page.enabled == true
             li#masternodes
               a.nav-link(href='/masternodes')
                 span.fa.fa-share-alt
                 span.margin-left-5 Masternodes
-          if settings.display.movement == true
+          if settings.movement_page.enabled == true
             li#movement
               a.nav-link.loading(href='/movement')
                 span.far.fa-money-bill-alt
                 span.margin-left-5 #{settings.locale.menu_movement}
-          if settings.display.network == true
+          if settings.network_page.enabled == true
             li#network
               a.nav-link(href='/network')
                 span.fas.fa-network-wired
                 span.margin-left-5 #{settings.locale.menu_network}
-          if settings.display.richlist == true
+          if settings.richlist_page.enabled == true
             li#richlist
               a.nav-link(href='/richlist')
                 span.fab.fa-btc
                 span.margin-left-5 #{settings.locale.menu_richlist}
-          if settings.display.markets == true
-            if settings.markets.market_dropdown_menu == true && settings.market_data.length > 1
+          if settings.markets_page.enabled == true
+            if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
               li#markets.dropdown
                 a.nav-link.dropdown-toggle(data-toggle='dropdown', href='#' role='button' aria-haspopup='true' aria-expanded='false')
                   span.fas.fa-chart-line
@@ -359,28 +357,30 @@ html(lang='en')
                 div.dropdown-menu
                   each mkt in settings.market_data
                     if mkt != null && mkt.id != null
-                      a.dropdown-item.loading(href='/markets/' + mkt.id)
-                        if mkt.logo != null && mkt.logo != ''
-                          img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name, alt=mkt.name)
-                        else
-                          i.market-logo.fas.fa-question-circle
-                        span #{mkt.name}
+                      each pair in mkt.trading_pairs
+                        a.dropdown-item.loading(href='/markets/' + mkt.id + '/' + pair)
+                          if mkt.logo != null && mkt.logo != ''
+                            img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair + ')', alt=mkt.name + ' (' + pair + ')')
+                          else
+                            i.market-logo.fas.fa-question-circle
+                          span #{mkt.name}
+                            span.small  (#{pair})
             else
               li#markets
-                a.nav-link.loading(href='/markets/' + settings.markets.default)
+                a.nav-link.loading(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
                   span.fas.fa-chart-line
                   span.margin-left-5 #{settings.locale.menu_markets}
-          if settings.display.api == true
+          if settings.api_page.enabled == true
             li#info
               a.nav-link(href='/info')
                 span.fa.fa-info-circle
                 span.margin-left-5 #{settings.locale.menu_api}
-          if settings.display.claim_address_header_menu == true && settings.display.claim_address == true
+          if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
             li#claim-address
               a.nav-link.loading(href='/claim')
                 span.far.fa-address-card
                 span.margin-left-5 #{settings.locale.menu_claim_address}
-    div#body-container(style='margin-top:' + (settings.sticky_header == true ? '80px;' : '20px'))
+    div#body-container(style='margin-top:' + (settings.shared_pages.page_header.sticky_header == true ? '80px;' : '20px'))
       if showSync != null && showSync == true
         .col-lg-12
           .alert.alert-warning
@@ -410,23 +410,24 @@ html(lang='en')
           .col-lg-2
             .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFive')
           - }
-        div#search-row.row.text-center
-          form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
-            #index-search.form-group.d-flex.justify-content-center
-              input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
-              button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
+        if settings.shared_pages.page_header.show_search == true
+          div#search-row.row.text-center
+            form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
+              #index-search.form-group.d-flex.justify-content-center
+                input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
+                button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
       block content
     div#footer-container(class=footerClasses, role='navigation')
       .col-4.navbar-nav
         ul.nav.justify-content-left
-          each social in settings.social_links
+          each social in settings.shared_pages.page_footer.social_links
             if social.enabled
               li.float-left
-                a.nav-link.social-link.border-0(href=social.url, target='_blank', alt=social.tooltip_text, title=social.tooltip_text, data-toggle='tooltip', data-placement='top')
+                a.nav-link.social-link.border-0(href=social.url, target='_blank', alt=settings.coin.name + ' ' + social.tooltip_text, title=settings.coin.name + ' ' + social.tooltip_text, data-toggle='tooltip', data-placement='top')
                   if social.fontawesome_class != null && social.fontawesome_class != ''
                     span(class='vertical-align-middle ' + social.fontawesome_class)
                   else
-                    img(class='vertical-align-middle', src=social.image_url)
+                    img(class='vertical-align-middle', src=social.image_path)
       .col-4.navbar-nav
         ul.nav.justify-content-center
           li.text-center

@@ -4,14 +4,15 @@ block content
   include ./includes/common.pug
   - var time = format_unixtime(tx.timestamp);
   - var theadClasses = [];
-  if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-    - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+  if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
+    - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
   .col-xs-12.col-md-12
     .card.card-default.border-0.cardSpacer
       .card-header
-        strong=settings.symbol + ' TXid: ' + tx.txid
-        a.d-none.d-md-inline(href=`/api/getrawtransaction?txid=${tx.txid}&decrypt=1`)
-          span.fa.fa-info-circle.iquidus.float-right(data-toggle='tooltip', data-placement='top', title=settings.locale.view_raw_tx_data)
+        strong=settings.coin.symbol + ' TXid: ' + tx.txid
+        if settings.api_page.public_apis.rpc.getrawtransaction.enabled == true
+          a.d-none.d-md-inline(href=`/api/getrawtransaction?txid=${tx.txid}&decrypt=1`)
+            span.fa.fa-info-circle.iquidus.float-right(data-toggle='tooltip', data-placement='top', title=settings.locale.view_raw_tx_data)
       table.table.table-bordered.table-striped.summary-table.mobile-border-right
         thead(class=theadClasses)
           tr
@@ -66,7 +67,7 @@ block content
                   if (tx.vin.length > 0)
                     if tx.vin[0].addresses != 'coinbase'
                       th.text-center #{settings.locale.mkt_amount}
-                        span.small  (#{settings.symbol})
+                        span.small  (#{settings.coin.symbol})
               tbody
                 if tx.vin.length > 0
                   each address in tx.vin
@@ -101,7 +102,7 @@ block content
                 tr
                   th #{settings.locale.tx_address}
                   th.text-center #{settings.locale.mkt_amount}
-                    span.small  (#{settings.symbol})
+                    span.small  (#{settings.coin.symbol})
               tbody
                 each address in tx.vout
                   if tx.vout.length > 0

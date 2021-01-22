@@ -56,6 +56,7 @@
     "total_received": "Total Received",
     "confirmations": "Confirmations",
     "total": "Total",
+    "total_top_100": "Top 1-100 Total",
     "bits": "Bits",
     "nonce": "Nonce",
     "new_coins": "New Coins",
@@ -101,7 +102,7 @@
     "api_getmasternodecount": "Returns the total number of masternodes on the network.",
     "api_getvotelist":  "Returns the current vote list.",
     "api_getblockcount": "Returns the current block index.",
-    "api_getblockhash": "Returns the hash of the block at ; index 0 is the genesis block.",
+    "api_getblockhash": "Returns the hash of the block at [index]; index 0 is the genesis block.",
     "api_getblock": "Returns information about the block with the given hash.",
     "api_getrawtransaction": "Returns raw transaction representation for given transaction id. decrypt can be set to 0(false) or 1(true).",
     "api_getmaxmoney": "Returns the maximum possible money supply.",
@@ -111,7 +112,7 @@
     "api_getreward": "Returns the current block reward, which has been decided democratically in the previous round of block reward voting.",
     "api_getsupply": "Returns the current money supply.",
     "api_getnextrewardestimate": "Returns an estimate for the next block reward based on the current state of decentralized voting.",
-    "api_getnextrewardwhenstr": "Returns string describing how long until the votes are tallied and the next block reward is computed.",
+    "api_getnextrewardwhenstr": "Returns a string describing how long until the votes are tallied and the next block reward is computed.",
 
     // Markets view
     "mkt_hours": "24 hours",
@@ -136,7 +137,7 @@
     "mkt_time_stamp": "Time Stamp",
     "mkt_select": "Market Select",
 
-    // Heavy rewards view
+    // Heavycoin rewards view
     "heavy_title": "Reward/voting information",
     "heavy_vote": "Vote",
     "heavy_cap": "Coin Cap",

@@ -3,6 +3,20 @@ extends layout
 block content
   include ./includes/common.pug
   script.
+    var setting_txPerPage = parseInt("#{settings.masternodes_page.masternode_table.items_per_page}");
+    var lengthMenuOpts = !{JSON.stringify(settings.masternodes_page.masternode_table.page_length_options)};
+    var addedLength = false;
+    for (i = 0; i < lengthMenuOpts.length; i++) {
+      if (!addedLength) {
+        if (lengthMenuOpts[i] > setting_txPerPage) {
+          lengthMenuOpts.splice(i, 0, setting_txPerPage);
+          addedLength = true;
+        } else if (lengthMenuOpts[i] == setting_txPerPage)
+          addedLength = true;
+      }
+    }
+    if (!addedLength && setting_txPerPage != lengthMenuOpts[lengthMenuOpts.length - 1])
+      lengthMenuOpts.push(setting_txPerPage);
     function secondsToHms(d) {
         d = Number(d);
         var h = Math.floor(d / 3600);
@@ -22,6 +36,8 @@ block content
         responsive: true,
         lengthChange: true,
         processing: true,
+        iDisplayLength: setting_txPerPage,
+        lengthMenu: lengthMenuOpts,
         scrollX: true,
         language: {
           paginate: {
@@ -44,9 +60,9 @@ block content
                 json[i]['activetime'] = secondsToHms(json[i]['activetime']);
               else
                 json[i]['activetime'] = '<em>N/A</em>';
-              json[i]['addr'] = "<a href='/address/" + json[i]['addr'] + "'>" + json[i]['addr'] + (json[i]['claim_name'] != null && json[i]['claim_name'] != '' ? ' <span class="small">(' + json[i]['claim_name'] + ')</span>' : '') + "</a>";
+              json[i]['addr'] = "<a href='/address/" + json[i]['addr'] + "'>" + json[i]['addr'] + ('#{settings.claim_address_page.enabled}' == 'true' && json[i]['claim_name'] != null && json[i]['claim_name'] != '' ? ' <span class="small">(' + json[i]['claim_name'] + ')</span>' : '') + "</a>";
 
-              if (labels[addr] != null) {
+              if (labels[addr] != null && labels[addr].enabled == true) {
                 if (labels[addr].type)
                   json[i]['addr'] = '<div><label class="badge badge-' + labels[addr].type + '" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-toggle="tooltip" data-placement="top"><span class="fa fa-question-circle" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
                 else
@@ -101,8 +117,8 @@ block content
         strong Masternodes
       table#masternodes-table.table.table-bordered.table-striped.table-hover
         - var theadClasses = [];
-        if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-          - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+        if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
+          - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
         thead(class=theadClasses)
           tr
             th.text-center Pay rank

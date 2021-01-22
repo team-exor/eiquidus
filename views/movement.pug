@@ -3,22 +3,38 @@ extends layout
 block content
   include ./includes/common.pug
   script.
-    var setting_maxTxCount = parseInt("#{settings.index.last_txs}");
-    var setting_txPerPage = parseInt("#{settings.index.txs_per_page}");
+    var setting_maxTxCount = parseInt("#{settings.api_page.public_apis.ext.getlasttxs.max_items_per_query}");
+    var setting_txPerPage = parseInt("#{settings.movement_page.movement_table.items_per_page}");
+    var lengthMenuOptsAdd = !{JSON.stringify(settings.movement_page.movement_table.page_length_options)};
     var lengthMenuOpts = [];
-    var lengthMenuOptsAdd = [ 10, 25, 50, 75, 100, 250, 500, 1000 ];
-    for (i=0; i < lengthMenuOptsAdd.length; i++) {
+    var addedLength = false;
+    for (i = 0; i < lengthMenuOptsAdd.length; i++) {
       if (setting_maxTxCount >= lengthMenuOptsAdd[i]) {
+        if (!addedLength) {
+          if (lengthMenuOptsAdd[i] > setting_txPerPage) {
+            lengthMenuOpts.push(setting_txPerPage);
+            addedLength = true;
+          }
+        }
+
         lengthMenuOpts.push(lengthMenuOptsAdd[i]);
+
+        if (!addedLength) {
+          if (lengthMenuOptsAdd[i] > setting_txPerPage)
+            lengthMenuOpts.push(setting_txPerPage);
+          if (lengthMenuOptsAdd[i] == setting_txPerPage || lengthMenuOptsAdd[i] > setting_txPerPage)
+            addedLength = true;
+        }
       }
     }
-    if (setting_maxTxCount < setting_txPerPage) {
+    if (!addedLength && setting_txPerPage <= setting_maxTxCount && setting_txPerPage != lengthMenuOpts[lengthMenuOpts.length - 1])
+      lengthMenuOpts.push(setting_txPerPage);
+    if (!addedLength && setting_txPerPage > setting_maxTxCount && setting_maxTxCount != lengthMenuOpts[lengthMenuOpts.length - 1])
+      lengthMenuOpts.push(setting_maxTxCount);
+    if (setting_maxTxCount < setting_txPerPage)
       var displayLengthMax = setting_maxTxCount;
-    } else {
+    else
       var displayLengthMax = setting_txPerPage;
-    }
-    var rplot;
-    var colors = ["#0071bc"];
     $(document).ready(function() {
       var rtable = $('#movement-table').dataTable({
         autoWidth: true,
@@ -31,7 +47,7 @@ block content
         lengthMenu: lengthMenuOpts,
         scrollX: true,
         ajax: {
-          url: '/ext/getlasttxs/#{min_amount}',
+          url: '/ext/getlasttxs/#{settings.movement_page.movement_table.min_amount}',
           beforeSend: function(jqXHR, settings) {
             settings.url = settings.url.substring(0, settings.url.indexOf('?')) + '/' + getParameterByName('start', settings.url) + '/' + getParameterByName('length', settings.url) + '/internal';
             return true;
@@ -52,13 +68,7 @@ block content
           var amountParts = Number(amount).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}).split('.');
           var amountStr = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
           var timestamp = new Date(data[5] * 1000).toUTCString(); //variables for better readability
-          if (amount > '#{flagb}') {
-            var total = "<label class='badge badge-danger'>" + amountStr + "</label>";
-          } else if (amount > '#{flaga}') {
-            var total = "<label class='badge badge-warning'>" + amountStr + "</label>";
-          } else {
-            var total = "<label class='badge badge-success'>" + amountStr + "</label>";
-          }
+          var total = "<label class='badge badge-" + (amount > '#{settings.movement_page.movement_table.high_warning_flag}' ? 'danger' : (amount > '#{settings.movement_page.movement_table.low_warning_flag}' ? 'warning' : 'success')) + "' style='margin-bottom:0;'>" + amountStr + "</label>";
           $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
           $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-md-table-cell');
           $("td:eq(2)", row).html(total).addClass('text-center');
@@ -70,9 +80,12 @@ block content
           enableTooltips();
         }
       });
-      setInterval(function () {
-        rtable.api().ajax.reload(null, false);
-      }, 45000);
+      var setting_reload_table_seconds = parseInt("#{settings.movement_page.movement_table.reload_table_seconds}");
+      if (setting_reload_table_seconds > 0) {
+        setInterval( function () {
+          rtable.api().ajax.reload(null, false);
+        }, (setting_reload_table_seconds * 1000) );
+      }
     });
   .col-md-12
     if settings.movement_page.show_last_updated == true
@@ -83,13 +96,13 @@ block content
         strong="Latest Movement"
       table#movement-table.table.table-bordered.table-striped.table-paging.mobile-border-right
         - var theadClasses = [];
-        if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-          - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+        if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
+          - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
         thead(class=theadClasses)
           tr
             th.d-table-cell.d-md-none
             th.d-none.d-md-table-cell #{settings.locale.tx_hash}
             th.text-center #{settings.locale.mkt_amount}
-              span.small  (#{settings.symbol})
+              span.small  (#{settings.coin.symbol})
             th.text-center #{settings.locale.timestamp}
         tbody

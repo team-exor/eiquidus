@@ -9,21 +9,37 @@ var express = require('express')
 function route_get_block(res, blockhash) {
   lib.get_block(blockhash, function (block) {
     if (block && block != 'There was an error. Check your console.') {
-      if (blockhash == settings.genesis_block) {
-        res.render('block', { active: 'block', block: block, confirmations: settings.confirmations, txs: 'GENESIS', showSync: db.check_show_sync_message()});
+      if (blockhash == settings.block_page.genesis_block) {
+        res.render('block', { active: 'block', block: block, confirmations: settings.shared_pages.confirmations, txs: 'GENESIS', showSync: db.check_show_sync_message()});
       } else {
         db.get_txs(block, function(txs) {
           if (txs.length > 0) {
-            res.render('block', { active: 'block', block: block, confirmations: settings.confirmations, txs: txs, showSync: db.check_show_sync_message()});
+            res.render('block', { active: 'block', block: block, confirmations: settings.shared_pages.confirmations, txs: txs, showSync: db.check_show_sync_message()});
           } else {
-            db.create_txs(block, function(){
-              db.get_txs(block, function(ntxs) {
-                if (ntxs.length > 0) {
-                  res.render('block', { active: 'block', block: block, confirmations: settings.confirmations, txs: ntxs, showSync: db.check_show_sync_message()});
-                } else {
-                  route_get_index(res, 'Block not found: ' + blockhash);
-                }
+            // cannot find block in local database so get the data from the wallet directly
+            var ntxs = [];
+            lib.syncLoop(block.tx.length, function (loop) {
+              var i = loop.iteration();
+
+              lib.get_rawtransaction(block.tx[i], function(tx) {
+                if (tx && tx != 'There was an error. Check your console.') {
+                  lib.prepare_vin(tx, function(vin) {
+                    lib.prepare_vout(tx.vout, block.tx[i], vin, ((!settings.blockchain_specific.zksnarks.enabled || typeof tx.vjoinsplit === 'undefined' || tx.vjoinsplit == null) ? [] : tx.vjoinsplit), function(vout, nvin) {
+                      lib.calculate_total(vout, function(total) {
+                        ntxs.push({
+                          txid: block.tx[i],
+                          vout: vout,
+                          total: total.toFixed(8)
+                        });
+                        loop.next();
+                      });
+                    });
+                  });
+                } else
+                  loop.next();
               });
+            }, function() {
+              res.render('block', { active: 'block', block: block, confirmations: settings.shared_pages.confirmations, txs: ntxs, showSync: db.check_show_sync_message()});
             });
           }
         });
@@ -47,25 +63,25 @@ function route_get_block(res, blockhash) {
 /* GET functions */
 
 function route_get_tx(res, txid) {
-  if (txid == settings.genesis_tx) {
-    route_get_block(res, settings.genesis_block);
+  if (txid == settings.transaction_page.genesis_tx) {
+    route_get_block(res, settings.block_page.genesis_block);
   } else {
     db.get_tx(txid, function(tx) {
       if (tx) {
         lib.get_blockcount(function(blockcount) {
-          if (settings.display.claim_address) {
+          if (settings.claim_address_page.enabled == true) {
             db.populate_claim_address_names(tx, function(tx) {
-              res.render('tx', { active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+              res.render('tx', { active: 'tx', tx: tx, confirmations: settings.shared_pages.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
             });
           } else {
-            res.render('tx', { active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+            res.render('tx', { active: 'tx', tx: tx, confirmations: settings.shared_pages.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
           }
         });
       } else {
         lib.get_rawtransaction(txid, function(rtx) {
           if (rtx && rtx.txid) {
             lib.prepare_vin(rtx, function(vin) {
-              lib.prepare_vout(rtx.vout, rtx.txid, vin, ((typeof rtx.vjoinsplit === 'undefined' || rtx.vjoinsplit == null) ? [] : rtx.vjoinsplit), function(rvout, rvin) {
+              lib.prepare_vout(rtx.vout, rtx.txid, vin, ((!settings.blockchain_specific.zksnarks.enabled || typeof rtx.vjoinsplit === 'undefined' || rtx.vjoinsplit == null) ? [] : rtx.vjoinsplit), function(rvout, rvin) {
                 lib.calculate_total(rvout, function(total){
                   if (!rtx.confirmations > 0) {
                     var utx = {
@@ -78,12 +94,12 @@ function route_get_tx(res, txid) {
                       blockindex: -1,
                     };
 
-                    if (settings.display.claim_address) {
+                    if (settings.claim_address_page.enabled == true) {
                       db.populate_claim_address_names(utx, function(utx) {
-                        res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount:-1, showSync: db.check_show_sync_message()});
+                        res.render('tx', { active: 'tx', tx: utx, confirmations: settings.shared_pages.confirmations, blockcount:-1, showSync: db.check_show_sync_message()});
                       });
                     } else {
-                      res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount:-1, showSync: db.check_show_sync_message()});
+                      res.render('tx', { active: 'tx', tx: utx, confirmations: settings.shared_pages.confirmations, blockcount:-1, showSync: db.check_show_sync_message()});
                     }
                   } else {
                     // check if blockheight exists
@@ -102,12 +118,12 @@ function route_get_tx(res, txid) {
                             blockindex: block.height,
                           };
                           lib.get_blockcount(function(blockcount) {
-                            if (settings.display.claim_address) {
+                            if (settings.claim_address_page.enabled == true) {
                               db.populate_claim_address_names(utx, function(utx) {
-                                res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+                                res.render('tx', { active: 'tx', tx: utx, confirmations: settings.shared_pages.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
                               });
                             } else {
-                              res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+                              res.render('tx', { active: 'tx', tx: utx, confirmations: settings.shared_pages.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
                             }
                           });
                         } else {
@@ -127,12 +143,12 @@ function route_get_tx(res, txid) {
                         blockindex: rtx.blockheight,
                       };
                       lib.get_blockcount(function(blockcount) {
-                        if (settings.display.claim_address) {
+                        if (settings.claim_address_page.enabled == true) {
                           db.populate_claim_address_names(utx, function(utx) {
-                            res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+                            res.render('tx', { active: 'tx', tx: utx, confirmations: settings.shared_pages.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
                           });
                         } else {
-                          res.render('tx', { active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
+                          res.render('tx', { active: 'tx', tx: utx, confirmations: settings.shared_pages.confirmations, blockcount: (blockcount ? blockcount : 0), showSync: db.check_show_sync_message()});
                         }
                       });
                     }
@@ -151,30 +167,29 @@ function route_get_tx(res, txid) {
 
 function route_get_index(res, error) {
   // check if index page should show last updated date
-  if (settings.index.show_last_updated == true) {
+  if (settings.index_page.show_last_updated == true) {
     // lookup last updated date
-    db.get_stats(settings.coin, function (stats) {
+    db.get_stats(settings.coin.name, function (stats) {
       res.render('index', { active: 'home', error: error, last_updated: stats.blockchain_last_updated, showSync: db.check_show_sync_message()});
     });
   } else {
-    // skip lookup up the last updated date and display the page now
+    // skip lookup of the last updated date and display the page now
     res.render('index', { active: 'home', error: error, last_updated: null, showSync: db.check_show_sync_message()});
   }
 }
 
-function route_get_address(res, hash, count) {
+function route_get_address(res, hash) {
   db.get_address(hash, false, function(address) {
-    if (address) {
+    if (address)
       res.render('address', { active: 'address', address: address, showSync: db.check_show_sync_message()});
-    } else {
+    else
       route_get_index(res, hash + ' not found');
-    }
   });
 }
 
 function route_get_claim_form(res, hash) {
   // check if claiming addresses is enabled
-  if (settings.display.claim_address) {
+  if (settings.claim_address_page.enabled == true) {
     // check if a hash was passed in
     if (hash == null || hash == '') {
       // no hash so just load the claim page without an address
@@ -187,7 +202,7 @@ function route_get_claim_form(res, hash) {
       });
     }
   } else
-    route_get_address(res, hash, settings.txcount);
+    route_get_address(res, hash);
 }
 
 /* GET home page. */
@@ -197,36 +212,39 @@ router.get('/', function(req, res) {
 
 router.get('/info', function(req, res) {
   // ensure api page is enabled
-  if (settings.display.api == true) {
+  if (settings.api_page.enabled == true) {
     // load the api page
-    res.render('info', { active: 'info', address: settings.address, hashes: settings.api, showSync: db.check_show_sync_message() });
+    res.render('info', { active: 'info', address: req.headers.host, showSync: db.check_show_sync_message() });
   } else {
     // api page is not enabled so default to the index page
     route_get_index(res, null);
   }
 });
 
-router.get('/markets/:market', function(req, res) {
+router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
   // ensure markets page is enabled
-  if (settings.display.markets == true) {
+  if (settings.markets_page.enabled == true) {
     var market_id = req.params['market'];
+    var coin_symbol = req.params['coin_symbol'];
+    var pair_symbol = req.params['pair_symbol'];
 
-    if (settings.markets.enabled.indexOf(market_id) != -1) {
+    // check if the market and trading pair exists and market is enabled in settings.json
+    if (settings.markets_page.exchanges[market_id] != null && settings.markets_page.exchanges[market_id].enabled == true && settings.markets_page.exchanges[market_id].trading_pairs.findIndex(p => p.toLowerCase() == coin_symbol.toLowerCase() + '/' + pair_symbol.toLowerCase()) > -1) {
       // lookup market data
-      db.get_market(market_id, function(data) {
+      db.get_market(market_id, coin_symbol, pair_symbol, function(data) {
         // load market data
         var market_data = require('../lib/markets/' + market_id);
         // check if markets page should show last updated date
         if (settings.markets_page.show_last_updated == true) {
           // lookup last updated date
-          db.get_stats(settings.coin, function (stats) {
+          db.get_stats(settings.coin.name, function (stats) {
             res.render('./market', {
               active: 'markets',
               marketdata: {
                 market_name: (market_data.market_name == null ? '' : market_data.market_name),
                 market_logo: (market_data.market_logo == null ? '' : market_data.market_logo),
-                coin: settings.markets.coin,
-                exchange: settings.markets.exchange,
+                coin: coin_symbol,
+                exchange: pair_symbol,
                 data: data,
               },
               market: market_id,
@@ -235,14 +253,14 @@ router.get('/markets/:market', function(req, res) {
             });
           });
         } else {
-          // skip lookup up the last updated date and display the page now
+          // skip looking up the last updated date and display the page now
           res.render('./market', {
             active: 'markets',
             marketdata: {
               market_name: (market_data.market_name == null ? '' : market_data.market_name),
               market_logo: (market_data.market_logo == null ? '' : market_data.market_logo),
-              coin: settings.markets.coin,
-              exchange: settings.markets.exchange,
+              coin: coin_symbol,
+              exchange: pair_symbol,
               data: data,
             },
             market: market_id,
@@ -252,7 +270,7 @@ router.get('/markets/:market', function(req, res) {
         }
       });
     } else {
-      // selected market is not enabled so default to the index page
+      // selected market does not exist or is not enabled so default to the index page
       route_get_index(res, null);
     }
   } else {
@@ -263,24 +281,22 @@ router.get('/markets/:market', function(req, res) {
 
 router.get('/richlist', function(req, res) {
   // ensure richlist page is enabled
-  if (settings.display.richlist == true) {
-    db.get_stats(settings.coin, function (stats) {
-      db.get_richlist(settings.coin, function(richlist) {
+  if (settings.richlist_page.enabled == true) {
+    db.get_stats(settings.coin.name, function (stats) {
+      db.get_richlist(settings.coin.name, function(richlist) {
         if (richlist) {
           db.get_distribution(richlist, stats, function(distribution) {
             res.render('richlist', {
               active: 'richlist',
               balance: richlist.balance,
               received: richlist.received,
+              burned: richlist.burned,
               stats: stats,
               dista: distribution.t_1_25,
               distb: distribution.t_26_50,
               distc: distribution.t_51_75,
               distd: distribution.t_76_100,
               diste: distribution.t_101plus,
-              show_dist: settings.richlist.distribution,
-              show_received: settings.richlist.received,
-              show_balance: settings.richlist.balance,
               last_updated: (settings.richlist_page.show_last_updated == true ? stats.richlist_last_updated : null),
               showSync: db.check_show_sync_message()
             });
@@ -299,16 +315,16 @@ router.get('/richlist', function(req, res) {
 
 router.get('/movement', function(req, res) {
   // ensure movement page is enabled
-  if (settings.display.movement == true) {
+  if (settings.movement_page.enabled == true) {
     // check if movement page should show last updated date
     if (settings.movement_page.show_last_updated == true) {
       // lookup last updated date
-      db.get_stats(settings.coin, function (stats) {
-        res.render('movement', {active: 'movement', flaga: settings.movement.low_flag, flagb: settings.movement.high_flag, min_amount:settings.movement.min_amount, last_updated: stats.blockchain_last_updated, showSync: db.check_show_sync_message()});
+      db.get_stats(settings.coin.name, function (stats) {
+        res.render('movement', {active: 'movement', last_updated: stats.blockchain_last_updated, showSync: db.check_show_sync_message()});
       });
     } else {
-      // skip lookup up the last updated date and display the page now
-      res.render('movement', {active: 'movement', flaga: settings.movement.low_flag, flagb: settings.movement.high_flag, min_amount:settings.movement.min_amount, last_updated: null, showSync: db.check_show_sync_message()});
+      // skip lookup of the last updated date and display the page now
+      res.render('movement', {active: 'movement', last_updated: null, showSync: db.check_show_sync_message()});
     }
   } else {
     // movement page is not enabled so default to the index page
@@ -318,15 +334,15 @@ router.get('/movement', function(req, res) {
 
 router.get('/network', function(req, res) {
   // ensure network page is enabled
-  if (settings.display.network == true) {
+  if (settings.network_page.enabled == true) {
     // check if network page should show last updated date
     if (settings.network_page.show_last_updated == true) {
       // lookup last updated date
-      db.get_stats(settings.coin, function (stats) {
+      db.get_stats(settings.coin.name, function (stats) {
         res.render('network', {active: 'network', last_updated: stats.network_last_updated, showSync: db.check_show_sync_message()});
       });
     } else {
-      // skip lookup up the last updated date and display the page now
+      // skip lookup of the last updated date and display the page now
       res.render('network', {active: 'network', last_updated: null, showSync: db.check_show_sync_message()});
     }
   } else {
@@ -338,15 +354,15 @@ router.get('/network', function(req, res) {
 // masternode list page
 router.get('/masternodes', function(req, res) {
   // ensure masternode page is enabled
-  if (settings.display.masternodes == true) {
+  if (settings.masternodes_page.enabled == true) {
     // check if masternodes page should show last updated date
     if (settings.masternodes_page.show_last_updated == true) {
       // lookup last updated date
-      db.get_stats(settings.coin, function (stats) {
+      db.get_stats(settings.coin.name, function (stats) {
         res.render('masternodes', {active: 'masternodes', last_updated: stats.masternodes_last_updated, showSync: db.check_show_sync_message()});
       });
     } else {
-      // skip lookup up the last updated date and display the page now
+      // skip lookup of the last updated date and display the page now
       res.render('masternodes', {active: 'masternodes', last_updated: null, showSync: db.check_show_sync_message()});
     }
   } else {
@@ -357,11 +373,11 @@ router.get('/masternodes', function(req, res) {
 
 router.get('/reward', function(req, res) {
   // ensure reward page is enabled
-  if (settings.heavy == true) {
-    db.get_stats(settings.coin, function (stats) {
-      db.get_heavy(settings.coin, function (heavy) {
+  if (settings.blockchain_specific.heavycoin.enabled == true && settings.blockchain_specific.heavycoin.reward_page.enabled == true) {
+    db.get_stats(settings.coin.name, function (stats) {
+      db.get_heavy(settings.coin.name, function (heavy) {
         if (!heavy)
-          heavy = { coin: settings.coin, lvote: 0, reward: 0, supply: 0, cap: 0, estnext: 0, phase: 'N/A', maxvote: 0, nextin: 'N/A', votes: [] };
+          heavy = { coin: settings.coin.name, lvote: 0, reward: 0, supply: 0, cap: 0, estnext: 0, phase: 'N/A', maxvote: 0, nextin: 'N/A', votes: [] };
 
         var votes = heavy.votes;
 
@@ -379,7 +395,7 @@ router.get('/reward', function(req, res) {
           stats: stats,
           heavy: heavy,
           votes: votes,
-          last_updated: (settings.reward_page.show_last_updated == true ? stats.reward_last_updated : null),
+          last_updated: (settings.blockchain_specific.heavycoin.reward_page.show_last_updated == true ? stats.reward_last_updated : null),
           showSync: db.check_show_sync_message()
         });
       });
@@ -407,55 +423,56 @@ router.get('/claim/:hash', function(req, res) {
 });
 
 router.get('/address/:hash', function(req, res) {
-  route_get_address(res, req.params.hash, settings.txcount);
-});
-
-router.get('/address/:hash/:count', function(req, res) {
-  route_get_address(res, req.params.hash, req.params.count);
+  route_get_address(res, req.params.hash);
 });
 
 router.post('/search', function(req, res) {
-  var query = req.body.search.trim();
-  if (query.length == 64) {
-    if (query == settings.genesis_tx) {
-      res.redirect('/block/' + settings.genesis_block);
+  if (settings.shared_pages.page_header.show_search == true) {
+    var query = req.body.search.trim();
+
+    if (query.length == 64) {
+      if (query == settings.transaction_page.genesis_tx)
+        res.redirect('/block/' + settings.block_page.genesis_block);
+      else {
+        db.get_tx(query, function(tx) {
+          if (tx)
+            res.redirect('/tx/' + tx.txid);
+          else {
+            lib.get_block(query, function(block) {
+              if (block && block != 'There was an error. Check your console.')
+                res.redirect('/block/' + query);
+              else {
+                // check wallet for transaction
+                lib.get_rawtransaction(query, function(tx) {
+                  if (tx && tx.txid)
+                    res.redirect('/tx/' + tx.txid);
+                  else {
+                    // search found nothing so display the index page with an error msg
+                    route_get_index(res, locale.ex_search_error + query );
+                  }
+                });
+              }
+            });
+          }
+        });
+      }
     } else {
-      db.get_tx(query, function(tx) {
-        if (tx) {
-          res.redirect('/tx/' + tx.txid);
-        } else {
-          lib.get_block(query, function(block) {
-            if (block && block != 'There was an error. Check your console.') {
-              res.redirect('/block/' + query);
-            } else {
-              // check wallet for transaction
-              lib.get_rawtransaction(query, function(tx) {
-                if (tx && tx.txid) {
-                  res.redirect('/tx/' + tx.txid);
-                } else {
-                  // search found nothing so display the index page with an error msg
-                  route_get_index(res, locale.ex_search_error + query );
-                }
-              });
-            }
+      db.get_address(query, false, function(address) {
+        if (address)
+          res.redirect('/address/' + address.a_id);
+        else {
+          lib.get_blockhash(query, function(hash) {
+            if (hash && hash != 'There was an error. Check your console.')
+              res.redirect('/block/' + hash);
+            else
+              route_get_index(res, locale.ex_search_error + query);
           });
         }
       });
     }
   } else {
-    db.get_address(query, false, function(address) {
-      if (address) {
-        res.redirect('/address/' + address.a_id);
-      } else {
-        lib.get_blockhash(query, function(hash) {
-          if (hash && hash != 'There was an error. Check your console.') {
-            res.redirect('/block/' + hash);
-          } else {
-            route_get_index(res, locale.ex_search_error + query );
-          }
-        });
-      }
-    });
+    // Search is disabled so load the index page with an error msg
+    route_get_index(res, 'Search is disabled');
   }
 });
 

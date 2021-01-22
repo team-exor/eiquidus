@@ -5,8 +5,8 @@ block content
   - var time = format_unixtime(block.time);
   - var block_difficulty = parseFloat(block.difficulty).toFixed(4);
   - var theadClasses = [];
-  if settings.display.table_header_bgcolor != null && settings.display.table_header_bgcolor != ''
-    - theadClasses.push('thead-' + settings.display.table_header_bgcolor);
+  if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
+    - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
   script.
     $(document).ready(function() {
       $('#block-summary').dataTable({
@@ -28,23 +28,24 @@ block content
           if block.previousblockhash != null
             a(href='/block/' + block.previousblockhash)
               span.fa.fa-chevron-left.iquidus.block-last(data-toggle='tooltip', data-placement='top', title=settings.locale.block_previous)
-            strong.d-none.d-md-block #{settings.symbol} block: #{block.hash}
+            strong.d-none.d-md-block #{settings.coin.symbol} block: #{block.hash}
             strong.d-block.d-md-none #{settings.locale.ex_summary}
           else
-            strong.d-none.d-md-block(style='margin-left:10px;') #{settings.symbol} #{settings.locale.ex_block}: #{block.hash}
+            strong.d-none.d-md-block(style='margin-left:10px;') #{settings.coin.symbol} #{settings.locale.ex_block}: #{block.hash}
             strong.d-block.d-md-none(style='margin-left:10px;') #{settings.locale.ex_summary}
           if block.nextblockhash != null
             a(href='/block/' + block.nextblockhash)
               span.fa.fa-chevron-right.iquidus.block-next(data-toggle='tooltip', data-placement='top', title=settings.locale.block_next)
-          a.d-none.d-md-block(href='/api/getblock?hash=' + block.hash, style='margin-left:auto;', data-toggle='tooltip', data-placement='top', title=settings.locale.view_raw_block_data)
-            span.fa.fa-info-circle.iquidus
+          if settings.api_page.public_apis.rpc.getblock.enabled == true
+            a.d-none.d-md-block(href='/api/getblock?hash=' + block.hash, style='margin-left:auto;', data-toggle='tooltip', data-placement='top', title=settings.locale.view_raw_block_data)
+              span.fa.fa-info-circle.iquidus
       table#block-summary.table.table-bordered.summary-table(style='border-top:0;margin-top:0 !important;')
         thead(class=theadClasses)
           tr
             th.text-center #{settings.locale.height}
             th.text-center #{settings.locale.difficulty}
             th.text-center #{settings.locale.confirmations}
-            if settings.heavy == true
+            if settings.blockchain_specific.heavycoin.enabled == true
               th.text-center Vote
             th.text-center #{settings.locale.size} (kB)
             th.text-center #{settings.locale.bits}
@@ -61,7 +62,7 @@ block content
               td.text-center #{splitDifficulty[0]}.
                 span.decimal #{splitDifficulty[1]}
               td.text-center=block.confirmations
-              if settings.heavy == true
+              if settings.blockchain_specific.heavycoin.enabled == true
                 td.text-center=block.vote
               td.text-center #{splitBlockSize[0]}.
                 span.decimal #{splitBlockSize[1]}
@@ -75,7 +76,7 @@ block content
                 td.text-center #{splitDifficulty[0]}.
                   span.decimal #{splitDifficulty[1]}
                 td.text-center=block.confirmations
-                if settings.heavy == true
+                if settings.blockchain_specific.heavycoin.enabled == true
                   td.text-center=block.vote
                 td.text-center #{splitBlockSize[0]}.
                   span.decimal #{splitBlockSize[1]}
@@ -88,14 +89,14 @@ block content
                 td.text-center #{splitDifficulty[0]}.
                   span.decimal #{splitDifficulty[1]}
                 td.text-center=block.confirmations
-                if settings.heavy == true
+                if settings.blockchain_specific.heavycoin.enabled == true
                   td.text-center=block.vote
                 td.text-center #{splitBlockSize[0]}.
                   span.decimal #{splitBlockSize[1]}
                 td.text-center=block.bits
                 td.text-center=block.nonce
                 td.text-center=time
-    if block.hash == settings.genesis_block
+    if block.hash == settings.block_page.genesis_block
       .alert.alert-info(role='alert', style='text-align:center;')
         strong #{settings.locale.block_genesis}
     else
@@ -109,7 +110,7 @@ block content
               th.d-none.d-md-table-cell #{settings.locale.tx_hash}
               th.text-center #{settings.locale.tx_recipients}
               th.text-center #{settings.locale.mkt_amount}
-                span.small  (#{settings.symbol})
+                span.small  (#{settings.coin.symbol})
           tbody
             each txn in txs
               tr

@@ -18,24 +18,28 @@ var apiAccessList = [];
 
 // pass wallet rpc connection info to nodeapi
 nodeapi.setWalletDetails(settings.wallet);
-// dynamically build the nodeapi cmd access list by adding all non-heavy api cmds that have a value
-Object.keys(settings.api_cmds).forEach(function(key, index, map) { 
-  if (key != 'heavies' && settings.api_cmds[key] != null && settings.api_cmds[key] != '')
+// dynamically build the nodeapi cmd access list by adding all non-blockchain-specific api cmds that have a value
+Object.keys(settings.api_cmds).forEach(function(key, index, map) {
+  if (key != 'use_rpc' && settings.api_cmds[key] != null && settings.api_cmds[key] != '')
     apiAccessList.push(key);
 });
-if (settings.heavy) {
-  // add all heavy api cmds that have a value
-  Object.keys(settings.api_cmds.heavies).forEach(function(key, index, map) { 
-    if (settings.api_cmds.heavies[key] != null && settings.api_cmds.heavies[key] != '')
-      apiAccessList.push(key);
-  });
-}
+// dynamically find and add additional blockchain_specific api cmds
+Object.keys(settings.blockchain_specific).forEach(function(key, index, map) {
+  // check if this feature is enabled and has api cmds
+  if (settings.blockchain_specific[key].enabled == true && Object.keys(settings.blockchain_specific[key]).indexOf('api_cmds') > -1) {
+    // add all blockchain specific api cmds that have a value
+    Object.keys(settings.blockchain_specific[key]['api_cmds']).forEach(function(key2, index, map) {
+      if (settings.blockchain_specific[key]['api_cmds'][key2] != null && settings.blockchain_specific[key]['api_cmds'][key2] != '')
+        apiAccessList.push(key2);
+    });
+  }
+});
 // whitelist the cmds in the nodeapi access list
 nodeapi.setAccess('only', apiAccessList);
 // determine if cors should be enabled
-if (settings.usecors == true) {
+if (settings.webserver.cors.enabled == true) {
 	app.use(function(req, res, next) {
-	   res.header("Access-Control-Allow-Origin", settings.corsorigin);
+	   res.header("Access-Control-Allow-Origin", settings.webserver.cors.corsorigin);
 	   res.header('Access-Control-Allow-Methods', 'DELETE, PUT, GET, POST');
 	   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 	   next();
@@ -45,7 +49,7 @@ if (settings.usecors == true) {
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-app.use(favicon(path.join(__dirname, settings.favicon)));
+app.use(favicon(path.join(__dirname, settings.shared_pages.favicon)));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -58,12 +62,18 @@ app.use('/', routes);
 
 // post method to claim an address using verifymessage functionality
 app.post('/claim', function(req, res) {
-  // initialize the bad-words filter
-  var bad_word_lib = require('bad-words');
-  var bad_word_filter = new bad_word_lib();
+  // check if the bad-words filter is enabled
+  if (settings.claim_address_page.enable_bad_word_filter == true) {
+    // initialize the bad-words filter
+    var bad_word_lib = require('bad-words');
+    var bad_word_filter = new bad_word_lib();
 
-  // clean the message (Display name) of bad words
-  var message = (req.body.message == null || req.body.message == '' ? '' : bad_word_filter.clean(req.body.message));
+    // clean the message (Display name) of bad words
+    var message = (req.body.message == null || req.body.message == '' ? '' : bad_word_filter.clean(req.body.message));
+  } else {
+    // Do not use the bad word filter
+    var message = (req.body.message == null || req.body.message == '' ? '' : req.body.message);
+  }
 
   // check if the message was filtered
   if (message == req.body.message) {
@@ -93,10 +103,11 @@ app.post('/claim', function(req, res) {
 // extended apis
 app.use('/ext/getmoneysupply', function(req, res) {
   // check if the getmoneysupply api is enabled
-  if (settings.display.api == true && settings.public_api.ext['getmoneysupply']) {
-    lib.get_supply(function(supply) {
+  if (settings.api_page.enabled == true && settings.api_page.public_apis.ext.getmoneysupply.enabled == true) {
+    // lookup stats
+    db.get_stats(settings.coin.name, function (stats) {
       res.setHeader('content-type', 'text/plain');
-      res.end((supply ? supply.toString() : '0'));
+      res.end((stats && stats.supply ? stats.supply.toString() : '0'));
     });
   } else
     res.end('This method is disabled');
@@ -104,9 +115,9 @@ app.use('/ext/getmoneysupply', function(req, res) {
 
 app.use('/ext/getaddress/:hash', function(req, res) {
   // check if the getaddress api is enabled
-  if (settings.display.api == true && settings.public_api.ext['getaddress']) {
+  if (settings.api_page.enabled == true && settings.api_page.public_apis.ext.getaddress.enabled == true) {
     db.get_address(req.params.hash, false, function(address) {
-      db.get_address_txs_ajax(req.params.hash, 0, settings.txcount, function(txs, count) {
+      db.get_address_txs_ajax(req.params.hash, 0, settings.api_page.public_apis.ext.getaddresstxs.max_items_per_query, function(txs, count) {
         if (address) {
           var last_txs = [];
           for (i = 0; i < txs.length; i++) {
@@ -148,12 +159,12 @@ app.use('/ext/getaddress/:hash', function(req, res) {
 
 app.use('/ext/gettx/:txid', function(req, res) {
   // check if the gettx api is enabled
-  if (settings.display.api == true && settings.public_api.ext['gettx']) {
+  if (settings.api_page.enabled == true && settings.api_page.public_apis.ext.gettx.enabled == true) {
     var txid = req.params.txid;
     db.get_tx(txid, function(tx) {
       if (tx) {
         lib.get_blockcount(function(blockcount) {
-          res.send({ active: 'tx', tx: tx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0)});
+          res.send({ active: 'tx', tx: tx, confirmations: settings.shared_pages.confirmations, blockcount: (blockcount ? blockcount : 0)});
         });
       }
       else {
@@ -172,7 +183,7 @@ app.use('/ext/gettx/:txid', function(req, res) {
                       blockhash: '-',
                       blockindex: -1,
                     };
-                    res.send({ active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount:-1});
+                    res.send({ active: 'tx', tx: utx, confirmations: settings.shared_pages.confirmations, blockcount:-1});
                   } else {
                     var utx = {
                       txid: rtx.txid,
@@ -184,7 +195,7 @@ app.use('/ext/gettx/:txid', function(req, res) {
                       blockindex: rtx.blockheight,
                     };
                     lib.get_blockcount(function(blockcount) {
-                      res.send({ active: 'tx', tx: utx, confirmations: settings.confirmations, blockcount: (blockcount ? blockcount : 0)});
+                      res.send({ active: 'tx', tx: utx, confirmations: settings.shared_pages.confirmations, blockcount: (blockcount ? blockcount : 0)});
                     });
                   }
                 });
@@ -202,7 +213,7 @@ app.use('/ext/gettx/:txid', function(req, res) {
 
 app.use('/ext/getbalance/:hash', function(req, res) {
   // check if the getbalance api is enabled
-  if (settings.display.api == true && settings.public_api.ext['getbalance']) {
+  if (settings.api_page.enabled == true && settings.api_page.public_apis.ext.getbalance.enabled == true) {
     db.get_address(req.params.hash, false, function(address) {
       if (address) {
         res.setHeader('content-type', 'text/plain');
@@ -216,9 +227,9 @@ app.use('/ext/getbalance/:hash', function(req, res) {
 
 app.use('/ext/getdistribution', function(req, res) {
   // check if the getdistribution api is enabled
-  if (settings.display.api == true && settings.public_api.ext['getdistribution']) {
-    db.get_richlist(settings.coin, function(richlist) {
-      db.get_stats(settings.coin, function(stats) {
+  if (settings.api_page.enabled == true && settings.api_page.public_apis.ext.getdistribution.enabled == true) {
+    db.get_richlist(settings.coin.name, function(richlist) {
+      db.get_stats(settings.coin.name, function(stats) {
         db.get_distribution(richlist, stats, function(dist) {
           res.send(dist);
         });
@@ -230,9 +241,9 @@ app.use('/ext/getdistribution', function(req, res) {
 
 app.use('/ext/getcurrentprice', function(req, res) {
   // check if the getcurrentprice api is enabled
-  if (settings.display.api == true && settings.public_api.ext['getcurrentprice']) {
-    db.get_stats(settings.coin, function (stats) {
-      eval('var p_ext = { "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, }');
+  if (settings.api_page.enabled == true && settings.api_page.public_apis.ext.getcurrentprice.enabled == true) {
+    db.get_stats(settings.coin.name, function (stats) {
+      eval('var p_ext = { "last_price_' + settings.markets_page.default_exchange.trading_pair.split('/')[1].toLowerCase() + '": stats.last_price, "last_price_usd": stats.last_usd_price, }');
         res.send(p_ext);
     });
   } else
@@ -241,27 +252,21 @@ app.use('/ext/getcurrentprice', function(req, res) {
 
 app.use('/ext/getbasicstats', function(req, res) {
   // check if the getbasicstats api is enabled
-  if (settings.display.api == true && settings.public_api.ext['getbasicstats']) {
+  if (settings.api_page.enabled == true && settings.api_page.public_apis.ext.getbasicstats.enabled == true) {
     // lookup stats
-    db.get_stats(settings.coin, function (stats) {
-      // lookup coin supply
-      lib.get_supply(function(supply) {
-        // lookup block count
-        lib.get_blockcount(function(blockcount) {
-          // check if the masternode count api is enabled
-          if (settings.public_api.rpc['getmasternodecount'] == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') {
-            // masternode count api is available
-            lib.get_masternodecount(function(masternodestotal) {
-              eval('var p_ext = { "block_count": (blockcount ? blockcount : 0), "money_supply": (supply ? supply : 0), "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price, "masternode_count": masternodestotal.total }');
-              res.send(p_ext);
-            });
-          } else {
-            // masternode count api is not available
-            eval('var p_ext = { "block_count": (blockcount ? blockcount : 0), "money_supply": (supply ? supply : 0), "last_price_'+settings.markets.exchange.toLowerCase()+'": stats.last_price, "last_price_usd": stats.last_usd_price }');
-            res.send(p_ext);
-          }
+    db.get_stats(settings.coin.name, function (stats) {
+      // check if the masternode count api is enabled
+      if (settings.api_page.public_apis.rpc.getmasternodecount.enabled == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') {
+        // masternode count api is available
+        lib.get_masternodecount(function(masternodestotal) {
+          eval('var p_ext = { "block_count": (stats.count ? stats.count : 0), "money_supply": (stats.supply ? stats.supply : 0), "last_price_' + settings.markets_page.default_exchange.trading_pair.split('/')[1].toLowerCase() + '": stats.last_price, "last_price_usd": stats.last_usd_price, "masternode_count": masternodestotal.total }');
+          res.send(p_ext);
         });
-      });
+      } else {
+        // masternode count api is not available
+        eval('var p_ext = { "block_count": (stats.count ? stats.count : 0), "money_supply": (stats.supply ? stats.supply : 0), "last_price_' + settings.markets_page.default_exchange.trading_pair.split('/')[1].toLowerCase() + '": stats.last_price, "last_price_usd": stats.last_usd_price }');
+        res.send(p_ext);
+      }
     });
   } else
     res.end('This method is disabled');
@@ -269,7 +274,7 @@ app.use('/ext/getbasicstats', function(req, res) {
 
 app.use('/ext/getlasttxs/:min', function(req, res) {
   // check if the getlasttxs api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
-  if ((settings.display.api == true && settings.public_api.ext['getlasttxs']) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+  if ((settings.api_page.enabled == true && settings.api_page.public_apis.ext.getlasttxs.enabled == true) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
     var min = req.params.min, start, length, internal = false;
     // split url suffix by forward slash and remove blank entries
     var split = req.url.split('/').filter(function(v) { return v; });
@@ -296,8 +301,8 @@ app.use('/ext/getlasttxs/:min', function(req, res) {
     }
 
     // fix parameters
-    if (typeof length === 'undefined' || isNaN(length) || length > settings.index.last_txs)
-      length = settings.index.last_txs;
+    if (typeof length === 'undefined' || isNaN(length) || length > settings.api_page.public_apis.ext.getlasttxs.max_items_per_query)
+      length = settings.api_page.public_apis.ext.getlasttxs.max_items_per_query;
     if (typeof start === 'undefined' || isNaN(start) || start < 0)
       start = 0;
     if (typeof min === 'undefined' || isNaN(min) || min < 0)
@@ -321,7 +326,7 @@ app.use('/ext/getlasttxs/:min', function(req, res) {
 
 app.use('/ext/getaddresstxs/:address/:start/:length', function(req, res) {
   // check if the getaddresstxs api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
-  if ((settings.display.api == true && settings.public_api.ext['getaddresstxs']) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+  if ((settings.api_page.enabled == true && settings.api_page.public_apis.ext.getaddresstxs.enabled == true) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
     var internal = false;
     // split url suffix by forward slash and remove blank entries
     var split = req.url.split('/').filter(function(v) { return v; });
@@ -329,8 +334,8 @@ app.use('/ext/getaddresstxs/:address/:start/:length', function(req, res) {
     if (split.length > 0 && split[0] == 'internal')
       internal = true;
     // fix parameters
-    if (typeof req.params.length === 'undefined' || isNaN(req.params.length) || req.params.length > settings.txcount)
-      req.params.length = settings.txcount;
+    if (typeof req.params.length === 'undefined' || isNaN(req.params.length) || req.params.length > settings.api_page.public_apis.ext.getaddresstxs.max_items_per_query)
+      req.params.length = settings.api_page.public_apis.ext.getaddresstxs.max_items_per_query;
     if (typeof req.params.start === 'undefined' || isNaN(req.params.start) || req.params.start < 0)
       req.params.start = 0;
     if (typeof req.params.min === 'undefined' || isNaN(req.params.min) || req.params.min < 0)
@@ -391,14 +396,14 @@ app.use('/ext/getaddresstxs/:address/:start/:length', function(req, res) {
 
 app.use('/ext/getsummary', function(req, res) {
   // check if the getsummary api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
-  if ((settings.display.api == true && settings.public_api.ext['getsummary']) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+  if ((settings.api_page.enabled == true && settings.api_page.public_apis.ext.getsummary.enabled == true) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
     lib.get_difficulty(function(difficulty) {
       difficultyHybrid = '';
       if (difficulty && difficulty['proof-of-work']) {
-        if (settings.index.difficulty == 'Hybrid') {
+        if (settings.shared_pages.difficulty == 'Hybrid') {
           difficultyHybrid = 'POS: ' + difficulty['proof-of-stake'];
           difficulty = 'POW: ' + difficulty['proof-of-work'];
-        } else if (settings.index.difficulty == 'POW')
+        } else if (settings.shared_pages.difficulty == 'POW')
           difficulty = difficulty['proof-of-work'];
         else
           difficulty = difficulty['proof-of-stake'];
@@ -406,12 +411,12 @@ app.use('/ext/getsummary', function(req, res) {
       lib.get_hashrate(function(hashrate) {
         lib.get_connectioncount(function(connections) {
           lib.get_blockcount(function(blockcount) {
-            db.get_stats(settings.coin, function (stats) {
+            db.get_stats(settings.coin.name, function (stats) {
               lib.get_masternodecount(function(masternodestotal) {
                 if (hashrate == 'There was an error. Check your console.')
                   hashrate = 0;
                 // check if the masternode count api is enabled
-                if (settings.public_api.rpc['getmasternodecount'] == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') {
+                if (settings.api_page.public_apis.rpc.getmasternodecount.enabled == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') {
                   // masternode count api is available
                   var mn_total = 0;
                   var mn_enabled = 0;
@@ -457,7 +462,7 @@ app.use('/ext/getsummary', function(req, res) {
 
 app.use('/ext/getnetworkpeers', function(req, res) {
   // check if the getnetworkpeers api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
-  if ((settings.display.api == true && settings.public_api.ext['getnetworkpeers']) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+  if ((settings.api_page.enabled == true && settings.api_page.public_apis.ext.getnetworkpeers.enabled == true) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
     var internal = false;
     // split url suffix by forward slash and remove blank entries
     var split = req.url.split('/').filter(function(v) { return v; });
@@ -488,7 +493,7 @@ app.use('/ext/getnetworkpeers', function(req, res) {
 // get the list of masternodes from local collection
 app.use('/ext/getmasternodelist', function(req, res) {
   // check if the getmasternodelist api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
-  if ((settings.display.api == true && settings.public_api.ext['getmasternodelist']) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+  if ((settings.api_page.enabled == true && settings.api_page.public_apis.ext.getmasternodelist.enabled == true) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
     // get the masternode list from local collection
     db.get_masternodes(function(masternodes) {
       // loop through masternode list and remove the mongo _id and __v keys
@@ -506,7 +511,7 @@ app.use('/ext/getmasternodelist', function(req, res) {
 // returns a list of masternode reward txs for a single masternode address from a specific block height
 app.use('/ext/getmasternoderewards/:hash/:since', function(req, res) {
   // check if the getmasternoderewards api is enabled
-  if (settings.display.api == true && settings.public_api.ext['getmasternoderewards']) {
+  if (settings.api_page.enabled == true && settings.api_page.public_apis.ext.getmasternoderewards.enabled == true) {
     db.get_masternode_rewards(req.params.hash, req.params.since, function(rewards) {
       if (rewards != null) {
         // loop through the tx list to fix vout values and remove unnecessary data such as the always empty vin array and the mongo _id and __v keys
@@ -531,7 +536,7 @@ app.use('/ext/getmasternoderewards/:hash/:since', function(req, res) {
 // returns the total masternode rewards received for a single masternode address from a specific block height
 app.use('/ext/getmasternoderewardstotal/:hash/:since', function(req, res) {
   // check if the getmasternoderewardstotal api is enabled
-  if (settings.display.api == true && settings.public_api.ext['getmasternoderewardstotal']) {
+  if (settings.api_page.enabled == true && settings.api_page.public_apis.ext.getmasternoderewardstotal.enabled == true) {
     db.get_masternode_rewards_totals(req.params.hash, req.params.since, function(total_rewards) {
       if (total_rewards != null) {
         // return the total of masternode rewards
@@ -543,117 +548,156 @@ app.use('/ext/getmasternoderewardstotal/:hash/:since', function(req, res) {
     res.end('This method is disabled');
 });
 
-// locals
-app.set('title', settings.title);
-app.set('explorer_version', package_metadata.version);
-app.set('symbol', settings.symbol);
-app.set('coin', settings.coin);
-app.set('locale', locale);
-app.set('display', settings.display);
-app.set('markets', settings.markets);
-app.set('social_links', settings.social_links);
+var market_data = [];
+var market_count = 0;
 
-app.set('genesis_block', settings.genesis_block);
-app.set('index', settings.index);
-app.set('reward_page', settings.reward_page);
+// check if markets are enabled
+if (settings.markets_page.enabled == true) {
+  // dynamically populate market data
+  Object.keys(settings.markets_page.exchanges).forEach(function (key, index, map) {
+    // check if market is enabled via settings
+    if (settings.markets_page.exchanges[key].enabled == true) {
+      // check if market is installed/supported
+      if (db.fs.existsSync('./lib/markets/' + key + '.js')) {
+        // load market file
+        var exMarket = require('./lib/markets/' + key);
+        // save market_name and market_logo from market file to settings
+        eval('market_data.push({id: "' + key + '", name: "' + (exMarket.market_name == null ? '' : exMarket.market_name) + '", logo: "' + (exMarket.market_logo == null ? '' : exMarket.market_logo) + '", trading_pairs: []});');
+        // loop through all trading pairs for this market
+        for (var i = 0; i < settings.markets_page.exchanges[key].trading_pairs.length; i++) {
+          // ensure trading pair setting is always uppercase
+          settings.markets_page.exchanges[key].trading_pairs[i] = settings.markets_page.exchanges[key].trading_pairs[i].toUpperCase();
+          // add trading pair to market_data
+          market_data[market_data.length - 1].trading_pairs.push(settings.markets_page.exchanges[key].trading_pairs[i]);
+          // increment the market count
+          market_count++;
+        }
+      }
+    }
+  });
+
+  // sort market data by market name
+  market_data.sort(function(a, b) {
+    var name1 = a.name.toLowerCase();
+    var name2 = b.name.toLowerCase();
+
+    if (name1 < name2)
+      return -1;
+    else if (name1 > name2)
+      return 1;
+    else
+      return 0;
+  });
+
+  // Fix default exchange case
+  settings.markets_page.default_exchange.exchange_name = settings.markets_page.default_exchange.exchange_name.toLowerCase();
+  settings.markets_page.default_exchange.trading_pair = settings.markets_page.default_exchange.trading_pair.toUpperCase();
+
+  var ex = settings.markets_page.exchanges;
+  var ex_name = settings.markets_page.default_exchange.exchange_name;
+  var ex_pair = settings.markets_page.default_exchange.trading_pair;
+  var ex_keys = Object.keys(ex);
+  var ex_error = '';
+
+  // check to ensure default market and trading pair exist and are enabled
+  if (ex[ex_name] == null) {
+    // exchange name does not exist in exchanges list
+    ex_error = 'Default exchange name is not valid' + ': ' + ex_name;
+  } else if (!ex[ex_name].enabled) {
+    // exchange is not enabled
+    ex_error = 'Default exchange is disabled in settings' + ': ' + ex_name;
+  } else if (ex[ex_name].trading_pairs.findIndex(p => p.toLowerCase() == ex_pair.toLowerCase()) == -1) {
+    // invalid default exchange trading pair
+    ex_error = 'Default exchange trading pair is not valid' + ': ' + ex_pair;
+  }
+
+  // check if there was an error msg
+  if (ex_error != '') {
+    // there was an error, so find the next available market from settings.json
+    var new_default_index = -1;
+
+    // find the first enabled exchange with at least one trading pair
+    for (var i = 0; i < ex_keys.length; i++) {
+      if (ex[ex_keys[i]]['enabled'] === true && ex[ex_keys[i]]['trading_pairs'].length > 0) {
+        // found a match so save the index
+        new_default_index = i;
+        // stop looking for more matches
+        break;
+      }
+    }
+
+    // check if a valid and enabled market was found
+    if (new_default_index == -1) {
+      // no valid markets found
+      console.log('WARNING: ' + ex_error + '. ' + 'No valid or enabled markets found in settings.json. The markets feature will be temporarily disabled. To restore markets functionality, please enable at least 1 market and ensure at least 1 valid trading pair is added. Finally, restart the explorer to resolve the problem');
+      // disable the markets feature for this session
+      settings.markets_page.enabled = false;
+    } else {
+      // a valid and enabled market was found to replace the default
+      console.log('WARNING: ' + ex_error + '. ' + 'Default exchange will be set to' + ': ' + ex_keys[new_default_index] + ' (' + ex[ex_keys[new_default_index]].trading_pairs[0] + ')');
+      // set new default exchange data
+      settings.markets_page.default_exchange.exchange_name = ex_keys[new_default_index];
+      settings.markets_page.default_exchange.trading_pair = ex[ex_keys[new_default_index]].trading_pairs[0];
+    }
+  }
+}
+
+// check if home_link_logo file exists
+if (!db.fs.existsSync(path.join('./public', settings.shared_pages.page_header.home_link_logo)))
+  settings.shared_pages.page_header.home_link_logo = '';
+
+// always disable the rpc masternode list cmd from public apis
+settings.api_page.public_apis.rpc.getmasternodelist = { "enabled": false };
+
+// locals
+app.set('explorer_version', package_metadata.version);
+app.set('locale', locale);
+app.set('coin', settings.coin);
+app.set('shared_pages', settings.shared_pages);
+app.set('index_page', settings.index_page);
+app.set('block_page', settings.block_page);
+app.set('transaction_page', settings.transaction_page);
+app.set('address_page', settings.address_page);
 app.set('masternodes_page', settings.masternodes_page);
 app.set('movement_page', settings.movement_page);
 app.set('network_page', settings.network_page);
 app.set('richlist_page', settings.richlist_page);
 app.set('markets_page', settings.markets_page);
-app.set('use_rpc', settings.use_rpc);
-app.set('heavy', settings.heavy);
-app.set('save_stats_after_sync_blocks', settings.save_stats_after_sync_blocks);
-app.set('lock_during_index', settings.lock_during_index);
-app.set('txcount', settings.txcount);
-app.set('txcount_per_page', settings.txcount_per_page);
-app.set('nethash', settings.nethash);
-app.set('nethash_units', settings.nethash_units);
-app.set('show_sent_received', settings.show_sent_received);
-app.set('logo', settings.logo);
-
-// Check if header logo file exists
-if (db.fs.existsSync(path.join('./public', settings.headerlogo)))
-  app.set('headerlogo', settings.headerlogo);
-else
-  app.set('headerlogo', '');
-
-app.set('theme', settings.theme);
+app.set('api_page', settings.api_page);
+app.set('claim_address_page', settings.claim_address_page);
 app.set('labels', settings.labels);
-app.set('homelink', settings.homelink);
-app.set('logoheight', settings.logoheight);
-app.set('burned_coins', settings.burned_coins);
 app.set('api_cmds', settings.api_cmds);
-
-// Always disable the rpc masternode list cmd from public apis
-settings.public_api['rpc']['getmasternodelist'] = false;
-app.set('public_api', settings.public_api);
-
-app.set('sticky_header', settings.sticky_header);
-app.set('sticky_footer', settings.sticky_footer);
-
-app.set('footer_height_desktop', settings.footer_height_desktop);
-app.set('footer_height_tablet', settings.footer_height_tablet);
-app.set('footer_height_mobile', settings.footer_height_mobile);
-
-app.set('social_link_percent_height_desktop', settings.social_link_percent_height_desktop);
-app.set('social_link_percent_height_tablet', settings.social_link_percent_height_tablet);
-app.set('social_link_percent_height_mobile', settings.social_link_percent_height_mobile);
+app.set('blockchain_specific', settings.blockchain_specific);
 
 // determine panel offset based on which panels are enabled
 var paneltotal = 5;
-var panelcount = (settings.display.networkpnl > 0 ? 1 : 0) +
-  (settings.display.difficultypnl > 0 ? 1 : 0) +
-  (settings.display.masternodespnl > 0 ? 1 : 0) +
-  (settings.display.coinsupplypnl > 0 ? 1 : 0) +
-  (settings.display.pricepnl > 0 ? 1 : 0) +
-  (settings.display.marketcappnl > 0 ? 1 : 0) +
-  (settings.display.logopnl > 0 ? 1 : 0);
+var panelcount = (settings.shared_pages.page_header.panels.network_panel.enabled == true && settings.shared_pages.page_header.panels.network_panel.display_order > 0 ? 1 : 0) +
+  (settings.shared_pages.page_header.panels.difficulty_panel.enabled == true && settings.shared_pages.page_header.panels.difficulty_panel.display_order > 0 ? 1 : 0) +
+  (settings.shared_pages.page_header.panels.masternodes_panel.enabled == true && settings.shared_pages.page_header.panels.masternodes_panel.display_order > 0 ? 1 : 0) +
+  (settings.shared_pages.page_header.panels.coin_supply_panel.enabled == true && settings.shared_pages.page_header.panels.coin_supply_panel.display_order > 0 ? 1 : 0) +
+  (settings.shared_pages.page_header.panels.price_panel.enabled == true && settings.shared_pages.page_header.panels.price_panel.display_order > 0 ? 1 : 0) +
+  (settings.shared_pages.page_header.panels.market_cap_panel.enabled == true && settings.shared_pages.page_header.panels.market_cap_panel.display_order > 0 ? 1 : 0) +
+  (settings.shared_pages.page_header.panels.logo_panel.enabled == true && settings.shared_pages.page_header.panels.logo_panel.display_order > 0 ? 1 : 0);
 app.set('paneloffset', paneltotal + 1 - panelcount);
 
 // determine panel order
-var panelorder = new Array();
+var panel_order = new Array();
 
-if (settings.display.networkpnl > 0) panelorder.push({name: 'networkpnl', val: settings.display.networkpnl});
-if (settings.display.difficultypnl > 0) panelorder.push({name: 'difficultypnl', val: settings.display.difficultypnl});
-if (settings.display.masternodespnl > 0) panelorder.push({name: 'masternodespnl', val: settings.display.masternodespnl});
-if (settings.display.coinsupplypnl > 0) panelorder.push({name: 'coinsupplypnl', val: settings.display.coinsupplypnl});
-if (settings.display.pricepnl > 0) panelorder.push({name: 'pricepnl', val: settings.display.pricepnl});
-if (settings.display.marketcappnl > 0) panelorder.push({name: 'marketcappnl', val: settings.display.marketcappnl});
-if (settings.display.logopnl > 0) panelorder.push({name: 'logopnl', val: settings.display.logopnl});
+if (settings.shared_pages.page_header.panels.network_panel.enabled == true && settings.shared_pages.page_header.panels.network_panel.display_order > 0) panel_order.push({name: 'network_panel', val: settings.shared_pages.page_header.panels.network_panel.display_order});
+if (settings.shared_pages.page_header.panels.difficulty_panel.enabled == true && settings.shared_pages.page_header.panels.difficulty_panel.display_order > 0) panel_order.push({name: 'difficulty_panel', val: settings.shared_pages.page_header.panels.difficulty_panel.display_order});
+if (settings.shared_pages.page_header.panels.masternodes_panel.enabled == true && settings.shared_pages.page_header.panels.masternodes_panel.display_order > 0) panel_order.push({name: 'masternodes_panel', val: settings.shared_pages.page_header.panels.masternodes_panel.display_order});
+if (settings.shared_pages.page_header.panels.coin_supply_panel.enabled == true && settings.shared_pages.page_header.panels.coin_supply_panel.display_order > 0) panel_order.push({name: 'coin_supply_panel', val: settings.shared_pages.page_header.panels.coin_supply_panel.display_order});
+if (settings.shared_pages.page_header.panels.price_panel.enabled == true && settings.shared_pages.page_header.panels.price_panel.display_order > 0) panel_order.push({name: 'price_panel', val: settings.shared_pages.page_header.panels.price_panel.display_order});
+if (settings.shared_pages.page_header.panels.market_cap_panel.enabled == true && settings.shared_pages.page_header.panels.market_cap_panel.display_order > 0) panel_order.push({name: 'market_cap_panel', val: settings.shared_pages.page_header.panels.market_cap_panel.display_order});
+if (settings.shared_pages.page_header.panels.logo_panel.enabled == true && settings.shared_pages.page_header.panels.logo_panel.display_order > 0) panel_order.push({name: 'logo_panel', val: settings.shared_pages.page_header.panels.logo_panel.display_order});
 
-panelorder.sort(function(a,b) { return a.val - b.val; });
+panel_order.sort(function(a,b) { return a.val - b.val; });
 
 for (var i=1; i<6; i++)
-  app.set('panel'+i.toString(), ((panelorder.length >= i) ? panelorder[i-1].name : ''));
-
-// Dynamically populate market data
-var market_data = [];
-
-settings.markets.enabled.forEach(function (market) {
-  // Check if market file exists
-  if (db.fs.existsSync('./lib/markets/' + market + '.js')) {
-    // Load market file
-    var exMarket = require('./lib/markets/' + market);
-    // Save market_name and market_logo from market file to settings
-    eval('market_data.push({id: "' + market + '", name: "' + (exMarket.market_name == null ? '' : exMarket.market_name) + '", logo: "' + (exMarket.market_logo == null ? '' : exMarket.market_logo) + '"});');
-  }
-});
-
-// Sort market data by name
-market_data.sort(function(a, b) {
-  var name1 = a.name.toLowerCase();
-  var name2 = b.name.toLowerCase();
-
-  if (name1 < name2)
-    return -1;
-  else if (name1 > name2)
-    return 1;
-  else
-    return 0;
-});
+  app.set('panel'+i.toString(), ((panel_order.length >= i) ? panel_order[i-1].name : ''));
 
 app.set('market_data', market_data);
+app.set('market_count', market_count);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

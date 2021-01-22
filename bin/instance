@@ -4,7 +4,7 @@ var settings = require('../lib/settings');
 var db = require('../lib/database');
 var app = require('../app');
 
-app.set('port', process.env.PORT || settings.port);
+app.set('port', process.env.PORT || settings.webserver.port);
 
 var dbString = 'mongodb://' + settings.dbsettings.user;
 dbString = dbString + ':' + settings.dbsettings.password;
@@ -13,48 +13,60 @@ dbString = dbString + ':' + settings.dbsettings.port;
 dbString = dbString + '/' + settings.dbsettings.database;
 
 db.connect(dbString, function() {
-  db.check_stats(settings.coin, function(exists) {
+  db.check_stats(settings.coin.name, function(exists) {
     if (exists == false) {
       console.log('no stats entry found, creating now..');
-      db.create_stats(settings.coin, function(){
+      db.create_stats(settings.coin.name, function(){
         //console.log('stats entry created successfully.');
       });
     } else {
-      db.get_stats(settings.coin, function (stats) {
+      db.get_stats(settings.coin.name, function (stats) {
         app.locals.stats = stats;
       });
     }
   });
-  // check markets
-  var markets = settings.markets.enabled;
-  for (var i = 0; i < markets.length; i++) {
-    // check if market is installed
-    if (db.fs.existsSync('./lib/markets/' + markets[i] + '.js')) {
-      db.check_market(markets[i], function(market, exists) {
-        if (exists == false) {
-          console.log('no %s entry found, creating now..', market);
-            db.create_market(settings.markets.coin, settings.markets.exchange, market, function() {
+
+  // check markets/exchanges
+  if (settings.markets_page.enabled == true) {
+    // loop through and test all exchanges defined in the settings.json file
+    Object.keys(settings.markets_page.exchanges).forEach(function (key, index, map) {
+      // check if market is enabled via settings
+      if (settings.markets_page.exchanges[key].enabled == true) {
+        // check if exchange is installed/supported
+        if (db.fs.existsSync('./lib/markets/' + key + '.js')) {
+          // loop through all trading pairs
+          settings.markets_page.exchanges[key].trading_pairs.forEach(function (pair_key, pair_index, pair_map) {
+            // split the pair data
+            var split_pair = pair_key.split('/');
+            // check if this is a valid trading pair
+            if (split_pair.length == 2) {
+              // lookup the exchange in the market collection
+              db.check_market(key, split_pair[0], split_pair[1], function(market, exists) {
+                // check if exchange trading pair exists in the market collection
+                if (!exists) {
+                  // exchange doesn't exist in the market collection so add a default definition now
+                  console.log('no %s: %s entry found, creating now..', market, pair_key);
+                  db.create_market(split_pair[0], split_pair[1], market, function() {});
+                }
+              });
+            }
           });
         }
-      });
-    }
+      }
+    });
   }
 
-  db.check_richlist(settings.coin, function(exists){
+  db.check_richlist(settings.coin.name, function(exists){
     if (exists == false) {
       console.log('no richlist entry found, creating now..');
-      db.create_richlist(settings.coin, function() {
-
-      });
+      db.create_richlist(settings.coin.name, function() {});
     }
   });  
-  if (settings.heavy == true) {
-    db.check_heavy(settings.coin, function(exists){
+  if (settings.blockchain_specific.heavycoin.enabled == true) {
+    db.check_heavy(settings.coin.name, function(exists){
       if (exists == false) {
-        console.log('no heavy entry found, creating now..');
-        db.create_heavy(settings.coin, function() {
-
-        });
+        console.log('no heavycoin entry found, creating now..');
+        db.create_heavy(settings.coin.name, function() {});
       }
     }); 
   }

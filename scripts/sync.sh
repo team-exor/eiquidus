@@ -113,19 +113,6 @@ if [ -n "${MODE}" ]; then
         rm "${EXPLORER_PATH}/tmp/index.pid"
       fi
     fi
-    # Check if the script is already running (tmp/db_index.pid file already exists)
-    if [ -f "${EXPLORER_PATH}/tmp/db_index.pid" ]; then
-      # The tmp/db_index.pid file exists. Check if the process is actually still running
-      ps -p `cat ${EXPLORER_PATH}/tmp/db_index.pid` > /dev/null
-      if [ $? -eq 0 ]; then
-        # Script is running so the data is locked and we must exit now and try again later
-        echo "Script already running.."
-        exit 1
-      else
-        # Script is not actually running so we can delete the lock file
-        rm "${EXPLORER_PATH}/tmp/db_index.pid"
-      fi
-    fi
   fi
   # Check if the node path was specified
   if [ -z "${NODE_PATH}" ]; then
