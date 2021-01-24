@@ -26,6 +26,10 @@ if [ -n "${1}" ]; then
       # Index reindex-txcount
       MODE="index reindex-txcount"
       ;;
+    "reindex-last")
+      # Index reindex-last
+      MODE="index reindex-last"
+      ;;
     "market")
       # Market update
       MODE="market"
@@ -71,6 +75,10 @@ if [ -n "${1}" ]; then
         "reindex-txcount")
           # Index reindex-txcount
           MODE="index reindex-txcount"
+          ;;
+        "reindex-last")
+          # Index reindex-last
+          MODE="index reindex-last"
           ;;
         "market")
           # Market update

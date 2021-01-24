@@ -21,6 +21,7 @@ function usage() {
   console.log('reindex          Clears index then resyncs from genesis to current block');
   console.log('reindex-rich     Clears and recreates the richlist data');  
   console.log('reindex-txcount  Rescan and flatten the tx count value for faster access');
+  console.log('reindex-last     Rescan and flatten the last blockindex value for faster access');
   console.log('market           Updates market summaries, orderbooks, trade history + charts');
   console.log('peers            Updates peer info based on local wallet connections');
   console.log('masternodes      Updates the list of active masternodes on the network');
@@ -55,6 +56,9 @@ if (process.argv[2] == 'index') {
         break;
       case 'reindex-txcount':
         mode = 'reindex-txcount';
+        break;
+      case 'reindex-last':
+        mode = 'reindex-last';
         break;
       default:
         usage();
@@ -368,16 +372,27 @@ if (database == 'peers') {
                       });
                     });
                   } else if (mode == 'reindex-last') {
-                    console.log('calculating last tx.. please wait..');
-                    // Resetting the last counter requires a single lookup on the txes collection to find all txes that have a positive or zero total and 1 or more vout
-                    Tx.find({'total': {$gte: 0}, 'vout': { $gte: { $size: 1 }}}).countDocuments(function(err, count) {
-                      console.log('found tx count: ' + count.toString());
-                      Stats.updateOne({coin: settings.coin.name}, {
-                        txes: count
-                      }, function() {
-                        console.log('tx count update complete');
-                        exit();
-                      });
+                    console.log('finding last blockindex.. please wait..');
+                    // Resetting the last blockindex counter requires a single lookup on the txes collection to find the last indexed blockindex
+                    Tx.find({}, {blockindex:1, _id:0}).sort({blockindex: -1}).limit(1).exec(function(err, tx) {
+                      // check if any blocks exists
+                      if (err != null || tx == null || tx.length == 0) {
+                        console.log('no blocks found. setting last blockindex to 0.');
+                        Stats.updateOne({coin: settings.coin.name}, {
+                          last: 0
+                        }, function() {
+                          console.log('last blockindex update complete');
+                          exit();
+                        });
+                      } else {
+                        console.log('found last blockindex: ' + tx[0].blockindex.toString());
+                        Stats.updateOne({coin: settings.coin.name}, {
+                          last: tx[0].blockindex
+                        }, function() {
+                          console.log('last blockindex update complete');
+                          exit();
+                        });
+                      }
                     });
                   }
                 });
