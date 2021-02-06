@@ -1,5 +1,104 @@
 NOTE: All updates require the explorer to be restarted
 
+1.99.0 [February 05, 2021]
+-Added new sync option for reindex-last to rescan and flatten the last blockindex value for faster access
+-Added new sync option for reindex-txcount to rescan and flatten the tx count value for faster access
+-Added new sync option for reindex-rich to clear and recreate the richlist data
+-Improved loading of settings including warning of missing and/or invalid settings and the ability to load the explorer using defaults without a settings.json file
+-Restructured the settings.json.template and settings.js files with better groupings
+-Added better comments for improved explanations of all settings
+-Better handling of page length options on all datatables; Page length options are now configurable and also only display options based on limits set by certain items_per_page and max_items_per_query settings
+-Markets have been extended to support unlimited trading pairs for each exchange
+-Richlist page now allows better separation of the top list(s) and the wealth distribution table and chart (you can now hide or show sections as desired)
+-Richlist page now allows for better burned coin support (Hide burned coin addresses from lists and totals even when the burned coin amounts are still included in the total coin supply value)
+-Block page now only displays the raw block link if the api_page.public_apis.rpc.getblock.enabled settings is set to true
+-Transaction page now only displays the raw tx link if the api_page.public_apis.rpc.getrawtransaction.enabled setting is set to true
+-Rate limiting class has been made global and is now used to limit market requests
+-getnetworkhashps rpc call now returns a '-' if shared_pages.show_hashrate is not set to true
+-Searching for unsycned blocks/txs no longer saves the data locally but instead still shows the data on screen. This helps prevent syncing data out-of-order (This eliminates the need for db_index.pid which has been removed)
+-Coin supply is now always taken from the stats collection database instead of from the wallet via rpc command in all cases except when syncing
+-Added new social_links setting to allow adding as many custom links as desired including the ability to display as image or fontawesome icon
+-Removed old hardcoded settings for twitter, facebook, google+, bitcointalk, github, slack, discord, telegram, reddit, youtube and custom website link
+-Removed unnecessary includes for address_history.pug, net_addnodes.pug, net_list.pug, rl_balance.pug, rl_received.pug and restored code in place of include
+-Renamed /ext/connections to /ext/getnetworkpeers and added it to list of public apis on the /info page
+-/ext/getsummary now only returns the online and offline masternode counts if the getmasternodecount api is available and enabled
+-Renamed /ext/summary to /ext/getsummary and added it to list of public apis on the /info page
+-Added /ext/getaddresstxs to the list of public apis on the /info page + updated the return data so that it returns a named object array for public api for better readability and still returns the same array list for internal datatable use
+-Updated /ext/getlasttxs so that it returns a named object array for public api for better readability and still returns the same array list for internal datatable use
+-Added new configurable settings to allow displaying a "last updated date" timestamp for: index, reward, masternode, movement, network, richlist and market pages
+-Pages disabled via settings are now completely disabled on the front-end whereas before some were still accessible via exact url
+-Added a new api /ext/getmasternoderewards which returns a list of masternode reward transactions for a single address since a particular block height
+-Added a new api /ext/getmasternoderewardstotal which returns the total masternode rewards earned for a single address since a particular block height
+-/ext/getbasicstats api now only includes the masternode count if the getmasternodecount api is available and enabled
+-Added a new "Masternodes" page which displays the current list of masternodes on the network
+-Exor theme updated to v2.0.0 with support for bootstrap v4.5.3
+-All coind + extended public api calls can now be enabled/disabled individually via settings
+-Added a new setting to display an alternate "header logo" in the page header
+-Added a new setting for displaying a coin logo image top panel
+-Added a new setting for displaying a 'Market Cap' top panel
+-Added 16x16 logo images to markets
+-Show spinning loading icons in top panels before data is loaded
+-Better reusability of rl_labels.pug
+-Added new market settings for accessing multiple markets (Turn markets header menu into a dropdown with multiple market selection and/or enable a multi-market select box on all market pages)
+-Fixed and added better tooltips where applicable
+-Wallet api security is now dynamically controlled by the new api_cmds settings
+-Restored the jasmine testing functionality along with some sample tests for debugging purposes
+-Added new settings for changing header/footer/thead background color via bootstrap css classes
+-All unnecessary/unused data is now filtered from ajax-enabled datatables to make ajax calls cleaner and easier to read
+-Updated JQuery to v3.5.1
+-Updated Bootstrap to v4.5.3
+-Updated DataTables to v1.10.22
+-Updated FontAwesome to v5.15.1
+-Updated Chart.js to v2.9.4
+-Updated flag-icon-css to v3.5.0
+-All scripts now load minified
+-Removed unused/unnecessary scripts (moment.js and some jqPlot plugins)
+-Scripts that are not used on every page are now only loaded on pages where they are needed (jqPlot, Chart.js and flag-icon-css)
+-Default website language to English
+-Enable unicode support
+-Removed unused images
+-Many internal structure changes to make the code cleaner and easier to find and read
+-Reward page rewritten to support Chart.js v2.9.4
+-All bootswatch themes updated to newest versions (support for bootstrap v4.5.3)
+-Added sass support
+-Added new settings for sticky header/footer support
+-Added better error checking for invalid markets
+-Added the ability to lookup unsynced transactions (search for txid that has not yet been synced)
+-Fixed a bug in the index sync to prevent gaps in the block data
+-Added a new setting to determine how many blocks to sync before saving stats
+-Added new settings to customize footer height + social link sizes
+-Improved long index sync warning functionality
+-Enabled responsive/mobile support
+-format_unixtime function is now used to format all date values
+-Fixed all "collection.count is deprecated" warnings
+-Fixed startup error ERR_INVALID_ARG_TYPE when using node.js 14+
+-Greatly improved and simplified markets functionality, including generic markets page that is consumed by all markets now
+-Added last_txs to /ext/getaddress api
+-Updated jqPlot to v1.0.9.d96a669
+-Network peers list now displays flag icons for country data
+-Explorer name and version now displayed in footer
+-Added the ability to index blocks in parallel for dramatic speed increases during blockchain sync (there is a known issue with this feature that can cause historical balance data to be out-of-sync)
+-Added new claim address feature with bad word filters which allows anyone to set custom display names for wallet addresses that they own using the 'Sign Message' feature from their local wallet (Claimed addresses now replace actual wallet addresses across all pages of the site)
+-Added new use_rpc setting to allow explorer to get wallet data from rpc directly or still consume the public apis as before
+-All numerical values now use a separate CSS class to display digits after decimal place
+-Added historical balance to address history data
+-Peers sync now uses freegeoip.app for IP geolocation
+-Added new Network tab with info to easily get addnode data for Wallets
+-Added new /ext/gettx api
+-Fixed a number of cluster issues that broke support for newer node versions
+-Fixed a memory overflow error when indexing 1000s of TXs
+-Added support for Altmarkets.io exchange
+-Added full address history support as opposed to only displaying top x records
+-Added ipv6 support
+-All api end-points now return text values with HTTP header content-type 'text/plain'
+-Removed defunct markets (ccex, coinexchange, cryptopia, cryptsy, empoex)
+-Replaced deprecated 'request' dependency with 'postman-request'
+-Added support for Crex24 exchange
+-Added partial Zcash/zk-SNARKs private tx support (90% complete)
+-Added support for customizing daemon api cmds
+-Fixed incorrect 'Wealth Distribution' total percent value
+-Added support for omitting 'burned coin' addresses from the rich list
+
 1.0.1 [June 7, 2019]
 -Added stex.com market support
 -Added a new public api /ext/getbasicstats
