@@ -139,6 +139,7 @@ block content
             strong #{address.a_id}
           else
             strong #{address.name}
+          | &#8203;
           include ./includes/rl_labels.pug
           if (!settings.labels[address.a_id] || !settings.labels[address.a_id].enabled) && settings.claim_address_page.enabled == true
             a.badge.badge-pill.float-right.d-none.d-sm-block(href='/claim/' + address.a_id, style='font-size:smaller;padding-bottom:0;')
