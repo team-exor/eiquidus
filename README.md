@@ -14,7 +14,7 @@ Written in node.js and mongodb, eIquidus is the most stable, secure, customizabl
 <h3 class="rich-diff-level-zero" align="center" name="eiquidus-open-bounty-program">:moneybag: eIquidus Open Bounty Program :moneybag:</h3>
 <h3 class="rich-diff-level-zero" align="center">:moneybag: DEVELOPERS WANTED: We pay EXOR coins for quality pull requests :moneybag:</h3>
 
-Before getting too excited, please note that for now, the average payment will likely be equivalent to the price of a cup of coffee, depending on the complexity and usefullness of the pull request. The open bounty means that we welcome any and all code submissions that improve the overall experience of the explorer in some way. We are generally more interested in bug fixes and feature enhancements that are useful for most users, and are less interested in coin-specific changes that only benefit a small handful of users, although we do appreciate and support those types of updates as well. Payments will be decided on a case by case basis. If you are interested in submitting a pull request for payment, you may [create a new issue](https://github.com/team-exor/eiquidus/issues) for bugs, [start a new discussion](https://github.com/team-exor/eiquidus/discussions) for general updates, or contact the developer privately via Discord or Telegram using the links below to get an approximate quote on how much a particular fix or feature may be worth.
+Before getting too excited, please note that for now, the average payment will likely be equivalent to the price of a cup of coffee, depending on the complexity and usefulness of the pull request. The open bounty means that we welcome any and all code submissions that improve the overall experience of the explorer in some way. We are generally more interested in bug fixes and feature enhancements that are useful for most users, and are less interested in coin-specific changes that only benefit a small handful of users, although we do appreciate and support those types of updates as well. Payments will be decided on a case by case basis. If you are interested in submitting a pull request for payment, you may [create a new issue](https://github.com/team-exor/eiquidus/issues) for bugs, [start a new discussion](https://github.com/team-exor/eiquidus/discussions) for general updates, or contact the developer privately via Discord or Telegram using the links below to get an approximate quote on how much a particular fix or feature may be worth.
 
 <div align="center">
 <a href="https://discord.gg/dSuGm3y"><img src="https://img.shields.io/badge/Discord-Joe%20%5BTeam%20Exor%5D%235573-blue?style=for-the-badge&logo=Discord" /></a>&nbsp;
@@ -160,9 +160,9 @@ Table of Contents
   - **getmasternodecount:** Returns a json object containing the total number of masternodes on the network
   - **getmasternodelist:** Returns a json array containing status information for all masternodes on the network
   - **verifymessage:** Verify a signed message. Must accept the following arguments:
-    - **address:** The wallet address to use for the signature.
-    - **signature:** The signature provided by the signer in base 64 encoding.
-    - **message:** The message that was signed.
+    - **address:** The wallet address to use for the signature
+    - **signature:** The signature provided by the signer in base 64 encoding
+    - **message:** The message that was signed
 - Additional support for the following custom blockchain features:
   - Heavycoin democratic voting and reward support
     - **Reward Page:** Displays reward/voting information
@@ -214,29 +214,41 @@ The following prerequisites must be installed before using the explorer:
 
 Open the MongoDB cli:
 
-    $ mongo
+```
+mongo
+```
 
 Select database:
 
 **NOTE:** `explorerdb` is the name of the database where you will be storing local explorer data. You can change this to any name you want, but you must make sure that you set the same name in the `settings.json` file for the `dbsettings.database` setting.
 
-    > use explorerdb
+```
+use explorerdb
+```
 
 Create a new user with read/write access:
 
-    > db.createUser( { user: "eiquidus", pwd: "Nd^p2d77ceBX!L", roles: [ "readWrite" ] } )
+```
+db.createUser( { user: "eiquidus", pwd: "Nd^p2d77ceBX!L", roles: [ "readWrite" ] } )
+```
 
 ##### Download Source Code
 
-    git clone https://github.com/team-exor/eiquidus explorer
+```
+git clone https://github.com/team-exor/eiquidus explorer
+```
 
 ##### Install Node Modules
 
-    cd explorer && npm install --production
+```
+cd explorer && npm install --production
+```
 
 ##### Configure Explorer Settings
 
-    cp ./settings.json.template ./settings.json
+```
+cp ./settings.json.template ./settings.json
+```
 
 *Make required changes in settings.json*
 
@@ -244,42 +256,50 @@ Create a new user with read/write access:
 
 You can launch the explorer in a terminal window that will output all warnings and error msgs with the following cmd (be sure to run from within the explorer directory):
 
-    npm start
+```
+npm start
+```
 
 **NOTE:** mongod must be running to start the explorer.
 
 The explorer defaults to cluster mode, forking an instance of its process to each cpu core. This results in increased performance and stability. Load balancing gets automatically taken care of and any instances that for some reason die, will be restarted automatically. If desired, a single instance can be launched with:
 
-    node --stack-size=10000 bin/instance
+```
+node --stack-size=10000 bin/instance
+```
 
 ##### Stopping the Explorer
 
 To stop the explorer running with `npm start` you can end the process with the key combination `CTRL+C` in the terminal that is running the explorer or from another terminal you can use the following cmd (be sure to run from within the explorer directory):
 
-    npm stop
+```
+npm stop
+```
 
 ### Syncing Databases with the Blockchain
 
 sync.sh (located in scripts/) is used for updating the local databases. This script must be called from the explorers root directory.
 
-    Usage: scripts/sync.sh /path/to/nodejs [mode]
+```
+Usage: scripts/sync.sh /path/to/nodejs [mode]
 
-    Mode: (required)
-    update           Updates index from last sync to current block
-    check            Checks index for (and adds) any missing transactions/addresses
-    reindex          Clears index then resyncs from genesis to current block
-    reindex-rich     Clears and recreates the richlist data
-    reindex-txcount  Rescan and flatten the tx count value for faster access
-    reindex-last     Rescan and flatten the last blockindex value for faster access
-    market           Updates market summaries, orderbooks, trade history + charts
-    peers            Updates peer info based on local wallet connections
-    masternodes      Updates the list of active masternodes on the network
+Mode: (required)
+update           Updates index from last sync to current block
+check            Checks index for (and adds) any missing transactions/addresses
+reindex          Clears index then resyncs from genesis to current block
+reindex-rich     Clears and recreates the richlist data
+reindex-txcount  Rescan and flatten the tx count value for faster access
+reindex-last     Rescan and flatten the last blockindex value for faster access
+market           Updates market summaries, orderbooks, trade history + charts
+peers            Updates peer info based on local wallet connections
+masternodes      Updates the list of active masternodes on the network
 
-    Notes:
-    - 'current block' is the latest created block when script is executed.
-    - The market + peers databases only support (& defaults to) reindex mode.
-    - If check mode finds missing data(ignoring new data since last sync),
-      index_timeout in settings.json is set too low.
+Notes:
+- 'current block' is the latest created block when script is executed.
+- The market + peers databases only support (& defaults to) reindex mode.
+- If check mode finds missing data(ignoring new data since last sync),
+  index_timeout in settings.json is set too low.
+```
 
 *It is recommended to have this script launched via a cronjob at 1+ min intervals.*
 
@@ -287,16 +307,20 @@ sync.sh (located in scripts/) is used for updating the local databases. This scr
 
 *Example crontab; update index every minute, market data every 2 minutes, peers and masternodes every 5 minutes*
 
-    */1 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs update > /dev/null 2>&1
-    */2 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs market > /dev/null 2>&1
-    */5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs peers > /dev/null 2>&1
-    */5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs masternodes > /dev/null 2>&1
+```
+*/1 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs update > /dev/null 2>&1
+*/2 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs market > /dev/null 2>&1
+*/5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs peers > /dev/null 2>&1
+*/5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs masternodes > /dev/null 2>&1
+```
 
 ### Wallet Settings
 
 The wallet connected to eIquidus must be running with the following flags:
 
-    -daemon -txindex
+```
+-daemon -txindex
+```
 	
 You may either call your coins daemon using this syntax:
 
@@ -450,17 +474,23 @@ jQuery(document).ready(function($) {
 
 **exceeding stack size**
 
-    RangeError: Maximum call stack size exceeded
+```
+RangeError: Maximum call stack size exceeded
+```
 
 Nodes default stack size may be too small to index addresses with many tx's. If you experience the above error while running sync.sh the stack size needs to be increased.
 
-To determine the default setting run
+To determine the default setting run:
 
-    node --v8-options | grep -B0 -A1 stack-size
+```
+node --v8-options | grep -B0 -A1 stack-size
+```
 
-To run a sync with a larger stack size launch with
+To run a sync with a larger stack size launch with:
 
-    node --stack-size=[SIZE] scripts/sync.js index update
+```
+node --stack-size=[SIZE] scripts/sync.js index update
+```
 
 Where [SIZE] is an integer higher than the default.
 
