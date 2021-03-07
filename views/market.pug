@@ -5,7 +5,7 @@ block content
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
     - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
-  if marketdata.data != null && marketdata.data.buys != null && marketdata.data.buys.length > 0 && marketdata.data.sells != null && marketdata.data.sells.length > 0 && marketdata.data.history != null && marketdata.data.history.length > 0
+  if marketdata.data != null && ((marketdata.data.buys != null && marketdata.data.buys.length > 0) || (marketdata.data.sells != null && marketdata.data.sells.length > 0) || (marketdata.data.history != null && marketdata.data.history.length > 0))
     script.
       $(document).ready(function() {
         $('.summary-table').dataTable({
@@ -82,7 +82,7 @@ block content
                               i.market-logo.fas.fa-question-circle
                             span #{mkt.name}
                               span.small  (#{pair})
-    if marketdata.data != null && marketdata.data.buys != null && marketdata.data.buys.length > 0 && marketdata.data.sells != null && marketdata.data.sells.length > 0 && marketdata.data.history != null && marketdata.data.history.length > 0
+    if marketdata.data != null && ((marketdata.data.buys != null && marketdata.data.buys.length > 0) || (marketdata.data.sells != null && marketdata.data.sells.length > 0) || (marketdata.data.history != null && marketdata.data.history.length > 0))
       block market_view
         script.
           $(document).ready(function() {
@@ -156,6 +156,7 @@ block content
                       th.text-center #{settings.locale.mkt_low}
                     if marketdata.data.summary.volume != null
                       th.text-center #{settings.locale.mkt_volume}
+                        span.small  (#{marketdata.coin})
                     if marketdata.data.summary.volume_btc != null
                       th.text-center #{settings.locale.mkt_volume}
                         span.small  (#{marketdata.exchange})
@@ -214,9 +215,7 @@ block content
                     if marketdata.data.summary.change != null || (marketdata.data.summary.last != null && marketdata.data.summary.prev != null)
                       if marketdata.data.summary.change != null
                         if marketdata.data.summary.change == '' || marketdata.data.summary.change == '-'
-                          td.text-center.font-weight-bold 0.
-                            span.decimal 00
-                            span  %
+                          - var price_change = "0.00";
                         else
                           - var price_change = Number(marketdata.data.summary.change).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':true});
                       else

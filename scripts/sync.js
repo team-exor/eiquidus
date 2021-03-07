@@ -455,12 +455,12 @@ if (database == 'peers') {
                                 // update market data
                                 db.update_markets_db(key, split_pair[0], split_pair[1], function(err) {
                                   if (!err) {
-                                    console.log('%s: %s market data updated successfully.', key, pair_key);
+                                    console.log('%s[%s]: market data updated successfully.', key, pair_key);
                                     complete++;
                                     if (complete == total_pairs)
                                       get_last_usd_price();
                                   } else {
-                                    console.log('%s: %s: %s', key, pair_key, err);
+                                    console.log('%s[%s] error: %s', key, pair_key, err);
                                     complete++;
                                     if (complete == total_pairs)
                                       get_last_usd_price();
