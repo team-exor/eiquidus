@@ -1,6 +1,6 @@
-var mongoose = require('mongoose')
-  , Schema = mongoose.Schema;
- 
+var mongoose = require('mongoose'),
+    Schema = mongoose.Schema;
+
 var MarketsSchema = new Schema({
   market: { type: String, index: true },
   coin_symbol: { type: String },

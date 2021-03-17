@@ -14,7 +14,9 @@ main() {
   if [ $currentblockcount -ne $endingblockcount ]; then
     forcesync $currentblockcount
     currentblockcount=$((currentblockcount + 1))
-  else exit;  fi
+  else
+    exit;
+  fi
   main
 }
 

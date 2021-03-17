@@ -1,13 +1,12 @@
-var mongoose = require('mongoose')
-  , lib = require('../lib/explorer')
-  , db = require('../lib/database')
-  , Tx = require('../models/tx')
-  , Address = require('../models/address')
-  , AddressTx = require('../models/addresstx')
-  , Richlist = require('../models/richlist')
-  , Stats = require('../models/stats')
-  , settings = require('../lib/settings');
-
+var mongoose = require('mongoose'),
+    lib = require('../lib/explorer'),
+    db = require('../lib/database'),
+    Tx = require('../models/tx'),
+    Address = require('../models/address'),
+    AddressTx = require('../models/addresstx'),
+    Richlist = require('../models/richlist'),
+    Stats = require('../models/stats'),
+    settings = require('../lib/settings');
 var mode = 'update';
 var database = 'index';
 
@@ -19,7 +18,7 @@ function usage() {
   console.log('update           Updates index from last sync to current block');
   console.log('check            Checks index for (and adds) any missing transactions/addresses');
   console.log('reindex          Clears index then resyncs from genesis to current block');
-  console.log('reindex-rich     Clears and recreates the richlist data');  
+  console.log('reindex-rich     Clears and recreates the richlist data');
   console.log('reindex-txcount  Rescan and flatten the tx count value for faster access');
   console.log('reindex-last     Rescan and flatten the last blockindex value for faster access');
   console.log('market           Updates market summaries, orderbooks, trade history + charts');
@@ -30,18 +29,17 @@ function usage() {
   console.log('- \'current block\' is the latest created block when script is executed.');
   console.log('- The market + peers databases only support (& defaults to) reindex mode.');
   console.log('- If check mode finds missing data (ignoring new data since last sync),');
-  console.log('  index_timeout in settings.json is set too low.')
+  console.log('  index_timeout in settings.json is set too low.');
   console.log('');
   process.exit(0);
 }
 
 // check options
 if (process.argv[2] == 'index') {
-  if (process.argv.length <3) {
+  if (process.argv.length < 3)
     usage();
-  } else {
-    switch(process.argv[3])
-    {
+  else {
+    switch(process.argv[3]) {
       case 'update':
         mode = 'update';
         break;
@@ -64,65 +62,61 @@ if (process.argv[2] == 'index') {
         usage();
     }
   }
-} else if (process.argv[2] == 'market') {
+} else if (process.argv[2] == 'market')
   database = 'market';
-} else if (process.argv[2] == 'peers') {
+else if (process.argv[2] == 'peers')
   database = 'peers';
-} else if (process.argv[2] == 'masternodes') {
+else if (process.argv[2] == 'masternodes')
   database = 'masternodes';
-} else {
+else
   usage();
-}
 
 function create_lock(cb) {
-  if ( database == 'index' ) {
+  if (database == 'index') {
     var fname = './tmp/' + database + '.pid';
+
     db.fs.appendFile(fname, process.pid.toString(), function (err) {
       if (err) {
         console.log("Error: unable to create %s", fname);
         process.exit(1);
-      } else {
+      } else
         return cb();
-      }
     });
-  } else {
+  } else
     return cb();
-  }
 }
 
 function remove_lock(cb) {
-  if ( database == 'index' ) {
+  if (database == 'index') {
     var fname = './tmp/' + database + '.pid';
+
     db.fs.unlink(fname, function (err) {
-      if(err) {
+      if (err) {
         console.log("unable to remove lock: %s", fname);
         process.exit(1);
-      } else {
+      } else
         return cb();
-      }
     });
-  } else {
+  } else
     return cb();
-  }
 }
 
 function is_locked(cb) {
-  if ( database == 'index' ) {
+  if (database == 'index') {
     var fname = './tmp/' + database + '.pid';
+
     db.fs.exists(fname, function (exists) {
-      if(exists) {
+      if (exists)
         return cb(true);
-      } else {
+      else
         return cb(false);
-      }
     });
-  } else {
+  } else
     return cb();
-  }
 }
 
 function exit() {
-  remove_lock(function(){
+  remove_lock(function() {
     mongoose.disconnect();
     process.exit(0);
   });
@@ -137,6 +131,7 @@ dbString = dbString + '/' + settings.dbsettings.database;
 if (database == 'peers') {
   var rateLimitLib = require('../lib/ratelimit');
   console.log('syncing peers.. please wait..');
+
   // syncing peers does not require a lock
   mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: false }, function(err) {
     if (err) {
@@ -148,7 +143,7 @@ if (database == 'peers') {
         if (body != null) {
           lib.syncLoop(body.length, function (loop) {
             var i = loop.iteration();
-            var address = body[i].addr.substring(0, body[i].addr.lastIndexOf(":")).replace("[","").replace("]","");
+            var address = body[i].addr.substring(0, body[i].addr.lastIndexOf(":")).replace("[","").replace("]", "");
             var port = body[i].addr.substring(body[i].addr.lastIndexOf(":") + 1);
             var rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
             db.find_peer(address, function(peer) {
@@ -159,8 +154,9 @@ if (database == 'peers') {
                     exit();
                   });
                 }
-                console.log('Updated peer %s [%s/%s]', address, (i + 1).toString(), body.length.toString());
+
                 // peer already exists
+                console.log('Updated peer %s [%s/%s]', address, (i + 1).toString(), body.length.toString());
                 loop.next();
               } else {
                 rateLimit.schedule(function() {
@@ -203,6 +199,7 @@ if (database == 'peers') {
   });
 } else if (database == 'masternodes') {
   console.log('syncing masternodes.. please wait..');
+
   // syncing masternodes does not require a lock
   mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: false }, function(err) {
     if (err) {
@@ -214,6 +211,7 @@ if (database == 'peers') {
         if (body != null) {
           lib.syncLoop(body.length, function (loop) {
             var i = loop.iteration();
+
             db.save_masternode(body[i], function (success) {
               if (success)
                 loop.next();
@@ -244,7 +242,7 @@ if (database == 'peers') {
       console.log("Script already running..");
       process.exit(0);
     } else {
-      create_lock(function (){
+      create_lock(function () {
         console.log("script launched with pid: " + process.pid);
         mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: false }, function(err) {
           if (err) {
@@ -265,13 +263,16 @@ if (database == 'peers') {
                     if (mode == 'reindex') {
                       Tx.deleteMany({}, function(err) {
                         console.log('TXs cleared.');
+
                         Address.deleteMany({}, function(err2) {
                           console.log('Addresses cleared.');
+
                           AddressTx.deleteMany({}, function(err3) {
                             console.log('Address TXs cleared.');
+
                             Richlist.updateOne({coin: settings.coin.name}, {
                               received: [],
-                              balance: [],
+                              balance: []
                             }, function(err3) {
                               Stats.updateOne({coin: settings.coin.name}, {
                                 last: 0,
@@ -308,8 +309,9 @@ if (database == 'peers') {
                       });
                     } else if (mode == 'check') {
                       console.log('starting check.. please wait..');
-                      db.update_tx_db(settings.coin.name, 1, stats.count, stats.txes, settings.sync.check_timeout, function(){
-                        db.get_stats(settings.coin.name, function(nstats){
+
+                      db.update_tx_db(settings.coin.name, 1, stats.count, stats.txes, settings.sync.check_timeout, function() {
+                        db.get_stats(settings.coin.name, function(nstats) {
                           console.log('check complete (block: %s)', nstats.last);
                           exit();
                         });
@@ -322,10 +324,10 @@ if (database == 'peers') {
                       // Check if the sync msg should be shown
                       check_show_sync_message(count - last);
 
-                      db.update_tx_db(settings.coin.name, last, count, stats.txes, settings.sync.update_timeout, function(){
-                        db.update_richlist('received', function(){
-                          db.update_richlist('balance', function(){
-                            db.get_stats(settings.coin.name, function(nstats){
+                      db.update_tx_db(settings.coin.name, last, count, stats.txes, settings.sync.update_timeout, function() {
+                        db.update_richlist('received', function() {
+                          db.update_richlist('balance', function() {
+                            db.get_stats(settings.coin.name, function(nstats) {
                               // always check for and remove the sync msg if exists
                               remove_sync_message();
                               // update richlist_last_updated value
@@ -342,14 +344,21 @@ if (database == 'peers') {
                       });
                     } else if (mode == 'reindex-rich') {
                       console.log('check richlist');
+
                       db.check_richlist(settings.coin.name, function(exists) {
-                        if (exists) console.log('richlist entry found, deleting now..');
+                        if (exists)
+                          console.log('richlist entry found, deleting now..');
+
                         db.delete_richlist(settings.coin.name, function(deleted) {
-                          if (deleted) console.log('richlist entry deleted');
+                          if (deleted)
+                            console.log('richlist entry deleted');
+
                           db.create_richlist(settings.coin.name, function() {
                             console.log('richlist created.');
+
                             db.update_richlist('received', function() {
                               console.log('richlist updated received.');
+
                               db.update_richlist('balance', function() {
                                 // update richlist_last_updated value
                                 db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
@@ -363,6 +372,7 @@ if (database == 'peers') {
                       });
                     } else if (mode == 'reindex-txcount') {
                       console.log('calculating tx count.. please wait..');
+
                       // Resetting the transaction counter requires a single lookup on the txes collection to find all txes that have a positive or zero total and 1 or more vout
                       Tx.find({'total': {$gte: 0}, 'vout': { $gte: { $size: 1 }}}).countDocuments(function(err, count) {
                         console.log('found tx count: ' + count.toString());
@@ -375,11 +385,13 @@ if (database == 'peers') {
                       });
                     } else if (mode == 'reindex-last') {
                       console.log('finding last blockindex.. please wait..');
+
                       // Resetting the last blockindex counter requires a single lookup on the txes collection to find the last indexed blockindex
                       Tx.find({}, {blockindex:1, _id:0}).sort({blockindex: -1}).limit(1).exec(function(err, tx) {
                         // check if any blocks exists
                         if (err != null || tx == null || tx.length == 0) {
                           console.log('no blocks found. setting last blockindex to 0.');
+
                           Stats.updateOne({coin: settings.coin.name}, {
                             last: 0
                           }, function() {
@@ -388,6 +400,7 @@ if (database == 'peers') {
                           });
                         } else {
                           console.log('found last blockindex: ' + tx[0].blockindex.toString());
+
                           Stats.updateOne({coin: settings.coin.name}, {
                             last: tx[0].blockindex
                           }, function() {
@@ -457,11 +470,13 @@ if (database == 'peers') {
                                   if (!err) {
                                     console.log('%s[%s]: market data updated successfully.', key, pair_key);
                                     complete++;
+
                                     if (complete == total_pairs)
                                       get_last_usd_price();
                                   } else {
                                     console.log('%s[%s] error: %s', key, pair_key, err);
                                     complete++;
+
                                     if (complete == total_pairs)
                                       get_last_usd_price();
                                   }
@@ -471,7 +486,7 @@ if (database == 'peers') {
                               console.log('error: entry for %s does not exist in markets database.', key);
                               complete++;
                               if (complete == total_pairs)
-                              get_last_usd_price();
+                                get_last_usd_price();
                             }
                           });
                         }
@@ -480,6 +495,7 @@ if (database == 'peers') {
                       // market not installed
                       console.log('%s market not installed', key);
                       complete++;
+
                       if (complete == total_pairs)
                         get_last_usd_price();
                     }

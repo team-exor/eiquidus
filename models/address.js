@@ -1,6 +1,6 @@
-var mongoose = require('mongoose')
-  , Schema = mongoose.Schema;
- 
+var mongoose = require('mongoose'),
+    Schema = mongoose.Schema;
+
 var AddressSchema = new Schema({
   a_id: { type: String, unique: true, index: true},
   name: { type: String, default: '', index: true},
@@ -10,4 +10,3 @@ var AddressSchema = new Schema({
 }, {id: false});
 
 module.exports = mongoose.model('Address', AddressSchema);
-

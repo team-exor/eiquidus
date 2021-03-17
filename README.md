@@ -323,7 +323,7 @@ The wallet connected to eIquidus must be running with the following flags:
 ```
 -daemon -txindex
 ```
-	
+
 You may either call your coins daemon using this syntax:
 
 ```

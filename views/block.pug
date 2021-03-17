@@ -55,7 +55,7 @@ block content
           - var difficulty = Number(block.difficulty).toLocaleString('en',{'minimumFractionDigits':4,'maximumFractionDigits':4,'useGrouping':true});
           - var splitDifficulty = difficulty.split('.');
           - var block_size = Number(block.size/1024).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':true});
-          - var splitBlockSize = block_size.split('.');          
+          - var splitBlockSize = block_size.split('.');
           if block.confirmations >= confirmations
             tr.bg-success.text-dark
               td.text-center=block.height

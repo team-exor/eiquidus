@@ -68,6 +68,7 @@ describe('explorer', function() {
 
   describe('prepare_vout', function() {
     var originalTimeout;
+
     beforeEach(function() {
       originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;

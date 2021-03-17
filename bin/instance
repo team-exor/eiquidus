@@ -16,9 +16,7 @@ db.connect(dbString, function() {
   db.check_stats(settings.coin.name, function(exists) {
     if (exists == false) {
       console.log('no stats entry found, creating now..');
-      db.create_stats(settings.coin.name, function(){
-        //console.log('stats entry created successfully.');
-      });
+      db.create_stats(settings.coin.name, function() {});
     } else {
       db.get_stats(settings.coin.name, function (stats) {
         app.locals.stats = stats;
@@ -56,19 +54,20 @@ db.connect(dbString, function() {
     });
   }
 
-  db.check_richlist(settings.coin.name, function(exists){
+  db.check_richlist(settings.coin.name, function(exists) {
     if (exists == false) {
       console.log('no richlist entry found, creating now..');
       db.create_richlist(settings.coin.name, function() {});
     }
-  });  
+  });
+
   if (settings.blockchain_specific.heavycoin.enabled == true) {
-    db.check_heavy(settings.coin.name, function(exists){
+    db.check_heavy(settings.coin.name, function(exists) {
       if (exists == false) {
         console.log('no heavycoin entry found, creating now..');
         db.create_heavy(settings.coin.name, function() {});
       }
-    }); 
+    });
   }
 
   var server = app.listen(app.get('port'), '::', function() {

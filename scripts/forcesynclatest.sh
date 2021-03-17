@@ -17,7 +17,9 @@ main() {
   if [ $currentblockcount -ne $previousblockcount ]; then
     echo "New block found. Syncing..."
     forcesync $currentblockcount
-  else echo "No new block found. Sleeping...";  fi
+  else
+    echo "No new block found. Sleeping...";
+  fi
   sleep 20
   main
 }

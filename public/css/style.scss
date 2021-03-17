@@ -516,7 +516,7 @@ table {
     }
     > div:last-child {
       border-right: 1px solid #000000;
-      @include table-border-color;  
+      @include table-border-color;
     }
   }
   > .row:last-child {
@@ -627,7 +627,7 @@ tr {
   .dataTables_wrapper {
     > .row:first-child > div:first-child {
       border-right: 1px solid #000000;
-      @include table-border-color;  
+      @include table-border-color;
     }
   }
 }

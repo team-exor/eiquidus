@@ -1,18 +1,17 @@
-var express = require('express')
-  , path = require('path')
-  , nodeapi = require('./lib/nodeapi')
-  , favicon = require('serve-favicon')
-  , logger = require('morgan')
-  , cookieParser = require('cookie-parser')
-  , bodyParser = require('body-parser')
-  , settings = require('./lib/settings')
-  , routes = require('./routes/index')
-  , lib = require('./lib/explorer')
-  , db = require('./lib/database')
-  , package_metadata = require('./package.json')
-  , locale = require('./lib/locale')
-  , request = require('postman-request');
-
+var express = require('express'),
+    path = require('path'),
+    nodeapi = require('./lib/nodeapi'),
+    favicon = require('serve-favicon'),
+    logger = require('morgan'),
+    cookieParser = require('cookie-parser'),
+    bodyParser = require('body-parser'),
+    settings = require('./lib/settings'),
+    routes = require('./routes/index'),
+    lib = require('./lib/explorer'),
+    db = require('./lib/database'),
+    package_metadata = require('./package.json'),
+    locale = require('./lib/locale'),
+    request = require('postman-request');
 var app = express();
 var apiAccessList = [];
 
@@ -38,12 +37,12 @@ Object.keys(settings.blockchain_specific).forEach(function(key, index, map) {
 nodeapi.setAccess('only', apiAccessList);
 // determine if cors should be enabled
 if (settings.webserver.cors.enabled == true) {
-	app.use(function(req, res, next) {
-	   res.header("Access-Control-Allow-Origin", settings.webserver.cors.corsorigin);
-	   res.header('Access-Control-Allow-Methods', 'DELETE, PUT, GET, POST');
-	   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-	   next();
-	});
+  app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", settings.webserver.cors.corsorigin);
+    res.header('Access-Control-Allow-Methods', 'DELETE, PUT, GET, POST');
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+  });
 }
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -79,9 +78,9 @@ app.post('/claim', function(req, res) {
   if (message == req.body.message) {
     // call the verifymessage api
     lib.verify_message(req.body.address, req.body.signature, req.body.message, function(body) {
-      if (body == false) {
+      if (body == false)
         res.json({'status': 'failed', 'error': true, 'message': 'Invalid signature'});
-      } else if (body == true) {
+      else if (body == true) {
         db.update_label(req.body.address, req.body.message, function(val) {
           // check if the update was successful
           if (val == '')
@@ -120,27 +119,33 @@ app.use('/ext/getaddress/:hash', function(req, res) {
       db.get_address_txs_ajax(req.params.hash, 0, settings.api_page.public_apis.ext.getaddresstxs.max_items_per_query, function(txs, count) {
         if (address) {
           var last_txs = [];
+
           for (i = 0; i < txs.length; i++) {
             if (typeof txs[i].txid !== "undefined") {
               var out = 0,
-              vin = 0,
-              tx_type = 'vout',
-              row = {};
+                  vin = 0,
+                  tx_type = 'vout',
+                  row = {};
+
               txs[i].vout.forEach(function (r) {
                 if (r.addresses == req.params.hash)
                   out += r.amount;
               });
+
               txs[i].vin.forEach(function (s) {
                 if (s.addresses == req.params.hash)
                   vin += s.amount;
               });
+
               if (vin > out)
                 tx_type = 'vin';
+
               row['addresses'] = txs[i].txid;
               row['type'] = tx_type;
               last_txs.push(row);
             }
           }
+
           var a_ext = {
             address: address.a_id,
             sent: (address.sent / 100000000),
@@ -148,6 +153,7 @@ app.use('/ext/getaddress/:hash', function(req, res) {
             balance: (address.balance / 100000000).toString().replace(/(^-+)/mg, ''),
             last_txs: last_txs
           };
+
           res.send(a_ext);
         } else
           res.send({ error: 'address not found.', hash: req.params.hash});
@@ -161,13 +167,13 @@ app.use('/ext/gettx/:txid', function(req, res) {
   // check if the gettx api is enabled
   if (settings.api_page.enabled == true && settings.api_page.public_apis.ext.gettx.enabled == true) {
     var txid = req.params.txid;
+
     db.get_tx(txid, function(tx) {
       if (tx) {
         lib.get_blockcount(function(blockcount) {
           res.send({ active: 'tx', tx: tx, confirmations: settings.shared_pages.confirmations, blockcount: (blockcount ? blockcount : 0)});
         });
-      }
-      else {
+      } else {
         lib.get_rawtransaction(txid, function(rtx) {
           if (rtx && rtx.txid) {
             lib.prepare_vin(rtx, function(vin) {
@@ -181,8 +187,9 @@ app.use('/ext/gettx/:txid', function(req, res) {
                       total: total.toFixed(8),
                       timestamp: rtx.time,
                       blockhash: '-',
-                      blockindex: -1,
+                      blockindex: -1
                     };
+
                     res.send({ active: 'tx', tx: utx, confirmations: settings.shared_pages.confirmations, blockcount:-1});
                   } else {
                     var utx = {
@@ -192,8 +199,9 @@ app.use('/ext/gettx/:txid', function(req, res) {
                       total: total.toFixed(8),
                       timestamp: rtx.time,
                       blockhash: rtx.blockhash,
-                      blockindex: rtx.blockheight,
+                      blockindex: rtx.blockheight
                     };
+
                     lib.get_blockcount(function(blockcount) {
                       res.send({ active: 'tx', tx: utx, confirmations: settings.shared_pages.confirmations, blockcount: (blockcount ? blockcount : 0)});
                     });
@@ -201,9 +209,8 @@ app.use('/ext/gettx/:txid', function(req, res) {
                 });
               });
             });
-          } else {
+          } else
             res.send({ error: 'tx not found.', hash: txid});
-          }
         });
       }
     });
@@ -244,7 +251,7 @@ app.use('/ext/getcurrentprice', function(req, res) {
   if (settings.api_page.enabled == true && settings.api_page.public_apis.ext.getcurrentprice.enabled == true) {
     db.get_stats(settings.coin.name, function (stats) {
       eval('var p_ext = { "last_price_' + settings.markets_page.default_exchange.trading_pair.split('/')[1].toLowerCase() + '": stats.last_price, "last_price_usd": stats.last_usd_price, }');
-        res.send(p_ext);
+      res.send(p_ext);
     });
   } else
     res.end('This method is disabled');
@@ -297,6 +304,7 @@ app.use('/ext/getlasttxs/:min', function(req, res) {
           if (split.length > 2 && split[2] == 'internal')
             internal = true;
         }
+
         break;
     }
 
@@ -363,11 +371,13 @@ app.use('/ext/getaddresstxs/:address/:start/:length', function(req, res) {
 
           if (internal) {
             var row = [];
+
             row.push(txs[i].timestamp);
             row.push(txs[i].txid);
             row.push(Number(out / 100000000));
             row.push(Number(vin / 100000000));
             row.push(Number(txs[i].balance / 100000000));
+
             data.push(row);
           } else {
             data.push({
@@ -399,6 +409,7 @@ app.use('/ext/getsummary', function(req, res) {
   if ((settings.api_page.enabled == true && settings.api_page.public_apis.ext.getsummary.enabled == true) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
     lib.get_difficulty(function(difficulty) {
       difficultyHybrid = '';
+
       if (difficulty && difficulty['proof-of-work']) {
         if (settings.shared_pages.difficulty == 'Hybrid') {
           difficultyHybrid = 'POS: ' + difficulty['proof-of-stake'];
@@ -408,6 +419,7 @@ app.use('/ext/getsummary', function(req, res) {
         else
           difficulty = difficulty['proof-of-stake'];
       }
+
       lib.get_hashrate(function(hashrate) {
         lib.get_connectioncount(function(connections) {
           lib.get_blockcount(function(blockcount) {
@@ -415,6 +427,7 @@ app.use('/ext/getsummary', function(req, res) {
               lib.get_masternodecount(function(masternodestotal) {
                 if (hashrate == 'There was an error. Check your console.')
                   hashrate = 0;
+
                 // check if the masternode count api is enabled
                 if (settings.api_page.public_apis.rpc.getmasternodecount.enabled == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') {
                   // masternode count api is available
@@ -424,9 +437,11 @@ app.use('/ext/getsummary', function(req, res) {
                   if (masternodestotal) {
                     if (masternodestotal.total)
                       mn_total = masternodestotal.total;
+
                     if (masternodestotal.enabled)
                       mn_enabled = masternodestotal.enabled;
                   }
+
                   res.send({
                     difficulty: (difficulty ? difficulty : '-'),
                     difficultyHybrid: difficultyHybrid,
@@ -477,6 +492,7 @@ app.use('/ext/getnetworkpeers', function(req, res) {
         delete peers[i]['_doc']['_id'];
         delete peers[i]['_doc']['__v'];
       }
+
       // check if this is an internal request
       if (internal) {
         // display data formatted for internal datatable
@@ -501,6 +517,7 @@ app.use('/ext/getmasternodelist', function(req, res) {
         delete masternodes[i]['_doc']['_id'];
         delete masternodes[i]['_doc']['__v'];
       }
+
       // return masternode list
       res.send(masternodes);
     });
@@ -524,6 +541,7 @@ app.use('/ext/getmasternoderewards/:hash/:since', function(req, res) {
           rewards[i]['total'] = rewards[i]['total'] / 100000000;
           rewards[i]['vout']['amount'] = rewards[i]['vout']['amount'] / 100000000;
         }
+
         // return list of masternode rewards
         res.json(rewards);
       } else
@@ -693,7 +711,7 @@ if (settings.shared_pages.page_header.panels.logo_panel.enabled == true && setti
 
 panel_order.sort(function(a,b) { return a.val - b.val; });
 
-for (var i=1; i<6; i++)
+for (var i = 1; i < 6; i++)
   app.set('panel'+i.toString(), ((panel_order.length >= i) ? panel_order[i-1].name : ''));
 
 app.set('market_data', market_data);
@@ -709,23 +727,23 @@ app.use(function(req, res, next) {
 // development error handler
 // will print stacktrace
 if (app.get('env') === 'development') {
-    app.use(function(err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
+  app.use(function(err, req, res, next) {
+    res.status(err.status || 500);
+    res.render('error', {
+      message: err.message,
+      error: err
     });
+  });
 }
 
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
+  res.status(err.status || 500);
+  res.render('error', {
+    message: err.message,
+    error: {}
+  });
 });
 
 module.exports = app;

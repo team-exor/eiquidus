@@ -109,7 +109,7 @@ html(lang='en')
         function showTopPanelData(dataElement, loadingElement) {
           if ($('#' + loadingElement).length) {
             $('#' + loadingElement).fadeOut('slow', function() {
-              $('#' + loadingElement).remove();              
+              $('#' + loadingElement).remove();
               $('#' + dataElement).fadeIn();
             });
           }
@@ -147,7 +147,7 @@ html(lang='en')
             splitParts = splitValue.split('.');
             showTopPanelData('supplypanel', 'supplyPanelLoading');
 
-            $("#marketCap").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');            
+            $("#marketCap").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
             showTopPanelData('marketCapPanel', 'marketCapPanelLoading');
 
             splitParts = diffString.split('.');
@@ -391,22 +391,22 @@ html(lang='en')
       .col-lg-12
         .row.text-center.d-flex.justify-content-center
           div(class="col-lg-2 col-lg-offset-" + settings.paneloffset)
-            - if(settings.panel1 != '') {
+            - if (settings.panel1 != '') {
               .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlOne')
             - }
-          - if(settings.panel2 != '') {
+          - if (settings.panel2 != '') {
             .col-lg-2
               .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlTwo')
           - }
-          - if(settings.panel3 != '') {
+          - if (settings.panel3 != '') {
             .col-lg-2
               .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlThree')
           - }
-          - if(settings.panel4 != '') {
+          - if (settings.panel4 != '') {
             .col-lg-2
               .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFour')
           - }
-          - if(settings.panel5 != '') {
+          - if (settings.panel5 != '') {
           .col-lg-2
             .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFive')
           - }
