@@ -19,23 +19,14 @@ esac
 # Erase entire database
 sudo touch "${SCRIPT_PATH}/del.tmp" && mongo <<EOF
 use explorerdb
-db.addresses.remove({})
 db.addresses.drop()
-db.addresstxes.remove({})
 db.addresstxes.drop()
-db.coinstats.remove({})
 db.coinstats.drop()
-db.heavies.remove({})
 db.heavies.drop()
-db.markets.remove({})
 db.markets.drop()
-db.masternodes.remove({})
 db.masternodes.drop()
-db.peers.remove({})
 db.peers.drop()
-db.richlists.remove({})
 db.richlists.drop()
-db.txes.remove({})
 db.txes.drop()
 exit
 EOF
