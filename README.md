@@ -166,6 +166,10 @@ Table of Contents
     - **signature:** The signature provided by the signer in base 64 encoding
     - **message:** The message that was signed
 - Additional support for the following custom blockchain features:
+  - Bitcoin P2PK transactions
+    - Bitcoin rpc/api cmds:
+      - **getdescriptorinfo:** Accepts a descriptor as input and returns an object with more detailed information, including its computed checksum
+      - **deriveaddresses:** Accepts an output descriptor as input and returns an array containing one or more P2PKH addresses
   - Heavycoin democratic voting and reward support
     - **Reward Page:** Displays reward/voting information
     - Heavycoin rpc/api cmds:

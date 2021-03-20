@@ -59,8 +59,12 @@
   "nonce": "Nonce",
   "new_coins": "New Coins",
   "proof_of_stake": "PoS",
+  "hidden_address": "Hidden Address",
   "hidden_sender": "Hidden Sender",
   "hidden_recipient": "Hidden Recipient",
+  "unknown_address": "Unknown Address",
+  "unknown_sender": "Unknown Sender",
+  "unknown_recipient": "Unknown Recipient",
   "initial_index_alert": "Blockchain data is currently being synchronized. You may browse the site during this time, but keep in mind that data may not yet be fully accurate and some functionality may not work until synchronization is complete.",
 
   // address menu

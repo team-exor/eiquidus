@@ -955,6 +955,22 @@
 
   // blockchain_specific: A collection of settings that pertain to non-standard blockchain features that can extend the functionality of the default explorer
   "blockchain_specific": {
+    // bitcoin: A collection of settings that pertain to Bitcoin-specific scripts (P2PK support)
+    "bitcoin": {
+      // enabled: Enable/disable the use of bitcoin scripts in the explorer (true/false)
+      //          If set to false, all P2PK transactions will be saved without addresses as they require special encoding to reveal the more familiar P2PKH address
+      //          NOTE: Enabling this feature will require a full reindex of the blockchain data to fix any P2PK transactions that were previously not displaying addresses
+      "enabled": false,
+      //api_cmds: A collection of settings that pertain to the list of customizable bitcoin rpc api commands
+      //          Not all blockchains utilize the same rpc cmds for accessing the internal daemon api. Use these settings to set alternate names for similar api cmds.
+      //          Leaving a cmd value blank ( "" ) will completely disable use of that cmd.
+      "api_cmds": {
+        // getdescriptorinfo: Accepts a descriptor as input and returns an object with more detailed information, including its computed checksum
+        "getdescriptorinfo": "getdescriptorinfo",
+        // deriveaddresses: Accepts an output descriptor as input and returns an array containing one or more P2PKH addresses
+        "deriveaddresses": "deriveaddresses"
+      }
+    },
     // heavycoin: A collection of settings that pertain to the democratic voting and reward capabilities of the heavycoin blockchain
     "heavycoin": {
       // enabled: Enable/disable the use of heavycoin features in the explorer (true/false)

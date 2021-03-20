@@ -136,7 +136,12 @@ block content
       .card.card-default.border-0.card-address-summary.cardSpacer
         .card-header(style='position:relative;')
           if settings.claim_address_page.enabled == false || address.name == null || address.name == ''
-            strong #{address.a_id}
+            if address.a_id == 'hidden_address'
+              strong #{settings.locale.hidden_address}
+            else if address.a_id == 'unknown_address'
+              strong #{settings.locale.unknown_address}
+            else
+              strong #{address.a_id}
           else
             strong #{address.name}
           | &#8203;

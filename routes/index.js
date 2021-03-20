@@ -24,8 +24,8 @@ function route_get_block(res, blockhash) {
 
               lib.get_rawtransaction(block.tx[i], function(tx) {
                 if (tx && tx != 'There was an error. Check your console.') {
-                  lib.prepare_vin(tx, function(vin) {
-                    lib.prepare_vout(tx.vout, block.tx[i], vin, ((!settings.blockchain_specific.zksnarks.enabled || typeof tx.vjoinsplit === 'undefined' || tx.vjoinsplit == null) ? [] : tx.vjoinsplit), function(vout, nvin) {
+                  lib.prepare_vin(tx, function(vin, tx_type_vin) {
+                    lib.prepare_vout(tx.vout, block.tx[i], vin, ((!settings.blockchain_specific.zksnarks.enabled || typeof tx.vjoinsplit === 'undefined' || tx.vjoinsplit == null) ? [] : tx.vjoinsplit), function(vout, nvin, tx_type_vout) {
                       lib.calculate_total(vout, function(total) {
                         ntxs.push({
                           txid: block.tx[i],
@@ -81,8 +81,8 @@ function route_get_tx(res, txid) {
       } else {
         lib.get_rawtransaction(txid, function(rtx) {
           if (rtx && rtx.txid) {
-            lib.prepare_vin(rtx, function(vin) {
-              lib.prepare_vout(rtx.vout, rtx.txid, vin, ((!settings.blockchain_specific.zksnarks.enabled || typeof rtx.vjoinsplit === 'undefined' || rtx.vjoinsplit == null) ? [] : rtx.vjoinsplit), function(rvout, rvin) {
+            lib.prepare_vin(rtx, function(vin, tx_type_vin) {
+              lib.prepare_vout(rtx.vout, rtx.txid, vin, ((!settings.blockchain_specific.zksnarks.enabled || typeof rtx.vjoinsplit === 'undefined' || rtx.vjoinsplit == null) ? [] : rtx.vjoinsplit), function(rvout, rvin, tx_type_vout) {
                 lib.calculate_total(rvout, function(total) {
                   if (!rtx.confirmations > 0) {
                     var utx = {

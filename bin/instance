@@ -54,6 +54,9 @@ db.connect(dbString, function() {
     });
   }
 
+  // Add new field(s) to tx collection if missing
+  db.check_txes(function(exists) {});
+
   db.check_richlist(settings.coin.name, function(exists) {
     if (exists == false) {
       console.log('no richlist entry found, creating now..');
