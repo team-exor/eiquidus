@@ -190,7 +190,7 @@ Table of Contents
       - **getsupply:** Returns the current money supply
       - **getnextrewardestimate:** Returns an estimate for the next block reward based on the current state of decentralized voting
       - **getnextrewardwhenstr:** Returns a string describing how long until the votes are tallied and the next block reward is computed
-  - Partial Zcash/zk-SNARKs private tx support (90% complete)
+  - Zcash/zk-SNARKs private tx support
 
 ### See it in Action
 
