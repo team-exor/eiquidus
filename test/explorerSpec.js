@@ -38,28 +38,28 @@ describe('explorer', function() {
     ];
 
     it('should return index of matching string object', function() {
-      lib.is_unique(arrayStrMap, arrayStrMap[2].addresses, function(unique, index) {
+      lib.is_unique(arrayStrMap, arrayStrMap[2].addresses, 'addresses', function(unique, index) {
         expect(index).toEqual(2);
         expect(unique).toEqual(false);
       });
     });
 
     it('should return index of matching array object', function() {
-      lib.is_unique(arrayArrMap, arrayArrMap[2].addresses, function(unique, index) {
+      lib.is_unique(arrayArrMap, arrayArrMap[2].addresses, 'addresses', function(unique, index) {
         expect(index).toEqual(2);
         expect(unique).toEqual(false);
       });
     });
 
     it('should return true if no matching string object', function() {
-      lib.is_unique(arrayStrMap, 'unique', function(unique, index) {
+      lib.is_unique(arrayStrMap, 'unique', 'addresses', function(unique, index) {
         expect(index).toEqual(null);
         expect(unique).toEqual(true);
       });
     });
 
     it('should return true if no matching array object', function() {
-      lib.is_unique(arrayArrMap, ['unique'], function(unique, index) {
+      lib.is_unique(arrayArrMap, ['unique'], 'addresses', function(unique, index) {
         expect(index).toEqual(null);
         expect(unique).toEqual(true);
       });
