@@ -87,9 +87,17 @@ block content
                                 =address.claim_name
                             include ./includes/rl_labels.pug
                           else if address.addresses == 'hidden_address'
-                            =settings.locale.hidden_sender
+                            if settings.address_page.enable_hidden_address_view == true
+                              a.loading.breakWord(href='/address/hidden_address')
+                                =settings.locale.hidden_sender
+                            else
+                              =settings.locale.hidden_sender
                           else
-                            =settings.locale.unknown_sender
+                            if settings.address_page.enable_unknown_address_view == true
+                              a.loading.breakWord(href='/address/unknown_address')
+                                =settings.locale.unknown_sender
+                            else
+                              =settings.locale.unknown_sender
                         td.bg-danger.text-center #{ramountParts[0]}.
                           span.decimal #{ramountParts[1]}
                 else
@@ -124,17 +132,33 @@ block content
                       else if address.amount > 0
                         td
                           if address.addresses == 'hidden_address'
-                            =settings.locale.hidden_recipient
+                            if settings.address_page.enable_hidden_address_view == true
+                              a.loading.breakWord(href='/address/hidden_address')
+                                =settings.locale.hidden_recipient
+                            else
+                              =settings.locale.hidden_recipient
                           else
-                            =settings.locale.unknown_recipient
+                            if settings.address_page.enable_unknown_address_view == true
+                              a.loading.breakWord(href='/address/unknown_address')
+                                =settings.locale.unknown_recipient
+                            else
+                              =settings.locale.unknown_recipient
                         td.bg-success.text-center #{ramountParts[0]}.
                           span.decimal #{ramountParts[1]}
                       else
                         td(colspan='2')
                           if address.addresses == 'hidden_address'
-                            =settings.locale.hidden_recipient
+                            if settings.address_page.enable_hidden_address_view == true
+                              a.loading.breakWord(href='/address/hidden_address')
+                                =settings.locale.hidden_recipient
+                            else
+                              =settings.locale.hidden_recipient
                           else
-                            =settings.locale.unknown_recipient
+                            if settings.address_page.enable_unknown_address_view == true
+                              a.loading.breakWord(href='/address/unknown_address')
+                                =settings.locale.unknown_recipient
+                            else
+                              =settings.locale.unknown_recipient
                   else
                     - var ramount = Number(address.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                     - var ramountParts = ramount.split('.');

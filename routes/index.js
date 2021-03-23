@@ -178,12 +178,17 @@ function route_get_index(res, error) {
 }
 
 function route_get_address(res, hash) {
-  db.get_address(hash, false, function(address) {
-    if (address)
-      res.render('address', { active: 'address', address: address, showSync: db.check_show_sync_message()});
-    else
-      route_get_index(res, hash + ' not found');
-  });
+  // check if trying to load a special address
+  if (hash != null && hash.toLowerCase() != 'coinbase' && ((hash.toLowerCase() == 'hidden_address' && settings.address_page.enable_hidden_address_view == true) || (hash.toLowerCase() == 'unknown_address' && settings.address_page.enable_unknown_address_view == true) || (hash.toLowerCase() != 'hidden_address' && hash.toLowerCase() != 'unknown_address'))) {
+    // lookup address in local collection
+    db.get_address(hash, false, function(address) {
+      if (address)
+        res.render('address', { active: 'address', address: address, showSync: db.check_show_sync_message()});
+      else
+        route_get_index(res, hash + ' not found');
+    });
+  } else
+    route_get_index(res, hash + ' not found');
 }
 
 function route_get_claim_form(res, hash) {

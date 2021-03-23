@@ -113,73 +113,67 @@ block content
   - var sentParts = sent.split('.');
   - var received = Number(address.received / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var receivedParts = received.split('.');
-  if address.a_id !== 'coinbase' || settings.address_page.show_sent_received == true
-    script.
-      $(document).ready(function() {
-        $('.summary-table').dataTable({
-          info: false,
-          paging: false,
-          searching: false,
-          ordering: false,
-          responsive: true,
-          scrollX: true,
-          fnDrawCallback: function(settings) {
-            fixDataTableColumns();
-          }
-        })
-      });
+  script.
+    $(document).ready(function() {
+      $('.summary-table').dataTable({
+        info: false,
+        paging: false,
+        searching: false,
+        ordering: false,
+        responsive: true,
+        scrollX: true,
+        fnDrawCallback: function(settings) {
+          fixDataTableColumns();
+        }
+      })
+    });
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
     - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
   .col-xs-12.col-md-12
-    if address.a_id !== 'coinbase' || settings.address_page.show_sent_received == true
-      .card.card-default.border-0.card-address-summary.cardSpacer
-        .card-header(style='position:relative;')
-          if settings.claim_address_page.enabled == false || address.name == null || address.name == ''
-            if address.a_id == 'hidden_address'
-              strong #{settings.locale.hidden_address}
-            else if address.a_id == 'unknown_address'
-              strong #{settings.locale.unknown_address}
-            else
-              strong #{address.a_id}
+    .card.card-default.border-0.card-address-summary.cardSpacer
+      .card-header(style='position:relative;')
+        if settings.claim_address_page.enabled == false || address.name == null || address.name == ''
+          if address.a_id == 'hidden_address'
+            strong #{settings.locale.hidden_address}
+          else if address.a_id == 'unknown_address'
+            strong #{settings.locale.unknown_address}
           else
-            strong #{address.name}
-          | &#8203;
-          include ./includes/rl_labels.pug
-          if (!settings.labels[address.a_id] || !settings.labels[address.a_id].enabled) && settings.claim_address_page.enabled == true
-            a.badge.badge-pill.float-right.d-none.d-sm-block(href='/claim/' + address.a_id, style='font-size:smaller;padding-bottom:0;')
-              if address.name == null || address.name == ''
-                =" Is this yours? Claim it now for free!"
-              else
-                =" Update claimed address"
-        table.table.table-bordered.table-striped.summary-table.mobile-border-right(style='border-top:0;margin-top:0 !important;')
-          thead(class=theadClasses)
-            tr
-              if address.a_id !== 'coinbase'
-                th.text-center #{settings.locale.rl_balance}
-                  span.small  (#{settings.coin.symbol})
-              if settings.address_page.show_sent_received == true
-                th.text-center #{settings.locale.total_sent}
-                  span.small  (#{settings.coin.symbol})
-              if address.a_id !== 'coinbase' && settings.address_page.show_sent_received == true
-                th.text-center #{settings.locale.total_received}
-                  span.small  (#{settings.coin.symbol})
-              if address.a_id !== 'coinbase'
-                th.text-center #{settings.locale.a_qr}
-          tbody
-            tr
-              if address.a_id !== 'coinbase'
-                td.text-center.addr-summary #{balanceParts[0]}.
-                  span.decimal #{balanceParts[1]}
-              if settings.address_page.show_sent_received == true
-                td.text-center.addr-summary #{sentParts[0]}.
-                  span.decimal #{sentParts[1]}
-              if address.a_id !== 'coinbase' && settings.address_page.show_sent_received == true
-                td.text-center.addr-summary #{receivedParts[0]}.
-                  span.decimal #{receivedParts[1]}
-              if address.a_id !== 'coinbase'
-                td.text-center.addr-summary
-                  img.qrcode(src='/qr/' + address.a_id)
+            strong #{address.a_id}
+        else
+          strong #{address.name}
+        | &#8203;
+        include ./includes/rl_labels.pug
+        if (!settings.labels[address.a_id] || !settings.labels[address.a_id].enabled) && settings.claim_address_page.enabled == true
+          a.badge.badge-pill.float-right.d-none.d-sm-block(href='/claim/' + address.a_id, style='font-size:smaller;padding-bottom:0;')
+            if address.name == null || address.name == ''
+              =" Is this yours? Claim it now for free!"
+            else
+              =" Update claimed address"
+      table.table.table-bordered.table-striped.summary-table.mobile-border-right(style='border-top:0;margin-top:0 !important;')
+        thead(class=theadClasses)
+          tr
+            th.text-center #{settings.locale.rl_balance}
+              span.small  (#{settings.coin.symbol})
+            if settings.address_page.show_sent_received == true
+              th.text-center #{settings.locale.total_sent}
+                span.small  (#{settings.coin.symbol})
+            if settings.address_page.show_sent_received == true
+              th.text-center #{settings.locale.total_received}
+                span.small  (#{settings.coin.symbol})
+            th.text-center #{settings.locale.a_qr}
+        tbody
+          tr
+            td.text-center.addr-summary #{balanceParts[0]}.
+              span.decimal #{balanceParts[1]}
+            if settings.address_page.show_sent_received == true
+              td.text-center.addr-summary #{sentParts[0]}.
+                span.decimal #{sentParts[1]}
+            if settings.address_page.show_sent_received == true
+              td.text-center.addr-summary #{receivedParts[0]}.
+                span.decimal #{receivedParts[1]}
+            td.text-center.addr-summary
+              img.qrcode(src='/qr/' + address.a_id)
     .card.card-default.border-0.cardSpacer
       .card-header
         strong #{settings.locale.ex_latest_transactions}

@@ -366,6 +366,14 @@
   "address_page": {
     // show_sent_received: Determine whether to show Total Sent and Total Received columns at the top of the address page
     "show_sent_received": false,
+    // enable_hidden_address_view: Determine whether to allow viewing the special 'hidden_address' wallet address which is populated anytime a private/hidden wallet address is involved in a transaction
+    //                              NOTE: Enabling this option will add hyperlinks to all Hidden Addresses and allow viewing of the /address/hidden_address page
+    //                                    Disabling this option will display all Hidden Addresses in plain-text without a hyperlink and visiting the /address/hidden_address page will result in a 404 error
+    "enable_hidden_address_view": false,
+    // enable_unknown_address_view: Determine whether to allow viewing the special 'unknown_address' wallet address which is populated anytime a wallet address cannot be deciphered
+    //                              NOTE: Enabling this option will add hyperlinks to all Unknown Addresses and allow viewing of the /address/unknown_address page
+    //                                    Disabling this option will display all Unknown Addresses in plain-text without a hyperlink and visiting the /address/unknown_address page will result in a 404 error
+    "enable_unknown_address_view": false,
     // history_table: a collection of settings that pertain to the history table on the address page
     //                Table data is populated via the /ext/getaddresstxs api
     "history_table": {
