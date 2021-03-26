@@ -41,17 +41,24 @@ Table of Contents
 - [Syncing Databases with the Blockchain](#syncing-databases-with-the-blockchain)
   - [Sample Crontab](#sample-crontab)
 - [Wallet Settings](#wallet-settings)
+- [Run Express Webserver on Port 80](#run-express-webserver-on-port-80)
+  - [Use Setcap to Safely Grant User Permissions](#use-setcap-to-safely-grant-user-permissions)
+  - [Use Another Webserver as a Reverse Proxy](#use-another-webserver-as-a-reverse-proxy)
+- [TLS/SSL Support](#tlsssl-support)
+  - [Prerequisites](#prerequisites)
+  - [Manually Link TLS/SSL Certificates to the Explorer](#manually-link-tlsssl-certificates-to-the-explorer)
+  - [Use Nginx as a Reverse Proxy](#use-nginx-as-a-reverse-proxy)
 - [Forever](#forever)
   - [Install Forever](#install-forever)
   - [Starting the Explorer Using Forever](#starting-the-explorer-using-forever)
   - [Stopping the Explorer Using Forever](#stopping-the-explorer-using-forever)
+- [CORS Support](#cors-support)
+  - [What is CORS?](#what-is-cors)
+  - [How to Benefit From Using CORS?](#how-to-benefit-from-using-cors)
 - [Useful Scripts](#useful-scripts)
   - [Backup Database Script](#backup-database-script)
   - [Restore Database Script](#restore-database-script)
   - [Delete Database Script](#delete-database-script)
-- [CORS Support](#cors-support)
-  - [What is CORS?](#what-is-cors)
-  - [How to Benefit From Using CORS?](#how-to-benefit-from-using-cors)
 - [Known Issues](#known-issues)
 - [How You Can Support Us](#how-you-can-support-us)
 - [License](#license)
@@ -341,6 +348,167 @@ daemon=1
 txindex=1
 ```
 
+### Run Express Webserver on Port 80
+
+A typical webserver binds to port 80 to serve webpages over the http protocol, but the Express webserver cannot do this by default unless it is given root permissions, which isn't recommended for security reasons. Instead, there are two recommended workarounds to achieve the same end result:
+
+**NOTE:** Be sure to allow port 80 through any firewalls you may have configured or the explorer website may not be accessible remotely.
+
+#### Use Setcap to Safely Grant User Permissions
+
+1. You can use the `setcap` command to change the capabilities of the `node` binary file to specifically allow the Express webserver to bind to a port less than 1024 (this one-time cmd requires root privileges):
+
+```
+sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\``
+```
+
+2. Open the `settings.json` file and change the `webserver.port` setting to a value of 80. Save the change and restart the explorer.
+
+You should now be able to browse to the explorer by IP address or domain name without the need for specifying the 3001 port any longer.
+
+#### Use Another Webserver as a Reverse Proxy
+
+A few steps are involved in setting up another webserver that can bind to port 80 and forward all incoming traffic to the eIquidus node.js app. Any commercial webserver can be used to create the reverse proxy, but in this case, Nginx will be used as an example:
+
+1. Install Nginx with the following terminal cmd:
+
+```
+sudo apt-get install nginx
+```
+
+2. Remove the default configuration file:
+
+```
+sudo rm /etc/nginx/sites-enabled/default
+```
+
+3. Create a new file in `/etc/nginx/sites-available/` called `node` and open it with the nano text editor:
+
+```
+sudo nano /etc/nginx/sites-available/node
+```
+
+4. Paste the following code in the file and make sure to change `example.com` to your domain or IP address, and change port `3001` on the `proxy_pass` line to the port # you have configured for the `webserver.port` setting in the `settings.json` file. When done editing, press CTRL+X, then Y (for yes to save) and then ENTER to finish saving the changes to the config file:
+
+```
+server {
+    listen 80;
+    server_name example.com;
+
+    location / {
+        proxy_set_header   X-Forwarded-For $remote_addr;
+        proxy_set_header   Host $http_host;
+        proxy_pass         "http://127.0.0.1:3001";
+    }
+}
+```
+
+5. Create a new symbolic link for the Nginx configuration file that was just created and link it to the `/etc/nginx/sites-enabled` directory:
+
+```
+sudo ln -s /etc/nginx/sites-available/node /etc/nginx/sites-enabled/node
+```
+
+6. Restart Nginx to apply the configuration changes:
+
+```
+sudo service nginx restart
+```
+
+7. Nginx will now forward all incoming requests to eIquidus and after restarting the explorer it should be browsable via http://example.com without the need for the http://example.com:3001 port any longer.
+
+### TLS/SSL Support
+
+Similar to [the problem with binding to port 80](#run-express-webserver-on-port-80), a typical webserver binds to port 443 to serve webpages over the https protocol, but the Express webserver cannot do this by default unless it is given root permissions, which isn't recommended for security reasons. Instead, there are two recommended workarounds to achieve the same end result: [Manually Link TLS/SSL Certificates to the Explorer](#manually-link-tlsssl-certificates-to-the-explorer) or [Use Nginx as a Reverse Proxy](#use-nginx-as-a-reverse-proxy).
+
+**NOTE:** Be sure to allow port 443 through any firewalls you may have configured or the explorer website may not be accessible remotely.
+
+#### Prerequisites
+
+There are a few common steps that must be completed before TLS/SSL certificates can be generated:
+
+1. Install snapd:
+
+```
+sudo apt install snapd
+```
+
+2. Ensure that snapd is up to date:
+
+```
+sudo snap install core; sudo snap refresh core
+```
+
+3. Install certbot (full install instructions for different operating systems and configurations can be found here: [https://certbot.eff.org/instructions](https://certbot.eff.org/instructions)):
+
+```
+sudo snap install --classic certbot
+```
+
+4. Prepare the certbot command:
+
+```
+sudo ln -s /snap/bin/certbot /usr/bin/certbot
+```
+
+#### Manually Link TLS/SSL Certificates to the Explorer
+
+Follow the steps below to configure the Express webserver for use with TLS/SSL:
+
+1. If you haven't already done so, run the `setcap` cmd from the [Use Setcap to Safely Grant User Permissions Instructions](#use-setcap-to-safely-grant-user-permissions) which will allow node.js to bind to port 443 without needing root permissions.
+
+2. There are different options for generating a valid TLS/SSL certificate, but in this case it is assumed that you do not have another webserver running on port 80 and therefore the standalone install method will be used. If you do have a webserver running, this cmd will fail unless you temporarily stop the webserver before continuing:
+
+```
+sudo certbot certonly --standalone
+```
+
+Certbot will ask a few simple questions and generate the necessary TLS/SSL certificate files for your domain. It will also install the necessary files to automatically renew the certificates when they are about to expire, so you shouldn't need to do anything special to keep them up to date.
+
+3. Once the TLS/SSL certificates are generated, you will need to grant permission to non-root users with the following commands:
+
+```
+sudo chmod -R 755 /etc/letsencrypt/live/
+sudo chmod -R 755 /etc/letsencrypt/archive/
+```
+
+4. The last step is to enable TLS in the explorer's `settings.json` file and specify the paths to the 3 main certificate files that you just generated. Example:
+
+```
+  "webserver": {
+    "port": 80,
+    "tls": {
+      "enabled": true,
+      "port": 443,
+      "cert_file": "/etc/letsencrypt/live/example.com/cert.pem",
+      "chain_file": "/etc/letsencrypt/live/example.com/chain.pem",
+      "key_file": "/etc/letsencrypt/live/example.com/privkey.pem"
+    },
+    "cors": {
+      "enabled": false,
+      "corsorigin": "*"
+    }
+  },
+```
+
+Ensure that `webserver.tls.enabled` = true and that you specify the exact path to the `webserver.tls.cert_file`, `webserver.tls.chain_file` and `webserver.tls.key_file` files by changing `example.com` to the domain name that you just generated TLS/SSL certificates for.
+
+5. If all went well, you should now be able to start up the explorer and browse to it using a secure https connection like [https://example.com](https://example.com).
+
+#### Use Nginx as a Reverse Proxy
+
+1. If you haven't already done so, first follow through the [Use Another Webserver as a Reverse Proxy Instructions](#use-another-webserver-as-a-reverse-proxy) and then continue with step #2 below.
+
+2. Generate a new TLS/SSL certificate via certbot which will automatically edit your Nginx configuration files and enable https at the same time:
+
+```
+sudo certbot --nginx
+```
+
+Certbot will ask a few simple questions and generate the necessary TLS/SSL certificate files for your domain and link them to Nginx. It will also install the necessary files to automatically renew the certificates when they are about to expire, so you shouldn't need to do anything special to keep them up to date.
+
+3. If all went well, you should now be able to start up the explorer and browse to it using a secure https connection like [https://example.com](https://example.com).
+
 ### Forever
 
 [Forever](https://www.npmjs.com/package/forever) is a useful node.js module that is used to always keep the explorer alive and running even if the explorer crashes or stops. Once you have configured the explorer to work properly in a production environment, it is recommended to use forever to start and stop the explorer instead of `npm start` and `npm stop` to keep the explorer constantly running without the need to always keep a terminal window open.
@@ -373,6 +541,53 @@ To stop the explorer when it is running via forever you can use the following te
 
 ```
 /path/to/nodejs /path/to/forever stop bin/cluster
+```
+
+### CORS Support
+
+eIquidus has basic CORS support which is useful to prevent other sites from consuming public APIs while still allowing specific websites whitelisted access.
+
+#### What is CORS?
+
+*CORS description taken from [MaxCDN One](https://www.maxcdn.com/one/visual-glossary/cors/)*
+
+>To prevent websites from tampering with each other, web browsers implement a security measure known as the same-origin policy. The same-origin policy lets resources (such as JavaScript) interact with resources from the same domain, but not with resources from a different domain. This provides security for the user by preventing abuse, such as running a script that reads the password field on a secure website.
+
+>In cases where cross-domain scripting is desired, CORS allows web developers to work around the same-origin policy. CORS adds HTTP headers which instruct web browsers on how to use and manage cross-domain content. The browser then allows or denies access to the content based on its security configuration.
+
+#### How to Benefit From Using CORS?
+
+You must first set up CORS in eIquidus by editing the settings.json file and setting the value for `webserver.cors.enabled` to true.
+
+```
+  "webserver": {
+    "cors": {
+      "enabled": true,
+```
+
+The `webserver.cors.corsorigin` setting defaults to "\*" which allows all requests from any origin. Keeping this setting at "\*" can lead to abuse and is not recommended. Therefore, you should change the `webserver.cors.corsorigin` setting to an external origin that you control, as seen in the following example:
+
+```
+  "webserver": {
+    "cors": {
+      "enabled": true,
+      "corsorigin": "http://example.com"
+```
+
+The above example would allow sharing of resources from eIquidus for all data requests coming from the example.com domain, while all requests coming from any other domain would be rejected as per normal.
+
+Below is an example of a simple javascript call using [jQuery](https://jquery.com) that could be used on your example.com website to return the current block count from eIquidus:
+
+```
+jQuery(document).ready(function($) {
+  $.ajax({
+    type: "GET",
+    url: "http://your-eiquidus-url/api/getblockcount",
+    cache: false
+  }).done(function (data) {
+    alert(data);
+  });
+});
 ```
 
 ### Useful Scripts
@@ -428,53 +643,6 @@ Completely wipe the eIquidus mongo database collection clean to start again from
 **Delete Database**
 
 `sh scripts/delete_database.sh`
-
-### CORS Support
-
-eIquidus has basic CORS support which is useful to prevent other sites from consuming public APIs while still allowing specific websites whitelisted access.
-
-#### What is CORS?
-
-*CORS description taken from [MaxCDN One](https://www.maxcdn.com/one/visual-glossary/cors/)*
-
->To prevent websites from tampering with each other, web browsers implement a security measure known as the same-origin policy. The same-origin policy lets resources (such as JavaScript) interact with resources from the same domain, but not with resources from a different domain. This provides security for the user by preventing abuse, such as running a script that reads the password field on a secure website.
-
->In cases where cross-domain scripting is desired, CORS allows web developers to work around the same-origin policy. CORS adds HTTP headers which instruct web browsers on how to use and manage cross-domain content. The browser then allows or denies access to the content based on its security configuration.
-
-#### How to Benefit From Using CORS?
-
-You must first set up CORS in eIquidus by editing the settings.json file and setting the value for `webserver.cors.enabled` to true.
-
-```
-  "webserver": {
-    "cors": {
-      "enabled": true,
-```
-
-The `webserver.cors.corsorigin` setting defaults to "\*" which allows all requests from any origin. Keeping this setting at "\*" can lead to abuse and is not recommended. Therefore, you should change the `webserver.cors.corsorigin` setting to an external origin that you control, as seen in the following example:
-
-```
-  "webserver": {
-    "cors": {
-      "enabled": true,
-      "corsorigin": "http://example.com"
-```
-
-The above example would allow sharing of resources from eIquidus for all data requests coming from the example.com domain, while all requests coming from any other domain would be rejected as per normal.
-
-Below is an example of a simple javascript call using [jQuery](https://jquery.com) that could be used on your example.com website to return the current block count from eIquidus:
-
-```
-jQuery(document).ready(function($) {
-  $.ajax({
-    type: "GET",
-    url: "http://your-eiquidus-url/api/getblockcount",
-    cache: false
-  }).done(function (data) {
-    alert(data);
-  });
-});
-```
 
 ### Known Issues
 

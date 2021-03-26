@@ -746,4 +746,20 @@ app.use(function(err, req, res, next) {
   });
 });
 
+// determine if tls features should be enabled
+if (settings.webserver.tls.enabled == true) {
+  try {
+    var tls_options = {
+      key: db.fs.readFileSync(settings.webserver.tls.key_file),
+      cert: db.fs.readFileSync(settings.webserver.tls.cert_file),
+      ca: db.fs.readFileSync(settings.webserver.tls.chain_file)
+    };
+  } catch(e) {
+    console.warn('There was a problem reading tls certificates. Check that the certificate, chain and key paths are correct.');
+  }
+
+  var https = require('https');
+  https.createServer(tls_options, app).listen(settings.webserver.tls.port);
+}
+
 module.exports = app;
