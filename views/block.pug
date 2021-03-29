@@ -2,7 +2,6 @@ extends layout
 
 block content
   include ./includes/common.pug
-  - var time = format_unixtime(block.time);
   - var block_difficulty = parseFloat(block.difficulty).toFixed(4);
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
@@ -19,7 +18,14 @@ block content
         fnDrawCallback: function(settings) {
           fixDataTableColumns();
         }
-      })
+      });
+
+      $('span#timestampCol').html(format_unixtime(#{block.time}));
+
+      if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
+        $('span#timestampCol').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(#{block.time}, true));
+        enableTooltips();
+      }
     });
   .col-xs-12.col-md-12
     .card.card-default.border-0.cardSpacer
@@ -68,7 +74,8 @@ block content
                 span.decimal #{splitBlockSize[1]}
               td.text-center=block.bits
               td.text-center=block.nonce
-              td.text-center=time
+              td.text-center
+                span#timestampCol
           else
             if block.confirmations < (confirmations / 2)
               tr.bg-danger
@@ -82,7 +89,8 @@ block content
                   span.decimal #{splitBlockSize[1]}
                 td.text-center=block.bits
                 td.text-center=block.nonce
-                td.text-center=time
+                td.text-center
+                  span#timestampCol
             else
               tr.table-warning
                 td.text-center=block.height
@@ -95,7 +103,8 @@ block content
                   span.decimal #{splitBlockSize[1]}
                 td.text-center=block.bits
                 td.text-center=block.nonce
-                td.text-center=time
+                td.text-center
+                  span#timestampCol
     if block.hash == settings.block_page.genesis_block
       .alert.alert-info(role='alert', style='text-align:center;')
         strong #{settings.locale.block_genesis}

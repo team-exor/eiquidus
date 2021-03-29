@@ -72,6 +72,7 @@ Table of Contents
   - Bootstrap v4.5.3
   - DataTables v1.10.22
   - FontAwesome v5.15.1
+  - Luxon v1.26.0
   - jqPlot v1.0.9.d96a669
   - Chart.js v2.9.4
   - flag-icon-css v3.5.0 ([https://github.com/lipis/flag-icon-css](https://github.com/lipis/flag-icon-css))

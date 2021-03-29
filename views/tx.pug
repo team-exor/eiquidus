@@ -2,10 +2,18 @@ extends layout
 
 block content
   include ./includes/common.pug
-  - var time = format_unixtime(tx.timestamp);
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
     - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
+  script.
+    $(document).ready(function() {
+      $('span#timestampCol').html(format_unixtime(#{tx.timestamp}));
+
+      if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
+        $('span#timestampCol').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(#{tx.timestamp}, true));
+        enableTooltips();
+      }
+    });
   .col-xs-12.col-md-12
     .card.card-default.border-0.cardSpacer
       .card-header
@@ -30,7 +38,8 @@ block content
               td.d-none.d-md-table-cell
                 a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
               td.text-center #{confirms}
-              td.text-center #{time}
+              td.text-center
+                span#timestampCol
           else
             if confirms < (confirmations / 2)
               tr.bg-danger
@@ -40,7 +49,8 @@ block content
                 td.d-none.d-md-table-cell
                   a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
                 td.text-center #{confirms}
-                td.text-center #{time}
+                td.text-center
+                  span#timestampCol
             else
               tr.table-warning
                 td.text-center.d-table-cell.d-md-none
@@ -49,7 +59,8 @@ block content
                 td.d-none.d-md-table-cell
                   a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
                 td.text-center #{confirms}
-                td.text-center #{time}
+                td.text-center
+                  span#timestampCol
     if tx.vout.length < 1
       .alert.alert-info.text-center(role='alert', style='margin-bottom:0;')
         strong #{settings.locale.tx_nonstandard}

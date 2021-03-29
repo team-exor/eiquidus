@@ -15,12 +15,24 @@ block content
           fixDataTableColumns();
         }
       });
+
+      var lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
+
+      if (lastUpdatedDate != 0) {
+        $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
+
+        if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
+          $('span#lastUpdatedDate').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
+          enableTooltips();
+        }
+      } else
+        $('span#lastUpdatedDate').html(' N/A');
     });
   .row(style='margin-left:0;margin-right:0;')
     .col-xs-12.col-md-12
       if settings.blockchain_specific.heavycoin.reward_page.show_last_updated == true
         div.font-weight-bold(style='margin-bottom:15px;') Reward data last updated:
-          span.font-weight-normal=(last_updated == null || last_updated == '0' ? ' N/A' : ' ' + format_unixtime(last_updated))
+          span#lastUpdatedDate.font-weight-normal
       .card.card-default.border-0.card-address-summary
         .card-header(style='position:relative;')
           strong #{settings.locale.heavy_title}

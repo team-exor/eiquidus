@@ -51,9 +51,10 @@ block content
             for (i = 0; i < json.length; i++) {
               var addr = json[i]['addr'];
               json[i]['address'] = "<a href='/address/" + json[i]['address'] + "'>" + json[i]['address'] + "</a>";
-              json[i]['lastseen'] = new Date((json[i]['lastseen']) * 1000).toLocaleString();
-              if (typeof json[i]['lastpaid'] != 'undefined')
-                json[i]['lastpaid'] = new Date((json[i]['lastpaid']) * 1000).toLocaleString();
+              json[i]['lastseen'] = '<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-toggle="tooltip" data-placement="auto" title="' + format_unixtime(json[i]['lastseen'], true) + '"' : '') + '>' + format_unixtime(json[i]['lastseen']) + '</span>';
+
+              if (typeof json[i]['lastpaid'] != 'undefined' && json[i]['lastpaid'] != '' && json[i]['lastpaid'] != '0')
+                json[i]['lastpaid'] = '<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-toggle="tooltip" data-placement="auto" title="' + format_unixtime(json[i]['lastpaid'], true) + '"' : '') + '>' + format_unixtime(json[i]['lastpaid']) + '</span>';
               else
                 json[i]['lastpaid'] = '<em>N/A</em>';
               if (json[i]['activetime'])
@@ -103,15 +104,28 @@ block content
         fnDrawCallback: function(settings) {
           fixDataTableColumns();
           fixFooterHeightAndPosition();
+          enableTooltips();
         }
       });
+
+      var lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
+
+      if (lastUpdatedDate != 0) {
+        $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
+
+        if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
+          $('span#lastUpdatedDate').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
+          enableTooltips();
+        }
+      } else
+        $('span#lastUpdatedDate').html(' N/A');
     });
   .col-md-12.cardSpacer
     .text-center(style='margin-bottom:15px;')
       i The current listing of all masternodes known to be active on the network.
     if settings.masternodes_page.show_last_updated == true
       div.font-weight-bold(style='margin-bottom:15px;') Masternode list last updated:
-        span.font-weight-normal=(last_updated == null || last_updated == '0' ? ' N/A' : ' ' + format_unixtime(last_updated))
+        span#lastUpdatedDate.font-weight-normal
     .card.card-default
       .card-header
         strong Masternodes

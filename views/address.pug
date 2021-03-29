@@ -63,7 +63,7 @@ block content
           }
         },
         rowCallback: function (row, data, index) {
-          var timestamp = new Date(data[0] * 1000).toUTCString(); //variables for better readability
+          var timestamp = data[0]; //variables for better readability
           var txhash = data[1]; //variables for better readability
           var out = data[2]; //variables for better readability
           var vin = data[3]; //variables for better readability
@@ -98,7 +98,7 @@ block content
           var amountParts = amount.split('.');
           $("td:eq(2)", row).html(updown + amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>').addClass(rowclass + ' text-center');
           $("td:eq(3)", row).html(balanceParts[0] + '.<span class="decimal">' + balanceParts[1] + '</span>').addClass('text-center');
-          $("td:eq(4)", row).html(format_unixtime(new Date(timestamp), true)).addClass('text-center');
+          $("td:eq(4)", row).html('<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-toggle="tooltip" data-placement="auto" title="' + format_unixtime(timestamp, true) + '"' : '') + '>' + format_unixtime(timestamp) + '</span>').addClass('text-center');
         },
         fnDrawCallback: function(settings) {
           fixDataTableColumns();
