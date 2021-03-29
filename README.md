@@ -527,7 +527,7 @@ sudo npm install forever -g
 You can start the explorer using forever with the following terminal cmd (be sure to run from within the explorer directory):
 
 ```
-npm run sass:compile && /path/to/nodejs /path/to/forever start bin/cluster
+npm run prestart && /path/to/nodejs /path/to/forever start bin/cluster
 ```
 
 **NOTE:** Use the following cmd to find the install path for forever:
