@@ -604,9 +604,13 @@ tr {
   margin-left: 10px;
 }
 
-.header-panel span:not(.decimal) {
-  margin: 0 5px 0 5px;
-  top: 0;
+.header-panel {
+  min-height: 25px;
+
+  span:not(.decimal) {
+    margin: 0 5px 0 5px;
+    top: 0;
+  }
 }
 
 .badge {
