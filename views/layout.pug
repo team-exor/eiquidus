@@ -286,19 +286,19 @@ html(lang='en')
         enableTooltips();
       });
   body
-    - var navbarClasses = ['nav','navbar','navbar-expand-lg'];
+    - var headerClasses = [];
     - var footerClasses = ['nav','navbar','navbar-default','d-none','d-md-flex','d-flex','footer'];
     if settings.shared_pages.page_header.sticky_header == true
-      - navbarClasses.push('fixed-top');
+      - headerClasses.push('fixed-top');
     if settings.shared_pages.page_footer.sticky_footer == true
       - footerClasses.push('fixed-bottom');
     if settings.shared_pages.page_header.bgcolor != null && settings.shared_pages.page_header.bgcolor != ''
-      - navbarClasses.push('bg-' + settings.shared_pages.page_header.bgcolor);
+      - headerClasses.push('bg-' + settings.shared_pages.page_header.bgcolor);
       if settings.shared_pages.page_header.bgcolor.toString().toLowerCase() == 'dark' || settings.shared_pages.page_header.bgcolor.toString().toLowerCase() == 'light'
-        - navbarClasses.push('navbar-' + settings.shared_pages.page_header.bgcolor);
+        - headerClasses.push('navbar-' + settings.shared_pages.page_header.bgcolor);
     else
-      - navbarClasses.push('bg-primary');
-      - navbarClasses.push('navbar-dark');
+      - headerClasses.push('bg-primary');
+      - headerClasses.push('navbar-dark');
     if settings.shared_pages.page_footer.bgcolor != null && settings.shared_pages.page_footer.bgcolor != ''
       - footerClasses.push('bg-' + settings.shared_pages.page_footer.bgcolor);
       if settings.shared_pages.page_footer.bgcolor.toString().toLowerCase() == 'dark' || settings.shared_pages.page_footer.bgcolor.toString().toLowerCase() == 'light'
@@ -306,86 +306,98 @@ html(lang='en')
     else
       - footerClasses.push('bg-primary');
       - footerClasses.push('navbar-dark');
-    div(class=navbarClasses, role='navigation', style=settings.shared_pages.page_header.home_link == 'logo' ? 'padding-left:0;' : '')
-      .navbar-header
-        button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbar-collapse')
-          span.navbar-toggler-icon
-      if settings.shared_pages.page_header.home_link == 'title'
-        a.navbar-brand(href='/', style='order:-1;') #{settings.shared_pages.page_title}
-      else if settings.shared_pages.page_header.home_link == 'coin'
-        a.navbar-brand(href='/', style='order:-1;') #{settings.coin.name}
-      else if settings.shared_pages.page_header.home_link == 'logo'
-        a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='order:-1;', data-toggle='tooltip', data-placement='bottom')
-          img.logo-main(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0;max-height:' + settings.shared_pages.page_header.home_link_logo_height + 'px;')
-      .collapse.navbar-collapse(id='navbar-collapse')
-        ul.navbar-nav.mr-auto
-          li#home
-            a.nav-link(href='/')
-              span.fa.fa-search
-              span.margin-left-5 #{settings.locale.menu_explorer}
-          if settings.blockchain_specific.heavycoin.enabled == true && settings.blockchain_specific.heavycoin.reward_page.enabled == true
-            li#reward
-              a.nav-link(href='/reward')
-                span.fa.fa-star
-                span.margin-left-5 #{settings.locale.menu_reward}
-          if settings.masternodes_page.enabled == true
-            li#masternodes
-              a.nav-link(href='/masternodes')
-                span.fa.fa-share-alt
-                span.margin-left-5 Masternodes
-          if settings.movement_page.enabled == true
-            li#movement
-              a.nav-link.loading(href='/movement')
-                span.far.fa-money-bill-alt
-                span.margin-left-5 #{settings.locale.menu_movement}
-          if settings.network_page.enabled == true
-            li#network
-              a.nav-link(href='/network')
-                span.fas.fa-network-wired
-                span.margin-left-5 #{settings.locale.menu_network}
-          if settings.richlist_page.enabled == true
-            li#richlist
-              a.nav-link(href='/richlist')
-                span.fab.fa-btc
-                span.margin-left-5 #{settings.locale.menu_richlist}
-          if settings.markets_page.enabled == true
-            if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
-              li#markets.dropdown
-                a.nav-link.dropdown-toggle(data-toggle='dropdown', href='#' role='button' aria-haspopup='true' aria-expanded='false')
-                  span.fas.fa-chart-line
-                  span.margin-left-5 #{settings.locale.menu_markets}
-                div.dropdown-menu
-                  each mkt in settings.market_data
-                    if mkt != null && mkt.id != null
-                      each pair in mkt.trading_pairs
-                        a.dropdown-item.loading(href='/markets/' + mkt.id + '/' + pair)
-                          if mkt.logo != null && mkt.logo != ''
-                            img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair + ')', alt=mkt.name + ' (' + pair + ')')
-                          else
-                            i.market-logo.fas.fa-question-circle
-                          span #{mkt.name}
-                            span.small  (#{pair})
-            else
-              li#markets
-                a.nav-link.loading(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
-                  span.fas.fa-chart-line
-                  span.margin-left-5 #{settings.locale.menu_markets}
-          if settings.api_page.enabled == true
-            li#info
-              a.nav-link(href='/info')
-                span.fa.fa-info-circle
-                span.margin-left-5 #{settings.locale.menu_api}
-          if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
-            li#claim-address
-              a.nav-link.loading(href='/claim')
-                span.far.fa-address-card
-                span.margin-left-5 #{settings.locale.menu_claim_address}
-    div#body-container(style='margin-top:' + (settings.shared_pages.page_header.sticky_header == true ? '80px;' : '20px'))
+    div#main-header(class=headerClasses)
+      div.nav.navbar.navbar-expand-lg(role='navigation', style=settings.shared_pages.page_header.home_link == 'logo' ? 'padding-left:0;' : '')
+        .navbar-header
+          button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbar-collapse')
+            span.navbar-toggler-icon
+        if settings.shared_pages.page_header.home_link == 'title'
+          a.navbar-brand(href='/', style='order:-1;') #{settings.shared_pages.page_title}
+        else if settings.shared_pages.page_header.home_link == 'coin'
+          a.navbar-brand(href='/', style='order:-1;') #{settings.coin.name}
+        else if settings.shared_pages.page_header.home_link == 'logo'
+          a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='order:-1;', data-toggle='tooltip', data-placement='bottom')
+            img.logo-main(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0;max-height:' + settings.shared_pages.page_header.home_link_logo_height + 'px;')
+        .collapse.navbar-collapse(id='navbar-collapse')
+          ul.navbar-nav.mr-auto(style='width:100%;')
+            li#home
+              a.nav-link(href='/')
+                span.fas.fa-cubes
+                span.margin-left-5 #{settings.locale.menu_explorer}
+            if settings.blockchain_specific.heavycoin.enabled == true && settings.blockchain_specific.heavycoin.reward_page.enabled == true
+              li#reward
+                a.nav-link(href='/reward')
+                  span.fa.fa-star
+                  span.margin-left-5 #{settings.locale.menu_reward}
+            if settings.masternodes_page.enabled == true
+              li#masternodes
+                a.nav-link(href='/masternodes')
+                  span.fa.fa-share-alt
+                  span.margin-left-5 Masternodes
+            if settings.movement_page.enabled == true
+              li#movement
+                a.nav-link.loading(href='/movement')
+                  span.far.fa-money-bill-alt
+                  span.margin-left-5 #{settings.locale.menu_movement}
+            if settings.network_page.enabled == true
+              li#network
+                a.nav-link(href='/network')
+                  span.fas.fa-network-wired
+                  span.margin-left-5 #{settings.locale.menu_network}
+            if settings.richlist_page.enabled == true
+              li#richlist
+                a.nav-link(href='/richlist')
+                  span.fab.fa-btc
+                  span.margin-left-5 #{settings.locale.menu_richlist}
+            if settings.markets_page.enabled == true
+              if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
+                li#markets.dropdown
+                  a.nav-link.dropdown-toggle(data-toggle='dropdown', href='#' role='button' aria-haspopup='true' aria-expanded='false')
+                    span.fas.fa-chart-line
+                    span.margin-left-5 #{settings.locale.menu_markets}
+                  div.dropdown-menu
+                    each mkt in settings.market_data
+                      if mkt != null && mkt.id != null
+                        each pair in mkt.trading_pairs
+                          a.dropdown-item.loading(href='/markets/' + mkt.id + '/' + pair)
+                            if mkt.logo != null && mkt.logo != ''
+                              img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair + ')', alt=mkt.name + ' (' + pair + ')')
+                            else
+                              i.market-logo.fas.fa-question-circle
+                            span #{mkt.name}
+                              span.small  (#{pair})
+              else
+                li#markets
+                  a.nav-link.loading(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
+                    span.fas.fa-chart-line
+                    span.margin-left-5 #{settings.locale.menu_markets}
+            if settings.api_page.enabled == true
+              li#info
+                a.nav-link(href='/info')
+                  span.fa.fa-info-circle
+                  span.margin-left-5 #{settings.locale.menu_api}
+            if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
+              li#claim-address
+                a.nav-link.loading(href='/claim')
+                  span.far.fa-address-card
+                  span.margin-left-5 #{settings.locale.menu_claim_address}
+        if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
+          button#search-header-button(data-toggle='collapse', data-target='#search-navbar-collapse')
+            span.fas.fa-search
+      if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
+        div#search-navbar-collapse.collapse
+          div.navbar-nav.align-items-lg-center.ml-auto.search-box-custom(style='width:100%;')
+            form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
+              div.input-group.input-group-md.search-for(style='width:100%;')
+                input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message)
+                span.input-group-append
+                  button.btn.btn-success.btn-sm(type='submit') #{settings.locale.ex_search_button}
+    div#body-container(style='margin-top:' + (settings.shared_pages.page_header.sticky_header == true ? '80px;' : '20px;'))
       if showSync != null && showSync == true
         .col-lg-12
           .alert.alert-warning
             .cardSpacer
-              span.fas.fa-exclamation-triangle(style='margin-right:5px')
+              span.fas.fa-exclamation-triangle(style='margin-right:5px;')
               strong #{settings.locale.ex_warning}
             div #{settings.locale.initial_index_alert}
       .col-lg-12
@@ -410,7 +422,7 @@ html(lang='en')
           .col-lg-2
             .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFive')
           - }
-        if settings.shared_pages.page_header.show_search == true
+        if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'below-header'
           div#search-row.row.text-center
             form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
               #index-search.form-group.d-flex.justify-content-center

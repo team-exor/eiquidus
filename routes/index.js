@@ -432,7 +432,7 @@ router.get('/address/:hash', function(req, res) {
 });
 
 router.post('/search', function(req, res) {
-  if (settings.shared_pages.page_header.show_search == true) {
+  if (settings.shared_pages.page_header.search.enabled == true) {
     var query = req.body.search.trim();
 
     if (query.length == 64) {

@@ -322,6 +322,106 @@
   @include thead-light-border-color;
 }
 
+@mixin header-button-light() {
+  @if theme-selector.$theme-name == "Cerulean" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else if theme-selector.$theme-name == "Cosmo" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else if theme-selector.$theme-name == "Cyborg" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else if theme-selector.$theme-name == "Darkly" {
+    color: rgba(34, 34, 34, 0.7);
+  } @else if theme-selector.$theme-name == "Exor" {
+    color: rgba(34, 34, 34, 0.7);
+  } @else if theme-selector.$theme-name == "Flatly" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else if theme-selector.$theme-name == "Journal" {
+    color: rgba(0, 0, 0, 0.7);
+  } @else if theme-selector.$theme-name == "Litera" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else if theme-selector.$theme-name == "Lumen" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else if theme-selector.$theme-name == "Lux" {
+    color: rgba(0, 0, 0, 0.3);
+  } @else if theme-selector.$theme-name == "Materia" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else if theme-selector.$theme-name == "Minty" {
+    color: rgba(0, 0, 0, 0.3);
+  } @else if theme-selector.$theme-name == "Pulse" {
+    color: rgba(0, 0, 0, 0.4);
+  } @else if theme-selector.$theme-name == "Sandstone" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else if theme-selector.$theme-name == "Simplex" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else if theme-selector.$theme-name == "Sketchy" {
+    color: Sketchy.$gray-800;
+  } @else if theme-selector.$theme-name == "Slate" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else if theme-selector.$theme-name == "Solar" {
+    color: rgba(0, 0, 0, 0.4);
+  } @else if theme-selector.$theme-name == "Spacelab" {
+    color: rgba(0, 0, 0, 0.4);
+  } @else if theme-selector.$theme-name == "Superhero" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else if theme-selector.$theme-name == "United" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else if theme-selector.$theme-name == "Yeti" {
+    color: rgba(0, 0, 0, 0.5);
+  } @else {
+    color: rgba(0, 0, 0, 0.5);
+  }
+}
+
+@mixin header-button-dark() {
+  @if theme-selector.$theme-name == "Cerulean" {
+    color: rgba(255, 255, 255, 0.8);
+  } @else if theme-selector.$theme-name == "Cosmo" {
+    color: rgba(255, 255, 255, 0.5);
+  } @else if theme-selector.$theme-name == "Cyborg" {
+    color: rgba(255, 255, 255, 0.5);
+  } @else if theme-selector.$theme-name == "Darkly" {
+    color: rgba(255, 255, 255, 0.6);
+  } @else if theme-selector.$theme-name == "Exor" {
+    color: Exor.$black;
+  } @else if theme-selector.$theme-name == "Flatly" {
+    color: Flatly.$white;
+  } @else if theme-selector.$theme-name == "Journal" {
+    color: rgba(255, 255, 255, 0.5);
+  } @else if theme-selector.$theme-name == "Litera" {
+    color: rgba(255, 255, 255, 0.6);
+  } @else if theme-selector.$theme-name == "Lumen" {
+    color: rgba(255, 255, 255, 0.5);
+  } @else if theme-selector.$theme-name == "Lux" {
+    color: rgba(255, 255, 255, 0.5);
+  } @else if theme-selector.$theme-name == "Materia" {
+    color: rgba(255, 255, 255, 0.75);
+  } @else if theme-selector.$theme-name == "Minty" {
+    color: rgba(255, 255, 255, 0.6);
+  } @else if theme-selector.$theme-name == "Pulse" {
+    color: rgba(255, 255, 255, 0.5);
+  } @else if theme-selector.$theme-name == "Sandstone" {
+    color: rgba(255, 255, 255, 0.5);
+  } @else if theme-selector.$theme-name == "Simplex" {
+    color: rgba(255, 255, 255, 0.75);
+  } @else if theme-selector.$theme-name == "Sketchy" {
+    color: Sketchy.$white;
+  } @else if theme-selector.$theme-name == "Slate" {
+    color: rgba(255, 255, 255, 0.5);
+  } @else if theme-selector.$theme-name == "Solar" {
+    color: rgba(255, 255, 255, 0.5);
+  } @else if theme-selector.$theme-name == "Spacelab" {
+    color: rgba(255, 255, 255, 0.75);
+  } @else if theme-selector.$theme-name == "Superhero" {
+    color: rgba(255, 255, 255, 0.75);
+  } @else if theme-selector.$theme-name == "United" {
+    color: rgba(255, 255, 255, 0.5);
+  } @else if theme-selector.$theme-name == "Yeti" {
+    color: rgba(255, 255, 255, 0.7);
+  } @else {
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
@@ -372,6 +472,10 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   > .nav-item > .nav-link {
     border-width: 1px;
   }
+}
+
+.nav-link {
+  white-space: nowrap;
 }
 
 #index-search {
@@ -698,4 +802,71 @@ tr {
   width: 20px;
   height: 20px;
   margin-right: 6px;
+}
+
+.navbar-toggler-icon {
+  display: inline-block;
+  vertical-align: middle;
+  content: "";
+  background: no-repeat center center;
+  background-size: 100% 100%;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%280, 0, 0, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.navbar-toggler {
+  color: #000;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  border-width: 1px !important;
+  border-radius: .25rem !important;
+  padding: .25rem .75rem !important;
+  font-size: 1.171875rem !important;
+}
+
+.navbar-header {
+  margin-left: auto;
+}
+
+#search-navbar-collapse {
+  padding: 5px 0px;
+}
+
+#search-navbar-collapse.collapse:not(.show) {
+  display: none;
+}
+
+#search-header-button {
+  padding: .25rem .75rem;
+  font-size: 1.171875rem;
+  line-height: 1;
+  background-color: transparent;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+  border-width: 1px !important;
+
+  > span.fa-search {
+    padding-top: 5px;
+    width: 1.5em;
+    height: 1.5em;
+  }
+}
+
+.navbar-light #search-header-button {
+  @include header-button-light;
+}
+
+.navbar-dark #search-header-button {
+  @include header-button-dark;
+}
+
+.navbar-nav .nav-link {
+  color: #000;
+}
+
+.navbar-nav .active .nav-link {
+  color: #686868;
+}
+
+.navbar-nav .nav-link:hover {
+  color: #686868;
 }
