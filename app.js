@@ -676,6 +676,7 @@ app.set('index_page', settings.index_page);
 app.set('block_page', settings.block_page);
 app.set('transaction_page', settings.transaction_page);
 app.set('address_page', settings.address_page);
+app.set('error_page', settings.error_page);
 app.set('masternodes_page', settings.masternodes_page);
 app.set('movement_page', settings.movement_page);
 app.set('network_page', settings.network_page);

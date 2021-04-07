@@ -184,10 +184,6 @@ html(lang='en')
           fixDataTableColumns();
           fixFooterHeightAndPosition();
         });
-        setInterval(function() {
-          update_stats();
-        }, 60000);
-        update_stats();
         function getNetworkPanel() {
           var networkSuffix='';
           switch ('#{settings.shared_pages.page_header.panels.network_panel.nethash_units}') {
@@ -277,11 +273,71 @@ html(lang='en')
           e.preventDefault();
           fixFooterHeightAndPosition();
         });
-        hideShowPanel('#{settings.panel1}', 'pnlOne');
-        hideShowPanel('#{settings.panel2}', 'pnlTwo');
-        hideShowPanel('#{settings.panel3}', 'pnlThree');
-        hideShowPanel('#{settings.panel4}', 'pnlFour');
-        hideShowPanel('#{settings.panel5}', 'pnlFive');
+        var showPanels = false;
+        switch ('#{active}') {
+          case 'home':
+            if ('#{settings.index_page.show_panels}' == 'true')
+              showPanels = true;
+            break;
+          case 'block':
+            if ('#{settings.block_page.show_panels}' == 'true')
+              showPanels = true;
+            break;
+          case 'tx':
+            if ('#{settings.transaction_page.show_panels}' == 'true')
+              showPanels = true;
+            break;
+          case 'address':
+            if ('#{settings.address_page.show_panels}' == 'true')
+              showPanels = true;
+            break;
+          case 'masternodes':
+            if ('#{settings.masternodes_page.show_panels}' == 'true')
+              showPanels = true;
+            break;
+          case 'movement':
+            if ('#{settings.movement_page.show_panels}' == 'true')
+              showPanels = true;
+            break;
+          case 'network':
+            if ('#{settings.network_page.show_panels}' == 'true')
+              showPanels = true;
+            break;
+          case 'richlist':
+            if ('#{settings.richlist_page.show_panels}' == 'true')
+              showPanels = true;
+            break;
+          case 'markets':
+            if ('#{settings.markets_page.show_panels}' == 'true')
+              showPanels = true;
+            break;
+          case 'info':
+            if ('#{settings.api_page.show_panels}' == 'true')
+              showPanels = true;
+            break;
+          case 'claim-address':
+            if ('#{settings.claim_address_page.show_panels}' == 'true')
+              showPanels = true;
+            break;
+          case 'reward':
+            if ('#{settings.blockchain_specific.heavycoin.reward_page.show_panels}' == 'true')
+              showPanels = true;
+            break;
+          default:
+            if ('#{settings.error_page.show_panels}' == 'true')
+              showPanels = true;
+        }
+        if (showPanels) {
+          hideShowPanel('#{settings.panel1}', 'pnlOne');
+          hideShowPanel('#{settings.panel2}', 'pnlTwo');
+          hideShowPanel('#{settings.panel3}', 'pnlThree');
+          hideShowPanel('#{settings.panel4}', 'pnlFour');
+          hideShowPanel('#{settings.panel5}', 'pnlFive');
+          setInterval(function() {
+            update_stats();
+          }, 60000);
+          update_stats();
+        }
         fixFooterHeightAndPosition();
         enableTooltips();
       });

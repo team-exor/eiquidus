@@ -146,7 +146,7 @@
       "home_link_logo": "/img/header_logo.png",
       // home_link_logo_height: The max-height value of the "shared_pages.page_header.home_link" logo image (value in px, only valid if "shared_pages.page_header.home_link" = 'logo')
       "home_link_logo_height": 50,
-      // panels: a collection of settings that pertain to the panels displayed on page header of all pages
+      // panels: a collection of settings that pertain to the panels displayed on page header of all pages (NOTE: you can show/hide the entire group of panels on each page independently by changing the show_panels value in the settings for each page)
       //         A maximum of 5 panels can be shown across the top of the page at any time, so if more than 5 are enabled, only the first 5 will be shown
       "panels": {
         // network_panel: a collection of settings that pertain to the network panel which displays the current network hash rate (only applicable to POW coins)
@@ -367,6 +367,8 @@
 
   // index_page: a collection of settings that pertain to the index page
   "index_page": {
+    // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+    "show_panels": true,
     // show_last_updated: Determine whether to show a label above the transaction data with the last updated date (true/false)
     "show_last_updated": true,
     // transaction_table: a collection of settings that pertain to the transaction table on the index page
@@ -385,6 +387,8 @@
 
   // block_page: a collection of settings that pertain to the block page
   "block_page": {
+    // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+    "show_panels": false,
     // genesis_block: Your coins genesis block hash is used to determine the beginning of the blockchain
     //                For many bitcoin clones you can use the following cmd to get the block hash of the genesis block: coin-cli getblockhash 0
     //                NOTE: If this value is not entered correctly it will not be possible for the explorer to find or navigate to the genesis block, neither via block or transaction hash
@@ -393,6 +397,8 @@
 
   // transaction_page: a collection of settings that pertain to the transaction/tx page
   "transaction_page": {
+    // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+    "show_panels": false,
     // genesis_tx: Your coins genesis transaction hash is used to determine the beginning of the blockchain
     //             For many bitcoin clones you can use the following cmd to find the list of transaction hashes from the genesis block: coin-cli getblock 00014f36c648cdbc750f7dd28487a23cd9e0b0f95f5fccc5b5d01367e3f57469
     //             NOTE: If this value is not entered correctly it will not be possible for the explorer to find or navigate to the genesis block by searching for the genesis transaction hash
@@ -401,6 +407,8 @@
 
   // address_page: a collection of settings that pertain to the address page
   "address_page": {
+    // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+    "show_panels": false,
     // show_sent_received: Determine whether to show Total Sent and Total Received columns at the top of the address page
     "show_sent_received": false,
     // enable_hidden_address_view: Determine whether to allow viewing the special 'hidden_address' wallet address which is populated anytime a private/hidden wallet address is involved in a transaction
@@ -422,6 +430,12 @@
     }
   },
 
+  // error_page: a collection of settings that pertain to the error page
+  "error_page": {
+    // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+    "show_panels": false
+  },
+
   /* Additional Pages (can be enabled/disabled via settings) */
 
   // masternodes_page: a collection of settings that pertain to the masternodes page
@@ -429,6 +443,8 @@
     // enabled: Enable/disable the masternodes page (true/false)
     //          If set to false, the masternodes page will be completely inaccessible
     "enabled": true,
+    // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+    "show_panels": false,
     // show_last_updated: determine whether to show a label above the masternode data with the last updated date (true/false)
     "show_last_updated": true,
     // masternode_table: a collection of settings that pertain to the masternode table on the masternodes page
@@ -446,6 +462,8 @@
     // enabled: Enable/disable the movement page (true/false)
     //          If set to false, the movement page will be completely inaccessible
     "enabled": true,
+    // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+    "show_panels": false,
     // show_last_updated: determine whether to show a label above the movement data with the last updated date (true/false)
     "show_last_updated": true,
     // movement_table: a collection of settings that pertain to the movement table on the movement page
@@ -473,6 +491,8 @@
     // enabled: Enable/disable the network page (true/false)
     //          If set to false, the network page will be completely inaccessible
     "enabled": true,
+    // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+    "show_panels": false,
     // show_last_updated: determine whether to show a label above the network data with the last updated date (true/false)
     "show_last_updated": true,
     // connections_table: a collection of settings that pertain to the connections table on the network page
@@ -506,6 +526,8 @@
     // enabled: Enable/disable the richlist/top100 page (true/false)
     //          If set to false, the richlist/top100 page will be completely inaccessible
     "enabled": true,
+    // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+    "show_panels": false,
     // show_last_updated: determine whether to show a label above the richlist/top100 data with the last updated date (true/false)
     "show_last_updated": true,
     // show_current_balance: Determine whether to show the top 100 list of wallet addresses that currently have the most coins in a single wallet (true/false)
@@ -546,6 +568,8 @@
     // enabled: Enable/disable the markets pages (true/false)
     //          If set to false, all market pages will be completely inaccessible
     "enabled": false,
+    // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+    "show_panels": false,
     // show_last_updated: determine whether to show a label above the market data with the last updated date (true/false)
     "show_last_updated": true,
     // show_market_dropdown_menu: Determine whether the markets menu in the page header will function as a dropdown or a single-click menu item that opens the default market (true/false)
@@ -659,6 +683,8 @@
     // enabled: Enable/disable the public api system (true/false)
     //          If set to false, the entire api page will be disabled and all public api endpoints will show a "This method is disabled" msg when called regardless of their individual enabled statuses
     "enabled": true,
+    // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+    "show_panels": false,
     // sample_data: a collection of settings that pertain to the sample data that is used to display example api links to real data
     "sample_data": {
       // blockindex: This value can be any valid block height number from your coins blockchain
@@ -883,6 +909,8 @@
     //          If set to false, the claim page will be completely inaccessible
     //          NOTE: Disabling this feature after addresses have already been claimed will effectively hide the claimed values and restore the original wallet addresses again
     "enabled": true,
+    // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+    "show_panels": false,
     // show_header_menu: Show/hide the "Claim Address" header menu item (true/false)
     //                   If set to false, the claim address page can still be accessed via the claim link on each address page
     //                   NOTE: The "claim_address_page.enabled" setting must also be set to true or else the header item will automatically be hidden as well
@@ -1027,6 +1055,8 @@
         // enabled: Enable/disable the reward page (true/false)
         //          If set to false, the reward page will be completely inaccessible
         "enabled": true,
+        // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
+        "show_panels": false,
         // show_last_updated: determine whether to show a label above the reward data with the last updated date (true/false)
         "show_last_updated": true
       },
