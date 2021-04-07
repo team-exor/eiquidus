@@ -91,7 +91,7 @@ block content
                       tr
                         td
                           if address.addresses != 'hidden_address' && address.addresses != 'unknown_address'
-                            a.loading.breakWord(href='/address/' + address.addresses)
+                            a.breakWord(href='/address/' + address.addresses)
                               if address.claim_name == null || address.claim_name == ''
                                 =address.addresses
                               else
@@ -99,13 +99,13 @@ block content
                             include ./includes/rl_labels.pug
                           else if address.addresses == 'hidden_address'
                             if settings.address_page.enable_hidden_address_view == true
-                              a.loading.breakWord(href='/address/hidden_address')
+                              a.breakWord(href='/address/hidden_address')
                                 =settings.locale.hidden_sender
                             else
                               =settings.locale.hidden_sender
                           else
                             if settings.address_page.enable_unknown_address_view == true
-                              a.loading.breakWord(href='/address/unknown_address')
+                              a.breakWord(href='/address/unknown_address')
                                 =settings.locale.unknown_sender
                             else
                               =settings.locale.unknown_sender
@@ -132,7 +132,7 @@ block content
                     tr
                       if address.addresses != 'hidden_address' && address.addresses != 'unknown_address'
                         td
-                          a.loading.breakWord(href='/address/' + address.addresses)
+                          a.breakWord(href='/address/' + address.addresses)
                             if address.claim_name == null || address.claim_name == ''
                               =address.addresses
                             else
@@ -144,13 +144,13 @@ block content
                         td
                           if address.addresses == 'hidden_address'
                             if settings.address_page.enable_hidden_address_view == true
-                              a.loading.breakWord(href='/address/hidden_address')
+                              a.breakWord(href='/address/hidden_address')
                                 =settings.locale.hidden_recipient
                             else
                               =settings.locale.hidden_recipient
                           else
                             if settings.address_page.enable_unknown_address_view == true
-                              a.loading.breakWord(href='/address/unknown_address')
+                              a.breakWord(href='/address/unknown_address')
                                 =settings.locale.unknown_recipient
                             else
                               =settings.locale.unknown_recipient
@@ -160,13 +160,13 @@ block content
                         td(colspan='2')
                           if address.addresses == 'hidden_address'
                             if settings.address_page.enable_hidden_address_view == true
-                              a.loading.breakWord(href='/address/hidden_address')
+                              a.breakWord(href='/address/hidden_address')
                                 =settings.locale.hidden_recipient
                             else
                               =settings.locale.hidden_recipient
                           else
                             if settings.address_page.enable_unknown_address_view == true
-                              a.loading.breakWord(href='/address/unknown_address')
+                              a.breakWord(href='/address/unknown_address')
                                 =settings.locale.unknown_recipient
                             else
                               =settings.locale.unknown_recipient
@@ -175,7 +175,7 @@ block content
                     - var ramountParts = ramount.split('.');
                     tr
                       td
-                        a.loading.breakWord(href='/address/' + address.addresses)
+                        a.breakWord(href='/address/' + address.addresses)
                           if address.claim_name == null || address.claim_name == ''
                             =address.addresses
                           else

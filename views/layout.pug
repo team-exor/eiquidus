@@ -392,7 +392,7 @@ html(lang='en')
                   span.margin-left-5 Masternodes
             if settings.movement_page.enabled == true
               li#movement
-                a.nav-link.loading(href='/movement')
+                a.nav-link(href='/movement')
                   span.far.fa-money-bill-alt
                   span.margin-left-5 #{settings.locale.menu_movement}
             if settings.network_page.enabled == true
@@ -415,7 +415,7 @@ html(lang='en')
                     each mkt in settings.market_data
                       if mkt != null && mkt.id != null
                         each pair in mkt.trading_pairs
-                          a.dropdown-item.loading(href='/markets/' + mkt.id + '/' + pair)
+                          a.dropdown-item(href='/markets/' + mkt.id + '/' + pair)
                             if mkt.logo != null && mkt.logo != ''
                               img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair + ')', alt=mkt.name + ' (' + pair + ')')
                             else
@@ -424,7 +424,7 @@ html(lang='en')
                               span.small  (#{pair})
               else
                 li#markets
-                  a.nav-link.loading(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
+                  a.nav-link(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
                     span.fas.fa-chart-line
                     span.margin-left-5 #{settings.locale.menu_markets}
             if settings.api_page.enabled == true
@@ -434,7 +434,7 @@ html(lang='en')
                   span.margin-left-5 #{settings.locale.menu_api}
             if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
               li#claim-address
-                a.nav-link.loading(href='/claim')
+                a.nav-link(href='/claim')
                   span.far.fa-address-card
                   span.margin-left-5 #{settings.locale.menu_claim_address}
         if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
