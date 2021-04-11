@@ -793,6 +793,8 @@
       // show_description: Determine whether to show the page description as defined in "locale.api_description" (true/false)
       "show_description": true
     },
+    // show_logo: Determine whether to show the `shared_pages.logo` image at the top of the API Documentation panel or not
+    "show_logo": true,
     // sample_data: a collection of settings that pertain to the sample data that is used to display example api links to real data
     "sample_data": {
       // blockindex: This value can be any valid block height number from your coins blockchain
