@@ -106,6 +106,8 @@ block content
           enableTooltips();
         }
       });
+      if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.address_page.page_header.show_img} == true)
+        startRotateElement('img#header-img');
     });
   - var balance = Number((address.received - address.sent) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var balanceParts = balance.split('.');
@@ -131,6 +133,21 @@ block content
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
     - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
   .col-xs-12.col-md-12
+    if settings.address_page.page_header.show_img == true || settings.address_page.page_header.show_title == true || settings.address_page.page_header.show_description == true
+      #page-header-container(style='align-items:' + (settings.address_page.page_header.show_img == true && settings.address_page.page_header.show_title == true && settings.address_page.page_header.show_description == true ? 'flex-start' : 'center'))
+        if settings.address_page.page_header.show_img == true
+          #header-img-container
+            img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
+        #page-title-container
+          if settings.address_page.page_header.show_title == true
+            h3#page-title #{settings.locale.a_title.replace('{1}', settings.coin.name)}
+          if settings.address_page.page_header.show_description == true
+            if settings.address_page.page_header.show_title != true
+              #page-title-container
+                .sub-page-header.text-muted=settings.locale.a_description.replace('{1}', settings.coin.name).replace('{2}', (address.a_id == 'hidden_address' ? settings.locale.hidden_address : (address.a_id == 'unknown_address' ? settings.locale.unknown_address : address.a_id)))
+            else
+              .sub-page-header.text-muted=settings.locale.a_description.replace('{1}', settings.coin.name).replace('{2}', (address.a_id == 'hidden_address' ? settings.locale.hidden_address : (address.a_id == 'unknown_address' ? settings.locale.unknown_address : address.a_id)))
+      .cardSpacer.clearfix
     .card.card-default.border-0.card-address-summary.cardSpacer
       .card-header(style='position:relative;')
         if settings.claim_address_page.enabled == false || address.name == null || address.name == ''

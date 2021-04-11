@@ -870,3 +870,25 @@ tr {
 .navbar-nav .nav-link:hover {
   color: #686868;
 }
+
+#page-header-container {
+  display: flex;
+  margin-bottom: 5px;
+}
+
+#header-img-container {
+  margin-right: 5px;
+}
+
+#header-img {
+  width: 48px;
+  height: 48px;
+}
+
+#page-title {
+  margin: 0;
+}
+
+.sub-page-header {
+  font-size: 90%;
+}

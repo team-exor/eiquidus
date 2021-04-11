@@ -26,6 +26,59 @@ html(lang='en')
     script(type='text/javascript', src='//cdn.datatables.net/v/bs4/dt-1.10.22/datatables.min.js')
     if active == 'reward'
       script(type='text/javascript', src='/js/Chart.min.js')
+    - var showPanels = false
+    case active
+      when 'home'
+        if settings.index_page.show_panels == true
+          -  showPanels = true
+        break
+      when 'block'
+        if settings.block_page.show_panels == true
+          -  showPanels = true
+        break
+      when 'tx'
+        if settings.transaction_page.show_panels == true
+          -  showPanels = true
+        break
+      when 'address'
+        if settings.address_page.show_panels == true
+          -  showPanels = true
+        break
+      when 'masternodes'
+        if settings.masternodes_page.show_panels == true
+          -  showPanels = true
+        break
+      when 'movement'
+        if settings.movement_page.show_panels == true
+          -  showPanels = true
+        break
+      when 'network'
+        if settings.network_page.show_panels == true
+          -  showPanels = true
+        break
+      when 'richlist'
+        if settings.richlist_page.show_panels == true
+          -  showPanels = true
+        break
+      when 'markets'
+        if settings.markets_page.show_panels == true
+          -  showPanels = true
+        break
+      when 'info'
+        if settings.api_page.show_panels == true
+          -  showPanels = true
+        break
+      when 'claim-address'
+        if settings.claim_address_page.show_panels == true
+          -  showPanels = true
+        break
+      when 'reward'
+        if settings.blockchain_specific.heavycoin.reward_page.show_panels == true
+          -  showPanels = true
+        break
+      default
+        if settings.error_page.show_panels == true
+          -  showPanels = true
     script.
       /* Special thanks to the stackoverflow community for the getParameterByName function: https://stackoverflow.com/a/901144/3038650 */
       function getParameterByName(name, url = window.location.href) {
@@ -102,7 +155,31 @@ html(lang='en')
           // Ensure columns are properly aligned
           $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
         }, 2, 'adjustTableColumns');
-      }      
+      }
+      function rotateElement(elementSelector) {
+        var element = $(elementSelector);
+
+        if (element.length > 0) {
+          $({ deg: 0 }).animate({ deg: 360 }, {
+            duration: 2000,
+            step: function(deg) {
+              element.css({
+                transform: 'rotateY(' + deg + 'deg)'
+              });
+            },
+            done: function() {
+              setTimeout(function() {
+                rotateElement(elementSelector);
+              }, 1500);
+            }
+          });
+        }
+      }
+      function startRotateElement(elementSelector) {
+        setTimeout(function() {
+          rotateElement(elementSelector);
+        }, 100);
+      }
       $(document).ready(function() {
         if ('#{active}' != '')
           $('##{active}').addClass('active');
@@ -273,61 +350,7 @@ html(lang='en')
           e.preventDefault();
           fixFooterHeightAndPosition();
         });
-        var showPanels = false;
-        switch ('#{active}') {
-          case 'home':
-            if ('#{settings.index_page.show_panels}' == 'true')
-              showPanels = true;
-            break;
-          case 'block':
-            if ('#{settings.block_page.show_panels}' == 'true')
-              showPanels = true;
-            break;
-          case 'tx':
-            if ('#{settings.transaction_page.show_panels}' == 'true')
-              showPanels = true;
-            break;
-          case 'address':
-            if ('#{settings.address_page.show_panels}' == 'true')
-              showPanels = true;
-            break;
-          case 'masternodes':
-            if ('#{settings.masternodes_page.show_panels}' == 'true')
-              showPanels = true;
-            break;
-          case 'movement':
-            if ('#{settings.movement_page.show_panels}' == 'true')
-              showPanels = true;
-            break;
-          case 'network':
-            if ('#{settings.network_page.show_panels}' == 'true')
-              showPanels = true;
-            break;
-          case 'richlist':
-            if ('#{settings.richlist_page.show_panels}' == 'true')
-              showPanels = true;
-            break;
-          case 'markets':
-            if ('#{settings.markets_page.show_panels}' == 'true')
-              showPanels = true;
-            break;
-          case 'info':
-            if ('#{settings.api_page.show_panels}' == 'true')
-              showPanels = true;
-            break;
-          case 'claim-address':
-            if ('#{settings.claim_address_page.show_panels}' == 'true')
-              showPanels = true;
-            break;
-          case 'reward':
-            if ('#{settings.blockchain_specific.heavycoin.reward_page.show_panels}' == 'true')
-              showPanels = true;
-            break;
-          default:
-            if ('#{settings.error_page.show_panels}' == 'true')
-              showPanels = true;
-        }
-        if (showPanels) {
+        if (#{showPanels} == true) {
           hideShowPanel('#{settings.panel1}', 'pnlOne');
           hideShowPanel('#{settings.panel2}', 'pnlTwo');
           hideShowPanel('#{settings.panel3}', 'pnlThree');
@@ -456,34 +479,36 @@ html(lang='en')
               span.fas.fa-exclamation-triangle(style='margin-right:5px;')
               strong #{settings.locale.ex_warning}
             div #{settings.locale.initial_index_alert}
-      .col-lg-12
-        .row.text-center.d-flex.justify-content-center
-          div(class="col-lg-2 col-lg-offset-" + settings.paneloffset)
-            - if (settings.panel1 != '') {
-              .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlOne')
-            - }
-          - if (settings.panel2 != '') {
-            .col-lg-2
-              .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlTwo')
-          - }
-          - if (settings.panel3 != '') {
-            .col-lg-2
-              .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlThree')
-          - }
-          - if (settings.panel4 != '') {
-            .col-lg-2
-              .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFour')
-          - }
-          - if (settings.panel5 != '') {
-          .col-lg-2
-            .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFive')
-          - }
-        if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'below-header'
-          div#search-row.row.text-center
-            form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
-              #index-search.form-group.d-flex.justify-content-center
-                input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
-                button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
+      if showPanels == true || (settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'below-header')
+        .col-lg-12
+          if showPanels == true
+            .row.text-center.d-flex.justify-content-center
+              div(class="col-lg-2 col-lg-offset-" + settings.paneloffset)
+                - if (settings.panel1 != '') {
+                  .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlOne')
+                - }
+              - if (settings.panel2 != '') {
+                .col-lg-2
+                  .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlTwo')
+              - }
+              - if (settings.panel3 != '') {
+                .col-lg-2
+                  .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlThree')
+              - }
+              - if (settings.panel4 != '') {
+                .col-lg-2
+                  .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFour')
+              - }
+              - if (settings.panel5 != '') {
+              .col-lg-2
+                .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFive')
+              - }
+          if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'below-header'
+            div#search-row.row.text-center
+              form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
+                #index-search.form-group.d-flex.justify-content-center
+                  input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
+                  button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
       block content
     div#footer-container(class=footerClasses, role='navigation')
       .col-4.navbar-nav

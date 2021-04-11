@@ -166,7 +166,7 @@ function route_get_tx(res, txid) {
 
 function route_get_index(res, error) {
   // check if index page should show last updated date
-  if (settings.index_page.show_last_updated == true) {
+  if (settings.index_page.page_header.show_last_updated == true) {
     // lookup last updated date
     db.get_stats(settings.coin.name, function (stats) {
       res.render('index', { active: 'home', error: error, last_updated: stats.blockchain_last_updated, showSync: db.check_show_sync_message()});
@@ -240,7 +240,7 @@ router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
         // load market data
         var market_data = require('../lib/markets/' + market_id);
         // check if markets page should show last updated date
-        if (settings.markets_page.show_last_updated == true) {
+        if (settings.markets_page.page_header.show_last_updated == true) {
           // lookup last updated date
           db.get_stats(settings.coin.name, function (stats) {
             res.render('./market', {
@@ -302,7 +302,7 @@ router.get('/richlist', function(req, res) {
               distc: distribution.t_51_75,
               distd: distribution.t_76_100,
               diste: distribution.t_101plus,
-              last_updated: (settings.richlist_page.show_last_updated == true ? stats.richlist_last_updated : null),
+              last_updated: (settings.richlist_page.page_header.show_last_updated == true ? stats.richlist_last_updated : null),
               showSync: db.check_show_sync_message()
             });
           });
@@ -322,7 +322,7 @@ router.get('/movement', function(req, res) {
   // ensure movement page is enabled
   if (settings.movement_page.enabled == true) {
     // check if movement page should show last updated date
-    if (settings.movement_page.show_last_updated == true) {
+    if (settings.movement_page.page_header.show_last_updated == true) {
       // lookup last updated date
       db.get_stats(settings.coin.name, function (stats) {
         res.render('movement', {active: 'movement', last_updated: stats.blockchain_last_updated, showSync: db.check_show_sync_message()});
@@ -341,7 +341,7 @@ router.get('/network', function(req, res) {
   // ensure network page is enabled
   if (settings.network_page.enabled == true) {
     // check if network page should show last updated date
-    if (settings.network_page.show_last_updated == true) {
+    if (settings.network_page.page_header.show_last_updated == true) {
       // lookup last updated date
       db.get_stats(settings.coin.name, function (stats) {
         res.render('network', {active: 'network', last_updated: stats.network_last_updated, showSync: db.check_show_sync_message()});
@@ -361,7 +361,7 @@ router.get('/masternodes', function(req, res) {
   // ensure masternode page is enabled
   if (settings.masternodes_page.enabled == true) {
     // check if masternodes page should show last updated date
-    if (settings.masternodes_page.show_last_updated == true) {
+    if (settings.masternodes_page.page_header.show_last_updated == true) {
       // lookup last updated date
       db.get_stats(settings.coin.name, function (stats) {
         res.render('masternodes', {active: 'masternodes', last_updated: stats.masternodes_last_updated, showSync: db.check_show_sync_message()});
@@ -400,7 +400,7 @@ router.get('/reward', function(req, res) {
           stats: stats,
           heavy: heavy,
           votes: votes,
-          last_updated: (settings.blockchain_specific.heavycoin.reward_page.show_last_updated == true ? stats.reward_last_updated : null),
+          last_updated: (settings.blockchain_specific.heavycoin.reward_page.page_header.show_last_updated == true ? stats.reward_last_updated : null),
           showSync: db.check_show_sync_message()
         });
       });

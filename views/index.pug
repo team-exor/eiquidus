@@ -89,17 +89,21 @@ block content
         }, (setting_reload_table_seconds * 1000) );
       }
 
-      var lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
+      if ('#{settings.index_page.page_header.show_last_updated}' == 'true') {
+        var lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
 
-      if (lastUpdatedDate != 0) {
-        $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
+        if (lastUpdatedDate != 0) {
+          $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
 
-        if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
-          $('span#lastUpdatedDate').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
-          enableTooltips();
-        }
-      } else
-        $('span#lastUpdatedDate').html(' N/A');
+          if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
+            $('span#lastUpdatedDate').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
+            enableTooltips();
+          }
+        } else
+          $('span#lastUpdatedDate').html(' N/A');
+      }
+      if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.index_page.page_header.show_img} == true)
+        startRotateElement('img#header-img');
     });
   if error !== null
     .col-12
@@ -110,9 +114,31 @@ block content
           strong #{settings.locale.ex_error}
         div #{error}
   .col-md-12.cardSpacer
-    if settings.index_page.show_last_updated == true
-      div.font-weight-bold(style='margin-bottom:15px;') Blockchain data last updated:
-        span#lastUpdatedDate.font-weight-normal
+    if settings.index_page.page_header.show_img == true || settings.index_page.page_header.show_title == true || settings.index_page.page_header.show_last_updated == true || settings.index_page.page_header.show_description == true
+      #page-header-container(style='align-items:' + (settings.index_page.page_header.show_img == true && settings.index_page.page_header.show_title == true && settings.index_page.page_header.show_last_updated == true && settings.index_page.page_header.show_description == true ? 'flex-start' : 'center'))
+        if settings.index_page.page_header.show_img == true
+          #header-img-container
+            img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
+        #page-title-container
+          if settings.index_page.page_header.show_title == true
+            h3#page-title #{settings.locale.ex_title.replace('{1}', settings.coin.name)}
+          if settings.index_page.page_header.show_last_updated == true
+            if settings.index_page.page_header.show_title != true && settings.index_page.page_header.show_description != true
+              #page-title-container
+                .sub-page-header
+                  span.font-weight-bold=settings.locale.last_updated + ':'
+                  span.text-muted#lastUpdatedDate
+            else
+              .sub-page-header(style='margin-bottom:' + (settings.index_page.page_header.show_description == true ? '5' : '0') + 'px')
+                span.font-weight-bold=settings.locale.last_updated + ':'
+                span.text-muted#lastUpdatedDate
+          if settings.index_page.page_header.show_description == true
+            if settings.index_page.page_header.show_title != true && settings.index_page.page_header.show_last_updated != true
+              #page-title-container
+                .sub-page-header.text-muted=settings.locale.ex_description.replace('{1}', settings.coin.name)
+            else
+              .sub-page-header.text-muted=settings.locale.ex_description.replace('{1}', settings.coin.name)
+      .cardSpacer.clearfix
     .card.card-default.border-0.cardSpacer
       .card-header
         strong #{settings.locale.ex_latest_transactions}

@@ -240,6 +240,15 @@
         // position: Determine where the search box should appear on the website
         //           valid options: inside-header, below-header
         "position": "inside-header"
+      },
+      // page_title_image: A collection of settings that pertain to the page title image for each page
+      "page_title_image": {
+        // image_path: The path to an image file that is displayed in the header section of all pages next to the page title (NOTE: This image can be enabled/disabled on a per-page basis)
+        //             NOTE: The path root is /public
+        //             The optimum logo size is 48x48 as the image will be forced to this size when displayed
+        "image_path": "/img/page-title-img.png",
+        // enable_animation: Enable/disable the flip/spin animation on the page title image (true/false)
+        "enable_animation": true
       }
     },
     // page_footer: A collection of settings that pertain to the page footer that is displayed at the bottom of all pages
@@ -369,8 +378,17 @@
   "index_page": {
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": true,
-    // show_last_updated: Determine whether to show a label above the transaction data with the last updated date (true/false)
-    "show_last_updated": true,
+    // page_header: a collection of settings that pertain to the index page header
+    "page_header": {
+      // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+      "show_img": true,
+      // show_title: Determine whether to show the page title as defined in "locale.ex_title" (true/false)
+      "show_title": true,
+      // show_last_updated: Determine whether to show a label below the page title with the last updated date (true/false)
+      "show_last_updated": true,
+      // show_description: Determine whether to show the page description as defined in "locale.ex_description" (true/false)
+      "show_description": true
+    },
     // transaction_table: a collection of settings that pertain to the transaction table on the index page
     //                    Table data is populated via the /ext/getlasttxs api
     "transaction_table": {
@@ -389,6 +407,15 @@
   "block_page": {
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // page_header: a collection of settings that pertain to the block page header
+    "page_header": {
+      // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+      "show_img": true,
+      // show_title: Determine whether to show the page title as defined in "locale.block_title" (true/false)
+      "show_title": true,
+      // show_description: Determine whether to show the page description as defined in "locale.block_description" (true/false)
+      "show_description": true
+    },
     // genesis_block: Your coins genesis block hash is used to determine the beginning of the blockchain
     //                For many bitcoin clones you can use the following cmd to get the block hash of the genesis block: coin-cli getblockhash 0
     //                NOTE: If this value is not entered correctly it will not be possible for the explorer to find or navigate to the genesis block, neither via block or transaction hash
@@ -399,6 +426,15 @@
   "transaction_page": {
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // page_header: a collection of settings that pertain to the transaction/tx page header
+    "page_header": {
+      // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+      "show_img": true,
+      // show_title: Determine whether to show the page title as defined in "locale.tx_title" (true/false)
+      "show_title": true,
+      // show_description: Determine whether to show the page description as defined in "locale.tx_description" (true/false)
+      "show_description": true
+    },
     // genesis_tx: Your coins genesis transaction hash is used to determine the beginning of the blockchain
     //             For many bitcoin clones you can use the following cmd to find the list of transaction hashes from the genesis block: coin-cli getblock 00014f36c648cdbc750f7dd28487a23cd9e0b0f95f5fccc5b5d01367e3f57469
     //             NOTE: If this value is not entered correctly it will not be possible for the explorer to find or navigate to the genesis block by searching for the genesis transaction hash
@@ -409,6 +445,15 @@
   "address_page": {
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // page_header: a collection of settings that pertain to the address page header
+    "page_header": {
+      // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+      "show_img": true,
+      // show_title: Determine whether to show the page title as defined in "locale.a_title" (true/false)
+      "show_title": true,
+      // show_description: Determine whether to show the page description as defined in "locale.a_description" (true/false)
+      "show_description": true
+    },
     // show_sent_received: Determine whether to show Total Sent and Total Received columns at the top of the address page
     "show_sent_received": false,
     // enable_hidden_address_view: Determine whether to allow viewing the special 'hidden_address' wallet address which is populated anytime a private/hidden wallet address is involved in a transaction
@@ -433,7 +478,16 @@
   // error_page: a collection of settings that pertain to the error page
   "error_page": {
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
-    "show_panels": false
+    "show_panels": false,
+    // page_header: a collection of settings that pertain to the error page header
+    "page_header": {
+      // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+      "show_img": true,
+      // show_title: Determine whether to show the page title as defined in "locale.error_title" (true/false)
+      "show_title": true,
+      // show_description: Determine whether to show the page description as defined in "locale.error_description" (true/false)
+      "show_description": true
+    }
   },
 
   /* Additional Pages (can be enabled/disabled via settings) */
@@ -445,8 +499,17 @@
     "enabled": true,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
-    // show_last_updated: determine whether to show a label above the masternode data with the last updated date (true/false)
-    "show_last_updated": true,
+    // page_header: a collection of settings that pertain to the masternodes page header
+    "page_header": {
+      // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+      "show_img": true,
+      // show_title: Determine whether to show the page title as defined in "locale.mn_title" (true/false)
+      "show_title": true,
+      // show_last_updated: Determine whether to show a label below the page title with the last updated date (true/false)
+      "show_last_updated": true,
+      // show_description: Determine whether to show the page description as defined in "locale.mn_description" (true/false)
+      "show_description": true
+    },
     // masternode_table: a collection of settings that pertain to the masternode table on the masternodes page
     //                   Table data is populated via the /ext/getmasternodelist api
     "masternode_table": {
@@ -464,8 +527,17 @@
     "enabled": true,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
-    // show_last_updated: determine whether to show a label above the movement data with the last updated date (true/false)
-    "show_last_updated": true,
+    // page_header: a collection of settings that pertain to the movement page header
+    "page_header": {
+      // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+      "show_img": true,
+      // show_title: Determine whether to show the page title as defined in "locale.move_title" (true/false)
+      "show_title": true,
+      // show_last_updated: Determine whether to show a label below the page title with the last updated date (true/false)
+      "show_last_updated": true,
+      // show_description: Determine whether to show the page description as defined in "locale.move_description" (true/false)
+      "show_description": true
+    },
     // movement_table: a collection of settings that pertain to the movement table on the movement page
     //                 Table data is populated via the /ext/getlasttxs api
     "movement_table": {
@@ -493,8 +565,17 @@
     "enabled": true,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
-    // show_last_updated: determine whether to show a label above the network data with the last updated date (true/false)
-    "show_last_updated": true,
+    // page_header: a collection of settings that pertain to the network page header
+    "page_header": {
+      // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+      "show_img": true,
+      // show_title: Determine whether to show the page title as defined in "locale.net_title" (true/false)
+      "show_title": true,
+      // show_last_updated: Determine whether to show a label below the page title with the last updated date (true/false)
+      "show_last_updated": true,
+      // show_description: Determine whether to show the page description as defined in "locale.net_description" (true/false)
+      "show_description": true
+    },
     // connections_table: a collection of settings that pertain to the connections table on the network page
     //                    Table data is populated via the /ext/getnetworkpeers api
     "connections_table": {
@@ -528,8 +609,17 @@
     "enabled": true,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
-    // show_last_updated: determine whether to show a label above the richlist/top100 data with the last updated date (true/false)
-    "show_last_updated": true,
+    // page_header: a collection of settings that pertain to the richlist/top100 page header
+    "page_header": {
+      // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+      "show_img": true,
+      // show_title: Determine whether to show the page title as defined in "locale.rl_title" (true/false)
+      "show_title": true,
+      // show_last_updated: Determine whether to show a label below the page title with the last updated date (true/false)
+      "show_last_updated": true,
+      // show_description: Determine whether to show the page description as defined in "locale.rl_description" (true/false)
+      "show_description": true
+    },
     // show_current_balance: Determine whether to show the top 100 list of wallet addresses that currently have the most coins in a single wallet (true/false)
     "show_current_balance": true,
     // show_received_coins: Determine whether to show the top 100 list of wallet addresses that have the highest total number of coins received based on adding up all received transactions (true/false)
@@ -570,8 +660,17 @@
     "enabled": false,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
-    // show_last_updated: determine whether to show a label above the market data with the last updated date (true/false)
-    "show_last_updated": true,
+    // page_header: a collection of settings that pertain to the markets page header
+    "page_header": {
+      // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+      "show_img": true,
+      // show_title: Determine whether to show the page title as defined in "locale.mkt_title" (true/false)
+      "show_title": true,
+      // show_last_updated: Determine whether to show a label below the page title with the last updated date (true/false)
+      "show_last_updated": true,
+      // show_description: Determine whether to show the page description as defined in "locale.mkt_description" (true/false)
+      "show_description": true
+    },
     // show_market_dropdown_menu: Determine whether the markets menu in the page header will function as a dropdown or a single-click menu item that opens the default market (true/false)
     //                            If set to true, the markets header menu will function as a dropdown that allows selecting from all available markets
     //                            If set to false, the markets header menu will function as a single-click menu item that opens the default market only
@@ -685,6 +784,15 @@
     "enabled": true,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // page_header: a collection of settings that pertain to the api page header
+    "page_header": {
+      // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+      "show_img": true,
+      // show_title: Determine whether to show the page title as defined in "locale.api_title" (true/false)
+      "show_title": true,
+      // show_description: Determine whether to show the page description as defined in "locale.api_description" (true/false)
+      "show_description": true
+    },
     // sample_data: a collection of settings that pertain to the sample data that is used to display example api links to real data
     "sample_data": {
       // blockindex: This value can be any valid block height number from your coins blockchain
@@ -911,6 +1019,15 @@
     "enabled": true,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // page_header: a collection of settings that pertain to the claim address page header
+    "page_header": {
+      // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+      "show_img": true,
+      // show_title: Determine whether to show the page title as defined in "locale.claim_title" (true/false)
+      "show_title": true,
+      // show_description: Determine whether to show the page description as defined in "locale.claim_description" (true/false)
+      "show_description": true
+    },
     // show_header_menu: Show/hide the "Claim Address" header menu item (true/false)
     //                   If set to false, the claim address page can still be accessed via the claim link on each address page
     //                   NOTE: The "claim_address_page.enabled" setting must also be set to true or else the header item will automatically be hidden as well
@@ -1057,8 +1174,17 @@
         "enabled": true,
         // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
         "show_panels": false,
-        // show_last_updated: determine whether to show a label above the reward data with the last updated date (true/false)
-        "show_last_updated": true
+        // page_header: a collection of settings that pertain to the reward page header
+        "page_header": {
+          // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
+          "show_img": true,
+          // show_title: Determine whether to show the page title as defined in "locale.reward_title" (true/false)
+          "show_title": true,
+          // show_last_updated: Determine whether to show a label below the page title with the last updated date (true/false)
+          "show_last_updated": true,
+          // show_description: Determine whether to show the page description as defined in "locale.reward_description" (true/false)
+          "show_description": true
+        }
       },
       //api_cmds: A collection of settings that pertain to the list of customizable heavycoin rpc api commands
       //          Not all blockchains utilize the same rpc cmds for accessing the internal daemon api. Use these settings to set alternate names for similar api cmds.

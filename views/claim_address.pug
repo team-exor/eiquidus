@@ -63,8 +63,25 @@ block content
           $('<div id="claimAlert"></div>').insertBefore('#claimForm');
           $('#claimAlert').html(generateAlertHTML('info', true, ('!{claim_name}' == '' ? 'Unc' : 'C') + 'laimed address', '<strong>!{hash}</strong> is currently ' + ('!{claim_name}' == '' ? 'un' : '') + 'claimed' + ('!{claim_name}' == '' ? '' : ' as <strong>' + displayAsText('!{claim_name}') + '.</strong>')));
         }
+        if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.claim_address_page.page_header.show_img} == true)
+          startRotateElement('img#header-img');
       });
   .col-xs-12.col-md-12
+    if settings.claim_address_page.page_header.show_img == true || settings.claim_address_page.page_header.show_title == true || settings.claim_address_page.page_header.show_description == true
+      #page-header-container(style='align-items:' + (settings.claim_address_page.page_header.show_img == true && settings.claim_address_page.page_header.show_title == true && settings.claim_address_page.page_header.show_description == true ? 'flex-start' : 'center'))
+        if settings.claim_address_page.page_header.show_img == true
+          #header-img-container
+            img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
+        #page-title-container
+          if settings.claim_address_page.page_header.show_title == true
+            h3#page-title #{settings.locale.claim_title.replace('{1}', settings.coin.name)}
+          if settings.claim_address_page.page_header.show_description == true
+            if settings.claim_address_page.page_header.show_title != true
+              #page-title-container
+                .sub-page-header.text-muted=settings.locale.claim_description.replace('{1}', settings.coin.name)
+            else
+              .sub-page-header.text-muted=settings.locale.claim_description.replace('{1}', settings.coin.name)
+      .cardSpacer.clearfix
     .card.card-default.border-0.cardSpacer
       .card-header
         strong Claim Wallet Address
