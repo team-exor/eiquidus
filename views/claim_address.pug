@@ -2,7 +2,7 @@ extends layout
 
 block content
   script.
-    $(function () {
+    $(document).ready(function () {
         function generateAlertHTML(alertClass, allowDismiss, headerText, msgText) {
           return '<div class="alert alert-' + alertClass + (allowDismiss ? ' alert-dismissable' : '') + '" role="alert">' +
             (allowDismiss ? '<button type="button" class="close" data-dismiss="alert">×</button>' : '') + 
