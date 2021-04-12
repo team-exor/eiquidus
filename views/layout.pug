@@ -192,65 +192,74 @@ html(lang='en')
           }
         }
         function update_stats() {
-          $.ajax({url: '/ext/getsummary', headers: {Accept: 'application/json, text/javascript, */*; q=0.01'}, success: function(json) {
-            if (json.masternodeCountOnline == null)
-              json.masternodeCountOnline = '-';
-            if (json.masternodeCountOffline == null)
-              json.masternodeCountOffline = '-';
+          var summary_headers = {
+            Accept: 'application/json, text/javascript, */*; q=0.01'
+          };
 
-            var mnOnlineText = json.masternodeCountOnline+" node"+(json.masternodeCountOnline == 1 ? "" : "s")+" online";
-            var mnOfflineText = json.masternodeCountOffline+" unreachable node"+(json.masternodeCountOffline == 1 ? "" : "s");
+          if (#{showPanels} == false)
+            summary_headers['footer-only'] = 'true';
 
-            $("#masternodeCountOnline").text(json.masternodeCountOnline).prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-original-title", mnOnlineText);
-            $("#masternodeCountOffline").text(json.masternodeCountOffline).prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-original-title", mnOfflineText);
-            $("#spnMasternodeCountOnline").prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-original-title", mnOnlineText);
-            $("#spnMasternodeCountOffline").prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-original-title", mnOfflineText);
-            showTopPanelData('masternodepanel', 'masternodePanelLoading');
+          $.ajax({url: '/ext/getsummary', headers: summary_headers, success: function(json) {
+            if (#{showPanels} == true) {
+              if (json.masternodeCountOnline == null)
+                json.masternodeCountOnline = '-';
+              if (json.masternodeCountOffline == null)
+                json.masternodeCountOffline = '-';
 
-            var supplyString = json.supply;
-            var diffString = json.difficulty;
-            var hashrateString = json.hashrate;
-            var splitValue, splitParts;
+              var mnOnlineText = json.masternodeCountOnline+" node"+(json.masternodeCountOnline == 1 ? "" : "s")+" online";
+              var mnOfflineText = json.masternodeCountOffline+" unreachable node"+(json.masternodeCountOffline == 1 ? "" : "s");
 
-            if (!isNaN(json.difficulty))
-              diffString = Number(json.difficulty).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-            if (!isNaN(json.supply))
-              supplyString = parseInt(parseFloat(json.supply).toFixed(0)).toLocaleString('en');
-            if (!isNaN(json.hashrate))
-              hashrateString = Number(json.hashrate).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+              $("#masternodeCountOnline").text(json.masternodeCountOnline).prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-original-title", mnOnlineText);
+              $("#masternodeCountOffline").text(json.masternodeCountOffline).prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-original-title", mnOfflineText);
+              $("#spnMasternodeCountOnline").prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-original-title", mnOnlineText);
+              $("#spnMasternodeCountOffline").prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-original-title", mnOfflineText);
+              showTopPanelData('masternodepanel', 'masternodePanelLoading');
 
-            $("#supply").text(supplyString);
-            splitValue = Number(parseFloat(json.lastPrice).toFixed(8) * parseInt(parseFloat(json.supply).toFixed(0))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-            splitParts = splitValue.split('.');
-            showTopPanelData('supplypanel', 'supplyPanelLoading');
+              var supplyString = json.supply;
+              var diffString = json.difficulty;
+              var hashrateString = json.hashrate;
+              var splitValue, splitParts;
 
-            $("#marketCap").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
-            showTopPanelData('marketCapPanel', 'marketCapPanelLoading');
+              if (!isNaN(json.difficulty))
+                diffString = Number(json.difficulty).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+              if (!isNaN(json.supply))
+                supplyString = parseInt(parseFloat(json.supply).toFixed(0)).toLocaleString('en');
+              if (!isNaN(json.hashrate))
+                hashrateString = Number(json.hashrate).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
 
-            splitParts = diffString.split('.');
-            $("#difficulty").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+              $("#supply").text(supplyString);
+              splitValue = Number(parseFloat(json.lastPrice).toFixed(8) * parseInt(parseFloat(json.supply).toFixed(0))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+              splitParts = splitValue.split('.');
+              showTopPanelData('supplypanel', 'supplyPanelLoading');
 
-            if (json.difficultyHybrid == null || json.difficultyHybrid == '')
-              $("#difficultyHybrid").html('-');
-            else {
-              splitParts = json.difficultyHybrid.split('.');
-              $("#difficultyHybrid").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+              $("#marketCap").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+              showTopPanelData('marketCapPanel', 'marketCapPanelLoading');
+
+              splitParts = diffString.split('.');
+              $("#difficulty").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+
+              if (json.difficultyHybrid == null || json.difficultyHybrid == '')
+                $("#difficultyHybrid").html('-');
+              else {
+                splitParts = json.difficultyHybrid.split('.');
+                $("#difficultyHybrid").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+              }
+
+              showTopPanelData('difficultypanel', 'difficultyPanelLoading');
+
+              if (hashrateString == null || hashrateString == '' || hashrateString == '-')
+                $("#hashrate").html('-');
+              else {
+                splitParts = hashrateString.split('.');
+                $("#hashrate").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+              }
+              showTopPanelData('hashratepanel', 'hashratePanelLoading');
+
+              splitValue = Number(json.lastPrice).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+              splitParts = splitValue.split('.');
+              $("#lastPrice").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+              showTopPanelData('pricepanel', 'pricePanelLoading');
             }
-
-            showTopPanelData('difficultypanel', 'difficultyPanelLoading');
-
-            if (hashrateString == null || hashrateString == '' || hashrateString == '-')
-              $("#hashrate").html('-');
-            else {
-              splitParts = hashrateString.split('.');
-              $("#hashrate").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
-            }
-            showTopPanelData('hashratepanel', 'hashratePanelLoading');
-
-            splitValue = Number(json.lastPrice).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-            splitParts = splitValue.split('.');
-            $("#lastPrice").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
-            showTopPanelData('pricepanel', 'pricePanelLoading');
 
             $("#lblConnections").text(json.connections + ' connections');
             $("#lblBlockcount").text(json.blockcount + ' blocks');
@@ -356,11 +365,11 @@ html(lang='en')
           hideShowPanel('#{settings.panel3}', 'pnlThree');
           hideShowPanel('#{settings.panel4}', 'pnlFour');
           hideShowPanel('#{settings.panel5}', 'pnlFive');
-          setInterval(function() {
-            update_stats();
-          }, 60000);
-          update_stats();
         }
+        setInterval(function() {
+          update_stats();
+        }, 60000);
+        update_stats();
         fixFooterHeightAndPosition();
         enableTooltips();
       });

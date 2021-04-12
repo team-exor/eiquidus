@@ -407,68 +407,77 @@ app.use('/ext/getaddresstxs/:address/:start/:length', function(req, res) {
 app.use('/ext/getsummary', function(req, res) {
   // check if the getsummary api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
   if ((settings.api_page.enabled == true && settings.api_page.public_apis.ext.getsummary.enabled == true) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
-    lib.get_difficulty(function(difficulty) {
-      difficultyHybrid = '';
-
-      if (difficulty && difficulty['proof-of-work']) {
-        if (settings.shared_pages.difficulty == 'Hybrid') {
-          difficultyHybrid = 'POS: ' + difficulty['proof-of-stake'];
-          difficulty = 'POW: ' + difficulty['proof-of-work'];
-        } else if (settings.shared_pages.difficulty == 'POW')
-          difficulty = difficulty['proof-of-work'];
-        else
-          difficulty = difficulty['proof-of-stake'];
-      }
-
-      lib.get_hashrate(function(hashrate) {
-        lib.get_connectioncount(function(connections) {
-          lib.get_blockcount(function(blockcount) {
+    lib.get_connectioncount(function(connections) {
+      lib.get_blockcount(function(blockcount) {
+        // check if this is a footer-only method that should only return the connection count and block count
+        if (req.headers['footer-only'] != null && req.headers['footer-only'] == 'true') {
+          // only return the connection count and block count
+          res.send({
+            connections: (connections ? connections : '-'),
+            blockcount: (blockcount ? blockcount : '-')
+          });
+        } else {
+          lib.get_hashrate(function(hashrate) {
             db.get_stats(settings.coin.name, function (stats) {
               lib.get_masternodecount(function(masternodestotal) {
-                if (hashrate == 'There was an error. Check your console.')
-                  hashrate = 0;
+                lib.get_difficulty(function(difficulty) {
+                  difficultyHybrid = '';
 
-                // check if the masternode count api is enabled
-                if (settings.api_page.public_apis.rpc.getmasternodecount.enabled == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') {
-                  // masternode count api is available
-                  var mn_total = 0;
-                  var mn_enabled = 0;
-
-                  if (masternodestotal) {
-                    if (masternodestotal.total)
-                      mn_total = masternodestotal.total;
-
-                    if (masternodestotal.enabled)
-                      mn_enabled = masternodestotal.enabled;
+                  if (difficulty && difficulty['proof-of-work']) {
+                    if (settings.shared_pages.difficulty == 'Hybrid') {
+                      difficultyHybrid = 'POS: ' + difficulty['proof-of-stake'];
+                      difficulty = 'POW: ' + difficulty['proof-of-work'];
+                    } else if (settings.shared_pages.difficulty == 'POW')
+                      difficulty = difficulty['proof-of-work'];
+                    else
+                      difficulty = difficulty['proof-of-stake'];
                   }
 
-                  res.send({
-                    difficulty: (difficulty ? difficulty : '-'),
-                    difficultyHybrid: difficultyHybrid,
-                    supply: (stats == null || stats.supply == null ? 0 : stats.supply),
-                    hashrate: hashrate,
-                    lastPrice: (stats == null || stats.last_price == null ? 0 : stats.last_price),
-                    connections: (connections ? connections : '-'),
-                    masternodeCountOnline: (masternodestotal ? mn_enabled : '-'),
-                    masternodeCountOffline: (masternodestotal ? Math.floor(mn_total - mn_enabled) : '-'),
-                    blockcount: (blockcount ? blockcount : '-')
-                  });
-                } else {
-                  // masternode count api is not available
-                  res.send({
-                    difficulty: (difficulty ? difficulty : '-'),
-                    difficultyHybrid: difficultyHybrid,
-                    supply: (stats == null || stats.supply == null ? 0 : stats.supply),
-                    hashrate: hashrate,
-                    lastPrice: (stats == null || stats.last_price == null ? 0 : stats.last_price),
-                    connections: (connections ? connections : '-'),
-                    blockcount: (blockcount ? blockcount : '-')
-                  });
-                }
+                  if (hashrate == 'There was an error. Check your console.')
+                    hashrate = 0;
+
+                  // check if the masternode count api is enabled
+                  if (settings.api_page.public_apis.rpc.getmasternodecount.enabled == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') {
+                    // masternode count api is available
+                    var mn_total = 0;
+                    var mn_enabled = 0;
+
+                    if (masternodestotal) {
+                      if (masternodestotal.total)
+                        mn_total = masternodestotal.total;
+
+                      if (masternodestotal.enabled)
+                        mn_enabled = masternodestotal.enabled;
+                    }
+
+                    res.send({
+                      difficulty: (difficulty ? difficulty : '-'),
+                      difficultyHybrid: difficultyHybrid,
+                      supply: (stats == null || stats.supply == null ? 0 : stats.supply),
+                      hashrate: hashrate,
+                      lastPrice: (stats == null || stats.last_price == null ? 0 : stats.last_price),
+                      connections: (connections ? connections : '-'),
+                      masternodeCountOnline: (masternodestotal ? mn_enabled : '-'),
+                      masternodeCountOffline: (masternodestotal ? Math.floor(mn_total - mn_enabled) : '-'),
+                      blockcount: (blockcount ? blockcount : '-')
+                    });
+                  } else {
+                    // masternode count api is not available
+                    res.send({
+                      difficulty: (difficulty ? difficulty : '-'),
+                      difficultyHybrid: difficultyHybrid,
+                      supply: (stats == null || stats.supply == null ? 0 : stats.supply),
+                      hashrate: hashrate,
+                      lastPrice: (stats == null || stats.last_price == null ? 0 : stats.last_price),
+                      connections: (connections ? connections : '-'),
+                      blockcount: (blockcount ? blockcount : '-')
+                    });
+                  }
+                });
               });
             });
           });
-        });
+        }
       });
     });
   } else
