@@ -76,4 +76,15 @@ db.connect(dbString, function() {
   var server = app.listen(app.get('port'), '::', function() {
     debug('Express server listening on port ' + server.address().port);
   });
+
+  process.on('SIGINT', () => {
+    server.close(() => {
+      var mongoose = require('mongoose');
+
+      mongoose.connection.close(false, () => {
+        // close the main process now that all http and database connections have closed
+        process.exit(0);
+      });
+    });
+  });
 });

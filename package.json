@@ -3,9 +3,15 @@
   "version": "1.99.0",
   "private": true,
   "scripts": {
-    "start": "npm run prestart && node --stack-size=10000 ./bin/cluster",
-    "stop": "kill -2 $(cat tmp/cluster.pid)",
-    "test": "node ./node_modules/jasmine/bin/jasmine.js test/*Spec.js",
+    "start": "npm run prestart && $(which node) --stack-size=10000 ./bin/cluster",
+    "stop": "sh ./scripts/stop_explorer.sh",
+    "start-instance": "npm run prestart && $(which node) --stack-size=10000 ./bin/instance",
+    "start-forever": "npm run prestart \"forever\" && $(which node) $(which forever) start ./bin/cluster",
+    "stop-forever": "$(which node) $(which forever) stop ./bin/cluster",
+    "start-pm2": "npm run prestart \"pm2\" && $(which pm2) start ./bin/instance -i 0 --node-args=\"--stack-size=10000\"",
+    "start-pm2-debug": "npm run prestart \"pm2\" && $(which pm2) start ./bin/instance -i 0 --node-args=\"--stack-size=10000\" && $(which pm2) logs",
+    "stop-pm2": "$(which pm2) stop ./bin/instance",
+    "test": "$(which node) ./node_modules/jasmine/bin/jasmine.js test/*Spec.js",
     "prestart": "sh ./scripts/prestart.sh"
   },
   "dependencies": {

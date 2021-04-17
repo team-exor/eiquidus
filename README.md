@@ -36,8 +36,14 @@ Table of Contents
     - [Download Source Code](#download-source-code)
     - [Install Node Modules](#install-node-modules)
     - [Configure Explorer Settings](#configure-explorer-settings)
-    - [Starting the Explorer](#starting-the-explorer)
-    - [Stopping the Explorer](#stopping-the-explorer)
+- [Start/Stop the Explorer](#startstop-the-explorer)
+  - [Start Explorer (Use for Testing)](#start-explorer-use-for-testing)
+  - [Stop Explorer (Use for Testing)](#stop-explorer-use-for-testing)
+  - [Start Explorer Using PM2 (Recommended for Production)](#start-explorer-using-pm2-recommended-for-production)
+  - [Start Explorer Using PM2 and Log Viewer](#start-explorer-using-pm2-and-log-viewer)
+  - [Stop Explorer Using PM2 (Recommended for Production)](#stop-explorer-using-pm2-recommended-for-production)
+  - [Start Explorer Using Forever (Alternate Production Option)](#start-explorer-using-forever-alternate-production-option)
+  - [Stop Explorer Using Forever (Alternate Production Option)](#stop-explorer-using-forever-alternate-production-option)
 - [Syncing Databases with the Blockchain](#syncing-databases-with-the-blockchain)
   - [Sample Crontab](#sample-crontab)
 - [Wallet Settings](#wallet-settings)
@@ -48,10 +54,6 @@ Table of Contents
   - [Prerequisites](#prerequisites)
   - [Manually Link TLS/SSL Certificates to the Explorer](#manually-link-tlsssl-certificates-to-the-explorer)
   - [Use Nginx as a Reverse Proxy](#use-nginx-as-a-reverse-proxy)
-- [Forever](#forever)
-  - [Install Forever](#install-forever)
-  - [Starting the Explorer Using Forever](#starting-the-explorer-using-forever)
-  - [Stopping the Explorer Using Forever](#stopping-the-explorer-using-forever)
 - [CORS Support](#cors-support)
   - [What is CORS?](#what-is-cors)
   - [How to Benefit From Using CORS?](#how-to-benefit-from-using-cors)
@@ -266,28 +268,134 @@ cp ./settings.json.template ./settings.json
 
 *Make required changes in settings.json*
 
-##### Starting the Explorer
+### Start/Stop the Explorer
 
-You can launch the explorer in a terminal window that will output all warnings and error msgs with the following cmd (be sure to run from within the explorer directory):
+#### Start Explorer (Use for Testing)
+
+You can launch the explorer in a terminal window that will output all warnings and error msgs with one of the following cmds (be sure to run from within the explorer directory):
 
 ```
 npm start
 ```
 
+or (useful for crontab):
+
+```
+npm run prestart && /path/to/node --stack-size=10000 ./bin/cluster
+```
+
 **NOTE:** mongod must be running to start the explorer.
 
-The explorer defaults to cluster mode, forking an instance of its process to each cpu core. This results in increased performance and stability. Load balancing gets automatically taken care of and any instances that for some reason die, will be restarted automatically. If desired, a single instance can be launched with:
+The explorer defaults to cluster mode by forking an instance of its process to each cpu core, which results in increased performance and stability. Load balancing gets automatically taken care of and any instances that for some reason die, will be restarted automatically. If desired, a single instance can be launched with:
 
 ```
-node --stack-size=10000 bin/instance
+npm run start-instance
 ```
 
-##### Stopping the Explorer
+or (useful for crontab):
 
-To stop the explorer running with `npm start` you can end the process with the key combination `CTRL+C` in the terminal that is running the explorer or from another terminal you can use the following cmd (be sure to run from within the explorer directory):
+```
+npm run prestart && /path/to/node --stack-size=10000 ./bin/instance
+```
+
+#### Stop Explorer (Use for Testing)
+
+To stop the explorer running with `npm start` you can end the process with the key combination `CTRL+C` in the terminal that is running the explorer, or from another terminal you can use one of the following cmds (be sure to run from within the explorer directory):
 
 ```
 npm stop
+```
+
+or (useful for crontab):
+
+```
+sh ./scripts/stop_explorer.sh
+```
+
+#### Start Explorer Using PM2 (Recommended for Production)
+
+[PM2](https://www.npmjs.com/package/pm2) is a process manager for Node.js applications with a built-in load balancer that allows you to always keep the explorer alive and running even if it crashes. Once you have configured the explorer to work properly in a production environment, it is recommended to use PM2 to start and stop the explorer instead of `npm start` and `npm stop` to keep the explorer constantly running without the need to always keep a terminal window open.
+
+You can start the explorer using PM2 with one of the following terminal cmds (be sure to run from within the explorer directory):
+
+```
+npm run start-pm2
+```
+
+or (useful for crontab):
+
+```
+npm run prestart "pm2" && /path/to/pm2 start ./bin/instance -i 0 --node-args="--stack-size=10000"
+```
+
+**NOTE:** Use the following cmd to find the install path for PM2:
+
+```
+which pm2
+```
+
+#### Start Explorer Using PM2 and Log Viewer
+
+Alternatively, you can start the explorer using PM2 and automatically open the log viewer which will allow for viewing all warnings and error msgs as they come up by using one of the following terminal cmds (be sure to run from within the explorer directory):
+
+```
+npm run start-pm2-debug
+```
+
+or (useful for crontab):
+
+```
+npm run prestart "pm2" && /path/to/pm2 start ./bin/instance -i 0 --node-args="--stack-size=10000" && /path/to/pm2 logs
+```
+
+#### Stop Explorer Using PM2 (Recommended for Production)
+
+To stop the explorer when it is running via PM2 you can use one of the following terminal cmds (be sure to run from within the explorer directory):
+
+```
+npm run stop-pm2
+```
+
+or (useful for crontab):
+
+```
+/path/to/pm2 stop ./bin/instance
+```
+
+#### Start Explorer Using Forever (Alternate Production Option)
+
+[Forever](https://www.npmjs.com/package/forever) is an alternative to PM2 which is another useful Node.js module that is used to always keep the explorer alive and running even if the explorer crashes or stops. Once you have configured the explorer to work properly in a production environment, forever can be used as an alternative to PM2 to start and stop the explorer instead of `npm start` and `npm stop` to keep the explorer constantly running without the need to always keep a terminal window open.
+
+You can start the explorer using forever with one of the following terminal cmds (be sure to run from within the explorer directory):
+
+```
+npm run start-forever
+```
+
+or (useful for crontab):
+
+```
+npm run prestart && /path/to/node /path/to/forever start ./bin/cluster
+```
+
+**NOTE:** Use the following cmd to find the install path for forever:
+
+```
+which forever
+```
+
+#### Stop Explorer Using Forever (Alternate Production Option)
+
+To stop the explorer when it is running via forever you can use one of the following terminal cmds (be sure to run from within the explorer directory):
+
+```
+npm run stop-forever
+```
+
+or (useful for crontab):
+
+```
+/path/to/node /path/to/forever stop ./bin/cluster
 ```
 
 ### Syncing Databases with the Blockchain
@@ -295,7 +403,7 @@ npm stop
 sync.sh (located in scripts/) is used for updating the local databases. This script must be called from the explorers root directory.
 
 ```
-Usage: scripts/sync.sh /path/to/nodejs [mode]
+Usage: scripts/sync.sh /path/to/node [mode]
 
 Mode: (required)
 update           Updates index from last sync to current block
@@ -322,10 +430,10 @@ Notes:
 *Example crontab; update index every minute, market data every 2 minutes, peers and masternodes every 5 minutes*
 
 ```
-*/1 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs update > /dev/null 2>&1
-*/2 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs market > /dev/null 2>&1
-*/5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs peers > /dev/null 2>&1
-*/5 * * * * /path/to/explorer/scripts/sync.sh /path/to/nodejs masternodes > /dev/null 2>&1
+*/1 * * * * /path/to/explorer/scripts/sync.sh /path/to/node update > /dev/null 2>&1
+*/2 * * * * /path/to/explorer/scripts/sync.sh /path/to/node market > /dev/null 2>&1
+*/5 * * * * /path/to/explorer/scripts/sync.sh /path/to/node peers > /dev/null 2>&1
+*/5 * * * * /path/to/explorer/scripts/sync.sh /path/to/node masternodes > /dev/null 2>&1
 ```
 
 ### Wallet Settings
@@ -509,40 +617,6 @@ sudo certbot --nginx
 Certbot will ask a few simple questions and generate the necessary TLS/SSL certificate files for your domain and link them to Nginx. It will also install the necessary files to automatically renew the certificates when they are about to expire, so you shouldn't need to do anything special to keep them up to date.
 
 3. If all went well, you should now be able to start up the explorer and browse to it using a secure https connection like [https://example.com](https://example.com).
-
-### Forever
-
-[Forever](https://www.npmjs.com/package/forever) is a useful node.js module that is used to always keep the explorer alive and running even if the explorer crashes or stops. Once you have configured the explorer to work properly in a production environment, it is recommended to use forever to start and stop the explorer instead of `npm start` and `npm stop` to keep the explorer constantly running without the need to always keep a terminal window open.
-
-#### Install Forever
-
-Run the following cmd in a terminal to install forever:
-
-```
-sudo npm install forever -g
-```
-
-#### Starting the Explorer Using Forever
-
-You can start the explorer using forever with the following terminal cmd (be sure to run from within the explorer directory):
-
-```
-npm run prestart && /path/to/nodejs /path/to/forever start bin/cluster
-```
-
-**NOTE:** Use the following cmd to find the install path for forever:
-
-```
-which forever
-```
-
-#### Stopping the Explorer Using Forever
-
-To stop the explorer when it is running via forever you can use the following terminal cmd (be sure to run from within the explorer directory):
-
-```
-/path/to/nodejs /path/to/forever stop bin/cluster
-```
 
 ### CORS Support
 

@@ -6,6 +6,27 @@
 #  npm update
 #fi
 
+# Check if an argument was passed into this script
+if [ -n "${1}" ]; then
+  # Determine which argument was passed
+  case "${1}" in
+    "pm2")
+      # Check if pm2 is installed
+      if [ -z "$(which pm2)" ]; then
+        # Install pm2
+        npm install pm2@latest -g
+      fi
+    ;;
+    "forever")
+      # Check if forever is installed
+      if [ -z "$(which forever)" ]; then
+        # Install forever
+        npm install forever -g
+      fi
+    ;;
+  esac
+fi
+
 # Ensure that selected theme is properly installed
 sh ./scripts/sass_theme_reader.sh
 

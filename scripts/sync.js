@@ -12,7 +12,7 @@ var database = 'index';
 
 // displays usage and exits
 function usage() {
-  console.log('Usage: scripts/sync.sh /path/to/nodejs [mode]');
+  console.log('Usage: scripts/sync.sh /path/to/node [mode]');
   console.log('');
   console.log('Mode: (required)');
   console.log('update           Updates index from last sync to current block');

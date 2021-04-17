@@ -2,42 +2,46 @@ var cluster = require('cluster');
 var fs = require('fs');
 
 if (cluster.isMaster) {
-  fs.writeFile('./tmp/cluster.pid', process.pid.toString(), function (err) {
-    if (err) {
-      console.log('Error: unable to create cluster.pid');
-      process.exit(1);
-    } else {
-      console.log('Starting cluster with pid: ' + process.pid);
+  console.log('Starting cluster with pid: ' + process.pid);
 
-      // ensure workers exit cleanly
-      process.on('SIGINT', function() {
-        console.log('Cluster shutting down..');
+  // ensure workers exit cleanly
+  process.on('SIGINT', () => {
+    console.log('Cluster shutting down..');
 
-        for (var id in cluster.workers) {
-          console.log('Worker shutting down (' + id + ')');
-          cluster.workers[id].kill();
-        }
+    // send kill cmd to all workers
+    for (var id in cluster.workers) {
+      console.log('Worker (' + id + ') shutting down...');
+      process.kill(cluster.workers[id]['process']['pid'], 'SIGINT');
+    }
 
-        // exit the master process
+    function waitForWorkerShutdown () {
+      if (Object.keys(cluster.workers).length > 0) {
+        // continue waiting since worker threads are still open
+        setTimeout(waitForWorkerShutdown, 100);
+      } else {
+        // all worker threads have closed
+        // now exit the master process
         process.exit(0);
-      });
+      }
+    }
 
-      // count the machine's CPUs
-      var cpuCount = require('os').cpus().length;
+    waitForWorkerShutdown();
+  });
 
-      // create a worker for each CPU
-      for (var i = 0; i < cpuCount; i += 1)
-        cluster.fork();
+  // count the machine's CPUs
+  var cpuCount = require('os').cpus().length;
 
-      // listen for dying workers
-      cluster.on('exit', function (worker, code, signal) {
-        if (worker['process']['exitCode'] === 0)
-          console.log('Worker shut down.');
-        else if ((signal != 'SIGINT') && (worker['process']['exitCode'] !== 0) && (worker.exitedAfterDisconnect !== true)) {
-          console.log('Cluster restarting...');
-          cluster.fork();
-        }
-      });
+  // create a worker for each CPU
+  for (var i = 0; i < cpuCount; i += 1)
+    cluster.fork();
+
+  // listen for dying workers
+  cluster.on('exit', function (worker, code, signal) {
+    if (worker['process']['exitCode'] === 0) {
+      console.log('Worker (' + worker['id'] + ') shutdown complete');
+    } else if ((signal != 'SIGINT') && (worker['process']['exitCode'] !== 0) && (worker.exitedAfterDisconnect !== true)) {
+      console.log('Cluster restarting...');
+      cluster.fork();
     }
   });
 } else
