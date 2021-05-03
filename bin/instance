@@ -57,6 +57,9 @@ db.connect(dbString, function() {
   // Add new field(s) to tx collection if missing
   db.check_txes(function(exists) {});
 
+  // Add new field(s) to masternode collection if missing
+  db.check_masternodes(function(exists) {});
+
   db.check_richlist(settings.coin.name, function(exists) {
     if (exists == false) {
       console.log('no richlist entry found, creating now..');

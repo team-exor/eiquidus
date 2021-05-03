@@ -27,6 +27,7 @@ block content
         return ('0' + dy).slice(-2) + " day" + (('0' + dy).slice(-2) == 1 ? "" : "s") + " " + ('0' + h).slice(-2) + "h " + ('0' + m).slice(-2) + "m " + ('0' + s).slice(-2) + "s";
     }
     $(document).ready(function() {
+      var useNewDashFormat = false;
       var labels = !{JSON.stringify(settings.labels)};
       var ctable = $('#masternodes-table').dataTable({
         autoWidth: true,
@@ -70,34 +71,42 @@ block content
                   json[i]['addr'] = '<div><label class="badge badge-default" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-toggle="tooltip" data-placement="top"><span class="fa fa-question-circle" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
               }
             }
+ 
+            useNewDashFormat = json.length > 0 && json[0].ip_address != null && json[0].ip_address != '';
+ 
             return json;
           }
         },
         columns: [
-          { data: 'rank' },
-          { data: 'network' },
-          { data: 'addr' },
-          { data: 'version' },
-          { data: 'lastseen' },
-          { data: 'lastpaid' },
-          { data: 'activetime' },
-          { data: 'status' }
+          { name: 'rank', data: 'rank', className: "rankCol" },
+          { name: 'network', data: 'network', className: "networkCol" },
+          { name: 'ip_address', data: 'ip_address', className: "ipAddressCol" },
+          { name: 'addr', data: 'addr', className: "addressCol" },
+          { name: 'version', data: 'version', className: "versionCol" },
+          { name: 'lastseen', data: 'lastseen', className: "lastSeenCol" },
+          { name: 'lastpaid', data: 'lastpaid', className: "lastPaidCol" },
+          { name: 'last_paid_block', data: 'last_paid_block', className: "lastPaidBlockCol" },
+          { name: 'activetime', data: 'activetime', className: "activeTimeCol" },
+          { name: 'status', data: 'status', className: "statusCol" }
         ],
         rowCallback: function(row, data, index) {
-          $("td:eq(2)", row).addClass("breakWord");
+          $("td.addressCol", row).addClass("breakWord");
+
+          if (useNewDashFormat)
+            $("td.ipAddressCol", row).addClass("breakWord");
 
           switch (data['status'].toUpperCase()) {
             case 'ENABLED':
-              $("td:eq(7)", row).addClass('bg-success');
+              $("td.statusCol", row).addClass('bg-success');
               break;
             case 'REMOVE':
-              $("td:eq(7)", row).addClass('bg-danger');
+              $("td.statusCol", row).addClass('bg-danger');
               break;
             case 'EXPIRED':
-              $("td:eq(7)", row).addClass('bg-warning');
+              $("td.statusCol", row).addClass('bg-warning');
               break;
             default:
-              $("td:eq(7)", row).addClass('bg-info');
+              $("td.statusCol", row).addClass('bg-info');
               break;
           }
         },
@@ -105,6 +114,18 @@ block content
           fixDataTableColumns();
           fixFooterHeightAndPosition();
           enableTooltips();
+        },
+        fnInitComplete: function(settings, json) {
+          setTimeout(function () {
+            // Hide/show columns based on which Dash masternode format is used
+            ctable.api().column('rank:name').visible(!useNewDashFormat, false);
+            ctable.api().column('network:name').visible(!useNewDashFormat, false);
+            ctable.api().column('version:name').visible(!useNewDashFormat, false);
+            ctable.api().column('lastseen:name').visible(!useNewDashFormat, false);
+            ctable.api().column('activetime:name').visible(!useNewDashFormat, false);
+            ctable.api().column('ip_address:name').visible(useNewDashFormat, false);
+            ctable.api().column('last_paid_block:name').visible(useNewDashFormat);
+          }, 0);
         }
       });
 
@@ -161,10 +182,12 @@ block content
           tr
             th.text-center Pay rank
             th.text-center Protocol
-            th.text-center Address
+            th.text-center IP address
+            th.text-center Wallet address
             th.text-center Protocol
             th.text-center Last seen
             th.text-center Last paid
+            th.text-center Last paid block
             th.text-center Active since
             th.text-center Status
         tbody.text-center

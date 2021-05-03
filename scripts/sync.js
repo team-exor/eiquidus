@@ -209,14 +209,24 @@ if (database == 'peers') {
     } else {
       lib.get_masternodelist(function (body) {
         if (body != null) {
-          lib.syncLoop(body.length, function (loop) {
+          var isObject = false;
+          var objectKeys = null;
+
+          // Check if the masternode data is an array or an object
+          if (body.length == null) {
+            // Process data as an object
+            objectKeys = Object.keys(body);
+            isObject = true;
+          }
+
+          lib.syncLoop((isObject ? objectKeys : body).length, function (loop) {
             var i = loop.iteration();
 
-            db.save_masternode(body[i], function (success) {
+            db.save_masternode((isObject ? body[objectKeys[i]] : body[i]), function (success) {
               if (success)
                 loop.next();
               else {
-                console.log('error: cannot save masternode %s.', (body[i].addr ? body[i].addr : 'UNKNOWN'));
+                console.log('error: cannot save masternode %s.', (isObject ? (body[objectKeys[i]].payee ? body[objectKeys[i]].payee : 'UNKNOWN') : (body[i].addr ? body[i].addr : 'UNKNOWN')));
                 exit();
               }
             });

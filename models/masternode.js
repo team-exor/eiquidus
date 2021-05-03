@@ -12,7 +12,9 @@ var MasternodeSchema = new Schema({
   lastseen: { type: Number, default: 0 },
   activetime: { type: Number, default: 0 },
   lastpaid: { type: Number, default: 0 },
-  claim_name: { type: String, default: '', index: true }
+  claim_name: { type: String, default: '', index: true },
+  ip_address: { type: String, default: '', index: true },
+  last_paid_block: {type: Number, default: 0}
 }, {id: false});
 
 module.exports = mongoose.model('Masternode', MasternodeSchema);
