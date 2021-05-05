@@ -7,7 +7,7 @@ var MasternodeSchema = new Schema({
   txhash: { type: String, default: "" },
   outidx : { type: Number, default: 0},
   status : { type: String, default: "" },
-  addr: { type: String, unique: true, index: true },
+  addr: { type: String, index: true },
   version : { type: Number, default: 0},
   lastseen: { type: Number, default: 0 },
   activetime: { type: Number, default: 0 },
