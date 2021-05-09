@@ -84,9 +84,10 @@ block content
           url: '/ext/getnetworkpeers/internal',
           dataSrc: function (json) {
             var rows = [];
-            for (var i=0; i<json.data.length; i++) {
-              rows.push({'nodes':'addnode='+json.data[i]['address']+':'+json.data[i]['port']});
-            }
+
+            for (var i=0; i<json.data.length; i++)
+              rows.push({'nodes': 'addnode=' + json.data[i]['address'] + (json.data[i]['port'] == null ? '' : ':' + json.data[i]['port'])});
+
             return rows;
           }
         },
@@ -122,9 +123,10 @@ block content
           url: '/ext/getnetworkpeers/internal',
           dataSrc: function (json) {
             var rows = [];
-            for (var i=0; i<json.data.length; i++) {
-              rows.push({'nodes':'addnode '+json.data[i]['address']+':'+json.data[i]['port']+' onetry'});
-            }
+
+            for (var i=0; i<json.data.length; i++)
+              rows.push({'nodes': 'addnode ' + json.data[i]['address'] + (json.data[i]['port'] == null ? '' : ':' + json.data[i]['port']) + ' onetry'});
+
             return rows;
           }
         },

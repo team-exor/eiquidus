@@ -143,12 +143,23 @@ if (database == 'peers') {
         if (body != null) {
           lib.syncLoop(body.length, function (loop) {
             var i = loop.iteration();
-            var address = body[i].addr.substring(0, body[i].addr.lastIndexOf(":")).replace("[","").replace("]", "");
-            var port = body[i].addr.substring(body[i].addr.lastIndexOf(":") + 1);
-            var rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
+            var address = body[i].addr;
+            var port = null;
+
+            if (occurrences(address, ':') == 1 || occurrences(address, ']:') == 1) {
+              // Separate the port # from the IP address
+              address = address.substring(0, address.lastIndexOf(":")).replace("[", "").replace("]", "");
+              port = body[i].addr.substring(body[i].addr.lastIndexOf(":") + 1);
+            }
+
+            if (address.indexOf("]") > -1) {
+              // Remove [] characters from IPv6 addresses
+              address = address.replace("[", "").replace("]", "");
+            }
+
             db.find_peer(address, function(peer) {
               if (peer) {
-                if (isNaN(peer['port']) || peer['port'].length < 2 || peer['country'].length < 1 || peer['country_code'].length < 1) {
+                if ((peer['port'] != null && (isNaN(peer['port']) || peer['port'].length < 2)) || peer['country'].length < 1 || peer['country_code'].length < 1) {
                   db.drop_peers(function() {
                     console.log('Saved peers missing ports or country, dropping peers. Re-run this script afterwards.');
                     exit();
@@ -159,6 +170,8 @@ if (database == 'peers') {
                 console.log('Updated peer %s [%s/%s]', address, (i + 1).toString(), body.length.toString());
                 loop.next();
               } else {
+                var rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
+
                 rateLimit.schedule(function() {
                   lib.get_geo_location(address, function (error, geo) {
                     // check if an error was returned
@@ -567,4 +580,32 @@ function get_last_usd_price() {
       exit();
     });
   });
+}
+
+/** Function that count occurrences of a substring in a string;
+ * @param {String} string               The string
+ * @param {String} subString            The sub string to search for
+ * @param {Boolean} [allowOverlapping]  Optional. (Default:false)
+ *
+ * @author Vitim.us https://gist.github.com/victornpb/7736865
+ * @see Unit Test https://jsfiddle.net/Victornpb/5axuh96u/
+ * @see http://stackoverflow.com/questions/4009756/how-to-count-string-occurrence-in-string/7924240#7924240
+ */
+function occurrences(string, subString, allowOverlapping) {
+  string += "";
+  subString += "";
+  if (subString.length <= 0) return (string.length + 1);
+
+  var n = 0,
+      pos = 0,
+      step = allowOverlapping ? 1 : subString.length;
+
+  while (true) {
+      pos = string.indexOf(subString, pos);
+      if (pos >= 0) {
+          ++n;
+          pos += step;
+      } else break;
+  }
+  return n;
 }
