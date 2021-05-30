@@ -572,13 +572,20 @@ function remove_sync_message() {
 }
 
 function get_last_usd_price() {
-  // Get the last usd price for coinstats
-  db.get_last_usd_price(function(retVal) {
-    // update markets_last_updated value
-    db.update_last_updated_stats(settings.coin.name, { markets_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
-      console.log('market sync complete');
-      exit();
-    });
+  // get the last usd price for coinstats
+  db.get_last_usd_price(function(err) {
+    // check for errors
+    if (err == null) {
+      // update markets_last_updated value
+      db.update_last_updated_stats(settings.coin.name, { markets_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+        console.log('market sync complete');
+        exit();
+      });
+    } else {
+      // display error msg
+      console.log('error: %s', err);
+      exit();      
+    }
   });
 }
 

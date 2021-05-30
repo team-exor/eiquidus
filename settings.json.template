@@ -201,7 +201,7 @@
           //                The panel will be disabled with a value of 0
           "display_order": 1
         },
-        // price_panel: a collection of settings that pertain to the price panel which displays the current market price in BTC
+        // price_panel: a collection of settings that pertain to the price panel which displays the current market price measured against the default market pair
         "price_panel": {
           // enabled: Enable/disable the price panel (true/false)
           //          If set to false, the price panel will be completely inaccessible
@@ -211,7 +211,7 @@
           //                The panel will be disabled with a value of 0
           "display_order": 4
         },
-        // market_cap_panel: a collection of settings that pertain to the market cap panel which displays the current market cap value in BTC
+        // market_cap_panel: a collection of settings that pertain to the market cap panel which displays the current market cap value measured against the default market pair
         "market_cap_panel": {
           // enabled: Enable/disable the market cap panel (true/false)
           //          If set to false, the market cap panel will be completely inaccessible
@@ -970,7 +970,7 @@
           "enabled": true
         },
         // getbasicstats: a collection of settings that pertain to the /ext/getbasicstats api endpoint
-        //                Returns basic statistics about the coin including: block count, circulating supply, USD price, BTC price and # of masternodes (# of masternodes is only applicable to masternode coins)
+        //                Returns basic statistics about the coin including: block count, circulating supply, USD price, default market price and # of masternodes (# of masternodes is only applicable to masternode coins)
         //                NOTE: This api is not used internally and is therefore only publicly available
         "getbasicstats": {
           // enabled: Enable/disable the /ext/getbasicstats api endpoint (true/false)
@@ -978,7 +978,7 @@
           "enabled": true
         },
         // getsummary: a collection of settings that pertain to the /ext/getsummary api endpoint
-        //             Returns a summary of coin data including: difficulty, hybrid difficulty, circulating supply, hash rate, BTC price, network connection count, block count, count of online masternodes and count of offline masternodes (masternode counts are only applicable to masternode coins)
+        //             Returns a summary of coin data including: difficulty, hybrid difficulty, circulating supply, hash rate, default market price, network connection count, block count, count of online masternodes and count of offline masternodes (masternode counts are only applicable to masternode coins)
         //             NOTE: This api is used internally via ajax call to populate many of the panel boxes that are found at the top of all pages. Disabling the api from here will not stop the panel boxes from displaying data
         "getsummary": {
           // enabled: Enable/disable the /ext/getsummary api endpoint (true/false)

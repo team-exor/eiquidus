@@ -86,7 +86,7 @@ Table of Contents
   - **Movement:** Displays latest blockchain transactions that are greater than a certain configurable amount
   - **Network:** Displays a list of peers that have connected to the coind wallet in the past 24 hours, along with useful addnode data that can be used to connect your own wallets to the network easier
   - **Top 100:** Displays the top 100 richest wallet addresses, the top 100 wallet addresses that have the highest total number of coins received based on adding up all received transactions, as well as a table and pie chart breakdown of wealth distribution. Additional support for omitting burned coins from top 100 lists
-  - **Markets:** Displays a number of exchange-related metrics including market summary, 24 hour chart, most recent buy/sell orders and latest trade history. The following 7 cryptocurrency exchanges are supported:
+  - **Markets:** Displays a number of exchange-related metrics including market summary, 24 hour chart, most recent buy/sell orders and latest trade history. The last known default exchange price is automatically converted to USD using the coingecko api from [https://www.coingecko.com/en/api](https://www.coingecko.com/en/api). The following 7 cryptocurrency exchanges are supported:
     - [AltMarkets](https://altmarkets.io)
     - [Bittrex](https://bittrex.com)
     - [Bleutrade](https://bleutrade.com)
@@ -114,8 +114,8 @@ Table of Contents
       - **getbalance:** Returns current balance of given address
       - **getlasttxs:** Returns transactions greater than a specific number of coins, starting from a particular offset
       - **getcurrentprice:** Returns last known exchange price
-      - **getbasicstats:** Returns basic statistics about the coin including: block count, circulating supply, USD price, BTC price and # of masternodes *\*# of masternodes is only applicable to masternode coins*
-      - **getsummary:** Returns a summary of coin data including: difficulty, hybrid difficulty, circulating supply, hash rate, BTC price, network connection count, block count, count of online masternodes and count of offline masternodes *\*masternode counts are only applicable to masternode coins*
+      - **getbasicstats:** Returns basic statistics about the coin including: block count, circulating supply, USD price, default market price and # of masternodes *\*# of masternodes is only applicable to masternode coins*
+      - **getsummary:** Returns a summary of coin data including: difficulty, hybrid difficulty, circulating supply, hash rate, default market price, network connection count, block count, count of online masternodes and count of offline masternodes *\*masternode counts are only applicable to masternode coins*
       - **getnetworkpeers:** Returns the list of network peers that have connected to the explorer node in the last 24 hours
       - **getmasternodelist:** Returns the complete list of masternodes on the network *\*only applicable to masternode coins*
       - **getmasternoderewards:** Returns a list of masternode reward transactions for a specific address that arrived after a specific block height *\*only applicable to masternode coins*
@@ -152,8 +152,8 @@ Table of Contents
   - **Difficulty:** Displays the current proof-of-work and/or proof-of-stake difficulty
   - **Masternodes:** Displays a count of online and unreachable masternodes *\*only applicable to masternode coins*
   - **Coin Supply:** Displays the current circulating coin supply value
-  - **Price:** Displays the current market price in BTC
-  - **Market Cap:** Displays the current market cap value in BTC
+  - **Price:** Displays the current market price (value measured using default market pair)
+  - **Market Cap:** Displays the current market cap value in (value measured using default market pair)
   - **Logo:** Display an image of your coin logo
 - Add as many custom social links to the explorer footer as desired. Useful for linking to github, twitter, coinmarketcap or any other social media or external links as necessary. 
 - Custom rpc/api command support which increases blockchain compatibility. Supported cmds:

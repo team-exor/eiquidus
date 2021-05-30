@@ -236,14 +236,14 @@ block content
                 p
                   div.font-weight-bold getbasicstats
                   div
-                    em="Returns basic statistics about the coin including: block count, circulating supply, USD price, BTC price" + (settings.api_page.public_apis.rpc.getmasternodecount.enabled == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '' ? ', ' + '# of masternodes' : '')
+                    em="Returns basic statistics about the coin including: block count, circulating supply, USD price, " + settings.markets_page.default_exchange.trading_pair.split('/')[1].toUpperCase() + " price" + (settings.api_page.public_apis.rpc.getmasternodecount.enabled == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '' ? ', ' + '# of masternodes' : '')
                   a(href='/ext/getbasicstats') #{address}/ext/getbasicstats
             if settings.api_page.public_apis.ext.getsummary.enabled == true
               li
                 p
                   div.font-weight-bold getsummary
                   div
-                    em="Returns a summary of coin data including: difficulty, hybrid difficulty, circulating supply, hash rate, BTC price, network connection count, block count" + (settings.api_page.public_apis.rpc.getmasternodecount.enabled == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '' ? ', ' + 'count of online masternodes' + ', ' + 'count of offline masternodes' : '')
+                    em="Returns a summary of coin data including: difficulty, hybrid difficulty, circulating supply, hash rate, " + settings.markets_page.default_exchange.trading_pair.split('/')[1].toUpperCase() + " price, network connection count, block count" + (settings.api_page.public_apis.rpc.getmasternodecount.enabled == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '' ? ', ' + 'count of online masternodes' + ', ' + 'count of offline masternodes' : '')
                   a(href='/ext/getsummary') #{address}/ext/getsummary
             if settings.api_page.public_apis.ext.getmasternodelist.enabled == true && settings.api_cmds['getmasternodelist'] != null && settings.api_cmds['getmasternodelist'] != ''
               li
