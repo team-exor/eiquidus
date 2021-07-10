@@ -43,6 +43,8 @@ block content
           tr
             th.text-center.d-table-cell.d-md-none
             th.d-none.d-md-table-cell #{settings.locale.tx_block_hash}
+            if settings.transaction_page.show_op_return == true
+              th='OP_RETURN'
             th.text-center #{settings.locale.confirmations}
             th.text-center #{settings.locale.timestamp}
         tbody
@@ -54,6 +56,8 @@ block content
                   span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)
               td.d-none.d-md-table-cell
                 a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
+              if settings.transaction_page.show_op_return == true
+                td.breakWord #{tx.op_return}
               td.text-center #{confirms}
               td.text-center
                 span#timestampCol
@@ -65,6 +69,8 @@ block content
                     span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)
                 td.d-none.d-md-table-cell
                   a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
+                if settings.transaction_page.show_op_return == true
+                  td.breakWord #{tx.op_return}
                 td.text-center #{confirms}
                 td.text-center
                   span#timestampCol
@@ -75,6 +81,8 @@ block content
                     span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)              
                 td.d-none.d-md-table-cell
                   a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
+                if settings.transaction_page.show_op_return == true
+                  td.breakWord #{tx.op_return}
                 td.text-center #{confirms}
                 td.text-center
                   span#timestampCol
