@@ -213,8 +213,8 @@ Table of Contents
 
 While we do not yet have our own step-by-step setup instructions, there are a few well-written guides out there already that detail how to set up and install the [original iquidus explorer](https://github.com/iquidus/explorer). Because the setup process for iquidus is more-or-less identical to eIquidus at this moment in time (making changes to settings.json is probably the biggest difference although we have helpful comments for each setting), here are some of the more complete guides that may be useful for anyone who needs more detailed instructions than are provided in the [Quick Install Instructions](#quick-install-instructions):
 
-1. [The Ultimate Iquidus Explorer Installation Guide](https://stakeandnodes.net/iquidus-explorer-installation-guide)
-2. [Node and Iquidus Explorer Setup for Dummies](https://gist.github.com/zeronug/5c66207c426a1d4d5c73cc872255c572)
+1. [Iquidus Block Explorer Setup Guide](https://medium.com/stakeandnodes/iquidus-block-explorer-setup-guide-stake-and-nodes-4d183a8d07dc)
+2. [Node and Iquidus Explorer Setup for Dummies](https://gist.github.com/scottie/b6179c34ce3cf200fcc5d08727a46623)
 3. [Iquidus Block Explorer Guide](https://www.reddit.com/r/BiblePay/comments/7elm7r/iquidus_block_explorer_guide)
 
 #### Quick Install Instructions
