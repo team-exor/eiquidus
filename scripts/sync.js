@@ -28,8 +28,8 @@ function usage() {
   console.log('Notes:');
   console.log('- \'current block\' is the latest created block when script is executed.');
   console.log('- The market + peers databases only support (& defaults to) reindex mode.');
-  console.log('- If check mode finds missing data (ignoring new data since last sync),');
-  console.log('  index_timeout in settings.json is set too low.');
+  console.log('- If check mode finds missing data (other than new data since last sync),');
+  console.log('  this likely means that sync.update_timeout in settings.json is set too low.');
   console.log('');
   process.exit(0);
 }

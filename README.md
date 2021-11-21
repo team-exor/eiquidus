@@ -420,8 +420,8 @@ masternodes      Updates the list of active masternodes on the network
 Notes:
 - 'current block' is the latest created block when script is executed.
 - The market + peers databases only support (& defaults to) reindex mode.
-- If check mode finds missing data(ignoring new data since last sync),
-  index_timeout in settings.json is set too low.
+- If check mode finds missing data (other than new data since last sync),
+  this likely means that sync.update_timeout in settings.json is set too low.
 ```
 
 *It is recommended to have this script launched via a cronjob at 1+ min intervals.*
