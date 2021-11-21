@@ -45,6 +45,7 @@ Table of Contents
   - [Start Explorer Using Forever (Alternate Production Option)](#start-explorer-using-forever-alternate-production-option)
   - [Stop Explorer Using Forever (Alternate Production Option)](#stop-explorer-using-forever-alternate-production-option)
 - [Syncing Databases with the Blockchain](#syncing-databases-with-the-blockchain)
+  - [Commands for Manually Syncing Databases](#commands-for-manually-syncing-databases)
   - [Sample Crontab](#sample-crontab)
 - [Wallet Settings](#wallet-settings)
 - [Run Express Webserver on Port 80](#run-express-webserver-on-port-80)
@@ -424,11 +425,39 @@ Notes:
   this likely means that sync.update_timeout in settings.json is set too low.
 ```
 
-*It is recommended to have this script launched via a cronjob at 1+ min intervals.*
+*It is recommended to do the initial syncing of your blockchain, markets, peers and masternodes using the manual commands below to ensure there are no sync issues. When you are sure that everything is syncing correctly, you should then install the necessary scripts to a crontab at 1+ minute intervals as indicated below*
+
+#### Commands for Manually Syncing Databases
+
+A number of npm scripts are included with the explorer for easy syncing of the various explorer databases. The following scripts are the main commands used for syncing the explorer with your blockchain:
+
+- `npm run sync-blocks`: Connect to the wallet daemon to pull blocks/transactions into the explorer, starting from genesis to current block. Repeat calls of this command will remember the last block downloaded, to allow continuous syncing of new blocks.
+- `npm run sync-markets`: Connect to the various exchange apis as defined in the `settings.json` file to provide market related data such as market summaries, orderbooks, trade history and charts.
+- `npm run sync-peers`: Connect to the wallet daemon and pull in data regarding connected nodes.
+- `npm run sync-masternodes`: Connect to the wallet daemon and pull in the list of active masternodes on the network. *\*only applicable to masternode coins*
+
+A small handful of useful scripts are also included to assist in solving various issues you may experience with the explorer:
+
+- `npm run check-blocks`: Recheck all previously synced blocks by comparing against the wallet daemon to look for and add any missing transactions/addresses. :warning: **WARNING:** This can take a very long time depending on the length of the blockchain and is generally not recommended unless absolutely necessary. Furthermore, while you are checking for missing data, you will be unable to sync new blocks into the explorer until the check command has finished. If you do find missing transactions with this check (other than new data since last sync), this likely means that `sync.update_timeout` in `settings.json` is set too low.
+- `npm run reindex`: Delete all blocks, transactions and addresses, and resync from genesis to current block. :warning: **WARNING:** This will wipe out all blockchain-related data from the explorer. It is recommended to [backup the explorer database](#backup-database-script) before continuing with this command.
+- `npm run reindex-rich`: Clears and recreates the richlist data for the top 100 coin holders page. Rarely needed, but can be useful for debugging or if you are certain the richlist data is incorrect for some reason.
+- `npm run reindex-txcount`: Recalculate the count of transactions stored in `stats.txes` by recounting the txes stored in the mongo database. Rarely needed, but can be useful for debugging or if you notice the main list of transactions is showing the wrong number of entries. If this value is off for some reason, you will not be able to page back to the 1st blocks on the main list of transactions for example.
+- `npm run reindex-last`: Lookup the last transaction in the mongo database and reset the `stats.last` value to that most recent block index. Rarely needed, but can be useful for debugging. The `stats.last` value is used to remember which block the last sync left off on to resume syncing from the next block.
 
 #### Sample Crontab
 
 *Example crontab; update index every minute, market data every 2 minutes, peers and masternodes every 5 minutes*
+
+Easier crontab syntax using npm scripts, but may not work on some systems depending on permissions and how nodejs was installed:
+
+```
+*/1 * * * * cd /path/to/explorer && npm run sync-blocks > /dev/null 2>&1
+*/2 * * * * cd /path/to/explorer && npm run sync-markets > /dev/null 2>&1
+*/5 * * * * cd /path/to/explorer && npm run sync-peers > /dev/null 2>&1
+*/5 * * * * cd /path/to/explorer && npm run sync-masternodes > /dev/null 2>&1
+```
+
+Or, run the crontab by calling the sync script directly, which should work better in the event you have problems running the npm scripts from a crontab:
 
 ```
 */1 * * * * /path/to/explorer/scripts/sync.sh /path/to/node update > /dev/null 2>&1

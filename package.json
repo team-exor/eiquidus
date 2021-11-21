@@ -12,7 +12,16 @@
     "start-pm2-debug": "npm run prestart \"pm2\" && $(which pm2) start ./bin/instance -i 0 --node-args=\"--stack-size=10000\" && $(which pm2) logs",
     "stop-pm2": "$(which pm2) stop ./bin/instance",
     "test": "$(which node) ./node_modules/jasmine/bin/jasmine.js test/*Spec.js",
-    "prestart": "sh ./scripts/prestart.sh"
+    "prestart": "sh ./scripts/prestart.sh",
+    "sync-blocks": "sh ./scripts/sync.sh $(which node) update",
+    "sync-markets": "sh ./scripts/sync.sh $(which node) market",
+    "sync-peers": "sh ./scripts/sync.sh $(which node) peers",
+    "sync-masternodes": "sh ./scripts/sync.sh $(which node) masternodes",
+    "check-blocks": "sh ./scripts/sync.sh $(which node) check",
+    "reindex": "sh ./scripts/sync.sh $(which node) reindex",
+    "reindex-rich": "sh ./scripts/sync.sh $(which node) reindex-rich",
+    "reindex-txcount": "sh ./scripts/sync.sh $(which node) reindex-txcount",
+    "reindex-last": "sh ./scripts/sync.sh $(which node) reindex-last"
   },
   "dependencies": {
     "express": ">=4.17.1",
