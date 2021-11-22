@@ -308,7 +308,7 @@ if (database == 'peers') {
                               // Check if the sync msg should be shown
                               check_show_sync_message(stats.count);
 
-                              db.update_tx_db(settings.coin.name, 1, stats.count, stats.txes, settings.sync.update_timeout, function() {
+                              db.update_tx_db(settings.coin.name, 1, stats.count, stats.txes, settings.sync.update_timeout, false, function() {
                                 db.update_richlist('received', function() {
                                   db.update_richlist('balance', function() {
                                     db.get_stats(settings.coin.name, function(nstats) {
@@ -333,7 +333,7 @@ if (database == 'peers') {
                     } else if (mode == 'check') {
                       console.log('starting check.. please wait..');
 
-                      db.update_tx_db(settings.coin.name, 1, stats.count, stats.txes, settings.sync.check_timeout, function() {
+                      db.update_tx_db(settings.coin.name, 1, stats.count, stats.txes, settings.sync.check_timeout, true, function() {
                         db.get_stats(settings.coin.name, function(nstats) {
                           console.log('check complete (block: %s)', nstats.last);
                           exit();
@@ -347,7 +347,7 @@ if (database == 'peers') {
                       // Check if the sync msg should be shown
                       check_show_sync_message(count - last);
 
-                      db.update_tx_db(settings.coin.name, last, count, stats.txes, settings.sync.update_timeout, function() {
+                      db.update_tx_db(settings.coin.name, last, count, stats.txes, settings.sync.update_timeout, false, function() {
                         db.update_richlist('received', function() {
                           db.update_richlist('balance', function() {
                             db.get_stats(settings.coin.name, function(nstats) {
