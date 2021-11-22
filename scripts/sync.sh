@@ -13,6 +13,12 @@ if [ -n "${1}" ]; then
     "check")
       # Index check
       MODE="index check"
+
+      # Check if the next parameter exists
+      if [ -n "${2}" ]; then
+        # Add onto the check cmd
+        MODE="${MODE} ${2}"
+      fi
       ;;
     "reindex")
       # Index reindex
@@ -63,6 +69,12 @@ if [ -n "${1}" ]; then
         "check")
           # Index check
           MODE="index check"
+
+          # Check if the next parameter exists
+          if [ -n "${3}" ]; then
+            # Add onto the check cmd
+            MODE="${MODE} ${3}"
+          fi
           ;;
         "reindex")
           # Index reindex

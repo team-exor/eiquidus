@@ -9,6 +9,7 @@ var mongoose = require('mongoose'),
     settings = require('../lib/settings');
 var mode = 'update';
 var database = 'index';
+var block_start = 1;
 
 // displays usage and exits
 function usage() {
@@ -17,6 +18,7 @@ function usage() {
   console.log('Mode: (required)');
   console.log('update           Updates index from last sync to current block');
   console.log('check            Checks index for (and adds) any missing transactions/addresses');
+  console.log('                 Optional parameter: block number to start checking from');
   console.log('reindex          Clears index then resyncs from genesis to current block');
   console.log('reindex-rich     Clears and recreates the richlist data');
   console.log('reindex-txcount  Rescan and flatten the tx count value for faster access');
@@ -39,12 +41,22 @@ if (process.argv[2] == 'index') {
   if (process.argv.length < 3)
     usage();
   else {
-    switch(process.argv[3]) {
+    switch (process.argv[3]) {
       case 'update':
         mode = 'update';
         break;
       case 'check':
         mode = 'check';
+
+        // check if the block start value was passed in and is an integer
+        if (!isNaN(process.argv[4]) && Number.isInteger(parseFloat(process.argv[4]))) {
+          // Check if the block start value is less than 1
+          if (parseInt(process.argv[4]) < 1)
+            block_start = 1;
+          else
+            block_start = parseInt(process.argv[4]);
+        }
+
         break;
       case 'reindex':
         mode = 'reindex';
@@ -308,7 +320,7 @@ if (database == 'peers') {
                               // Check if the sync msg should be shown
                               check_show_sync_message(stats.count);
 
-                              db.update_tx_db(settings.coin.name, 1, stats.count, stats.txes, settings.sync.update_timeout, false, function() {
+                              db.update_tx_db(settings.coin.name, block_start, stats.count, stats.txes, settings.sync.update_timeout, false, function() {
                                 db.update_richlist('received', function() {
                                   db.update_richlist('balance', function() {
                                     db.get_stats(settings.coin.name, function(nstats) {
@@ -333,7 +345,7 @@ if (database == 'peers') {
                     } else if (mode == 'check') {
                       console.log('starting check.. please wait..');
 
-                      db.update_tx_db(settings.coin.name, 1, stats.count, stats.txes, settings.sync.check_timeout, true, function() {
+                      db.update_tx_db(settings.coin.name, block_start, stats.count, stats.txes, settings.sync.check_timeout, true, function() {
                         db.get_stats(settings.coin.name, function(nstats) {
                           console.log('check complete (block: %s)', nstats.last);
                           exit();
