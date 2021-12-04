@@ -69,8 +69,8 @@ Table of Contents
 ### Features
 
 - Built using the following scripts and technologies:
-  - Node.js (v14.15.4 or newer recommended)
-  - MongoDB (v4.4.3 or newer recommended)
+  - Node.js (v16.13.1 or newer recommended)
+  - MongoDB (v5.0.4 or newer recommended)
   - JQuery v3.5.1  
   - Bootstrap v4.5.3
   - DataTables v1.10.22

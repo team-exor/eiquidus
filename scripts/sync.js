@@ -145,7 +145,7 @@ if (database == 'peers') {
   console.log('syncing peers.. please wait..');
 
   // syncing peers does not require a lock
-  mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: false }, function(err) {
+  mongoose.connect(dbString, function(err) {
     if (err) {
       console.log('Unable to connect to database: %s', dbString);
       console.log('Aborting');
@@ -226,7 +226,7 @@ if (database == 'peers') {
   console.log('syncing masternodes.. please wait..');
 
   // syncing masternodes does not require a lock
-  mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: false }, function(err) {
+  mongoose.connect(dbString, function(err) {
     if (err) {
       console.log('Unable to connect to database: %s', dbString);
       console.log('Aborting');
@@ -279,7 +279,7 @@ if (database == 'peers') {
     } else {
       create_lock(function () {
         console.log("script launched with pid: " + process.pid);
-        mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: false }, function(err) {
+        mongoose.connect(dbString, function(err) {
           if (err) {
             console.log('Unable to connect to database: %s', dbString);
             console.log('Aborting');

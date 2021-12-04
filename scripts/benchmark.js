@@ -17,7 +17,7 @@ dbString = dbString + '@' + settings.dbsettings.address;
 dbString = dbString + ':' + settings.dbsettings.port;
 dbString = dbString + "/IQUIDUS-BENCHMARK";
 
-mongoose.connect(dbString, { useNewUrlParser: true, useCreateIndex: true, useUnifiedTopology: true, useFindAndModify: false }, function(err) {
+mongoose.connect(dbString, function(err) {
   if (err) {
     console.log('Unable to connect to database: %s', dbString);
     console.log('Aborting');
