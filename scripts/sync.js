@@ -518,7 +518,7 @@ if (database == 'peers') {
                                 });
                               });
                             } else {
-                              console.log('error: entry for %s does not exist in markets database.', key);
+                              console.log('error: entry for %s[%s] does not exist in markets database.', key, pair_key);
                               complete++;
                               if (complete == total_pairs)
                                 get_last_usd_price();
