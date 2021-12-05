@@ -71,14 +71,14 @@ Table of Contents
 - Built using the following scripts and technologies:
   - Node.js (v16.13.1 or newer recommended)
   - MongoDB (v5.0.4 or newer recommended)
-  - JQuery v3.5.1  
+  - JQuery v3.6.0
   - Bootstrap v4.5.3
-  - DataTables v1.10.22
-  - FontAwesome v5.15.1
-  - Luxon v1.26.0
-  - jqPlot v1.0.9.d96a669
-  - Chart.js v2.9.4
-  - flag-icon-css v3.5.0 ([https://github.com/lipis/flag-icon-css](https://github.com/lipis/flag-icon-css))
+  - DataTables v1.11.3
+  - FontAwesome v5.15.4
+  - Luxon v2.1.1
+  - jqPlot v1.0.9
+  - Chart.js v3.6.1
+  - flag-icon-css v4.1.4 ([https://github.com/lipis/flag-icon-css](https://github.com/lipis/flag-icon-css))
 - Mobile-friendly
 - Sass support
 - Pages/features:
