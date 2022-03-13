@@ -5,7 +5,7 @@ block content
   - var block_difficulty = parseFloat(block.difficulty).toFixed(4);
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
-    - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
+    - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);
   script.
     $(document).ready(function() {
       $('#block-summary').dataTable({
@@ -23,7 +23,7 @@ block content
       $('span#timestampCol').html(format_unixtime(#{block.time}));
 
       if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
-        $('span#timestampCol').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(#{block.time}, true));
+        $('span#timestampCol').attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(#{block.time}, true));
         enableTooltips();
       }
       if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.block_page.page_header.show_img} == true)
@@ -46,11 +46,11 @@ block content
               .sub-page-header.text-muted=settings.locale.block_description.replace('{1}', settings.coin.name).replace('{2}', block.height)
       .cardSpacer.clearfix
     .card.card-default.border-0.cardSpacer
-      .card-header(style='padding-left:25px;padding-right:25px;')
-        .row
+      .card-header
+        div(style='display: flex;flex-wrap: wrap;')
           if block.previousblockhash != null
             a(href='/block/' + block.previousblockhash)
-              span.fa.fa-chevron-left.iquidus.block-last(data-toggle='tooltip', data-placement='top', title=settings.locale.block_previous)
+              span.fa.fa-chevron-left.block-last(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.block_previous, style='color: var(--bs-body-color);')
             strong.d-none.d-md-block #{settings.coin.symbol} block: #{block.hash}
             strong.d-block.d-md-none #{settings.locale.ex_summary}
           else
@@ -58,13 +58,13 @@ block content
             strong.d-block.d-md-none(style='margin-left:10px;') #{settings.locale.ex_summary}
           if block.nextblockhash != null
             a(href='/block/' + block.nextblockhash)
-              span.fa.fa-chevron-right.iquidus.block-next(data-toggle='tooltip', data-placement='top', title=settings.locale.block_next)
+              span.fa.fa-chevron-right.block-next(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.block_next, style='color: var(--bs-body-color);')
           if settings.api_page.public_apis.rpc.getblock.enabled == true
-            a.d-none.d-md-block(href='/api/getblock?hash=' + block.hash, style='margin-left:auto;', data-toggle='tooltip', data-placement='top', title=settings.locale.view_raw_block_data)
-              span.fa.fa-info-circle.iquidus
-      table#block-summary.table.table-bordered.summary-table(style='border-top:0;margin-top:0 !important;')
-        thead(class=theadClasses)
-          tr
+            a.d-none.d-md-block(href='/api/getblock?hash=' + block.hash, style='margin-left:auto;', data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_raw_block_data)
+              span.fa.fa-info-circle(style='color: var(--bs-body-color);')
+      table#block-summary.table.table-bordered.summary-table.bottom-border-0.single-row-table(style='border-top:0;margin-top:0 !important;')
+        thead
+          tr(class=theadClasses)
             th.text-center #{settings.locale.height}
             th.text-center #{settings.locale.difficulty}
             th.text-center #{settings.locale.confirmations}
@@ -79,49 +79,24 @@ block content
           - var splitDifficulty = difficulty.split('.');
           - var block_size = Number(block.size/1024).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':true});
           - var splitBlockSize = block_size.split('.');
-          if block.confirmations >= confirmations
-            tr.bg-success.text-dark
-              td.text-center=block.height
-              td.text-center #{splitDifficulty[0]}.
-                span.decimal #{splitDifficulty[1]}
-              td.text-center=block.confirmations
-              if settings.blockchain_specific.heavycoin.enabled == true
-                td.text-center=block.vote
-              td.text-center #{splitBlockSize[0]}.
-                span.decimal #{splitBlockSize[1]}
-              td.text-center=block.bits
-              td.text-center=block.nonce
-              td.text-center
-                span#timestampCol
-          else
-            if block.confirmations < (confirmations / 2)
-              tr.bg-danger
-                td.text-center=block.height
-                td.text-center #{splitDifficulty[0]}.
-                  span.decimal #{splitDifficulty[1]}
-                td.text-center=block.confirmations
-                if settings.blockchain_specific.heavycoin.enabled == true
-                  td.text-center=block.vote
-                td.text-center #{splitBlockSize[0]}.
-                  span.decimal #{splitBlockSize[1]}
-                td.text-center=block.bits
-                td.text-center=block.nonce
-                td.text-center
-                  span#timestampCol
+          tr
+            td.text-center=block.height
+            td.text-center #{splitDifficulty[0]}.
+              span.decimal #{splitDifficulty[1]}
+            if block.confirmations >= confirmations
+              td.text-center.table-success=block.confirmations
+            else if block.confirmations < (confirmations / 2)
+              td.text-center.table-danger=block.confirmations
             else
-              tr.table-warning
-                td.text-center=block.height
-                td.text-center #{splitDifficulty[0]}.
-                  span.decimal #{splitDifficulty[1]}
-                td.text-center=block.confirmations
-                if settings.blockchain_specific.heavycoin.enabled == true
-                  td.text-center=block.vote
-                td.text-center #{splitBlockSize[0]}.
-                  span.decimal #{splitBlockSize[1]}
-                td.text-center=block.bits
-                td.text-center=block.nonce
-                td.text-center
-                  span#timestampCol
+              td.text-center.table-warning=block.confirmations
+            if settings.blockchain_specific.heavycoin.enabled == true
+              td.text-center=block.vote
+            td.text-center #{splitBlockSize[0]}.
+              span.decimal #{splitBlockSize[1]}
+            td.text-center=block.bits
+            td.text-center=block.nonce
+            td.text-center
+              span#timestampCol
     if block.hash == settings.block_page.genesis_block
       .alert.alert-info(role='alert', style='text-align:center;')
         strong #{settings.locale.block_genesis}
@@ -129,20 +104,20 @@ block content
       .card.card-default.border-0
         .card-header
           strong #{settings.locale.ex_latest_transactions}
-        table.table.table-bordered.table-striped.summary-table.mobile-border-right
-          thead(class=theadClasses)
-            tr
+        table.table.table-bordered.table-striped.table-hover.summary-table.mobile-border-right
+          thead
+            tr(class=theadClasses)
               th.text-center.d-table-cell.d-md-none
               th.d-none.d-md-table-cell #{settings.locale.tx_hash}
               th.text-center #{settings.locale.tx_recipients}
               th.text-center #{settings.locale.mkt_amount}
-                span.small  (#{settings.coin.symbol})
+                span.small.fw-normal  (#{settings.coin.symbol})
           tbody
             each txn in txs
               tr
                 td.text-center.d-table-cell.d-md-none
                   a(href='/tx/' + txn.txid)
-                    span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_tx)
+                    span.fa.fa-eye(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_tx)
                 td.d-none.d-md-table-cell
                   a.breakWord(href='/tx/' + txn.txid) #{txn.txid}
                 td.text-center #{txn.vout.length}

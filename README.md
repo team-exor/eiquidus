@@ -72,7 +72,7 @@ Table of Contents
   - Node.js (v16.13.1 or newer recommended)
   - MongoDB (v5.0.4 or newer recommended)
   - JQuery v3.6.0
-  - Bootstrap v4.5.3
+  - Bootstrap v5.1.3
   - DataTables v1.11.3
   - FontAwesome v5.15.4
   - Luxon v2.1.1
@@ -126,7 +126,7 @@ Table of Contents
   - **Block Info:** Displays block summary and list of transactions for a specific block height
   - **Transaction Info:** Displays transaction summary, optional OP_RETURN value, list of input addresses and output addresses for a specific transaction
   - **Address Info:** Displays wallet address summary (balance, total sent, total received, QR code) and a list of latest transactions for a specific wallet address
-- Choose from 22 built-in themes with tweakable settings such as light and dark options to customize the look and feel of the explorer:
+- Choose from 26 built-in themes with tweakable settings such as light and dark options to customize the look and feel of the explorer:
   - **Exor** *\*default theme made especially for eIquidus*
   - **Cerulean** ([Preview](https://bootswatch.com/cerulean/))
   - **Cosmo** ([Preview](https://bootswatch.com/cosmo/))
@@ -139,7 +139,9 @@ Table of Contents
   - **Lux** ([Preview](https://bootswatch.com/lux/))
   - **Materia** ([Preview](https://bootswatch.com/materia/))
   - **Minty** ([Preview](https://bootswatch.com/minty/))
+  - **Morph** ([Preview](https://bootswatch.com/morph/))
   - **Pulse** ([Preview](https://bootswatch.com/pulse/))
+  - **Quartz** ([Preview](https://bootswatch.com/quartz/))
   - **Sandstone** ([Preview](https://bootswatch.com/sandstone/))
   - **Simplex** ([Preview](https://bootswatch.com/simplex/))
   - **Sketchy** ([Preview](https://bootswatch.com/sketchy/))
@@ -148,7 +150,9 @@ Table of Contents
   - **Spacelab** ([Preview](https://bootswatch.com/spacelab/))
   - **Superhero** ([Preview](https://bootswatch.com/superhero/))
   - **United** ([Preview](https://bootswatch.com/united/))
+  - **Vapor** ([Preview](https://bootswatch.com/vapor/))
   - **Yeti** ([Preview](https://bootswatch.com/yeti/))
+  - **Zephyr** ([Preview](https://bootswatch.com/zephyr/))
 - Customizable panels at the top of every page to display the following information:
   - **Network:** Displays the current network hash rate *\*only applicable to POW coins*
   - **Difficulty:** Displays the current proof-of-work and/or proof-of-stake difficulty

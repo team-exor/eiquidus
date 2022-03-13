@@ -68,11 +68,11 @@ block content
           var amountParts = Number(amount).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}).split('.');
           var amountStr = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
           var timestamp = data[5]; //variables for better readability
-          var total = "<label class='badge badge-" + (amount > '#{settings.movement_page.movement_table.high_warning_flag}' ? 'danger' : (amount > '#{settings.movement_page.movement_table.low_warning_flag}' ? 'warning' : 'success')) + "' style='margin-bottom:0;'>" + amountStr + "</label>";
-          $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa fa-eye" data-toggle="tooltip" data-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
+          var total = "<label class='badge bg-" + (amount > '#{settings.movement_page.movement_table.high_warning_flag}' ? 'danger' : (amount > '#{settings.movement_page.movement_table.low_warning_flag}' ? 'warning' : 'success')) + "' style='margin-bottom:0;'>" + amountStr + "</label>";
+          $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
           $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-md-table-cell');
           $("td:eq(2)", row).html(total).addClass('text-center');
-          $("td:eq(3)", row).html('<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-toggle="tooltip" data-placement="auto" title="' + format_unixtime(timestamp, true) + '"' : '') + '>' + format_unixtime(timestamp) + '</span>').addClass('text-center');
+          $("td:eq(3)", row).html('<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-bs-toggle="tooltip" data-bs-placement="auto" title="' + format_unixtime(timestamp, true) + '"' : '') + '>' + format_unixtime(timestamp) + '</span>').addClass('text-center');
         },
         fnDrawCallback: function(settings) {
           fixDataTableColumns();
@@ -95,7 +95,7 @@ block content
           $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
 
           if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
-            $('span#lastUpdatedDate').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
+            $('span#lastUpdatedDate').attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
             enableTooltips();
           }
         } else
@@ -117,11 +117,11 @@ block content
             if settings.movement_page.page_header.show_title != true && settings.movement_page.page_header.show_description != true
               #page-title-container
                 .sub-page-header
-                  span.font-weight-bold=settings.locale.last_updated + ':'
+                  span.fw-bold=settings.locale.last_updated + ':'
                   span.text-muted#lastUpdatedDate
             else
               .sub-page-header(style='margin-bottom:' + (settings.movement_page.page_header.show_description == true ? '5' : '0') + 'px')
-                span.font-weight-bold=settings.locale.last_updated + ':'
+                span.fw-bold=settings.locale.last_updated + ':'
                 span.text-muted#lastUpdatedDate
           if settings.movement_page.page_header.show_description == true
             if settings.movement_page.page_header.show_title != true && settings.movement_page.page_header.show_last_updated != true
@@ -133,15 +133,15 @@ block content
     .card.card-default.border-0.cardSpacer
       .card-header
         strong="Latest Movement"
-      table#movement-table.table.table-bordered.table-striped.table-paging.mobile-border-right
+      table#movement-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
         - var theadClasses = [];
         if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
-          - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
-        thead(class=theadClasses)
-          tr
+          - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);
+        thead
+          tr(class=theadClasses)
             th.d-table-cell.d-md-none
             th.d-none.d-md-table-cell #{settings.locale.tx_hash}
             th.text-center #{settings.locale.mkt_amount}
-              span.small  (#{settings.coin.symbol})
+              span.small.fw-normal  (#{settings.coin.symbol})
             th.text-center #{settings.locale.timestamp}
         tbody

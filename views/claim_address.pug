@@ -4,8 +4,8 @@ block content
   script.
     $(document).ready(function () {
         function generateAlertHTML(alertClass, allowDismiss, headerText, msgText) {
-          return '<div class="alert alert-' + alertClass + (allowDismiss ? ' alert-dismissable' : '') + '" role="alert">' +
-            (allowDismiss ? '<button type="button" class="close" data-dismiss="alert">×</button>' : '') + 
+          return '<div class="alert alert-' + alertClass + (allowDismiss ? ' alert-dismissible fade show' : '') + '" role="alert">' +
+            (allowDismiss ? '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' : '') + 
             '<div' + (msgText == null || msgText == '' ? '' : ' class="cardSpacer"') + '>' +
             '<span class="fas ' + (alertClass == 'success' ? 'fa-check-circle' : (alertClass == 'danger' ? 'fa-exclamation-circle' : (alertClass == 'info' ? 'fa-info-circle' : 'fa-exclamation-triangle'))) + '" style="margin-right:5px"></span>' +
             '<strong>' + headerText + '</strong>' +
@@ -86,58 +86,58 @@ block content
       .card-header
         strong Claim Wallet Address
       .card-body
-        a#showClaimInstructions.badge.badge-info(href='#claimInstructions', style='font-size:100%;margin-bottom:15px;', data-toggle='collapse' role='button' aria-expanded='false' aria-controls='claimInstructions')
+        a#showClaimInstructions.badge.bg-primary(href='#claimInstructions', style='font-size:100%;margin-bottom:15px;', data-bs-toggle='collapse' role='button' aria-expanded='false' aria-controls='claimInstructions')
           i.fas.fa-angle-up(style='margin-right:5px;')
           span Show claim instructions
         div#claimInstructions.alert.alert-primary.collapse
           div
             span Use the
-            span.font-weight-bold  Sign Message
+            span.fw-bold  Sign Message
             span  feature from your
-            span.font-weight-bold  #{settings.coin.name}
+            span.fw-bold  #{settings.coin.name}
             span  wallet to verify ownership of a wallet address that belongs to you.
           br
           div Enter the following data into the wallet software:
           br
           div
-            span.font-weight-bold Address:
+            span.fw-bold Address:
             if hash == null || hash == ''
               span=' <wallet address from the form below>'
             else
               span  #{hash}
           div
-            span.font-weight-bold Message:
+            span.fw-bold Message:
             span=' <display name from the form below>'
           br
           div
             span Click the
-            span.font-weight-bold  Sign Message
+            span.fw-bold  Sign Message
             span  button in the wallet, and copy/paste the resulting
-            span.font-weight-bold  Signature
+            span.fw-bold  Signature
             span  at the bottom of this form.
           br
           div
             span Finally, click the
-            span.font-weight-bold  Claim
+            span.fw-bold  Claim
             span  button below to claim your address, which will display your custom display name instead of the default wallet address on this site.
           br
           div
-            span.font-weight-bold NOTE:
+            span.fw-bold NOTE:
             span  You can update your claimed address at any time, as often as you wish. To remove a previously claimed display name, simply sign a blank message to return the address back to its original value.
         form#claimForm
           .form-group
             fieldset.entryField
-              label(for='address') Wallet Address
+              label.form-label(for='address') Wallet Address
               if hash == null || hash == ''
                 input#address.form-control(type='text', maxlength='70')
               else
                 input#address.form-control(type='text', value=hash, readonly='readonly', maxlength='70')
           .form-group
             fieldset.entryField
-              label(for='message') Display Name
+              label.form-label.mt-3(for='message') Display Name
               input#message.form-control(type='text', placeholder='Display Name', maxlength='50')
           .form-group
             fieldset.entryField
-              label(for='signature') Signature
-              input#signature.form-control(type='text', placeholder='Signature', maxlength='100')
+              label.form-label.mt-3(for='signature') Signature
+              input#signature.form-control.mb-3(type='text', placeholder='Signature', maxlength='100')
           button.btn.btn-success(type='submit') Claim

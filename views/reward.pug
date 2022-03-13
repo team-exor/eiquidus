@@ -23,7 +23,7 @@ block content
           $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
 
           if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
-            $('span#lastUpdatedDate').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
+            $('span#lastUpdatedDate').attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
             enableTooltips();
           }
         } else
@@ -46,11 +46,11 @@ block content
               if settings.blockchain_specific.heavycoin.reward_page.page_header.show_title != true && settings.blockchain_specific.heavycoin.reward_page.page_header.show_description != true
                 #page-title-container
                   .sub-page-header
-                    span.font-weight-bold=settings.locale.last_updated + ':'
+                    span.fw-bold=settings.locale.last_updated + ':'
                     span.text-muted#lastUpdatedDate
               else
                 .sub-page-header(style='margin-bottom:' + (settings.blockchain_specific.heavycoin.reward_page.page_header.show_description == true ? '5' : '0') + 'px')
-                  span.font-weight-bold=settings.locale.last_updated + ':'
+                  span.fw-bold=settings.locale.last_updated + ':'
                   span.text-muted#lastUpdatedDate
             if settings.blockchain_specific.heavycoin.reward_page.page_header.show_description == true
               if settings.blockchain_specific.heavycoin.reward_page.page_header.show_title != true && settings.blockchain_specific.heavycoin.reward_page.page_header.show_last_updated != true
@@ -59,20 +59,20 @@ block content
               else
                 .sub-page-header.text-muted=settings.locale.heavy_description.replace('{1}', settings.coin.name)
         .cardSpacer.clearfix
-      .card.card-default.border-0.card-address-summary
+      .card.card-default.border-0.card-address-reward
         .card-header(style='position:relative;')
           strong #{settings.locale.heavy_reward_voting_info}
-            span.small  (#{settings.coin.symbol})
-        table.table.table-bordered.table-striped.summary-table(style='border-top:0;border-bottom:0;margin-top:0 !important;')
+            span.small.fw-normal  (#{settings.coin.symbol})
+        table#reward-summary.table.table-bordered.table-striped.summary-table.single-row-table(style='border-top:0;border-bottom:0;margin-top:0 !important;')
           - var theadClasses = [];
           if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
-            - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
-          thead(class=theadClasses)
-            tr
+            - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);
+          thead
+            tr(class=theadClasses)
               th.text-center #{settings.locale.ex_supply}
-                span.small  (#{settings.coin.symbol})
+                span.small.fw-normal  (#{settings.coin.symbol})
               th.text-center #{settings.locale.heavy_cap}
-                span.small  (#{settings.coin.symbol})
+                span.small.fw-normal  (#{settings.coin.symbol})
               th.text-center #{settings.locale.heavy_phase}
               th.text-center #{settings.locale.heavy_maxvote}
               th.text-center #{settings.locale.heavy_reward}

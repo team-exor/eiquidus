@@ -52,23 +52,23 @@ block content
             for (i = 0; i < json.length; i++) {
               var addr = json[i]['addr'];
               json[i]['address'] = "<a href='/address/" + json[i]['address'] + "'>" + json[i]['address'] + "</a>";
-              json[i]['lastseen'] = '<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-toggle="tooltip" data-placement="auto" title="' + format_unixtime(json[i]['lastseen'], true) + '"' : '') + '>' + format_unixtime(json[i]['lastseen']) + '</span>';
+              json[i]['lastseen'] = '<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-bs-toggle="tooltip" data-bs-placement="auto" title="' + format_unixtime(json[i]['lastseen'], true) + '"' : '') + '>' + format_unixtime(json[i]['lastseen']) + '</span>';
 
               if (typeof json[i]['lastpaid'] != 'undefined' && json[i]['lastpaid'] != '' && json[i]['lastpaid'] != '0')
-                json[i]['lastpaid'] = '<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-toggle="tooltip" data-placement="auto" title="' + format_unixtime(json[i]['lastpaid'], true) + '"' : '') + '>' + format_unixtime(json[i]['lastpaid']) + '</span>';
+                json[i]['lastpaid'] = '<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-bs-toggle="tooltip" data-bs-placement="auto" title="' + format_unixtime(json[i]['lastpaid'], true) + '"' : '') + '>' + format_unixtime(json[i]['lastpaid']) + '</span>';
               else
                 json[i]['lastpaid'] = '<em>N/A</em>';
               if (json[i]['activetime'])
                 json[i]['activetime'] = secondsToHms(json[i]['activetime']);
               else
                 json[i]['activetime'] = '<em>N/A</em>';
-              json[i]['addr'] = "<a href='/address/" + json[i]['addr'] + "'>" + json[i]['addr'] + ('#{settings.claim_address_page.enabled}' == 'true' && json[i]['claim_name'] != null && json[i]['claim_name'] != '' ? ' <span class="small">(' + json[i]['claim_name'] + ')</span>' : '') + "</a>";
+              json[i]['addr'] = "<a href='/address/" + json[i]['addr'] + "'>" + json[i]['addr'] + ('#{settings.claim_address_page.enabled}' == 'true' && json[i]['claim_name'] != null && json[i]['claim_name'] != '' ? ' <span class="small fw-normal">(' + json[i]['claim_name'] + ')</span>' : '') + "</a>";
 
               if (labels[addr] != null && labels[addr].enabled == true) {
                 if (labels[addr].type)
-                  json[i]['addr'] = '<div><label class="badge badge-' + labels[addr].type + '" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-toggle="tooltip" data-placement="top"><span class="fa fa-question-circle" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
+                  json[i]['addr'] = '<div><label class="badge bg-' + labels[addr].type + '" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-bs-toggle="tooltip" data-bs-placement="top"><span class="fa fa-question-circle" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
                 else
-                  json[i]['addr'] = '<div><label class="badge badge-default" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-toggle="tooltip" data-placement="top"><span class="fa fa-question-circle" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
+                  json[i]['addr'] = '<div><label class="badge bg-default" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-bs-toggle="tooltip" data-bs-placement="top"><span class="fa fa-question-circle" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
               }
             }
  
@@ -97,16 +97,16 @@ block content
 
           switch (data['status'].toUpperCase()) {
             case 'ENABLED':
-              $("td.statusCol", row).addClass('bg-success');
+              $("td.statusCol", row).addClass('table-success');
               break;
             case 'REMOVE':
-              $("td.statusCol", row).addClass('bg-danger');
+              $("td.statusCol", row).addClass('table-danger');
               break;
             case 'EXPIRED':
-              $("td.statusCol", row).addClass('bg-warning');
+              $("td.statusCol", row).addClass('table-warning');
               break;
             default:
-              $("td.statusCol", row).addClass('bg-info');
+              $("td.statusCol", row).addClass('table-info');
               break;
           }
         },
@@ -136,7 +136,7 @@ block content
           $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
 
           if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
-            $('span#lastUpdatedDate').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
+            $('span#lastUpdatedDate').attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
             enableTooltips();
           }
         } else
@@ -158,11 +158,11 @@ block content
             if settings.masternodes_page.page_header.show_title != true && settings.masternodes_page.page_header.show_description != true
               #page-title-container
                 .sub-page-header
-                  span.font-weight-bold=settings.locale.last_updated + ':'
+                  span.fw-bold=settings.locale.last_updated + ':'
                   span.text-muted#lastUpdatedDate
             else
               .sub-page-header(style='margin-bottom:' + (settings.masternodes_page.page_header.show_description == true ? '5' : '0') + 'px')
-                span.font-weight-bold=settings.locale.last_updated + ':'
+                span.fw-bold=settings.locale.last_updated + ':'
                 span.text-muted#lastUpdatedDate
           if settings.masternodes_page.page_header.show_description == true
             if settings.masternodes_page.page_header.show_title != true && settings.masternodes_page.page_header.show_last_updated != true
@@ -171,15 +171,15 @@ block content
             else
               .sub-page-header.text-muted=settings.locale.mn_description.replace('{1}', settings.coin.name)
       .cardSpacer.clearfix
-    .card.card-default
+    .card.card-default.border-0.cardSpacer
       .card-header
         strong Masternode List
-      table#masternodes-table.table.table-bordered.table-striped.table-hover
+      table#masternodes-table.table.table-bordered.table-striped.table-paging.table-hover
         - var theadClasses = [];
         if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
-          - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
-        thead(class=theadClasses)
-          tr
+          - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);
+        thead
+          tr(class=theadClasses)
             th.text-center Pay rank
             th.text-center Protocol
             th.text-center IP address

@@ -4,13 +4,13 @@ block content
   include ./includes/common.pug
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
-    - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
+    - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);
   script.
     $(document).ready(function() {
       $('span#timestampCol').html(format_unixtime(#{tx.timestamp}));
 
       if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
-        $('span#timestampCol').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(#{tx.timestamp}, true));
+        $('span#timestampCol').attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(#{tx.timestamp}, true));
         enableTooltips();
       }
       if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.transaction_page.page_header.show_img} == true)
@@ -36,11 +36,11 @@ block content
       .card-header
         strong=settings.coin.symbol + ' TXid: ' + tx.txid
         if settings.api_page.public_apis.rpc.getrawtransaction.enabled == true
-          a.d-none.d-md-inline(href=`/api/getrawtransaction?txid=${tx.txid}&decrypt=1`)
-            span.fa.fa-info-circle.iquidus.float-right(data-toggle='tooltip', data-placement='top', title=settings.locale.view_raw_tx_data)
-      table.table.table-bordered.table-striped.summary-table.mobile-border-right
-        thead(class=theadClasses)
-          tr
+          a.d-none.d-md-inline(href=`/api/getrawtransaction?txid=${tx.txid}&decrypt=1`, style='color: var(--bs-body-color);')
+            span.fa.fa-info-circle.float-end(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_raw_tx_data)
+      table#tx-table.table.table-bordered.table-striped.summary-table.mobile-border-right
+        thead
+          tr(class=theadClasses)
             th.text-center.d-table-cell.d-md-none
             th.d-none.d-md-table-cell #{settings.locale.tx_block_hash}
             if settings.transaction_page.show_op_return == true
@@ -48,44 +48,23 @@ block content
             th.text-center #{settings.locale.confirmations}
             th.text-center #{settings.locale.timestamp}
         tbody
-          - var confirms = (blockcount - tx.blockindex);
-          if confirms >= confirmations
-            tr.bg-success.text-dark
-              td.text-center.d-table-cell.d-md-none
-                a(href='/block/' + tx.blockhash)
-                  span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)
-              td.d-none.d-md-table-cell
-                a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
-              if settings.transaction_page.show_op_return == true
-                td.breakWord #{tx.op_return}
-              td.text-center #{confirms}
-              td.text-center
-                span#timestampCol
-          else
-            if confirms < (confirmations / 2)
-              tr.bg-danger
-                td.text-center.d-table-cell.d-md-none
-                  a(href='/block/' + tx.blockhash)
-                    span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)
-                td.d-none.d-md-table-cell
-                  a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
-                if settings.transaction_page.show_op_return == true
-                  td.breakWord #{tx.op_return}
-                td.text-center #{confirms}
-                td.text-center
-                  span#timestampCol
+          - var confirms = (blockcount - tx.blockindex + 1);
+          tr
+            td.text-center.d-table-cell.d-md-none
+              a(href='/block/' + tx.blockhash)
+                span.fa.fa-eye(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_block)
+            td.d-none.d-md-table-cell
+              a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
+            if settings.transaction_page.show_op_return == true
+              td.breakWord #{tx.op_return}
+            if confirms >= confirmations
+              td.text-center.table-success #{confirms}
+            else if confirms < (confirmations / 2)
+              td.text-center.table-danger #{confirms}
             else
-              tr.table-warning
-                td.text-center.d-table-cell.d-md-none
-                  a(href='/block/' + tx.blockhash)
-                    span.fa.fa-eye(data-toggle='tooltip', data-placement='top', title=settings.locale.view_block)              
-                td.d-none.d-md-table-cell
-                  a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
-                if settings.transaction_page.show_op_return == true
-                  td.breakWord #{tx.op_return}
-                td.text-center #{confirms}
-                td.text-center
-                  span#timestampCol
+              td.text-center.table-warning #{confirms}
+            td.text-center
+              span#timestampCol
     if tx.vout.length < 1
       .alert.alert-info.text-center(role='alert', style='margin-bottom:0;')
         strong #{settings.locale.tx_nonstandard}
@@ -95,15 +74,15 @@ block content
           .card.card-default.border-0
             .card-header
               strong #{settings.locale.tx_contributors}
-              span.fa.fa-arrow-right.float-right.d-none.d-md-block
-            table.table.table-bordered.table-striped.summary-table.mobile-border-right
-              thead(class=theadClasses)
-                tr
+              span.fa.fa-arrow-right.float-end.d-none.d-md-block
+            table.table.table-bordered.table-striped.table-hover.summary-table.mobile-border-right
+              thead
+                tr(class=theadClasses)
                   th #{settings.locale.tx_address}
                   if (tx.vin.length > 0)
                     if tx.vin[0].addresses != 'coinbase'
                       th.text-center #{settings.locale.mkt_amount}
-                        span.small  (#{settings.coin.symbol})
+                        span.small.fw-normal  (#{settings.coin.symbol})
               tbody
                 if tx.vin.length > 0
                   each address in tx.vin
@@ -134,21 +113,21 @@ block content
                                 =settings.locale.unknown_sender
                             else
                               =settings.locale.unknown_sender
-                        td.bg-danger.text-center #{ramountParts[0]}.
+                        td.table-danger.text-center #{ramountParts[0]}.
                           span.decimal #{ramountParts[1]}
                 else
                   tr.table-info.text-center
-                    td #{settings.locale.proof_of_stake}
+                    td.bottom-border-1 #{settings.locale.proof_of_stake}
         .col-md-6.cardSpacer
           .card.card-default.border-0
             .card-header
               strong #{settings.locale.tx_recipients}
-            table.table.table-bordered.table-striped.summary-table.mobile-border-right
-              thead(class=theadClasses)
-                tr
+            table.table.table-bordered.table-striped.table-hover.summary-table.mobile-border-right
+              thead
+                tr(class=theadClasses)
                   th #{settings.locale.tx_address}
                   th.text-center #{settings.locale.mkt_amount}
-                    span.small  (#{settings.coin.symbol})
+                    span.small.fw-normal  (#{settings.coin.symbol})
               tbody
                 each address in tx.vout
                   if tx.vout.length > 0
@@ -163,7 +142,7 @@ block content
                             else
                               =address.claim_name
                           include ./includes/rl_labels.pug
-                        td.bg-success.text-center #{ramountParts[0]}.
+                        td.table-success.text-center #{ramountParts[0]}.
                           span.decimal #{ramountParts[1]}
                       else if address.amount > 0
                         td
@@ -179,7 +158,7 @@ block content
                                 =settings.locale.unknown_recipient
                             else
                               =settings.locale.unknown_recipient
-                        td.bg-success.text-center #{ramountParts[0]}.
+                        td.table-success.text-center #{ramountParts[0]}.
                           span.decimal #{ramountParts[1]}
                       else
                         td(colspan='2')
@@ -206,5 +185,5 @@ block content
                           else
                             =address.claim_name
                         include ./includes/rl_labels.pug
-                      td.bg-success.text-center #{ramountParts[0]}.
+                      td.table-success.text-center #{ramountParts[0]}.
                         span.decimal #{ramountParts[1]}

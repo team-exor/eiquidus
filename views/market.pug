@@ -11,7 +11,7 @@ block content
           $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
 
           if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
-            $('span#lastUpdatedDate').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
+            $('span#lastUpdatedDate').attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
             enableTooltips();
           }
         } else
@@ -22,7 +22,7 @@ block content
     });
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
-    - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
+    - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);
   if marketdata.data != null && ((marketdata.data.buys != null && marketdata.data.buys.length > 0) || (marketdata.data.sells != null && marketdata.data.sells.length > 0) || (marketdata.data.history != null && marketdata.data.history.length > 0))
     script.
       $(document).ready(function() {
@@ -44,6 +44,7 @@ block content
           searching: false,
           ordering: false,
           scrollY: '250px',
+          scrollCollapse: true,
           autowidth: true,
           responsive: true,
           scrollX: true,
@@ -67,7 +68,7 @@ block content
               $('#history-table > tbody > tr > td > span.timestampCol').each(function() {
                 if ($.isNumeric($(this).text())) {
                   if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true)
-                    $(this).attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(parseInt($(this).text()), true));
+                    $(this).attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(parseInt($(this).text()), true));
 
                   $(this).html(format_unixtime(parseInt($(this).text())));
                 }
@@ -89,16 +90,16 @@ block content
             img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
         #page-title-container
           if settings.markets_page.page_header.show_title == true
-            h3#page-title !{settings.locale.mkt_title.replace('{1}', marketdata.market_name + ' <span class="small">(' + marketdata.coin + '/' + marketdata.exchange + ')</span>')}
+            h3#page-title !{settings.locale.mkt_title.replace('{1}', marketdata.market_name + ' <span class="small fw-normal">(' + marketdata.coin + '/' + marketdata.exchange + ')</span>')}
           if settings.markets_page.page_header.show_last_updated == true
             if settings.markets_page.page_header.show_title != true && settings.markets_page.page_header.show_description != true
               #page-title-container
                 .sub-page-header
-                  span.font-weight-bold=settings.locale.last_updated + ':'
+                  span.fw-bold=settings.locale.last_updated + ':'
                   span.text-muted#lastUpdatedDate
             else
               .sub-page-header(style='margin-bottom:' + (settings.markets_page.page_header.show_description == true ? '5' : '0') + 'px')
-                span.font-weight-bold=settings.locale.last_updated + ':'
+                span.fw-bold=settings.locale.last_updated + ':'
                 span.text-muted#lastUpdatedDate
           if settings.markets_page.page_header.show_description == true
             if settings.markets_page.page_header.show_title != true && settings.markets_page.page_header.show_last_updated != true
@@ -126,7 +127,7 @@ block content
                             else
                               i.market-logo.fas.fa-question-circle
                             span #{mkt.name}
-                              span.small  (#{pair})
+                              span.small.fw-normal  (#{pair})
                       else
                         li.nav-item
                           a.nav-link(href='/markets/' + mkt.id + '/' + pair)
@@ -135,7 +136,7 @@ block content
                             else
                               i.market-logo.fas.fa-question-circle
                             span #{mkt.name}
-                              span.small  (#{pair})
+                              span.small.fw-normal  (#{pair})
     if marketdata.data != null && ((marketdata.data.buys != null && marketdata.data.buys.length > 0) || (marketdata.data.sells != null && marketdata.data.sells.length > 0) || (marketdata.data.history != null && marketdata.data.history.length > 0))
       block market_view
         script.
@@ -197,23 +198,23 @@ block content
                 if marketdata.market_logo != null && marketdata.market_logo != ''
                   img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
                 strong #{marketdata.market_name}
-                span.small  (#{marketdata.coin}/#{marketdata.exchange})
+                span.small.fw-normal  (#{marketdata.coin}/#{marketdata.exchange})
                 strong  - #{settings.locale.mkt_hours}
                 if marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]'
-                  span.fas.fa-chart-line.float-right.view-chart-disabled.iquidus.market-toggle(style='cursor: pointer;', data-toggle='tooltip', data-placement='bottom', title=settings.locale.mkt_no_chart)
-              table.table.table-bordered.right-border-0.summary-table(style='border-top:0;margin-top:0 !important;')
-                thead(class=theadClasses)
-                  tr
+                  span.fas.fa-chart-line.float-end.view-chart-disabled.market-toggle(style='cursor: pointer;color: var(--bs-body-color);', data-bs-toggle='tooltip', data-bs-placement='bottom', title=settings.locale.mkt_no_chart)
+              table#market-summary.table.table-bordered.bottom-border-0.summary-table.single-row-table(style='border-top:0;margin-top:0 !important;')
+                thead
+                  tr(class=theadClasses)
                     if marketdata.data.summary.high != null
                       th.text-center #{settings.locale.mkt_high}
                     if marketdata.data.summary.low != null
                       th.text-center #{settings.locale.mkt_low}
                     if marketdata.data.summary.volume != null
                       th.text-center #{settings.locale.mkt_volume}
-                        span.small  (#{marketdata.coin})
+                        span.small.fw-normal  (#{marketdata.coin})
                     if marketdata.data.summary.volume_btc != null
                       th.text-center #{settings.locale.mkt_volume}
-                        span.small  (#{marketdata.exchange})
+                        span.small.fw-normal  (#{marketdata.exchange})
                     if marketdata.data.summary.bid != null
                       th.text-center #{settings.locale.mkt_top_bid}
                     if marketdata.data.summary.ask != null
@@ -276,15 +277,15 @@ block content
                         - var price_change = Number((100 - ((parseFloat(marketdata.data.summary.prev) / parseFloat(marketdata.data.summary.last)) * 100))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':true});
                       - var splitChange = price_change.split(".");
                       if price_change > 0
-                        td.text-center.text-success.font-weight-bold +#{splitChange[0]}.
+                        td.text-center.text-success.fw-bold +#{splitChange[0]}.
                           span.decimal #{splitChange[1]}
                           span  %
                       else if price_change < 0
-                        td.text-center.text-danger.font-weight-bold #{splitChange[0]}.
+                        td.text-center.text-danger.fw-bold #{splitChange[0]}.
                           span.decimal #{splitChange[1]}
                           span  %
                       else
-                        td.text-center.font-weight-bold #{splitChange[0]}.
+                        td.text-center.fw-bold #{splitChange[0]}.
                           span.decimal #{splitChange[1]}
                           span  %
         if marketdata.data.chartdata != 'null' && marketdata.data.chartdata != '' && marketdata.data.chartdata != '[]'
@@ -303,16 +304,16 @@ block content
               .card-header(style='border-bottom-width:1px;')
                 if marketdata.market_logo != null && marketdata.market_logo != ''
                   img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
-                strong #{settings.locale.mkt_buy_orders}
-              table.table.table-striped.table-bordered.order-table
-                thead(class=theadClasses)
-                  tr
+                strong(style='color:var(--bs-body-color)') #{settings.locale.mkt_buy_orders}
+              table#buy-orders.table.table-striped.table-bordered.table-hover.order-table.bottom-border-0
+                thead
+                  tr(class=theadClasses)
                     th.text-center #{settings.locale.mkt_price}
-                      span.small  (#{marketdata.exchange})
+                      span.small.fw-normal  (#{marketdata.exchange})
                     th.text-center #{settings.locale.mkt_amount}
-                      span.small  (#{marketdata.coin})
+                      span.small.fw-normal  (#{marketdata.coin})
                     th.text-center #{settings.locale.mkt_total}
-                      span.small  (#{marketdata.exchange})
+                      span.small.fw-normal  (#{marketdata.exchange})
                 tbody
                   each buy in marketdata.data.buys
                     - var price = Number(buy.price).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
@@ -325,7 +326,7 @@ block content
                       - var total = Number(parseFloat(buy.price).toFixed(8) * parseFloat(buy.quantity).toFixed(8)).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                     - var splitTotal = total.split(".");
                     tr
-                      td.text-center.text-success.font-weight-bold #{splitPrice[0]}.
+                      td.text-center.text-success.fw-bold #{splitPrice[0]}.
                         span.decimal #{splitPrice[1]}
                       td.text-center #{splitQuantity[0]}.
                         span.decimal #{splitQuantity[1]}
@@ -336,16 +337,16 @@ block content
               .card-header(style='border-bottom-width:1px;')
                 if marketdata.market_logo != null && marketdata.market_logo != ''
                   img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
-                strong #{settings.locale.mkt_sell_orders}
-              table.table.table-striped.table-bordered.order-table
-                thead(class=theadClasses)
-                  tr
+                strong(style='color:var(--bs-body-color)') #{settings.locale.mkt_sell_orders}
+              table#sell-orders.table.table-striped.table-bordered.table-hover.order-table.bottom-border-0
+                thead
+                  tr(class=theadClasses)
                     th.text-center #{settings.locale.mkt_price}
-                      span.small  (#{marketdata.exchange})
+                      span.small.fw-normal  (#{marketdata.exchange})
                     th.text-center #{settings.locale.mkt_amount}
-                      span.small  (#{marketdata.coin})
+                      span.small.fw-normal  (#{marketdata.coin})
                     th.text-center #{settings.locale.mkt_total}
-                      span.small  (#{marketdata.exchange})
+                      span.small.fw-normal  (#{marketdata.exchange})
                 tbody
                   each sell in marketdata.data.sells
                     - var price = Number(sell.price).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
@@ -358,7 +359,7 @@ block content
                       - var total = Number(parseFloat(sell.price).toFixed(8) * parseFloat(sell.quantity).toFixed(8)).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                     - var splitTotal = total.split(".");
                     tr
-                      td.text-center.text-danger.font-weight-bold #{splitPrice[0]}.
+                      td.text-center.text-danger.fw-bold #{splitPrice[0]}.
                         span.decimal #{splitPrice[1]}                  
                       td.text-center #{splitQuantity[0]}.
                         span.decimal #{splitQuantity[1]}
@@ -371,15 +372,15 @@ block content
                 if marketdata.market_logo != null && marketdata.market_logo != ''
                   img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
                 strong #{settings.locale.mkt_trade_history}
-              table#history-table.table.table-hover.table-bordered.table-striped.table-paging.right-border-0(cellspacing='0')
-                thead(class=theadClasses)
-                  tr
+              table#history-table.table.table-hover.table-bordered.table-striped.table-paging(cellspacing='0')
+                thead
+                  tr(class=theadClasses)
                     th.text-center #{settings.locale.mkt_price}
-                      span.small  (#{marketdata.exchange})
+                      span.small.fw-normal  (#{marketdata.exchange})
                     th.text-center #{settings.locale.mkt_amount}
-                      span.small  (#{marketdata.coin})
+                      span.small.fw-normal  (#{marketdata.coin})
                     th.text-center #{settings.locale.mkt_total}
-                      span.small  (#{marketdata.exchange})
+                      span.small.fw-normal  (#{marketdata.exchange})
                     th.text-center #{settings.locale.mkt_time_stamp}
                 tbody
                   each order in marketdata.data.history
@@ -395,7 +396,7 @@ block content
                       - var splitTotal = total.split(".");
                       if order.ordertype.toUpperCase() == 'BUY'
                         tr
-                          td.text-center.text-success.font-weight-bold #{splitPrice[0]}.
+                          td.text-center.text-success.fw-bold #{splitPrice[0]}.
                             span.decimal #{splitPrice[1]}   
                           td.text-center #{splitQuantity[0]}.
                             span.decimal #{splitQuantity[1]}
@@ -405,7 +406,7 @@ block content
                             span.timestampCol=order.timestamp
                       else
                         tr
-                          td.text-center.text-danger.font-weight-bold #{splitPrice[0]}.
+                          td.text-center.text-danger.fw-bold #{splitPrice[0]}.
                             span.decimal #{splitPrice[1]}
                           td.text-center #{splitQuantity[0]}.
                             span.decimal #{splitQuantity[1]}
@@ -414,8 +415,8 @@ block content
                           td.text-center
                             span.timestampCol=order.timestamp
     else
-      .alert.alert-danger.alert-dismissable(role='alert')
-        button.close(type='button', data-dismiss='alert') ×
+      .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+        button.btn-close(type='button', data-bs-dismiss='alert')
         .cardSpacer
           span.fas.fa-exclamation-circle(style='margin-right:5px')
           strong #{marketdata.market_name} #{settings.locale.ex_error}

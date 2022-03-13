@@ -99,7 +99,7 @@ block content
           {data: 'nodes', width: '100%'}
         ],
         columnDefs: [
-          {targets: '_all', className: 'text-left'}
+          {targets: '_all', className: 'text-start'}
         ]
       });
       setting_txPerPage = parseInt("#{settings.network_page.onetry_table.items_per_page}");
@@ -138,10 +138,10 @@ block content
           {data: 'nodes', width: '100%'}
         ],
         columnDefs: [
-          {targets: '_all', className: 'text-left'}
+          {targets: '_all', className: 'text-start'}
         ]
       });
-      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+      $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         fixDataTableColumns();
         fixFooterHeightAndPosition();
       });
@@ -153,7 +153,7 @@ block content
           $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
 
           if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
-            $('span#lastUpdatedDate').attr('data-toggle', 'tooltip').attr('data-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
+            $('span#lastUpdatedDate').attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
             enableTooltips();
           }
         } else
@@ -164,7 +164,7 @@ block content
     });
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
-    - theadClasses.push('thead-' + settings.shared_pages.table_header_bgcolor);
+    - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);
   .col-md-12.cardSpacer
     .container
       if settings.network_page.page_header.show_img == true || settings.network_page.page_header.show_title == true || settings.network_page.page_header.show_last_updated == true || settings.network_page.page_header.show_description == true
@@ -179,11 +179,11 @@ block content
               if settings.network_page.page_header.show_title != true && settings.network_page.page_header.show_description != true
                 #page-title-container
                   .sub-page-header
-                    span.font-weight-bold=settings.locale.last_updated + ':'
+                    span.fw-bold=settings.locale.last_updated + ':'
                     span.text-muted#lastUpdatedDate
               else
                 .sub-page-header(style='margin-bottom:' + (settings.network_page.page_header.show_description == true ? '5' : '0') + 'px')
-                  span.font-weight-bold=settings.locale.last_updated + ':'
+                  span.fw-bold=settings.locale.last_updated + ':'
                   span.text-muted#lastUpdatedDate
             if settings.network_page.page_header.show_description == true
               if settings.network_page.page_header.show_title != true && settings.network_page.page_header.show_last_updated != true
@@ -194,15 +194,15 @@ block content
         .cardSpacer.clearfix
       ul.nav.nav-tabs(role='tablist')
         li.nav-item(role='presentation')
-          a.nav-link.active(href='#connections', aria-controls='connections', role='tab', data-toggle='tab') #{settings.locale.net_connections}
+          a.nav-link.active(href='#connections', aria-controls='connections', role='tab', data-bs-toggle='tab') #{settings.locale.net_connections}
         li.nav-item(role='presentation')
-          a.nav-link(href='#addnodes', aria-controls='addnodes', role='tab', data-toggle='tab') #{settings.locale.net_addnodes}
+          a.nav-link(href='#addnodes', aria-controls='addnodes', role='tab', data-bs-toggle='tab') #{settings.locale.net_addnodes}
     .tab-content
       #connections.container.tab-pane.active(style='margin-top:0;border-top:0;')
         .card.card-default.border-0
-          table#connections-table.table.table-bordered.table-striped.table-paging.mobile-border-right
-            thead(class=theadClasses)
-              tr
+          table#connections-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
+            thead
+              tr(class=theadClasses)
                 th.text-center #{settings.locale.net_address}
                 th.text-center #{settings.locale.net_protocol}
                 th.text-center #{settings.locale.net_subversion}
@@ -215,16 +215,16 @@ block content
               If you have trouble syncing your wallet, add these lines to your coin daemon .conf file and restart the wallet.
               
               *Typically you can access the config file through QT-wallet menu, Tools > Open Wallet Configuration File*
-          table#addnodes-table.table.table-bordered.table-striped.table-paging.mobile-border-right
-            thead(class=theadClasses)
-              tr
+          table#addnodes-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
+            thead
+              tr(class=theadClasses)
                 th AddNode Config Lines
-            tbody.text-center
+            tbody
           .card-body.border-top-0
             :markdown-it
               Alternatively you can try one of these lines in the coin wallet debug window, or add them with *coindaemon*-cli
-          table#onetry-table.table.table-bordered.table-striped.table-paging.mobile-border-right
-            thead(class=theadClasses)
-              tr
+          table#onetry-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
+            thead
+              tr(class=theadClasses)
                 th OneTry Node Lines
-            tbody.text-center
+            tbody

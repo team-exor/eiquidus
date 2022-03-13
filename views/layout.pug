@@ -5,16 +5,16 @@ html(lang='en')
     meta(name='viewport' content='width=device-width, initial-scale=1')
     meta(http-equiv='Content-Language', content='en')
     title=settings.shared_pages.page_title
-    link(rel='stylesheet', href='/css/themes/' + settings.shared_pages.theme + '/bootstrap.min.css')
+    link(rel='stylesheet', href='/css/themes/' + settings.shared_pages.theme.toLowerCase() + '/bootstrap.min.css')
     link(rel='stylesheet', href='https://use.fontawesome.com/releases/v5.15.4/css/all.css')
     if active == 'markets' || active == 'richlist'
       link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/jquery.jqplot.min.css')
     if active == 'network'
       link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/4.1.4/css/flag-icons.min.css')
-    link(rel='stylesheet', type='text/css', href='https://cdn.datatables.net/v/bs4/dt-1.11.3/datatables.min.css')
+    link(rel='stylesheet', type='text/css', href='https://cdn.datatables.net/v/bs5/dt-1.11.3/datatables.min.css')
     link(rel='stylesheet', href='/css/style.min.css')
     script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js', integrity='sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==', crossorigin='anonymous', referrerpolicy='no-referrer')
-    script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js', integrity='sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx', crossorigin='anonymous')
+    script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', integrity='sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p', crossorigin='anonymous')
     if active == 'markets' || active == 'richlist'
       script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/jquery.jqplot.min.js')
     if active == 'markets'
@@ -23,7 +23,7 @@ html(lang='en')
       script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.highlighter.min.js')
     if active == 'richlist'
       script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.pieRenderer.min.js')
-    script(type='text/javascript', src='https://cdn.datatables.net/v/bs4/dt-1.11.3/datatables.min.js')
+    script(type='text/javascript', src='https://cdn.datatables.net/v/bs5/dt-1.11.3/datatables.min.js')
     if active == 'reward'
       script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chart.js@3.6.1/dist/chart.min.js')
     - var showPanels = false
@@ -110,7 +110,7 @@ html(lang='en')
             clearInterval(nonStickyFooterSetIntervalID);
             // Ensure footer is shown at the bottom of the viewport
             var offset = (window.innerHeight - $('#footer-container').position().top - $('#footer-container').outerHeight());
-            $('#footer-container').css('margin-top', (offset > 0 ? offset : '10') + 'px');
+            $('#footer-container').css('margin-top', (offset > 0 ? offset - 1 : '10') + 'px');
           }, 1, "tmrFixFooter");
         } else {
           // Add spacing to the bottom of the body for the sticky footer
@@ -144,7 +144,7 @@ html(lang='en')
       function enableTooltips() {
         if ($().tooltip) {
           // Enable tooltips only if browser supports them
-          $('[data-toggle="tooltip"]').tooltip();
+          $('[data-bs-toggle="tooltip"]').tooltip();
         }
       }
       function fixDataTableColumns() {
@@ -182,7 +182,7 @@ html(lang='en')
       }
       $(document).ready(function() {
         if ('#{active}' != '')
-          $('##{active}').addClass('active');
+          $('##{active} > a.nav-link').addClass('active');
         function showTopPanelData(dataElement, loadingElement) {
           if ($('#' + loadingElement).length) {
             $('#' + loadingElement).fadeOut('slow', function() {
@@ -209,10 +209,10 @@ html(lang='en')
               var mnOnlineText = json.masternodeCountOnline+" node"+(json.masternodeCountOnline == 1 ? "" : "s")+" online";
               var mnOfflineText = json.masternodeCountOffline+" unreachable node"+(json.masternodeCountOffline == 1 ? "" : "s");
 
-              $("#masternodeCountOnline").text(json.masternodeCountOnline).prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-original-title", mnOnlineText);
-              $("#masternodeCountOffline").text(json.masternodeCountOffline).prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-original-title", mnOfflineText);
-              $("#spnMasternodeCountOnline").prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-original-title", mnOnlineText);
-              $("#spnMasternodeCountOffline").prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-original-title", mnOfflineText);
+              $("#masternodeCountOnline").text(json.masternodeCountOnline).prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-bs-original-title", mnOnlineText);
+              $("#masternodeCountOffline").text(json.masternodeCountOffline).prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-bs-original-title", mnOfflineText);
+              $("#spnMasternodeCountOnline").prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-bs-original-title", mnOnlineText);
+              $("#spnMasternodeCountOffline").prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-bs-original-title", mnOfflineText);
               showTopPanelData('masternodepanel', 'masternodePanelLoading');
 
               var supplyString = json.supply;
@@ -265,7 +265,6 @@ html(lang='en')
             $("#lblBlockcount").text(json.blockcount + ' blocks');
           }});
         }
-        $('.iquidus').css('color',$('.table').css('color'));
         $(window).resize(function () {
           fixDataTableColumns();
           fixFooterHeightAndPosition();
@@ -293,7 +292,7 @@ html(lang='en')
               break;
           }
           var hashRateType='<label id="hashrate"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small">'+networkSuffix+'</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="fa fa-cogs"></span>'+hashRateType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small fw-normal">'+networkSuffix+'</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="fa fa-cogs"></span>'+hashRateType+'</div></div>';
         }
         function getDifficultyPanel() {
           var difficultyType='<label id="difficulty"></label>';
@@ -301,18 +300,18 @@ html(lang='en')
           return '<div class="card-header"><strong>#{settings.locale.difficulty}</strong></div><div class="card-body"><div id="difficultyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="difficultypanel" class="header-panel" style="display:none;"><span class="fas fa-sliders-h"></span>'+difficultyType+'</div></div>';
         }
         function getMasternodesPanel() {
-          return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="masternodepanel" class="header-panel" style="display:none;"><span id="spnMasternodeCountOnline" class="fa fa-check-circle" data-toggle="tooltip" data-placement="top"></span><label id="masternodeCountOnline" data-toggle="tooltip" data-placement="top"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline" data-toggle="tooltip" data-placement="top"></label><span id="spnMasternodeCountOffline" class="fa fa-exclamation-triangle" data-toggle="tooltip" data-placement="top"></span></div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="masternodepanel" class="header-panel" style="display:none;"><span id="spnMasternodeCountOnline" class="fa fa-check-circle" data-bs-toggle="tooltip" data-bs-placement="top"></span><label id="masternodeCountOnline" data-bs-toggle="tooltip" data-bs-placement="top"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline" data-bs-toggle="tooltip" data-bs-placement="top"></label><span id="spnMasternodeCountOffline" class="fa fa-exclamation-triangle" data-bs-toggle="tooltip" data-bs-placement="top"></span></div></div>';
         }
         function getCoinSupplyPanel() {
           var supplyType='<label id="supply"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small">(#{settings.coin.symbol})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa fa-chart-pie"></span>'+supplyType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small fw-normal">(#{settings.coin.symbol})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa fa-chart-pie"></span>'+supplyType+'</div></div>';
         }
         function getPricePanel() {
           var priceType='<label id="lastPrice">-</label>';
-          return '<div class="card-header"><strong>Price <span class="small">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="fa fa-rocket"></span>'+priceType+'</div></div>';
+          return '<div class="card-header"><strong>Price <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="fa fa-rocket"></span>'+priceType+'</div></div>';
         }
         function getMarketCapPanel() {
-          return '<div class="card-header"><strong>Market Cap <span class="small">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
+          return '<div class="card-header"><strong>Market Cap <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
         }
         function getLogoPanel() {
           return '<img src="#{settings.shared_pages.logo}" style="margin-top:-15px;height:128px;" alt="#{settings.coin.name} Logo" title="#{settings.coin.name} Logo" />';
@@ -355,9 +354,13 @@ html(lang='en')
             }
           }
         }
-        $(document).on('click', 'button.close', function (e) {
+        $(document).on('click', 'button.btn-close', function (e) {
           e.preventDefault();
-          fixFooterHeightAndPosition();
+
+          $('.alert-dismissible').on('closed.bs.alert', function (e) {
+            e.preventDefault();
+            fixFooterHeightAndPosition();
+          });
         });
         if (#{showPanels} == true) {
           hideShowPanel('#{settings.panel1}', 'pnlOne');
@@ -375,7 +378,7 @@ html(lang='en')
       });
   body
     - var headerClasses = [];
-    - var footerClasses = ['nav','navbar','navbar-default','d-none','d-md-flex','d-flex','footer'];
+    - var footerClasses = ['nav','navbar','navbar-default','d-flex','footer'];
     if settings.shared_pages.page_header.sticky_header == true
       - headerClasses.push('fixed-top');
     if settings.shared_pages.page_footer.sticky_footer == true
@@ -394,93 +397,93 @@ html(lang='en')
     else
       - footerClasses.push('bg-primary');
       - footerClasses.push('navbar-dark');
-    div#main-header(class=headerClasses)
-      div.nav.navbar.navbar-expand-lg(role='navigation', style=settings.shared_pages.page_header.home_link == 'logo' ? 'padding-left:0;' : '')
-        .navbar-header
-          button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbar-collapse')
-            span.navbar-toggler-icon
-        if settings.shared_pages.page_header.home_link == 'title'
-          a.navbar-brand(href='/', style='order:-1;') #{settings.shared_pages.page_title}
-        else if settings.shared_pages.page_header.home_link == 'coin'
-          a.navbar-brand(href='/', style='order:-1;') #{settings.coin.name}
-        else if settings.shared_pages.page_header.home_link == 'logo'
-          a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='order:-1;', data-toggle='tooltip', data-placement='bottom')
-            img.logo-main(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0;max-height:' + settings.shared_pages.page_header.home_link_logo_height + 'px;')
-        .collapse.navbar-collapse(id='navbar-collapse')
-          ul.navbar-nav.mr-auto(style='width:100%;')
-            li#home
-              a.nav-link(href='/')
-                span.fas.fa-cubes
-                span.margin-left-5 #{settings.locale.menu_explorer}
-            if settings.blockchain_specific.heavycoin.enabled == true && settings.blockchain_specific.heavycoin.reward_page.enabled == true
-              li#reward
-                a.nav-link(href='/reward')
-                  span.fa.fa-star
-                  span.margin-left-5 #{settings.locale.menu_reward}
-            if settings.masternodes_page.enabled == true
-              li#masternodes
-                a.nav-link(href='/masternodes')
-                  span.fa.fa-share-alt
-                  span.margin-left-5 Masternodes
-            if settings.movement_page.enabled == true
-              li#movement
-                a.nav-link(href='/movement')
-                  span.far.fa-money-bill-alt
-                  span.margin-left-5 #{settings.locale.menu_movement}
-            if settings.network_page.enabled == true
-              li#network
-                a.nav-link(href='/network')
-                  span.fas.fa-network-wired
-                  span.margin-left-5 #{settings.locale.menu_network}
-            if settings.richlist_page.enabled == true
-              li#richlist
-                a.nav-link(href='/richlist')
-                  span.fab.fa-btc
-                  span.margin-left-5 #{settings.locale.menu_richlist}
-            if settings.markets_page.enabled == true
-              if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
-                li#markets.dropdown
-                  a.nav-link.dropdown-toggle(data-toggle='dropdown', href='#' role='button' aria-haspopup='true' aria-expanded='false')
-                    span.fas.fa-chart-line
-                    span.margin-left-5 #{settings.locale.menu_markets}
-                  div.dropdown-menu
-                    each mkt in settings.market_data
-                      if mkt != null && mkt.id != null
-                        each pair in mkt.trading_pairs
-                          a.dropdown-item(href='/markets/' + mkt.id + '/' + pair)
-                            if mkt.logo != null && mkt.logo != ''
-                              img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair + ')', alt=mkt.name + ' (' + pair + ')')
-                            else
-                              i.market-logo.fas.fa-question-circle
-                            span #{mkt.name}
-                              span.small  (#{pair})
-              else
-                li#markets
-                  a.nav-link(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
-                    span.fas.fa-chart-line
-                    span.margin-left-5 #{settings.locale.menu_markets}
-            if settings.api_page.enabled == true
-              li#info
-                a.nav-link(href='/info')
-                  span.fa.fa-info-circle
-                  span.margin-left-5 #{settings.locale.menu_api}
-            if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
-              li#claim-address
-                a.nav-link(href='/claim')
-                  span.far.fa-address-card
-                  span.margin-left-5 #{settings.locale.menu_claim_address}
-        if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
-          button#search-header-button(data-toggle='collapse', data-target='#search-navbar-collapse')
-            span.fas.fa-search
+    div#main-header.navbar(class=headerClasses)
+      div.navbar.navbar-expand-lg(style=settings.shared_pages.page_header.home_link == 'logo' ? 'padding-left:0;' : '')
+        div.container
+          .navbar-header
+            button.navbar-toggler(type='button', data-bs-toggle='collapse', data-bs-target='#navbar-collapse', aria-controls='navbar-collapse', aria-expanded='false', aria-label='Toggle navigation')
+              span.navbar-toggler-icon
+          if settings.shared_pages.page_header.home_link == 'title'
+            a.navbar-brand(href='/', style='order:-1;') #{settings.shared_pages.page_title}
+          else if settings.shared_pages.page_header.home_link == 'coin'
+            a.navbar-brand(href='/', style='order:-1;') #{settings.coin.name}
+          else if settings.shared_pages.page_header.home_link == 'logo'
+            a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='order:-1;', data-bs-toggle='tooltip', data-bs-placement='bottom')
+              img.logo-main(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0;max-height:' + settings.shared_pages.page_header.home_link_logo_height + 'px;')
+          .collapse.navbar-collapse(id='navbar-collapse')
+            ul.navbar-nav(style='width:100%;')
+              li#home.nav-item
+                a.nav-link(href='/')
+                  span.fas.fa-cubes
+                  span.margin-left-5 #{settings.locale.menu_explorer}
+              if settings.blockchain_specific.heavycoin.enabled == true && settings.blockchain_specific.heavycoin.reward_page.enabled == true
+                li#reward.nav-item
+                  a.nav-link(href='/reward')
+                    span.fa.fa-star
+                    span.margin-left-5 #{settings.locale.menu_reward}
+              if settings.masternodes_page.enabled == true
+                li#masternodes.nav-item
+                  a.nav-link(href='/masternodes')
+                    span.fa.fa-share-alt
+                    span.margin-left-5 Masternodes
+              if settings.movement_page.enabled == true
+                li#movement.nav-item
+                  a.nav-link(href='/movement')
+                    span.far.fa-money-bill-alt
+                    span.margin-left-5 #{settings.locale.menu_movement}
+              if settings.network_page.enabled == true
+                li#network.nav-item
+                  a.nav-link(href='/network')
+                    span.fas.fa-network-wired
+                    span.margin-left-5 #{settings.locale.menu_network}
+              if settings.richlist_page.enabled == true
+                li#richlist.nav-item
+                  a.nav-link(href='/richlist')
+                    span.fab.fa-btc
+                    span.margin-left-5 #{settings.locale.menu_richlist}
+              if settings.markets_page.enabled == true
+                if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
+                  li#markets.dropdown.nav-item
+                    a.nav-link.dropdown-toggle(data-bs-toggle='dropdown', href='#')
+                      span.fas.fa-chart-line
+                      span.margin-left-5 #{settings.locale.menu_markets}
+                    div.dropdown-menu
+                      each mkt in settings.market_data
+                        if mkt != null && mkt.id != null
+                          each pair in mkt.trading_pairs
+                            a.dropdown-item(href='/markets/' + mkt.id + '/' + pair)
+                              if mkt.logo != null && mkt.logo != ''
+                                img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair + ')', alt=mkt.name + ' (' + pair + ')')
+                              else
+                                i.market-logo.fas.fa-question-circle
+                              span #{mkt.name}
+                                span.small.fw-normal  (#{pair})
+                else
+                  li#markets.nav-item
+                    a.nav-link(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
+                      span.fas.fa-chart-line
+                      span.margin-left-5 #{settings.locale.menu_markets}
+              if settings.api_page.enabled == true
+                li#info.nav-item
+                  a.nav-link(href='/info')
+                    span.fa.fa-info-circle
+                    span.margin-left-5 #{settings.locale.menu_api}
+              if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
+                li#claim-address.nav-item
+                  a.nav-link(href='/claim')
+                    span.far.fa-address-card
+                    span.margin-left-5 #{settings.locale.menu_claim_address}
+          if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
+            button#search-header-button(data-bs-toggle='collapse', data-bs-target='#search-navbar-collapse')
+              span.fas.fa-search
       if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
         div#search-navbar-collapse.collapse
-          div.navbar-nav.align-items-lg-center.ml-auto.search-box-custom(style='width:100%;')
+          div.navbar-nav.align-items-lg-center.search-box-custom(style='width:100%;')
             form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
               div.input-group.input-group-md.search-for(style='width:100%;')
                 input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message)
-                span.input-group-append
-                  button.btn.btn-success.btn-sm(type='submit') #{settings.locale.ex_search_button}
-    div#body-container(style='margin-top:' + (settings.shared_pages.page_header.sticky_header == true ? '80px;' : '20px;'))
+                button.btn.btn-success.btn-sm(type='submit') #{settings.locale.ex_search_button}
+    div#body-container.container(style='margin-top:' + (settings.shared_pages.page_header.sticky_header == true ? '80px;' : '20px;'))
       if showSync != null && showSync == true
         .col-lg-12
           .alert.alert-warning
@@ -494,23 +497,23 @@ html(lang='en')
             .row.text-center.d-flex.justify-content-center
               div(class="col-lg-2 col-lg-offset-" + settings.paneloffset)
                 - if (settings.panel1 != '') {
-                  .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlOne')
+                  .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlOne')
                 - }
               - if (settings.panel2 != '') {
                 .col-lg-2
-                  .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlTwo')
+                  .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlTwo')
               - }
               - if (settings.panel3 != '') {
                 .col-lg-2
-                  .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlThree')
+                  .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlThree')
               - }
               - if (settings.panel4 != '') {
                 .col-lg-2
-                  .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFour')
+                  .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlFour')
               - }
               - if (settings.panel5 != '') {
               .col-lg-2
-                .card.card-default.border-0.d-none.d-lg-block.d-block.cardSpacer(id='pnlFive')
+                .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlFive')
               - }
           if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'below-header'
             div#search-row.row.text-center
@@ -524,8 +527,8 @@ html(lang='en')
         ul.nav.justify-content-left
           each social in settings.shared_pages.page_footer.social_links
             if social.enabled
-              li.float-left
-                a.nav-link.social-link.border-0(href=social.url, target='_blank', alt=settings.coin.name + ' ' + social.tooltip_text, title=settings.coin.name + ' ' + social.tooltip_text, data-toggle='tooltip', data-placement='top')
+              li.float-start
+                a.nav-link.social-link.border-0(href=social.url, target='_blank', alt=settings.coin.name + ' ' + social.tooltip_text, title=settings.coin.name + ' ' + social.tooltip_text, data-bs-toggle='tooltip', data-bs-placement='top')
                   if social.fontawesome_class != null && social.fontawesome_class != ''
                     span(class='vertical-align-middle ' + social.fontawesome_class)
                   else
@@ -537,5 +540,5 @@ html(lang='en')
               a.nav-link.poweredby.border-0(href='https://github.com/team-exor/eiquidus', target='_blank') eIquidus Explorer v#{settings.explorer_version}
       .col-4.navbar-nav
         ui.nav.justify-content-end
-          label#lblBlockcount.badge.badge-secondary.nav-link.border-0.float-right
-          label#lblConnections.badge.badge-secondary.nav-link.border-0.float-right
+          label#lblBlockcount.badge.nav-link.border-0.float-end
+          label#lblConnections.badge.nav-link.border-0.float-end
