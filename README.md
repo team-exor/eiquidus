@@ -794,7 +794,7 @@ You can support us via one of the following options:
 
 ### License
 
-Copyright (c) 2019-2021, The Exor Community<br />
+Copyright (c) 2019-2022, The Exor Community<br />
 Copyright (c) 2017, The Chaincoin Community<br />
 Copyright (c) 2015, Iquidus Technology<br />
 Copyright (c) 2015, Luke Williams<br />
