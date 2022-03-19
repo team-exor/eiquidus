@@ -4,7 +4,7 @@ html(lang='en')
     meta(charset='UTF-8')
     meta(name='viewport' content='width=device-width, initial-scale=1')
     meta(http-equiv='Content-Language', content='en')
-    title=settings.shared_pages.page_title
+    title=page_title_prefix + ' - ' + settings.shared_pages.page_title
     link(rel='stylesheet', href='/css/themes/' + settings.shared_pages.theme.toLowerCase() + '/bootstrap.min.css' + (themeHash == null ? '' : '?h=' + themeHash))
     link(rel='stylesheet', href='https://use.fontawesome.com/releases/v5.15.4/css/all.css')
     if active == 'markets' || active == 'richlist'
