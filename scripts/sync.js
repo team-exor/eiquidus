@@ -293,8 +293,7 @@ if (database == 'peers') {
                 db.update_db(settings.coin.name, function(stats) {
                   // check if stats returned properly
                   if (stats !== false) {
-                    if (settings.blockchain_specific.heavycoin.enabled == true)
-                      db.update_heavy(settings.coin.name, stats.count, 20, function() {});
+                    // determine which index mode to run
                     if (mode == 'reindex') {
                       console.log('deleting transactions.. please wait..');
                       Tx.deleteMany({}, function(err) {
@@ -338,11 +337,14 @@ if (database == 'peers') {
                                         // update richlist_last_updated value
                                         db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
                                           db.get_stats(settings.coin.name, function(nstats) {
-                                            // always check for and remove the sync msg if exists
-                                            remove_sync_message();
+                                            // check for and update heavycoin data if applicable
+                                            update_heavy(settings.coin.name, stats.count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
+                                              // always check for and remove the sync msg if exists
+                                              remove_sync_message();
 
-                                            console.log('reindex complete (block: %s)', nstats.last);
-                                            exit();
+                                              console.log('reindex complete (block: %s)', nstats.last);
+                                              exit();
+                                            });
                                           });
                                         });
                                       });
@@ -375,14 +377,17 @@ if (database == 'peers') {
                         db.update_richlist('received', function() {
                           db.update_richlist('balance', function() {
                             db.get_stats(settings.coin.name, function(nstats) {
-                              // always check for and remove the sync msg if exists
-                              remove_sync_message();
-                              // update richlist_last_updated value
-                              db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
-                                // update blockchain_last_updated value
-                                db.update_last_updated_stats(settings.coin.name, { blockchain_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
-                                  console.log('update complete (block: %s)', nstats.last);
-                                  exit();
+                              // check for and update heavycoin data if applicable
+                              update_heavy(settings.coin.name, stats.count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
+                                // always check for and remove the sync msg if exists
+                                remove_sync_message();
+                                // update richlist_last_updated value
+                                db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+                                  // update blockchain_last_updated value
+                                  db.update_last_updated_stats(settings.coin.name, { blockchain_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+                                    console.log('update complete (block: %s)', nstats.last);
+                                    exit();
+                                  });
                                 });
                               });
                             });
@@ -563,6 +568,15 @@ if (database == 'peers') {
       });
     }
   });
+}
+
+function update_heavy(coin, height, count, heavycoin_enabled, cb) {
+  if (heavycoin_enabled == true) {
+    db.update_heavy(coin, height, count, function() {
+      return cb(true);
+    });
+  } else
+    return cb(false);
 }
 
 function check_show_sync_message(blocks_to_sync) {
