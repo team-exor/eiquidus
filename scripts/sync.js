@@ -374,17 +374,18 @@ if (database == 'peers') {
                       check_show_sync_message(count - last);
 
                       db.update_tx_db(settings.coin.name, last, count, stats.txes, settings.sync.update_timeout, false, function() {
-                        db.update_richlist('received', function() {
-                          db.update_richlist('balance', function() {
-                            db.get_stats(settings.coin.name, function(nstats) {
-                              // check for and update heavycoin data if applicable
-                              update_heavy(settings.coin.name, stats.count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
-                                // always check for and remove the sync msg if exists
-                                remove_sync_message();
-                                // update richlist_last_updated value
-                                db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
-                                  // update blockchain_last_updated value
-                                  db.update_last_updated_stats(settings.coin.name, { blockchain_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+                        // update blockchain_last_updated value
+                        db.update_last_updated_stats(settings.coin.name, { blockchain_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+                          db.update_richlist('received', function() {
+                            db.update_richlist('balance', function() {
+                              // update richlist_last_updated value
+                              db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {                              
+                                db.get_stats(settings.coin.name, function(nstats) {
+                                  // check for and update heavycoin data if applicable
+                                  update_heavy(settings.coin.name, stats.count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
+                                    // always check for and remove the sync msg if exists
+                                    remove_sync_message();
+
                                     console.log('update complete (block: %s)', nstats.last);
                                     exit();
                                   });
