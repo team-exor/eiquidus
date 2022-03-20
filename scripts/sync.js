@@ -296,42 +296,54 @@ if (database == 'peers') {
                     if (settings.blockchain_specific.heavycoin.enabled == true)
                       db.update_heavy(settings.coin.name, stats.count, 20, function() {});
                     if (mode == 'reindex') {
+                      console.log('deleting transactions.. please wait..');
                       Tx.deleteMany({}, function(err) {
-                        console.log('TXs cleared.');
+                        console.log('transactions deleted successfully');
 
+                        console.log('deleting addresses.. please wait..');
                         Address.deleteMany({}, function(err2) {
-                          console.log('Addresses cleared.');
+                          console.log('addresses deleted successfully');
 
+                          console.log('deleting address transactions.. please wait..');
                           AddressTx.deleteMany({}, function(err3) {
-                            console.log('Address TXs cleared.');
+                            console.log('address transactions deleted successfully');
 
+                            console.log('deleting top 100 data.. please wait..');
                             Richlist.updateOne({coin: settings.coin.name}, {
                               received: [],
                               balance: []
                             }, function(err3) {
+                              console.log('top 100 data deleted successfully');
+
+                              console.log('deleting block index.. please wait..');
                               Stats.updateOne({coin: settings.coin.name}, {
                                 last: 0,
                                 count: 0,
-                                supply: 0
+                                supply: 0,
+                                txes: 0,
+                                blockchain_last_updated: 0,
+                                richlist_last_updated: 0
                               }, function() {
-                                console.log('index cleared (reindex)');
-                              });
+                                console.log('block index deleted successfully');
 
-                              // Check if the sync msg should be shown
-                              check_show_sync_message(stats.count);
+                                // Check if the sync msg should be shown
+                                check_show_sync_message(stats.count);
 
-                              db.update_tx_db(settings.coin.name, block_start, stats.count, stats.txes, settings.sync.update_timeout, false, function() {
-                                db.update_richlist('received', function() {
-                                  db.update_richlist('balance', function() {
-                                    db.get_stats(settings.coin.name, function(nstats) {
-                                      // always check for and remove the sync msg if exists
-                                      remove_sync_message();
-                                      // update richlist_last_updated value
-                                      db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
-                                        // update blockchain_last_updated value
-                                        db.update_last_updated_stats(settings.coin.name, { blockchain_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
-                                          console.log('reindex complete (block: %s)', nstats.last);
-                                          exit();
+                                console.log('starting resync of blockchain data.. please wait..');
+                                db.update_tx_db(settings.coin.name, block_start, stats.count, stats.txes, settings.sync.update_timeout, false, function() {
+                                  // update blockchain_last_updated value
+                                  db.update_last_updated_stats(settings.coin.name, { blockchain_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+                                    db.update_richlist('received', function() {
+                                      db.update_richlist('balance', function() {
+                                        // update richlist_last_updated value
+                                        db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function (cb) {
+                                          db.get_stats(settings.coin.name, function(nstats) {
+                                            // always check for and remove the sync msg if exists
+                                            remove_sync_message();
+
+                                            console.log('reindex complete (block: %s)', nstats.last);
+                                            exit();
+                                          });
                                         });
                                       });
                                     });

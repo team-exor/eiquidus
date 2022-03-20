@@ -120,6 +120,19 @@ if [ -n "${MODE}" ]; then
   # Check if the desired mode requires a lock
   if [ "${MODE}" != "peers" ] && [ "${MODE}" != "masternodes" ]; then
     # A lock is required
+    # Check if this is a reindex
+    if [ "${MODE}" = "index reindex" ]; then
+      # Prompt for the reindex
+      echo "You are about to delete all blockchain data (transactions and addresses)"
+      echo "and resync from the genesis block."
+      echo "Are you sure you want to do this? [y/n]: ";
+      read -p "" REINDEX_ANSWER
+      # Determine if the reindex should proceed
+      case "$REINDEX_ANSWER" in
+        y|Y|yes|Yes|YES) ;;
+        *) echo "Process aborted. Nothing was deleted." && exit ;;
+      esac
+    fi
     # Check if the script is already running (tmp/index.pid file already exists)
     if [ -f "${EXPLORER_PATH}/tmp/index.pid" ]; then
       # The tmp/index.pid file exists. Check if the process is actually still running
