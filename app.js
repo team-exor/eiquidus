@@ -575,6 +575,15 @@ app.use('/ext/getmasternoderewardstotal/:hash/:since', function(req, res) {
     res.end('This method is disabled');
 });
 
+app.use('/ext/getnetworkchartdata', function(req, res) {
+  db.get_network_chart_data(function(data) {
+    if (data)
+      res.send(data);
+    else
+      res.send();
+  });
+});
+
 var market_data = [];
 var market_count = 0;
 
@@ -680,6 +689,7 @@ settings.api_page.public_apis.rpc.getmasternodelist = { "enabled": false };
 app.set('explorer_version', package_metadata.version);
 app.set('locale', locale);
 app.set('coin', settings.coin);
+app.set('network_history', settings.network_history);
 app.set('shared_pages', settings.shared_pages);
 app.set('index_page', settings.index_page);
 app.set('block_page', settings.block_page);

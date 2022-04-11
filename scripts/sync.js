@@ -339,11 +339,14 @@ if (database == 'peers') {
                                           db.get_stats(settings.coin.name, function(nstats) {
                                             // check for and update heavycoin data if applicable
                                             update_heavy(settings.coin.name, stats.count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
-                                              // always check for and remove the sync msg if exists
-                                              remove_sync_message();
+                                              // check for and update network history data if applicable
+                                              update_network_history(nstats.last, settings.network_history.enabled, function(network_hist) {
+                                                // always check for and remove the sync msg if exists
+                                                remove_sync_message();
 
-                                              console.log('reindex complete (block: %s)', nstats.last);
-                                              exit();
+                                                console.log('reindex complete (block: %s)', nstats.last);
+                                                exit();
+                                              });
                                             });
                                           });
                                         });
@@ -383,11 +386,14 @@ if (database == 'peers') {
                                 db.get_stats(settings.coin.name, function(nstats) {
                                   // check for and update heavycoin data if applicable
                                   update_heavy(settings.coin.name, stats.count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
-                                    // always check for and remove the sync msg if exists
-                                    remove_sync_message();
+                                    // check for and update network history data if applicable
+                                    update_network_history(nstats.last, settings.network_history.enabled, function(network_hist) {
+                                      // always check for and remove the sync msg if exists
+                                      remove_sync_message();
 
-                                    console.log('update complete (block: %s)', nstats.last);
-                                    exit();
+                                      console.log('update complete (block: %s)', nstats.last);
+                                      exit();
+                                    });
                                   });
                                 });
                               });
@@ -574,6 +580,15 @@ if (database == 'peers') {
 function update_heavy(coin, height, count, heavycoin_enabled, cb) {
   if (heavycoin_enabled == true) {
     db.update_heavy(coin, height, count, function() {
+      return cb(true);
+    });
+  } else
+    return cb(false);
+}
+
+function update_network_history(height, network_history_enabled, cb) {
+  if (network_history_enabled == true) {
+    db.update_network_history(height, function() {
       return cb(true);
     });
   } else

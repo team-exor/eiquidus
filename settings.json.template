@@ -78,6 +78,15 @@
     "symbol": "EXOR"
   },
 
+  // network_history: a collection of settings that controls saving of extra historical network data during a block sync
+  "network_history": {
+    // enabled: Enable/disable the saving of additional network history data (true/false)
+    //          If set to false, historical data such as network hashrate and difficulty values will not be saved or available for network charts
+    "enabled": true,
+    // max_saved_records: The maximum # of blocks to save historical data for
+    "max_saved_records": 120
+  },
+
   /* Shared page settings */
  
   // shared_pages: a collection of settings that pertain to all webpages for the explorer
@@ -126,7 +135,7 @@
     //             Hybrid: Display both the proof-of-work and proof-of-stake difficulty values
     "difficulty": "POS",
     // show_hashrate: Determine whether to show network hash rate where applicable (true/false)
-    //                If set to false, the /api/getnetworkhashps and /ext/getsummary apis will no longer show hash rate information
+    //                If set to false, the /api/getnetworkhashps and /ext/getsummary apis will no longer show hash rate information, and the network hashrate chart will automatically be disabled
     "show_hashrate": true,
     // page_header: A collection of settings that pertain to the page header that is displayed at the top of all pages
     "page_header": {
@@ -249,6 +258,60 @@
         "image_path": "/img/page-title-img.png",
         // enable_animation: Enable/disable the flip/spin animation on the page title image (true/false)
         "enable_animation": true
+      },
+      // network_charts: A collection of settings that pertain to the network hashrate and difficulty line charts displayed on page header of all pages
+      //                 NOTE: You can independently show/hide individual charts by changing the show_nethash_chart and show_difficulty_chart values in the settings for each page
+      //                       The "network_history.enabled" setting must be set to true for network charts to work correctly
+      //                       If the "network_history.enabled" setting is false, all network charts will be completely disabled, regardless of their independent settings
+      "network_charts": {
+        // nethash_chart: A collection of settings that pertain to the network hashrate chart
+        "nethash_chart": {
+          // enabled: Enable/disable the network hashrate chart (true/false)
+          //          If set to false, the network hashrate chart will be completely inaccessible
+          //          NOTE: The `shared_pages.show_hashrate` option must be set to true or else the network hashrate chart will be completely inaccessible
+          "enabled": true,
+          // bgcolor: Change the background color of the network hashrate chart
+          //          Set this to any valid html color
+          //          Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+          "bgcolor": "#ffffff",
+          // line_color: Change the line color of the network hashrate chart
+          //             Set this to any valid html color
+          //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+          "line_color": "rgba(54, 162, 235, 1)",
+          // fill_color: Change the fill color of the network hashrate chart
+          //             Set this to any valid html color
+          //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+          "fill_color": "rgba(54, 162, 235, 0.2)",
+          // crosshair_color: Change the vertical crosshair line color of the network hashrate chart
+          //             Set this to any valid html color
+          //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+          "crosshair_color": "#000000"
+        },
+        // difficulty_chart: A collection of settings that pertain to the network difficulty chart
+        "difficulty_chart": {
+          // enabled: Enable/disable the network difficulty chart (true/false)
+          //          If set to false, the network difficulty chart will be completely inaccessible
+          "enabled": true,
+          // bgcolor: Change the background color of the network difficulty chart
+          //          Set this to any valid html color
+          //          Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+          "bgcolor": "#ffffff",
+          // line_color: Change the line color of the network difficulty chart
+          //             Set this to any valid html color
+          //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+          "line_color": "rgba(255, 99, 132, 1)",
+          // fill_color: Change the fill color of the network difficulty chart
+          //             Set this to any valid html color
+          //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+          "fill_color": "rgba(255, 99, 132, 0.2)",
+          // crosshair_color: Change the vertical crosshair line color of the network difficulty chart
+          //             Set this to any valid html color
+          //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+          "crosshair_color": "#000000"
+        },
+        // reload_chart_seconds: The time in seconds to automatically reload the network chart data from the server
+        //                       Set to 0 to disable automatic reloading of chart data
+        "reload_chart_seconds": 60
       }
     },
     // page_footer: A collection of settings that pertain to the page footer that is displayed at the bottom of all pages
@@ -378,6 +441,10 @@
   "index_page": {
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": true,
+    // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+    "show_nethash_chart": true,
+    // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+    "show_difficulty_chart": true,
     // page_header: a collection of settings that pertain to the index page header
     "page_header": {
       // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
@@ -407,6 +474,10 @@
   "block_page": {
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+    "show_nethash_chart": false,
+    // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+    "show_difficulty_chart": false,
     // page_header: a collection of settings that pertain to the block page header
     "page_header": {
       // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
@@ -426,6 +497,10 @@
   "transaction_page": {
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+    "show_nethash_chart": false,
+    // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+    "show_difficulty_chart": false,
     // page_header: a collection of settings that pertain to the transaction/tx page header
     "page_header": {
       // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
@@ -448,6 +523,10 @@
   "address_page": {
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+    "show_nethash_chart": false,
+    // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+    "show_difficulty_chart": false,
     // page_header: a collection of settings that pertain to the address page header
     "page_header": {
       // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
@@ -482,6 +561,10 @@
   "error_page": {
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+    "show_nethash_chart": false,
+    // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+    "show_difficulty_chart": false,
     // page_header: a collection of settings that pertain to the error page header
     "page_header": {
       // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
@@ -502,6 +585,10 @@
     "enabled": true,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+    "show_nethash_chart": false,
+    // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+    "show_difficulty_chart": false,
     // page_header: a collection of settings that pertain to the masternodes page header
     "page_header": {
       // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
@@ -530,6 +617,10 @@
     "enabled": true,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+    "show_nethash_chart": false,
+    // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+    "show_difficulty_chart": false,
     // page_header: a collection of settings that pertain to the movement page header
     "page_header": {
       // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
@@ -568,6 +659,10 @@
     "enabled": true,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+    "show_nethash_chart": false,
+    // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+    "show_difficulty_chart": false,
     // page_header: a collection of settings that pertain to the network page header
     "page_header": {
       // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
@@ -612,6 +707,10 @@
     "enabled": true,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+    "show_nethash_chart": false,
+    // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+    "show_difficulty_chart": false,
     // page_header: a collection of settings that pertain to the richlist/top100 page header
     "page_header": {
       // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
@@ -663,6 +762,10 @@
     "enabled": false,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+    "show_nethash_chart": false,
+    // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+    "show_difficulty_chart": false,
     // page_header: a collection of settings that pertain to the markets page header
     "page_header": {
       // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
@@ -798,6 +901,10 @@
     "enabled": true,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+    "show_nethash_chart": false,
+    // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+    "show_difficulty_chart": false,
     // page_header: a collection of settings that pertain to the api page header
     "page_header": {
       // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
@@ -1035,6 +1142,10 @@
     "enabled": true,
     // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
     "show_panels": false,
+    // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+    "show_nethash_chart": false,
+    // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+    "show_difficulty_chart": false,
     // page_header: a collection of settings that pertain to the claim address page header
     "page_header": {
       // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)
@@ -1190,6 +1301,10 @@
         "enabled": true,
         // show_panels: Determine whether to show the panels configured in the shared_pages.page_header section across the top of this page (true/false)
         "show_panels": false,
+        // show_nethash_chart: Determine whether to show the network hashrate chart configured in the shared_pages.network_charts.nethash_chart section across the top of this page (true/false)
+        "show_nethash_chart": false,
+        // show_difficulty_chart: Determine whether to show the network difficulty chart configured in the shared_pages.network_charts.difficulty_chart section across the top of this page (true/false)
+        "show_difficulty_chart": false,
         // page_header: a collection of settings that pertain to the reward page header
         "page_header": {
           // show_img: Determine whether to show the page title image defined in the "shared_pages.page_header.page_title_image" setting (true/false)

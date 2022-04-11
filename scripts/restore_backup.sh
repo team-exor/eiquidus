@@ -34,6 +34,7 @@ sudo mongo <<EOF
 use explorerdb
 db.addresses.drop()
 db.addresstxes.drop()
+db.networkhistories.drop()
 db.coinstats.drop()
 db.heavies.drop()
 db.markets.drop()

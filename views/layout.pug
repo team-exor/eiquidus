@@ -24,61 +24,105 @@ html(lang='en')
     if active == 'richlist'
       script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.pieRenderer.min.js')
     script(type='text/javascript', src='https://cdn.datatables.net/v/bs5/dt-1.11.3/datatables.min.js')
-    if active == 'reward'
-      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chart.js@3.6.1/dist/chart.min.js')
     - var showPanels = false
+    - var showNethashChart = false
+    - var showDifficultyChart = false
     case active
       when 'home'
         if settings.index_page.show_panels == true
-          -  showPanels = true
-        break
+          - showPanels = true
+        if settings.index_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.index_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       when 'block'
         if settings.block_page.show_panels == true
-          -  showPanels = true
-        break
+          - showPanels = true
+        if settings.block_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.block_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       when 'tx'
         if settings.transaction_page.show_panels == true
-          -  showPanels = true
-        break
+          - showPanels = true
+        if settings.transaction_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.transaction_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       when 'address'
         if settings.address_page.show_panels == true
-          -  showPanels = true
-        break
+          - showPanels = true
+        if settings.address_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.address_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       when 'masternodes'
         if settings.masternodes_page.show_panels == true
-          -  showPanels = true
-        break
+          - showPanels = true
+        if settings.masternodes_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.masternodes_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       when 'movement'
         if settings.movement_page.show_panels == true
-          -  showPanels = true
-        break
+          - showPanels = true
+        if settings.movement_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.movement_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       when 'network'
         if settings.network_page.show_panels == true
-          -  showPanels = true
-        break
+          - showPanels = true
+        if settings.network_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.network_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       when 'richlist'
         if settings.richlist_page.show_panels == true
-          -  showPanels = true
-        break
+          - showPanels = true
+        if settings.richlist_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.richlist_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       when 'markets'
         if settings.markets_page.show_panels == true
-          -  showPanels = true
-        break
+          - showPanels = true
+        if settings.markets_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.markets_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       when 'info'
         if settings.api_page.show_panels == true
-          -  showPanels = true
-        break
+          - showPanels = true
+        if settings.api_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.api_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       when 'claim-address'
         if settings.claim_address_page.show_panels == true
-          -  showPanels = true
-        break
+          - showPanels = true
+        if settings.claim_address_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.claim_address_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       when 'reward'
         if settings.blockchain_specific.heavycoin.reward_page.show_panels == true
-          -  showPanels = true
-        break
+          - showPanels = true
+        if settings.blockchain_specific.heavycoin.reward_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.blockchain_specific.heavycoin.reward_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       default
         if settings.error_page.show_panels == true
-          -  showPanels = true
+          - showPanels = true
+        if settings.error_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.error_page.show_difficulty_chart == true
+          - showDifficultyChart = true
+    if active == 'reward' || (settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true)))
+      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chart.js@3.6.1/dist/chart.min.js')
+    if settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true))
+      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chartjs-plugin-crosshair@1.2.0')
     script.
       /* Special thanks to the stackoverflow community for the getParameterByName function: https://stackoverflow.com/a/901144/3038650 */
       function getParameterByName(name, url = window.location.href) {
@@ -180,6 +224,30 @@ html(lang='en')
           rotateElement(elementSelector);
         }, 100);
       }
+      function getNetHashUnits() {
+        var networkSuffix='';
+        switch ('#{settings.shared_pages.page_header.panels.network_panel.nethash_units}') {
+          case "K":
+            networkSuffix='(KH/s)';
+            break;
+          case "M":
+            networkSuffix='(MH/s)';
+            break;
+          case "G":
+            networkSuffix='(GH/s)';
+            break;
+          case "T":
+            networkSuffix='(TH/s)';
+            break;
+          case "P":
+            networkSuffix='(PH/s)';
+            break;
+          case "H":
+            networkSuffix='(H/s)';
+            break;
+        }
+        return networkSuffix;
+      }
       $(document).ready(function() {
         if ('#{active}' != '')
           $('##{active} > a.nav-link').addClass('active');
@@ -265,34 +333,187 @@ html(lang='en')
             $("#lblBlockcount").text(json.blockcount + ' blocks');
           }});
         }
+        var nethashChart;
+        var difficultyChart;
+        function update_network_charts() {
+          $.ajax({
+            url: '/ext/getnetworkchartdata',
+            success: function(result) {
+              if (#{settings.network_history.enabled} == true && #{showNethashChart} == true && #{settings.shared_pages.page_header.network_charts.nethash_chart.enabled} == true && #{settings.shared_pages.show_hashrate} == true) {
+                const ctxNethash = document.getElementById('nethashChart').getContext('2d');
+
+                if (nethashChart == null) {
+                  nethashChart = new Chart(ctxNethash, {
+                    type: 'line',
+                    data: {
+                      labels: result.map(function(a) {return a.blockindex;}),
+                      datasets: [
+                        {
+                          label: 'Hashrate',
+                          data: result.map(function(a) {return a.nethash;}),
+                          backgroundColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.fill_color}'],
+                          borderColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.line_color}'],
+                          fill: 'start'
+                        }
+                      ]
+                    },
+                    options: {
+                      maintainAspectRatio: false,
+                      elements: {
+                        point: {
+                          radius: 1
+                        },
+                        line: {
+                          tension: 0.1
+                        }
+                      },
+                      scales: {
+                        yAxis: {
+                          title: {
+                            display: true,
+                            text: 'Network ' + getNetHashUnits(),
+                            font: {
+                              weight: 'bold'
+                            }
+                          }
+                        }
+                      },
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: 'bottom'
+                        },
+                        title: {
+                          display: false
+                        },
+                        tooltip: {
+                          mode: 'index',
+                          intersect: false,
+                          displayColors: true,
+                          callbacks: {
+                            title: function(context) {
+                              return 'Block ' + context[0].label + ' Hashrate';
+                            },
+                            label: function(context) {
+                              return context.formattedValue + ' ' + getNetHashUnits()
+                            }
+                          }
+                        },
+                        crosshair: {
+                          line: {
+                            color: '#{settings.shared_pages.page_header.network_charts.nethash_chart.crosshair_color}',
+                            width: 1
+                          },
+                          sync: {
+                            enabled: false
+                          },
+                          zoom: {
+                            enabled: false
+                          }
+                        }
+                      }
+                    }
+                  });
+                  $('#nethashChartParent').fadeIn();
+                } else {
+                  nethashChart.data.labels = result.map(function(a) {return a.blockindex;});
+                  nethashChart.data.datasets[0].data = result.map(function(a) {return a.nethash;});
+                  nethashChart.update();
+                }
+              }
+
+              if (#{settings.network_history.enabled} == true && #{showDifficultyChart} == true && #{settings.shared_pages.page_header.network_charts.difficulty_chart.enabled} == true) {
+                const ctxDifficulty = document.getElementById('difficultyChart').getContext('2d');
+
+                if (difficultyChart == null) {
+                  difficultyChart = new Chart(ctxDifficulty, {
+                    type: 'line',
+                    data: {
+                      labels: result.map(function(a) {return a.blockindex;}),
+                      datasets: [
+                        {
+                          label: 'Difficulty',
+                          data: result.map(function(a) {return a.difficulty;}),
+                          backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.fill_color}'],
+                          borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.line_color}'],
+                          fill: 'start'
+                        }
+                      ]
+                    },
+                    options: {
+                      maintainAspectRatio: false,
+                      elements: {
+                        point: {
+                          radius: 1
+                        },
+                        line: {
+                          tension: 0.1
+                        }
+                      },
+                      scales: {
+                        yAxis: {
+                          title: {
+                            display: true,
+                            text: 'Difficulty',
+                            font: {
+                              weight: 'bold'
+                            }
+                          }
+                        }
+                      },
+                      plugins: {
+                        legend: {
+                          display: true,
+                          position: 'bottom'
+                        },
+                        title: {
+                          display: false
+                        },
+                        tooltip: {
+                          mode: 'index',
+                          intersect: false,
+                          displayColors: true,
+                          callbacks: {
+                            title: function(context) {
+                              return 'Block ' + context[0].label + ' Difficulty';
+                            },
+                            label: function(context) {
+                              return context.formattedValue;
+                            }
+                          }
+                        },
+                        crosshair: {
+                          line: {
+                            color: '#{settings.shared_pages.page_header.network_charts.difficulty_chart.crosshair_color}',
+                            width: 1
+                          },
+                          sync: {
+                            enabled: false
+                          },
+                          zoom: {
+                            enabled: false
+                          }
+                        }
+                      }
+                    }
+                  });
+                  $('#difficultyChartParent').fadeIn();
+                } else {
+                  difficultyChart.data.labels = result.map(function(a) {return a.blockindex;});
+                  difficultyChart.data.datasets[0].data = result.map(function(a) {return a.difficulty;});
+                  difficultyChart.update();
+                }
+              }
+            }
+          });
+        }
         $(window).resize(function () {
           fixDataTableColumns();
           fixFooterHeightAndPosition();
         });
         function getNetworkPanel() {
-          var networkSuffix='';
-          switch ('#{settings.shared_pages.page_header.panels.network_panel.nethash_units}') {
-            case "K":
-              networkSuffix='(KH/s)';
-              break;
-            case "M":
-              networkSuffix='(MH/s)';
-              break;
-            case "G":
-              networkSuffix='(GH/s)';
-              break;
-            case "T":
-              networkSuffix='(TH/s)';
-              break;
-            case "P":
-              networkSuffix='(PH/s)';
-              break;
-            case "H":
-              networkSuffix='(H/s)';
-              break;
-          }
           var hashRateType='<label id="hashrate"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small fw-normal">'+networkSuffix+'</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="fa fa-cogs"></span>'+hashRateType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small fw-normal">'+getNetHashUnits()+'</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="fa fa-cogs"></span>'+hashRateType+'</div></div>';
         }
         function getDifficultyPanel() {
           var difficultyType='<label id="difficulty"></label>';
@@ -372,6 +593,15 @@ html(lang='en')
         setInterval(function() {
           update_stats();
         }, 60000);
+        if (#{settings.network_history.enabled} == true && ((#{showNethashChart} == true && #{settings.shared_pages.page_header.network_charts.nethash_chart.enabled} == true && #{settings.shared_pages.show_hashrate} == true) || (#{showDifficultyChart} == true && #{settings.shared_pages.page_header.network_charts.difficulty_chart.enabled} == true))) {
+          var setting_reload_chart_seconds = #{settings.shared_pages.page_header.network_charts.reload_chart_seconds};
+          if (setting_reload_chart_seconds > 0) {
+            setInterval(function() {
+              update_network_charts();
+            }, (setting_reload_chart_seconds * 1000));
+          }
+          update_network_charts();
+        }
         update_stats();
         fixFooterHeightAndPosition();
         enableTooltips();
@@ -521,6 +751,26 @@ html(lang='en')
                 #index-search.form-group.d-flex.justify-content-center
                   input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
                   button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
+      if settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true))
+        .container
+          .row.align-items-start
+            - var chartColumnClass = 'col-lg-12';
+            if showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true && showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true
+              - chartColumnClass = 'col-lg-6';
+            if showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true
+              div#nethashChartParent(class=chartColumnClass, style='display:none;margin:10px 0;')
+                .card.card-default.border-0
+                  .card-header
+                    strong Network Hashrate
+                  .card-body
+                    canvas#nethashChart(style='max-height:300px;background-color:'+settings.shared_pages.page_header.network_charts.nethash_chart.bgcolor+';')
+            if showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true
+              div#difficultyChartParent(class=chartColumnClass, style='display:none;margin:10px 0;')
+                .card.card-default.border-0
+                  .card-header
+                    strong Network Difficulty
+                  .card-body
+                    canvas#difficultyChart(style='max-height:300px;background-color:'+settings.shared_pages.page_header.network_charts.difficulty_chart.bgcolor+';')
       block content
     div#footer-container(class=footerClasses, role='navigation')
       .col-4.navbar-nav

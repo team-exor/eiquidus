@@ -78,6 +78,7 @@ Table of Contents
   - Luxon v2.1.1
   - jqPlot v1.0.9
   - Chart.js v3.6.1
+    - chartjs-plugin-crosshair v1.2.0 ([https://github.com/abelheinsbroek/chartjs-plugin-crosshair](https://github.com/abelheinsbroek/chartjs-plugin-crosshair))
   - flag-icon-css v4.1.4 ([https://github.com/lipis/flag-icon-css](https://github.com/lipis/flag-icon-css))
 - Mobile-friendly
 - Sass support
@@ -161,6 +162,9 @@ Table of Contents
   - **Price:** Displays the current market price (value measured using default market pair)
   - **Market Cap:** Displays the current market cap value in (value measured using default market pair)
   - **Logo:** Display an image of your coin logo
+- Configurable network charts that can be independently displayed in the header of any page
+  - **Hashrate chart:** Line graph listing of the estimated network hashes per second over the last number of blocks *\*Requires a full sync before network data will start being collected*
+  - **Difficulty chart:** Line graph listing of the block difficulty over the last number of blocks *\*Requires a full sync before network data will start being collected*
 - Add as many custom social links to the explorer footer as desired. Useful for linking to github, twitter, coinmarketcap or any other social media or external links as necessary. 
 - Custom rpc/api command support which increases blockchain compatibility. Supported cmds:
   - **getnetworkhashps:** Returns the estimated network hashes per second
