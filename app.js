@@ -14,6 +14,7 @@ var express = require('express'),
     request = require('postman-request');
 var app = express();
 var apiAccessList = [];
+const { exec } = require('child_process');
 
 // pass wallet rpc connection info to nodeapi
 nodeapi.setWalletDetails(settings.wallet);
@@ -781,5 +782,14 @@ if (settings.webserver.tls.enabled == true) {
   var https = require('https');
   https.createServer(tls_options, app).listen(settings.webserver.tls.port);
 }
+
+// get the latest git commit id (if exists)
+exec('git rev-parse HEAD', (err, stdout, stderr) => {
+  // check if the commit id was returned
+  if (stdout != null && stdout != '') {
+    // set the explorer revision code based on the git commit id
+    app.set('revision', stdout.substring(0, 7));
+  }
+});
 
 module.exports = app;
