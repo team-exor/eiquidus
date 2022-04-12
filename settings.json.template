@@ -774,6 +774,8 @@
       "show_title": true,
       // show_last_updated: Determine whether to show a label below the page title with the last updated date (true/false)
       "show_last_updated": true,
+      // show_exchange_url: Determine whether to show an external link to the exchange trading page for the selected pair (true/false)
+      "show_exchange_url": true,
       // show_description: Determine whether to show the page description as defined in "locale.mkt_description" (true/false)
       "show_description": true
     },

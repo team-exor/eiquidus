@@ -246,6 +246,23 @@ router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
       db.get_market(market_id, coin_symbol, pair_symbol, function(data) {
         // load market data
         var market_data = require('../lib/markets/' + market_id);
+        var url = '';
+
+        // build the external exchange url link
+        if (market_data.market_url_template != null && market_data.market_url_template != '') {
+          switch ((market_data.market_url_case == null || market_data.market_url_case == '' ? 'l' : market_data.market_url_case.toLowerCase())) {
+            case 'l':
+            case 'lower':
+              url = market_data.market_url_template.replace('{base}', pair_symbol.toLowerCase()).replace('{coin}', coin_symbol.toLowerCase());
+              break;
+            case 'u':
+            case 'upper':
+              url = market_data.market_url_template.replace('{base}', pair_symbol.toUpperCase()).replace('{coin}', coin_symbol.toUpperCase());
+              break;
+            default:
+          }
+        }
+
         // check if markets page should show last updated date
         if (settings.markets_page.page_header.show_last_updated == true) {
           // lookup last updated date
@@ -257,7 +274,8 @@ router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
                 market_logo: (market_data.market_logo == null ? '' : market_data.market_logo),
                 coin: coin_symbol,
                 exchange: pair_symbol,
-                data: data
+                data: data,
+                url: url
               },
               market: market_id,
               last_updated: stats.markets_last_updated,
@@ -276,7 +294,8 @@ router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
               market_logo: (market_data.market_logo == null ? '' : market_data.market_logo),
               coin: coin_symbol,
               exchange: pair_symbol,
-              data: data
+              data: data,
+              url: url
             },
             market: market_id,
             last_updated: null,

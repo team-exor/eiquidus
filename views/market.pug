@@ -83,8 +83,8 @@ block content
         });
       });
   .col-xs-12.col-md-12
-    if settings.markets_page.page_header.show_img == true || settings.markets_page.page_header.show_title == true || settings.markets_page.page_header.show_last_updated == true || settings.markets_page.page_header.show_description == true
-      #page-header-container(style='align-items:' + (settings.markets_page.page_header.show_img == true && settings.markets_page.page_header.show_title == true && settings.markets_page.page_header.show_last_updated == true && settings.markets_page.page_header.show_description == true ? 'flex-start' : 'center'))
+    if settings.markets_page.page_header.show_img == true || settings.markets_page.page_header.show_title == true || settings.markets_page.page_header.show_last_updated == true || (settings.markets_page.page_header.show_exchange_url == true && marketdata.url != null && marketdata.url != '') || settings.markets_page.page_header.show_description == true
+      #page-header-container(style='align-items:' + (settings.markets_page.page_header.show_img == true && settings.markets_page.page_header.show_title == true && ((settings.markets_page.page_header.show_last_updated == true && settings.markets_page.page_header.show_description == true) || ((settings.markets_page.page_header.show_exchange_url == true && marketdata.url != null && marketdata.url != '') && settings.markets_page.page_header.show_description == true) || ((settings.markets_page.page_header.show_exchange_url == true && marketdata.url != null && marketdata.url != '') && settings.markets_page.page_header.show_last_updated == true)) ? 'flex-start' : 'center'))
         if settings.markets_page.page_header.show_img == true
           #header-img-container
             img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
@@ -92,17 +92,29 @@ block content
           if settings.markets_page.page_header.show_title == true
             h3#page-title !{settings.locale.mkt_title.replace('{1}', marketdata.market_name + ' <span class="small fw-normal">(' + marketdata.coin + '/' + marketdata.exchange + ')</span>')}
           if settings.markets_page.page_header.show_last_updated == true
-            if settings.markets_page.page_header.show_title != true && settings.markets_page.page_header.show_description != true
+            if settings.markets_page.page_header.show_title != true && settings.markets_page.page_header.show_description != true && (settings.markets_page.page_header.show_exchange_url != true && marketdata.url != null && marketdata.url != '')
               #page-title-container
                 .sub-page-header
                   span.fw-bold=settings.locale.last_updated + ':'
                   span.text-muted#lastUpdatedDate
             else
-              .sub-page-header(style='margin-bottom:' + (settings.markets_page.page_header.show_description == true ? '5' : '0') + 'px')
+              .sub-page-header(style='margin-bottom:' + (settings.markets_page.page_header.show_description == true || (settings.markets_page.page_header.show_exchange_url == true && marketdata.url != null && marketdata.url != '') ? '5' : '0') + 'px')
                 span.fw-bold=settings.locale.last_updated + ':'
                 span.text-muted#lastUpdatedDate
+          if settings.markets_page.page_header.show_exchange_url == true && marketdata.url != null && marketdata.url != ''
+            if settings.markets_page.page_header.show_title != true && settings.markets_page.page_header.show_last_updated != true && settings.markets_page.page_header.show_description != true
+              #page-title-container
+                .sub-page-header
+                  span.fw-bold='Link to Exchange:'
+                  a.sub-page-header(title='Link to Exchange', target='_blank', href=marketdata.url)
+                    span !{' Trade <span class="small fw-normal">(' + marketdata.coin + '/' + marketdata.exchange + ')</span>'}              
+            else
+              .sub-page-header(style='margin-bottom:' + (settings.markets_page.page_header.show_description == true ? '5' : '0') + 'px')
+                span.fw-bold='Link to Exchange:'
+                a.sub-page-header(title='Link to Exchange', target='_blank', href=marketdata.url)
+                  span !{' Trade <span class="small fw-normal">(' + marketdata.coin + '/' + marketdata.exchange + ')</span>'}
           if settings.markets_page.page_header.show_description == true
-            if settings.markets_page.page_header.show_title != true && settings.markets_page.page_header.show_last_updated != true
+            if settings.markets_page.page_header.show_title != true && settings.markets_page.page_header.show_last_updated != true && (settings.markets_page.page_header.show_exchange_url != true && marketdata.url != null && marketdata.url != '')
               #page-title-container
                 .sub-page-header.text-muted=settings.locale.mkt_description.replace('{1}', marketdata.coin + '/' + marketdata.exchange).replace('{2}', marketdata.market_name)
             else
