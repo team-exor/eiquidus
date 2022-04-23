@@ -1,5 +1,6 @@
 var cluster = require('cluster');
 var fs = require('fs');
+const isWinOS = process.platform == 'win32';
 
 if (cluster.isMaster) {
   console.log('Starting cluster with pid: ' + process.pid);
@@ -11,7 +12,11 @@ if (cluster.isMaster) {
     // send kill cmd to all workers
     for (var id in cluster.workers) {
       console.log('Worker (' + id + ') shutting down...');
-      process.kill(cluster.workers[id]['process']['pid'], 'SIGINT');
+
+       if (!isWinOS) {
+        // only kill the worker if not on windows (otherwise an error is displayed)
+        process.kill(cluster.workers[id]['process']['pid'], 'SIGINT');
+       }
     }
 
     function waitForWorkerShutdown () {
@@ -21,6 +26,13 @@ if (cluster.isMaster) {
       } else {
         // all worker threads have closed
         // now exit the master process
+        
+        if (isWinOS) {
+          // command line in windows doesn't seem to release itself
+          // show a message that the app has finished
+          console.log('The application is now safe to close');
+        }
+
         process.exit(0);
       }
     }
@@ -39,7 +51,7 @@ if (cluster.isMaster) {
   cluster.on('exit', function (worker, code, signal) {
     if (worker['process']['exitCode'] === 0) {
       console.log('Worker (' + worker['id'] + ') shutdown complete');
-    } else if ((signal != 'SIGINT') && (worker['process']['exitCode'] !== 0) && (worker.exitedAfterDisconnect !== true)) {
+    } else if (signal != 'SIGINT' && worker['process']['exitCode'] !== 0 && worker['process']['exitCode'] !== 999 && worker.exitedAfterDisconnect !== true) {
       console.log('Cluster restarting...');
       cluster.fork();
     }

@@ -13,7 +13,7 @@ var block_start = 1;
 
 // displays usage and exits
 function usage() {
-  console.log('Usage: scripts/sync.sh /path/to/node [mode]');
+  console.log('Usage: /path/to/node scripts/sync.js [mode]');
   console.log('');
   console.log('Mode: (required)');
   console.log('update           Updates index from last sync to current block');
@@ -37,41 +37,109 @@ function usage() {
 }
 
 // check options
-if (process.argv[2] == 'index') {
-  if (process.argv.length < 3)
-    usage();
-  else {
-    switch (process.argv[3]) {
-      case 'update':
-        mode = 'update';
-        break;
-      case 'check':
-        mode = 'check';
+if (process.argv[2] == null || process.argv[2] == 'index' || process.argv[2] == 'update') {
+  mode = null;
 
-        // check if the block start value was passed in and is an integer
-        if (!isNaN(process.argv[4]) && Number.isInteger(parseFloat(process.argv[4]))) {
-          // Check if the block start value is less than 1
-          if (parseInt(process.argv[4]) < 1)
-            block_start = 1;
-          else
-            block_start = parseInt(process.argv[4]);
-        }
+  switch (process.argv[3]) {
+    case undefined:
+    case null:
+    case 'update':
+      mode = 'update';
+      break;
+    case 'check':
+      mode = 'check';
 
-        break;
-      case 'reindex':
+      // check if the block start value was passed in and is an integer
+      if (!isNaN(process.argv[4]) && Number.isInteger(parseFloat(process.argv[4]))) {
+        // Check if the block start value is less than 1
+        if (parseInt(process.argv[4]) < 1)
+          block_start = 1;
+        else
+          block_start = parseInt(process.argv[4]);
+      }
+
+      break;
+    case 'reindex':
+      // check if readlinesync module is installed
+      if (!db.fs.existsSync('./node_modules/readline-sync')) {
+        const { execSync } = require('child_process');
+
+        console.log('Installing missing packages.. Please wait..');
+
+        // install updated packages
+        execSync('npm update');
+      }
+
+      const readlineSync = require('readline-sync');
+
+      console.log('You are about to delete all blockchain data (transactions and addresses)');
+      console.log('and resync from the genesis block.');
+
+      // prompt for the reindex
+      if (readlineSync.keyInYN('Are you sure you want to do this? ')) {
+        // set mode to 'reindex'
         mode = 'reindex';
-        break;
-      case 'reindex-rich':
-        mode = 'reindex-rich';
-        break;
-      case 'reindex-txcount':
-        mode = 'reindex-txcount';
-        break;
-      case 'reindex-last':
-        mode = 'reindex-last';
-        break;
-      default:
-        usage();
+      } else {
+        console.log('Process aborted. Nothing was deleted');
+        process.exit(0);
+      }
+
+      break;
+    case 'reindex-rich':
+      mode = 'reindex-rich';
+      break;
+    case 'reindex-txcount':
+      mode = 'reindex-txcount';
+      break;
+    case 'reindex-last':
+      mode = 'reindex-last';
+      break;
+    default:
+      usage();
+  }
+
+  // check if mode is set
+  if (mode != null) {
+    const path = require('path');
+    const pidFile = path.join(path.dirname(__dirname), 'tmp', `${database}.pid`);
+
+    // check if the script is already running (tmp/index.pid file already exists)
+    if (db.fs.existsSync(pidFile)) {
+      const { execSync } = require('child_process');
+      var deactivateLock = false;
+
+      // the tmp/index.pid file exists
+      // determine the operating system
+      switch (process.platform) {
+        case 'win32':
+          // windows
+          // run a cmd that will determine if the lock should still be active
+          var cmdResult = execSync(`tasklist /FI "PID eq ${db.fs.readFileSync(pidFile).toString()}"`);
+
+          // check if the process that created the lock is actually still running (crude check by testing for # of carriage returns or node.exe process running, but should work universally across different systems and languages)
+          if (cmdResult.toString().split('\n').length < 4 || cmdResult.toString().toLowerCase().indexOf('\nnode.exe') == -1) {
+            // lock should be deactivated
+            deactivateLock = true;
+          }
+
+          break;
+        default:
+          // linux or other
+          // run a cmd that will determine if the lock should still be active
+
+          try {
+            var cmdResult = execSync('ps -p `cat ' + pidFile + '` > /dev/null');
+          } catch (err) {
+            // if an error occurs, the process is NOT running and therefore the lock should be deactivated
+            deactivateLock = true;
+          }
+      }
+
+      // check if the lock should be deactivated
+      if (deactivateLock) {
+        // script is not actually running so the lock file can be deleted
+        db.fs.rmSync(pidFile);
+      }
     }
   }
 } else if (process.argv[2] == 'market')

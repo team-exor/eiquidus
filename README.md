@@ -80,6 +80,7 @@ Table of Contents
   - Chart.js v3.6.1
     - chartjs-plugin-crosshair v1.2.0 ([https://github.com/abelheinsbroek/chartjs-plugin-crosshair](https://github.com/abelheinsbroek/chartjs-plugin-crosshair))
   - flag-icon-css v4.1.4 ([https://github.com/lipis/flag-icon-css](https://github.com/lipis/flag-icon-css))
+- Platform independent (tested to run on Windows, MacOS and Linux) **NOTE:** Most of the instructions in this guide were written for use with Linux and may need to be modified when using another OS
 - Mobile-friendly
 - Sass support
 - Pages/features:
@@ -291,7 +292,7 @@ npm start
 or (useful for crontab):
 
 ```
-npm run prestart && /path/to/node --stack-size=10000 ./bin/cluster
+cd /path/to/explorer && /path/to/npm run prestart && /path/to/node --stack-size=10000 ./bin/cluster
 ```
 
 **NOTE:** mongod must be running to start the explorer.
@@ -305,7 +306,7 @@ npm run start-instance
 or (useful for crontab):
 
 ```
-npm run prestart && /path/to/node --stack-size=10000 ./bin/instance
+cd /path/to/explorer && /path/to/npm run prestart && /path/to/node --stack-size=10000 ./bin/instance
 ```
 
 #### Stop Explorer (Use for Testing)
@@ -319,7 +320,7 @@ npm stop
 or (useful for crontab):
 
 ```
-sh ./scripts/stop_explorer.sh
+cd /path/to/explorer && /path/to/node ./scripts/stop_explorer.js
 ```
 
 #### Start Explorer Using PM2 (Recommended for Production)
@@ -335,10 +336,10 @@ npm run start-pm2
 or (useful for crontab):
 
 ```
-npm run prestart "pm2" && /path/to/pm2 start ./bin/instance -i 0 --node-args="--stack-size=10000"
+cd /path/to/explorer && /path/to/npm run prestart "pm2" && /path/to/pm2 start ./bin/instance -i 0 --node-args="--stack-size=10000"
 ```
 
-**NOTE:** Use the following cmd to find the install path for PM2:
+**NOTE:** Use the following cmd to find the install path for PM2 (Linux only):
 
 ```
 which pm2
@@ -355,7 +356,7 @@ npm run start-pm2-debug
 or (useful for crontab):
 
 ```
-npm run prestart "pm2" && /path/to/pm2 start ./bin/instance -i 0 --node-args="--stack-size=10000" && /path/to/pm2 logs
+cd /path/to/explorer && /path/to/npm run prestart "pm2" && /path/to/pm2 start ./bin/instance -i 0 --node-args="--stack-size=10000" && /path/to/pm2 logs
 ```
 
 #### Stop Explorer Using PM2 (Recommended for Production)
@@ -369,7 +370,7 @@ npm run stop-pm2
 or (useful for crontab):
 
 ```
-/path/to/pm2 stop ./bin/instance
+cd /path/to/explorer && /path/to/pm2 stop ./bin/instance
 ```
 
 #### Start Explorer Using Forever (Alternate Production Option)
@@ -385,10 +386,10 @@ npm run start-forever
 or (useful for crontab):
 
 ```
-npm run prestart && /path/to/node /path/to/forever start ./bin/cluster
+cd /path/to/explorer && /path/to/npm run prestart && /path/to/forever start ./bin/cluster
 ```
 
-**NOTE:** Use the following cmd to find the install path for forever:
+**NOTE:** Use the following cmd to find the install path for forever (Linux only):
 
 ```
 which forever
@@ -405,15 +406,15 @@ npm run stop-forever
 or (useful for crontab):
 
 ```
-/path/to/node /path/to/forever stop ./bin/cluster
+cd /path/to/explorer && /path/to/forever stop ./bin/cluster
 ```
 
 ### Syncing Databases with the Blockchain
 
-sync.sh (located in scripts/) is used for updating the local databases. This script must be called from the explorers root directory.
+sync.js (located in scripts/) is used for updating the local databases. This script must be called from the explorers root directory.
 
 ```
-Usage: scripts/sync.sh /path/to/node [mode]
+Usage: /path/to/node scripts/sync.js [mode]
 
 Mode: (required)
 update           Updates index from last sync to current block
@@ -469,10 +470,10 @@ Easier crontab syntax using npm scripts, but may not work on some systems depend
 Or, run the crontab by calling the sync script directly, which should work better in the event you have problems running the npm scripts from a crontab:
 
 ```
-*/1 * * * * /path/to/explorer/scripts/sync.sh /path/to/node update > /dev/null 2>&1
-*/2 * * * * /path/to/explorer/scripts/sync.sh /path/to/node market > /dev/null 2>&1
-*/5 * * * * /path/to/explorer/scripts/sync.sh /path/to/node peers > /dev/null 2>&1
-*/5 * * * * /path/to/explorer/scripts/sync.sh /path/to/node masternodes > /dev/null 2>&1
+*/1 * * * * cd /path/to/explorer && /path/to/node scripts/sync.js update > /dev/null 2>&1
+*/2 * * * * cd /path/to/explorer && /path/to/node scripts/sync.js market > /dev/null 2>&1
+*/5 * * * * cd /path/to/explorer && /path/to/node scripts/sync.js peers > /dev/null 2>&1
+*/5 * * * * cd /path/to/explorer && /path/to/node scripts/sync.js masternodes > /dev/null 2>&1
 ```
 
 ### Wallet Settings
@@ -504,6 +505,8 @@ A typical webserver binds to port 80 to serve webpages over the http protocol, b
 
 #### Use Setcap to Safely Grant User Permissions
 
+**NOTE:** This option is only available to Linux users
+
 1. You can use the `setcap` command to change the capabilities of the `node` binary file to specifically allow the Express webserver to bind to a port less than 1024 (this one-time cmd requires root privileges):
 
 ```
@@ -515,6 +518,8 @@ sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\``
 You should now be able to browse to the explorer by IP address or domain name without the need for specifying the 3001 port any longer.
 
 #### Use Another Webserver as a Reverse Proxy
+
+**NOTE:** The following instructions are for Linux users only, but installing and configuring another webserver should be possible on any OS
 
 A few steps are involved in setting up another webserver that can bind to port 80 and forward all incoming traffic to the eIquidus node.js app. Any commercial webserver can be used to create the reverse proxy, but in this case, Nginx will be used as an example:
 
@@ -573,6 +578,8 @@ Similar to [the problem with binding to port 80](#run-express-webserver-on-port-
 
 #### Prerequisites
 
+**NOTE:** The following instructions are for Linux users only, but installing and configuring certbot should be possible on any OS
+
 There are a few common steps that must be completed before TLS/SSL certificates can be generated:
 
 1. Install snapd:
@@ -600,6 +607,8 @@ sudo ln -s /snap/bin/certbot /usr/bin/certbot
 ```
 
 #### Manually Link TLS/SSL Certificates to the Explorer
+
+**NOTE:** The following instructions are for Linux users only, but installing and configuring certbot should be possible on any OS
 
 Follow the steps below to configure the Express webserver for use with TLS/SSL:
 
@@ -644,6 +653,8 @@ Ensure that `webserver.tls.enabled` = true and that you specify the exact path t
 5. If all went well, you should now be able to start up the explorer and browse to it using a secure https connection like [https://example.com](https://example.com).
 
 #### Use Nginx as a Reverse Proxy
+
+**NOTE:** The following instructions are for Linux users only, but installing and configuring certbot and nginx should be possible on any OS
 
 1. If you haven't already done so, first follow through the [Use Another Webserver as a Reverse Proxy Instructions](#use-another-webserver-as-a-reverse-proxy) and then continue with step #2 below.
 
@@ -708,47 +719,51 @@ jQuery(document).ready(function($) {
 
 #### Backup Database Script
 
-Make a complete backup of an eIquidus mongo database collection and save to compressed tar.gz file. Please note that you must ensure that the explorer is NOT running at the time of backup to prevent corrupting the backup data. The following backup scenarios are supported:
+Make a complete backup of an eIquidus mongo database collection and save to compressed file. Please note that you must ensure that the explorer is NOT running at the time of backup to prevent corrupting the backup data. The following backup scenarios are supported:
 
 **Backup Database (No filename specified)**
 
-`sh scripts/create_backup.sh`: Backs up to the explorer/backups directory by default with the current date as the filename in the format  yyyy-MMM-dd.tar.gz
+`npm run create-backup`: Backs up to the explorer/backups directory by default with the current date as the filename in the format  yyyy-MMM-dd.bak
 
 **Backup Database (Partial filename specified)**
 
-`sh scripts/create_backup.sh test`: Backs up the the explorer/backups directory by default with the filename test.tar.gz
+`npm run create-backup test`: Backs up the the explorer/backups directory by default with the filename test.bak
 
 **Backup Database (Full filename specified)**
 
-`sh scripts/create_backup.sh today.tar.gz`: Backs up the the explorer/backups directory by default with the filename today.tar.gz
+`npm run create-backup today.bak`: Backs up the the explorer/backups directory by default with the filename today.bak
 
 **Backup Database (Full path with partial filename specified)**
 
-`sh scripts/create_backup.sh /usr/local/bin/abc`: Backs up the the /usr/local/bin directory with the filename abc.tar.gz
+`npm run create-backup /usr/local/bin/abc`: Backs up the the /usr/local/bin directory with the filename abc.bak
 
 **Backup Database (Full path and filename specified)**
 
-`sh scripts/create_backup.sh ~/new.tar.gz`: Backs up the the users home directory with the filename new.tar.gz
+`npm run create-backup ~/new.bak`: Backs up the the users home directory with the filename new.bak
 
 #### Restore Database Script
 
-Restore a previously saved eIquidus mongo database collection backup. :warning: **WARNING:** This will completely overwrite your existing eIquidus mongo database, so be sure to make a full backup before proceeding. Please note that the explorer should NOT be running at the time of restore to prevent problems restoring the database. The following restore scenarios are supported:
+Restore a previously saved eIquidus mongo database collection backup. :warning: **WARNING:** This will completely overwrite your existing eIquidus mongo database, so be sure to make a full backup before proceeding. Please note that the explorer should NOT be running at the time of restore to prevent problems restoring the database.
+
+**NOTE:** Older v1.x eIquidus database backups were compressed into tar.gz files. These older tar.gz backups can still be restored, but you must specifically add the .tar.gz suffix. Example: `npm run restore-backup /path/to/old_backup.tar.gz`
+
+The following restore scenarios are supported:
 
 **Restore Database (Partial filename specified)**
 
-`sh scripts/restore_backup.sh old`: Restores the explorer/scripts/backups/old.tar.gz file
+`npm run restore-backup old`: Restores the explorer/scripts/backups/old.bak file
 
 **Restore Database (Full filename specified)**
 
-`sh scripts/restore_backup.sh working.tar.gz`: Restores the explorer/scripts/backups/working.tar.gz file
+`npm run restore-backup working.bak`: Restores the explorer/scripts/backups/working.bak file
 
 **Restore Database (Full path with partial filename specified)**
 
-`sh scripts/restore_backup.sh /home/explorer/backup`: Restores the /home/explorer/backup.tar.gz file
+`npm run restore-backup /home/explorer/backup`: Restores the /home/explorer/backup.bak file
 
 **Restore Database (Full path and filename specified)**
 
-`sh scripts/restore_backup.sh ~/archive.tar.gz`: Restores the ~/archive.tar.gz file
+`npm run restore-backup ~/archive.bak`: Restores the ~/archive.bak file
 
 #### Delete Database Script
 
@@ -756,7 +771,7 @@ Completely wipe the eIquidus mongo database collection clean to start again from
 
 **Delete Database**
 
-`sh scripts/delete_database.sh`
+`npm run delete-database`
 
 ### Known Issues
 
@@ -766,7 +781,7 @@ Completely wipe the eIquidus mongo database collection clean to start again from
 RangeError: Maximum call stack size exceeded
 ```
 
-Nodes default stack size may be too small to index addresses with many tx's. If you experience the above error while running sync.sh the stack size needs to be increased.
+Nodes default stack size may be too small to index addresses with many tx's. If you experience the above error while running sync.js the stack size needs to be increased.
 
 To determine the default setting run:
 
