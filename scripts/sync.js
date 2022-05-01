@@ -458,6 +458,9 @@ if (lib.is_locked([database]) == false) {
                       if (error) {
                         console.log(error);
                         exit(1);
+                      } else if (geo == null || typeof geo != 'object') {
+                        console.log('Error: geolocation api did not return a valid object');
+                        exit(1);
                       } else {
                         // add peer to collection
                         db.create_peer({
