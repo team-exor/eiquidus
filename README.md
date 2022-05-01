@@ -780,9 +780,9 @@ The following restore scenarios are supported:
 
 #### Delete Database Script
 
-Wipe the eIquidus mongo database clean to start again from scratch. :warning: **WARNING:** This will completely destroy all data in your existing eIquidus mongo database, so be sure to make a full backup before proceeding. A built-in locking mechanism prevents data from being updated or changed while the database is being deleted. The process to delete the database can be executed while the explorer is actively running and/or while the explorer is turned off. Delete the mongo database with the following command:
+Wipe the eIquidus mongo database clean to start again from scratch. :warning: **WARNING:** This will completely destroy all data in your existing eIquidus mongo database, so be sure to make a full backup before proceeding. A built-in locking mechanism prevents data from being updated or changed while the database is being deleted. The process to delete the database can be executed while the explorer is actively running and/or while the explorer is turned off.
 
-**Delete Database**
+Delete the mongo database with the following command:
 
 `npm run delete-database`
 
