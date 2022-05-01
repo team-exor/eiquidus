@@ -13,80 +13,20 @@ dbString = dbString + ':' + settings.dbsettings.port;
 dbString = dbString + '/' + settings.dbsettings.database;
 
 db.connect(dbString, function() {
-  db.check_stats(settings.coin.name, function(exists) {
-    if (exists == false) {
-      console.log('no stats entry found, creating now..');
-      db.create_stats(settings.coin.name, function() {});
-    } else {
-      db.get_stats(settings.coin.name, function (stats) {
-        app.locals.stats = stats;
-      });
-    }
-  });
-
-  // check markets/exchanges
-  if (settings.markets_page.enabled == true) {
-    // loop through and test all exchanges defined in the settings.json file
-    Object.keys(settings.markets_page.exchanges).forEach(function (key, index, map) {
-      // check if market is enabled via settings
-      if (settings.markets_page.exchanges[key].enabled == true) {
-        // check if exchange is installed/supported
-        if (db.fs.existsSync('./lib/markets/' + key + '.js')) {
-          // loop through all trading pairs
-          settings.markets_page.exchanges[key].trading_pairs.forEach(function (pair_key, pair_index, pair_map) {
-            // split the pair data
-            var split_pair = pair_key.split('/');
-            // check if this is a valid trading pair
-            if (split_pair.length == 2) {
-              // lookup the exchange in the market collection
-              db.check_market(key, split_pair[0], split_pair[1], function(market, exists) {
-                // check if exchange trading pair exists in the market collection
-                if (!exists) {
-                  // exchange doesn't exist in the market collection so add a default definition now
-                  console.log('no %s: %s entry found, creating now..', market, pair_key);
-                  db.create_market(split_pair[0], split_pair[1], market, function() {});
-                }
-              });
-            }
-          });
-        }
-      }
+  // initialize the database
+  db.initialize_data_startup(function() {
+    var server = app.listen(app.get('port'), '::', function() {
+      debug('Express server listening on port ' + server.address().port);
     });
-  }
 
-  // Add new field(s) to tx collection if missing
-  db.check_txes(function(exists) {});
+    process.on('SIGINT', () => {
+      server.close(() => {
+        var mongoose = require('mongoose');
 
-  // Add new field(s) to masternode collection if missing
-  db.check_masternodes(function(exists) {});
-
-  db.check_richlist(settings.coin.name, function(exists) {
-    if (exists == false) {
-      console.log('no richlist entry found, creating now..');
-      db.create_richlist(settings.coin.name, function() {});
-    }
-  });
-
-  if (settings.blockchain_specific.heavycoin.enabled == true) {
-    db.check_heavy(settings.coin.name, function(exists) {
-      if (exists == false) {
-        console.log('no heavycoin entry found, creating now..');
-        db.create_heavy(settings.coin.name, function() {});
-      }
-    });
-  }
-
-  var server = app.listen(app.get('port'), '::', function() {
-    debug('Express server listening on port ' + server.address().port);
-  });
-
-  process.on('SIGINT', () => {
-    server.close(() => {
-      var mongoose = require('mongoose');
-
-      mongoose.connection.close(false, () => {
-        // close the main process now that all http and database connections have closed
-        process.exit(0);
+        mongoose.connection.close(false, () => {
+          // close the main process now that all http and database connections have closed
+          process.exit(0);
+        });
       });
     });
   });

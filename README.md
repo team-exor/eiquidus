@@ -719,7 +719,7 @@ jQuery(document).ready(function($) {
 
 #### Backup Database Script
 
-Make a complete backup of an eIquidus mongo database collection and save to compressed file. Please note that you must ensure that the explorer is NOT running at the time of backup to prevent corrupting the backup data. The following backup scenarios are supported:
+Make a complete backup of an eIquidus mongo database and save to compressed file. A built-in locking mechanism prevents data from being updated or changed while a backup is in process. Backups can be safely created while the explorer is actively running and/or while the explorer is turned off. The following backup scenarios are supported:
 
 **Backup Database (No filename specified)**
 
@@ -743,7 +743,7 @@ Make a complete backup of an eIquidus mongo database collection and save to comp
 
 #### Restore Database Script
 
-Restore a previously saved eIquidus mongo database collection backup. :warning: **WARNING:** This will completely overwrite your existing eIquidus mongo database, so be sure to make a full backup before proceeding. Please note that the explorer should NOT be running at the time of restore to prevent problems restoring the database.
+Restore a previously saved eIquidus mongo database backup. :warning: **WARNING:** This will completely overwrite your existing eIquidus mongo database, so be sure to make a full backup before proceeding. A built-in locking mechanism prevents data from being updated or changed while a backup is being restored. Backups can be safely restored while the explorer is actively running and/or while the explorer is turned off.
 
 **NOTE:** Older v1.x eIquidus database backups were compressed into tar.gz files. These older tar.gz backups can still be restored, but you must specifically add the .tar.gz suffix. Example: `npm run restore-backup /path/to/old_backup.tar.gz`
 
@@ -767,7 +767,7 @@ The following restore scenarios are supported:
 
 #### Delete Database Script
 
-Completely wipe the eIquidus mongo database collection clean to start again from scratch. :warning: **WARNING:** This will completely destroy all data in your existing eIquidus mongo database, so be sure to make a full backup before proceeding. Please note that the explorer should NOT be running at the time of database deletion to prevent database related problems. Delete the mongo database with the following command:
+Wipe the eIquidus mongo database clean to start again from scratch. :warning: **WARNING:** This will completely destroy all data in your existing eIquidus mongo database, so be sure to make a full backup before proceeding. A built-in locking mechanism prevents data from being updated or changed while the database is being deleted. The process to delete the database can be executed while the explorer is actively running and/or while the explorer is turned off. Delete the mongo database with the following command:
 
 **Delete Database**
 

@@ -1,8 +1,23 @@
 const fs = require('fs');
 const path = require('path');
+const lib = require('../lib/explorer');
 const archiveSuffix = '.bak';
+const backupLockName = 'backup';
 var backupPath = path.join(path.dirname(__dirname), 'backups');
 var backupFilename;
+var lockCreated = false;
+
+// exit function used to cleanup lock before finishing script
+function exit(exitCode) {
+  // only remove backup lock if it was created in this session
+  if (!lockCreated || lib.remove_lock(backupLockName) == true) {
+    // clean exit with previous exit code
+    process.exit(exitCode);
+  } else {
+    // error removing lock
+    process.exit(1);
+  }
+}
 
 // check if a backup filename was passed into the script
 if (process.argv[2] != null && process.argv[2] != '') {
@@ -38,39 +53,60 @@ if (!fs.existsSync(backupPath)) {
 
 // check if backup file already exists
 if (!fs.existsSync(path.join(backupPath, `${backupFilename}${archiveSuffix}`))) {
-    const { exec } = require('child_process');
-    const settings = require('../lib/settings');
-    const randomDirectoryName = Math.random().toString(36).substring(2, 15) + Math.random().toString(23).substring(2, 5);
+  // check if the "create backup" process is already running
+  if (lib.is_locked([backupLockName]) == false) {
+    // create a new backup lock before checking the rest of the locks to minimize problems with running scripts at the same time
+    lib.create_lock(backupLockName);
+    // ensure the lock will be deleted on exit
+    lockCreated = true;
+    // check all other possible locks since backups should not run at the same time that data is being changed
+    if (lib.is_locked(['restore', 'delete', 'index', 'markets', 'peers', 'masternodes']) == false) {
+      // all tests passed. OK to run backup
+      console.log("Script launched with pid: " + process.pid);
 
-    // execute backup
-    const backupProcess = exec(`mongodump --host="${settings.dbsettings.address}" --port="${settings.dbsettings.port}" --username="${settings.dbsettings.user}" --password="${settings.dbsettings.password}" --db="${settings.dbsettings.database}" --archive="${path.join(backupPath, backupFilename + archiveSuffix)}" --gzip`);
+      const { exec } = require('child_process');
+      const settings = require('../lib/settings');
+      const randomDirectoryName = Math.random().toString(36).substring(2, 15) + Math.random().toString(23).substring(2, 5);
 
-    backupProcess.stdout.on('data', (data) => {
-      console.log(data);
-    });
+      // execute backup
+      const backupProcess = exec(`mongodump --host="${settings.dbsettings.address}" --port="${settings.dbsettings.port}" --username="${settings.dbsettings.user}" --password="${settings.dbsettings.password}" --db="${settings.dbsettings.database}" --archive="${path.join(backupPath, backupFilename + archiveSuffix)}" --gzip`);
 
-    backupProcess.stderr.on('data', (data) => {
-      console.log(Buffer.from(data).toString());
-    });
+      backupProcess.stdout.on('data', (data) => {
+        console.log(data);
+      });
 
-    backupProcess.on('error', (error) => {
-      console.log(error);
-    });
+      backupProcess.stderr.on('data', (data) => {
+        console.log(Buffer.from(data).toString());
+      });
 
-    backupProcess.on('exit', (code, signal) => {
-      if (code) {
-        console.log(`Process exit with code: ${code}`);
-        process.exit(1);
-      } else if (signal) {
-        console.log(`Process killed with signal: ${signal}`);
-        process.exit(1);
-      } else {
-        console.log(`Backup saved successfully to ${path.join(backupPath, backupFilename + archiveSuffix)}`);
-        process.exit(0);
-      }
-    });
+      backupProcess.on('error', (error) => {
+        console.log(error);
+      });
+
+      backupProcess.on('exit', (code, signal) => {
+        if (code) {
+          console.log(`Process exit with code: ${code}`);
+          exit(code);
+        } else if (signal) {
+          console.log(`Process killed with signal: ${signal}`);
+          exit(1);
+        } else {
+          console.log(`Backup saved successfully to ${path.join(backupPath, backupFilename + archiveSuffix)}`);
+          exit(0);
+        }
+      });
+    } else {
+      // another script process is currently running
+      console.log("Backup aborted");
+      exit(2);
+    }
+  } else {
+    // backup process is already running
+    console.log("Backup aborted");
+    exit(2);
+  }
 } else {
   // backup already exists
   console.log(`A backup named ${backupFilename}${archiveSuffix} already exists`);
-  process.exit(1);
+  exit(2);
 }

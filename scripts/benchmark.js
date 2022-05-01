@@ -6,9 +6,9 @@ var mongoose = require('mongoose'),
 
 var COUNT = 5000; // number of blocks to index
 
-function exit() {
+function exit(exitCode) {
   mongoose.disconnect();
-  process.exit(0);
+  process.exit(exitCode);
 }
 
 var dbString = 'mongodb://' + settings.dbsettings.user;
@@ -19,9 +19,8 @@ dbString = dbString + "/IQUIDUS-BENCHMARK";
 
 mongoose.connect(dbString, function(err) {
   if (err) {
-    console.log('Unable to connect to database: %s', dbString);
-    console.log('Aborting');
-    exit();
+    console.log('Error: Unable to connect to database: %s', dbString);
+    exit(999);
   }
 
   Tx.deleteMany({}, function(err) {
@@ -40,7 +39,7 @@ mongoose.connect(dbString, function(err) {
             };
 
             console.log(stats);
-            exit();
+            exit(0);
           });
         });
       });
