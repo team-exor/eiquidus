@@ -59,6 +59,7 @@ Table of Contents
   - [What is CORS?](#what-is-cors)
   - [How to Benefit From Using CORS?](#how-to-benefit-from-using-cors)
 - [Useful Scripts](#useful-scripts)
+  - [Update Explorer Script](#update-explorer-script)
   - [Backup Database Script](#backup-database-script)
   - [Restore Database Script](#restore-database-script)
   - [Delete Database Script](#delete-database-script)
@@ -454,6 +455,8 @@ A small handful of useful scripts are also included to assist in solving various
 - `npm run reindex-txcount`: Recalculate the count of transactions stored in `stats.txes` by recounting the txes stored in the mongo database. Rarely needed, but can be useful for debugging or if you notice the main list of transactions is showing the wrong number of entries. If this value is off for some reason, you will not be able to page back to the 1st blocks on the main list of transactions for example.
 - `npm run reindex-last`: Lookup the last transaction in the mongo database and reset the `stats.last` value to that most recent block index. Rarely needed, but can be useful for debugging. The `stats.last` value is used to remember which block the last sync left off on to resume syncing from the next block.
 
+Also see the [Useful Scripts](#useful-scripts) section for more helpful scripts.
+
 #### Sample Crontab
 
 *Example crontab; update index every minute, market data every 2 minutes, peers and masternodes every 5 minutes*
@@ -716,6 +719,16 @@ jQuery(document).ready(function($) {
 ```
 
 ### Useful Scripts
+
+#### Update Explorer Script
+
+Automatically download and install the newest explorer source code, update out-of-date dependencies and initialize new changes with a single command. In most cases this update script can be safely run while the explorer is actively running to prevent needing to shut down to do updates, but please note that it may be possible for certain updates with large changes to require a reboot to the explorer for all changes to take effect properly. If you notice the explorer having issues after updating, try shutting down and restarting the explorer before seeking support.
+
+**NOTE:** Only explorer installations that were installed via cloning the source from git can be automatically updated. Be sure to follow the [Quick Install Instructions](#quick-install-instructions) to set up the explorer for optimum use with this update script.
+
+Update the explorer with the following command:
+
+`npm run update-explorer`
 
 #### Backup Database Script
 
