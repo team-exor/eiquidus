@@ -438,12 +438,6 @@ if (lib.is_locked([database]) == false) {
 
               db.find_peer(address, function(peer) {
                 if (peer) {
-                  if ((peer['port'] != null && (isNaN(peer['port']) || peer['port'].length < 2)) || peer['country'].length < 1 || peer['country_code'].length < 1) {
-                    db.drop_peers(function() {
-                      console.log('Saved peers missing ports or country, dropping peers. Re-run this script afterwards.');
-                      exit(1);
-                    });
-                  }
 
                   // peer already exists
                   console.log('Updated peer %s [%s/%s]', address, (i + 1).toString(), body.length.toString());
