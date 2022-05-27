@@ -807,7 +807,7 @@
       "ztb": {
         // enabled: Enable/disable the bittrex exchange (true/false)
         //          If set to false, the bittrex page will be completely inaccessible and no market data will be downloaded for this exchange
-        "enabled": true,
+        "enabled": false,
         // trading_pairs: An array of market trading pair symbols
         //                You can add as many trading pairs as necessary
         //                All entries must specify your coins symbol as it is displayed on the exchange, followed by a slash (/) and ending with the symbol of the market or asset that is being traded against
@@ -817,7 +817,7 @@
     "exbitron": {
       // enabled: Enable/disable the exbitron exchange (true/false)
       //          If set to false, the exbitron page will be completely inaccessible and no market data will be downloaded for this exchange
-      "enabled": true,
+      "enabled": false,
       // trading_pairs: An array of market trading pair symbols
       //                You can add as many trading pairs as necessary
       //                All entries must specify your coins symbol as it is displayed on the exchange, followed by a slash (/) and ending with the symbol of the market or asset that is being traded against
