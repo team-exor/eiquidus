@@ -804,6 +804,26 @@
         //                Ex: "LTC/BTC", "LTC/USDT", "LTC/ETH"
         "trading_pairs": [ "LTC/BTC", "LTC/ETH" ]
       },
+      "ztb": {
+        // enabled: Enable/disable the bittrex exchange (true/false)
+        //          If set to false, the bittrex page will be completely inaccessible and no market data will be downloaded for this exchange
+        "enabled": true,
+        // trading_pairs: An array of market trading pair symbols
+        //                You can add as many trading pairs as necessary
+        //                All entries must specify your coins symbol as it is displayed on the exchange, followed by a slash (/) and ending with the symbol of the market or asset that is being traded against
+        //                Ex: "LTC/BTC", "LTC/USDT", "LTC/ETH"
+        "trading_pairs": [ "BTE/USDT" ]
+      },
+    "exbitron": {
+      // enabled: Enable/disable the exbitron exchange (true/false)
+      //          If set to false, the exbitron page will be completely inaccessible and no market data will be downloaded for this exchange
+      "enabled": true,
+      // trading_pairs: An array of market trading pair symbols
+      //                You can add as many trading pairs as necessary
+      //                All entries must specify your coins symbol as it is displayed on the exchange, followed by a slash (/) and ending with the symbol of the market or asset that is being traded against
+      //                Ex: "LTC/BTC", "LTC/USDT", "LTC/ETH"
+      "trading_pairs": [ "BTE/USDT", "BTE/BTC", "BTE/TRX" ]
+    },
       // bittrex: a collection of settings that pertain to the bittrex exchange
       "bittrex": {
         // enabled: Enable/disable the bittrex exchange (true/false)
@@ -814,16 +834,6 @@
         //                All entries must specify your coins symbol as it is displayed on the exchange, followed by a slash (/) and ending with the symbol of the market or asset that is being traded against
         //                Ex: "LTC/BTC", "LTC/USDT", "LTC/ETH"
         "trading_pairs": [ "LTC/BTC" ]
-      },
-      "ztb": {
-        // enabled: Enable/disable the bittrex exchange (true/false)
-        //          If set to false, the bittrex page will be completely inaccessible and no market data will be downloaded for this exchange
-        "enabled": true,
-        // trading_pairs: An array of market trading pair symbols
-        //                You can add as many trading pairs as necessary
-        //                All entries must specify your coins symbol as it is displayed on the exchange, followed by a slash (/) and ending with the symbol of the market or asset that is being traded against
-        //                Ex: "LTC/BTC", "LTC/USDT", "LTC/ETH"
-        "trading_pairs": [ "BTE/USDT" ]
       },
       // bleutrade: a collection of settings that pertain to the bleutrade exchange
       "bleutrade": {
