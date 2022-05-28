@@ -15,7 +15,7 @@
     "prestart": "node --stack-size=100000 ./scripts/prestart.js",
     "sync-blocks": "node --stack-size=100000 ./scripts/sync.js index update",
     "sync-markets": "node --stack-size=100000 ./scripts/sync.js market",
-    "sync-peers": "node --stack-size=100000./scripts/sync.js peers",
+    "sync-peers": "node --stack-size=100000 ./scripts/sync.js peers",
     "sync-masternodes": "node --stack-size=100000 ./scripts/sync.js masternodes",
     "check-blocks": "node --stack-size=100000 ./scripts/sync.js index check",
     "reindex": "node --stack-size=100000 ./scripts/sync.js index reindex",
