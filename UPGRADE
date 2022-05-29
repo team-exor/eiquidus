@@ -1,5 +1,100 @@
 NOTE: All updates require the explorer to be restarted
 
+1.100.0 [May 29, 2022]
+-Added a custom.scss file that can be used to add custom css changes without affecting the ability to do a git pull update
+-Added new update script to A) grab the latest code form github, B) update all dependencies, and C) run the database initialize function to ensure new changes take effect immidiately
+-freegeoip.app now requires an api key so the peer sync has been updated to use reallyfreegeoip.org instead
+-Added extra error checking to the peer sync so that it will error out when the geolocation service does not return a proper object
+-Added locks to all sync processes (blocks, markets, peers, masternodes) as well as "create backup", "restore backup" and "delete database" functions. This helps prevent problems with syncing data while a backup is in progress for example
+-The code to initialize certain database collections on startup was moved into database.js and is now called from restore_backup.js and delete_database.js. This effectively allows the database to be deleted or restored to a completely different backup while the explorer is still running
+-Lock functions (create_lock, remove_lock, is_locked) were moved into explorer.js for better reusability and rewriten to be synchronous
+-is_locked function now accepts an array of lock files to be able to check for multiple locks in a single call
+-remove_sync_message() function was moved into database.js so that restore_backup.js and delete_database.js can also check for and remove the sync msg if it exists
+-Rewrote a number of internal scripts to allow for better cross-platform support (Windown, MacOS, Linux)
+-Backup and Restore scripts now use mongo's own encryption instead of tar.gz by default. Older tar.gz backups can still be restored as long as the tar.gz suffix is explicitly added
+-Backup and Restore scripts now support connecting to remote database based on the mongo details in settings.json
+-Added a link to exchange on markets page
+-Added the current git commit id to end of explorer version
+-Fixed the format of ipv6 addnodes on the network page
+-Added a Hashrate chart to the page header
+-Added a Difficulty chart to the page header
+-Improved the Index/Update sync feature (Shifted some of the code around to be run in a better order)
+-update_heavy has been moved into a proper callback function which is now only called for index and reindex syncs right near the end of the process instead of at the beginning
+-Added some tweaks and improvements to the Reindex sync feature (Added an "Are you sure" prompt before starting the reindex, All necessary coin stat data is cleared before starting, More and better messages about what is being done during the process, Shifted some of the code around to be run in a better order)
+-Added unique page titles for each individual page
+-Added code to prevent caching of local css files
+-Bootstrap was upgraded to latest version (v5.1.3) which required tons of changes to the UI. Many little UI problems have been resolved
+-Bootswatchs themes have all been upgraded to support bootstrap v5.1.3 + 4 new themes were added (Morph, Quartz, Vapor and Zephyr)
+-Exor theme update to v3.0.0 with support for bootstrap v5.1.3
+-Many layout and UI improvements such as more consistent hover effects on most tables and more readable text across all themes
+-All libraries have been updated and load a CDN url instead of local file where applicable
+-Codebase was updated so that Node.js must be updated to at least v14.13.1 to fix breaking errors in a few of the updated dependencies
+-Added an optional block_start parameter to check mode
+-Check mode no longer updates the last block height
+-Added a .npmrc file for cleaner npm error msgs
+-Added new npm scripts to make syncing and running other explorer tasks easier, without needing to remember longer command syntax
+-Added support for reading scriptPubKey.address
+-Added Southxchange exchange to markets
+-Added a new setting to decode tx OP_RETURN values
+-Market sync now sets the last USD price based on the default market pair even if it is not BTC
+-Removed the coindesk api which was only really useful for getting the USD price of BTC
+-Added a couple coingecko apis which are used to get the current USD value of the default market pair
+-Fixed issues loading site in safari browser (Safari behaves differently than other browsers and seems to require the url prefix to be present when loading external libraries to prevent CORS errors)
+-Many blockchains allow you to use addnodes without a port # and it will assume the default port internally, but the explorer was failing to parse these peers because it was expecting a port. This is now fixed and will display the peer data without a port in these cases
+-Added support for newer (deterministic) Dash masternode format
+-More graceful shutdown of node cluster on 'npm stop' with better cleanup of resources on exit
+-Added new stop_explorer.sh script which looks up the explorer port # via settings file and closes the application running on that port # instead of saving and killing the process by pid as it did before
+-Added support for pm2 and forever using 'npm run start-pm2' and 'npm run start-forever' respectively
+-pm2 is automatically installed when starting with 'npm run start-pm2' if it is not already installed
+-forever is automatically installed when starting with 'npm run start-forever' if it is not already installed
+-Reorganized the structure and order of calls within the /ext/getsummary api to allow for returning just the connection and block counts for pages that have show_panels set to false
+-Combined two script sections into one on the address page
+-Changed the shorthand $(function() into $(document).ready() for consistency on the claim address page
+-Added an api page setting to hide/show logo
+-All pages (including the reward and error pages) were updated to include options for displaying a configurable page header with title, image, description and in some cases a last updated date
+-The error page was restructured slightly to display a different description based on the type of error (page not found error vs problem loading page error)
+-Added new setting options to the `shared_pages` setting for `page_title_image` which allows changing the page title image displayed on applicable pages and also determines whether it uses a flip/spin animation or not
+-Added a collection of new `page_header` settings to all pages that control displaying the new page title + image + description and also moved the last updated date from applicable pages into this section as well
+-Existing `show_last_updated` settings that were moved a level deeper into the `page_header` have been automatically mapped to the new setting location upon statup to help older installs to work better out-of-the-box
+-Locale strings now support replacement text such as {1} and {2} that get automatically replaced with proper values when loaded to allow for locale strings that support dynamic text
+-Fixed an issue with too much empty space in the page header (especially in mobile and tablet modes) when `show_panels` was set to false on any page
+-Removed unused css class 'loading'
+-Added new settings to hide/show panels on each page
+-Added a new `shared_pages.page_header.search.position` setting that determines where the search bar is located (valid options include the old 'below-header' and the new 'inside-header' options)
+-`shared_pages.page_header.show_search` setting has been re-mapped to `shared_pages.page_header.search.enabled`
+-Updated the search placeholder locale text
+-Changed the Explorer menu item icon from a magnifying glass to a cubes/blocks icon
+-Updated css rules to fix some small glitches and allow the new 'inside-header' search option to function
+-Fixed a glitch with header-panel height not working on some browsers
+-Added a new prestart npm script
+-Fixed + formatted date/time values across entire site using Luxon
+-Added new date/time settings for display format, timezone (utc or local) and an option to enable alternate timezone tooltips
+-All markets now return Trade History timestamp values as unix timestamp values formatted in seconds
+-Added TLS/SSL support
+-Added new address_page.enable_hidden_address_view setting which controls whether the special hidden_address address page can be viewed
+-Added new address_page.enable_unknown_address_view setting which controls whether the special unknown_address address page can be viewed
+-Permanently disabled route to special coinbase address
+-Added better unique checks for vout/vin
+-Added full zksnarks tx support
+-Special addresses are now always omitted from the richlist
+-Improved restore backup script
+-Improved delete database script
+-Added support for bitcoin P2PK scripts/txes
+-Added a tx_type field to the tx model which is typically null for "normal" transaction types, but can also display 'p2pk' for bitcoin txes which require addtional encoding to reveal the P2PKH address as well as 'zksnarks' for transactions with hidden sender or receiver data
+-Additional fixes for how data is displayed when a valid wallet address cannot be found
+-Added some small updates to how zksnarks transactions display hidden sender/receiver data
+-Went through all files and did a bit of a code cleanup
+-Added homepage screenshot to readme
+-Fixed the stex 24h stats volume column which was displaying btc volume
+-Added btc volume column to 24 stats for stex market
+-Update altmarkets api to v2
+-Improved the display of the market page so that as long as one section has data (stats, buys, sells, trade history) the page will load properly even if it's only one section that isn't blank. Previously it would display an error if just one section was blank.
+-Added the coin name beside the market pages volume header column in the 24h stats section
+-Fixed a bug that was displaying an error when the summary value from the 24h stats section was supplied but was a blank string or '-' character
+-Better success/error message during market sync
+-Small readme formatting changes
+-Added ZWSP to prevent address copy/paste issues
+
 1.99.0 [February 05, 2021]
 -Added new sync option for reindex-last to rescan and flatten the last blockindex value for faster access
 -Added new sync option for reindex-txcount to rescan and flatten the tx count value for faster access
