@@ -2,6 +2,7 @@ extends layout
 
 block content
   include ./includes/common.pug
+  script(src='https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js')
   script.
     $(document).ready(function() {
       if ('#{settings.markets_page.page_header.show_last_updated}' == 'true') {
@@ -153,54 +154,66 @@ block content
       block market_view
         script.
           $(document).ready(function() {
-            var jqplot = null;
+            var lightchart = null;
             var chartData = !{(marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]' ? 'null' : marketdata.data.chartdata)};
-
             if (chartData != null && chartData.length > 0) {
-              jqplot = $.jqplot('chart', [chartData], {
-                seriesDefaults: {
-                  yaxis: 'y2axis'
+              var chartData = !{(marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]' ? 'null' : marketdata.data.chartdata)};
+              var marketWatermark = marketdata.market_name + ' (' + marketdata.coin + '/' + marketdata.exchange + ')';
+              var lightchart = LightweightCharts.createChart(document.getElementById('chart'), {
+                  //width: 900,
+                  //height: 450,
+                  watermark: {
+                  visible: true,
+                  fontSize: 48,
+                  horzAlign: 'center',
+                  vertAlign: 'center',
+                  color: '#333232',
+                  text: marketWatermark
                 },
-                axes: {
-                  xaxis: {
-                    renderer: $.jqplot.DateAxisRenderer,
-                    tickOptions: { formatString: '%R' },
-                    tickInterval: '2 hours'
+                layout: {
+                  backgroundColor: '#262424',
+                  textColor: '#a5a5a7',
+                },
+                grid: {
+                  vertLines: {
+                    color: '#333232',
                   },
-                  y2axis: {
-                    tickOptions: { formatString: '%.8f' },
-                  }
+                  horzLines: {
+                    color: '#333232',
+                  },
                 },
-                series: [
-                  {
-                    renderer: $.jqplot.OHLCRenderer,
-                    rendererOptions: {
-                      candleStick: true,
-                      upBodyColor: '#2aa3a3',
-                      downBodyColor: '#e2595b',
-                      fillUpBody: true,
-                      fillDownBody: true
-                    }
-                  }
-                ],
-                highlighter: {
-                  show: true,
-                  showMarker: false,
-                  tooltipAxes: 'xy',
-                  yvalues: 4,
-                  formatString: '<table class="jqplot-highlighter"> \
-                  <tr><td>time:</td><td>%s</td></tr> \
-                  <tr><td>open:</td><td>%s</td></tr> \
-                  <tr><td>hi:</td><td>%s</td></tr> \
-                  <tr><td>low:</td><td>%s</td></tr> \
-                  <tr><td>close:</td><td>%s</td></tr></table>'
-                }
+                crosshair: {
+                  mode: LightweightCharts.CrosshairMode.Normal,
+                },
+                rightPriceScale: {
+                  borderColor: '#a5a5a7',
+                },
+                timeScale: {
+                  borderColor: '#a5a5a7',
+                },
               });
-              $('#chart').css('width', '100%');
+
+              lightchart.applyOptions({
+                  timeScale: {
+                      rightOffset: 14,
+                      timeVisible: true,
+                      secondsVisible: false
+                  },
+              });
+              var candleSeries = lightchart.addCandlestickSeries({
+                upColor: 'rgb(36, 174, 100)',
+                downColor: 'rgb(224, 64, 64)',
+                borderUpColor: 'rgb(36, 174, 100)',
+                borderDownColor: 'rgb(224, 64, 64)',
+                wickUpColor: 'rgb(36, 174, 100)',
+                wickDownColor: 'rgb(224, 64, 64)',
+              });
             }
             $(window).resize(function () {
-              if (jqplot != null && $('#chart').is(':visible'))
-                jqplot.replot({ resetAxes: false });
+              if (lightchart != null && $('#chart').is(':visible'))
+                lightchart.replot({ resetAxes: false });
+                candleSeries.setData(chartData);
+                lightchart.timeScale().fitContent();
             });
           });
         .row
