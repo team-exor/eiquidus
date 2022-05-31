@@ -155,10 +155,10 @@ block content
         script.
           $(document).ready(function() {
             var lightchart = null;
+            var marketWatermark = '#{marketdata.market_name} (#{marketdata.coin}/#{marketdata.exchange})';
             var chartData = !{(marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]' ? 'null' : marketdata.data.chartdata)};
             if (chartData != null && chartData.length > 0) {
-              var chartData = !{(marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]' ? 'null' : marketdata.data.chartdata)};
-              var marketWatermark = marketdata.market_name + ' (' + marketdata.coin + '/' + marketdata.exchange + ')';
+              //console.log('#{marketdata.market_name}');
               var lightchart = LightweightCharts.createChart(document.getElementById('chart'), {
                   //width: 900,
                   //height: 450,
@@ -167,39 +167,43 @@ block content
                   fontSize: 48,
                   horzAlign: 'center',
                   vertAlign: 'center',
-                  color: '#333232',
+                  color: '#4e5d6c',
                   text: marketWatermark
                 },
                 layout: {
-                  backgroundColor: '#262424',
-                  textColor: '#a5a5a7',
+                  backgroundColor: 'rgba(0, 0, 0 , 0.5)',
+                  textColor: '#ebebeb',
                 },
                 grid: {
                   vertLines: {
-                    color: '#333232',
+                    color: '#4e5d6c',
                   },
                   horzLines: {
-                    color: '#333232',
+                    color: '#4e5d6c',
                   },
                 },
                 crosshair: {
                   mode: LightweightCharts.CrosshairMode.Normal,
                 },
                 rightPriceScale: {
-                  borderColor: '#a5a5a7',
+                  borderColor: '#4e5d6c',
                 },
                 timeScale: {
-                  borderColor: '#a5a5a7',
+                  borderColor: '#4e5d6c',
                 },
               });
 
               lightchart.applyOptions({
                   timeScale: {
-                      rightOffset: 14,
+                      rightOffset: 5,
                       timeVisible: true,
                       secondsVisible: false
                   },
+                  priceScale:{
+                      autoScale: false,
+                  }
               });
+            
               var candleSeries = lightchart.addCandlestickSeries({
                 upColor: 'rgb(36, 174, 100)',
                 downColor: 'rgb(224, 64, 64)',
@@ -207,14 +211,19 @@ block content
                 borderDownColor: 'rgb(224, 64, 64)',
                 wickUpColor: 'rgb(36, 174, 100)',
                 wickDownColor: 'rgb(224, 64, 64)',
+
+                priceFormat: {
+                minMove: 0.0000001,
+                precision: 7,
+                }
               });
             }
-            $(window).resize(function () {
-              if (lightchart != null && $('#chart').is(':visible'))
-                lightchart.replot({ resetAxes: false });
+            
+              if (lightchart != null && $('#chart').is(':visible')){
+                //console.log('not empty chart');
                 candleSeries.setData(chartData);
-                lightchart.timeScale().fitContent();
-            });
+                //lightchart.timeScale().fitContent();
+            }
           });
         .row
           .col-md-12.cardSpacer
