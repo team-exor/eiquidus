@@ -268,7 +268,7 @@ git clone https://github.com/team-exor/eiquidus explorer
 ##### Install Node Modules
 
 ```
-cd explorer && npm install --production
+cd explorer && npm install --only=prod
 ```
 
 ##### Configure Explorer Settings
