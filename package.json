@@ -28,26 +28,28 @@
     "update-explorer": "node ./scripts/update_explorer.js"
   },
   "dependencies": {
-    "express": ">=4.17.1",
-    "async": "^3.2.2",
-    "intl": "^1.2.5",
-    "serve-favicon": "^2.5.0",
-    "morgan": ">=1.10.0",
-    "cookie-parser": "^1.4.6",
-    "body-parser": "^1.19.0",
-    "debug": ">=4.3.3",
-    "pug": "~3.0.2",
-    "postman-request": "^2.88.1-postman.30",
-    "jsonminify": "^0.4.1",
-    "jstransformer-markdown-it": "^2.1.0",
-    "mongodb": "^4.2.1",
-    "mongoose": "^6.0.14",
-    "qr-image": "^3.2.0",
-    "sass": "^1.44.0",
+    "async": "^3.2.4",
     "bad-words": "^3.0.4",
-    "readline-sync": "^1.4.10"
+    "body-parser": "^1.20.0",
+    "cookie-parser": "^1.4.6",
+    "debug": ">=4.3.4",
+    "express": ">=4.18.1",
+    "intl": "^1.2.5",
+    "jsonminify": "^0.4.2",
+    "jstransformer-markdown-it": "^2.1.0",
+    "mongodb": "^4.7.0",
+    "mongoose": "^6.3.6",
+    "morgan": ">=1.10.0",
+    "postman-request": "^2.88.1-postman.31",
+    "pug": "~3.0.2",
+    "qr-image": "^3.2.0",
+    "readline-sync": "^1.4.10",
+    "sass": "^1.52.3",
+    "serve-favicon": "^2.5.0"
   },
   "devDependencies": {
-    "jasmine": ">=3.6.3"
+    "forever": "^4.0.3",
+    "jasmine": ">=4.2.0",
+    "pm2": "^5.2.0"
   }
 }
