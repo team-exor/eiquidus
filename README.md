@@ -813,6 +813,11 @@ Where [SIZE] is an integer higher than the default.
 
 *note: SIZE will depend on which blockchain you are using, you may need to play around a bit to find an optimal setting*
 
+
+**Error: bind EACCES ...**
+
+This error can appear when you try to run the explorer on a port number lower than 1024. There are a couple solutions to this problem which are explained in more detail in the [Run Express Webserver on Port 80](#run-express-webserver-on-port-80) section.
+
 ### Donations / Support Us
 
 The eIquidus block explorer is brought to you by the tireless efforts of the [Exor development team](https://exor.io/#section-team) for the benefit of the greater crypto community. If you enjoy our work, please consider supporting our continued development of this and many other cool crypto projects which you can find on our [github page](https://github.com/team-exor).
