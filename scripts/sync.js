@@ -215,8 +215,8 @@ if (lib.is_locked([database]) == false) {
     if (mode == 'update')
       console.log(`Syncing ${(database == 'index' ? 'blocks' : database)}.. Please wait..`);
 
-    var dbString = 'mongodb://' + settings.dbsettings.user;
-    dbString = dbString + ':' + settings.dbsettings.password;
+    var dbString = 'mongodb://' + encodeURIComponent(settings.dbsettings.user);
+    dbString = dbString + ':' + encodeURIComponent(settings.dbsettings.password);
     dbString = dbString + '@' + settings.dbsettings.address;
     dbString = dbString + ':' + settings.dbsettings.port;
     dbString = dbString + '/' + settings.dbsettings.database;

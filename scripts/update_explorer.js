@@ -58,8 +58,8 @@ try {
 const db = require('../lib/database');
 const settings = require('../lib/settings');
 
-var dbString = 'mongodb://' + settings.dbsettings.user;
-dbString = dbString + ':' + settings.dbsettings.password;
+var dbString = 'mongodb://' + encodeURIComponent(settings.dbsettings.user);
+dbString = dbString + ':' + encodeURIComponent(settings.dbsettings.password);
 dbString = dbString + '@' + settings.dbsettings.address;
 dbString = dbString + ':' + settings.dbsettings.port;
 dbString = dbString + '/' + settings.dbsettings.database;

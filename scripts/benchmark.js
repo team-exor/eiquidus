@@ -11,8 +11,8 @@ function exit(exitCode) {
   process.exit(exitCode);
 }
 
-var dbString = 'mongodb://' + settings.dbsettings.user;
-dbString = dbString + ':' + settings.dbsettings.password;
+var dbString = 'mongodb://' + encodeURIComponent(settings.dbsettings.user);
+dbString = dbString + ':' + encodeURIComponent(settings.dbsettings.password);
 dbString = dbString + '@' + settings.dbsettings.address;
 dbString = dbString + ':' + settings.dbsettings.port;
 dbString = dbString + "/IQUIDUS-BENCHMARK";
