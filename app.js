@@ -49,7 +49,24 @@ if (settings.webserver.cors.enabled == true) {
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
-app.use(favicon(path.join(__dirname, settings.shared_pages.favicon)));
+var default_favicon = '';
+
+// loop through the favicons
+Object.keys(settings.shared_pages.favicons).forEach(function(key, index, map) {
+  // remove the public directory from the path if exists
+  if (settings.shared_pages.favicons[key] != null && settings.shared_pages.favicons[key].indexOf('public/') > -1)
+    settings.shared_pages.favicons[key] = settings.shared_pages.favicons[key].replace(/public\//g, '');
+
+  // check if the favicon file exists
+  if (!db.fs.existsSync(path.join('./public', settings.shared_pages.favicons[key])))
+    settings.shared_pages.favicons[key] = '';
+  else if (default_favicon == '')
+    default_favicon = settings.shared_pages.favicons[key];
+});
+
+if (default_favicon != '')
+  app.use(favicon(path.join('./public', default_favicon)));
+
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
