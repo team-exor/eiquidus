@@ -434,20 +434,43 @@ html(lang='en')
               if (#{settings.network_history.enabled} == true && #{showDifficultyChart} == true && #{settings.shared_pages.page_header.network_charts.difficulty_chart.enabled} == true) {
                 const ctxDifficulty = document.getElementById('difficultyChart').getContext('2d');
 
+                var diffDataSets = [];
+                var showPOW = false;
+                var showPOS = false;
+
+                for (var i = 0; i < result.length; i++) {
+                  if (result[i].difficulty_pow != 0)
+                    showPOW = true;
+                  if (result[i].difficulty_pos != 0)
+                    showPOS = true;
+                }
+
+                if (showPOS) {
+                  diffDataSets.push({
+                    label: 'POS Difficulty',
+                    data: result.map(function(a) {return a.difficulty_pos;}),
+                    backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pos_fill_color}'],
+                    borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pos_line_color}'],
+                    fill: 'start'
+                  });
+                }
+
+                if (showPOW || !showPOS) {
+                  diffDataSets.push({
+                    label: 'POW Difficulty',
+                    data: result.map(function(a) {return a.difficulty_pow;}),
+                    backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pow_fill_color}'],
+                    borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pow_line_color}'],
+                    fill: 'start'
+                  });
+                }
+
                 if (difficultyChart == null) {
                   difficultyChart = new Chart(ctxDifficulty, {
                     type: 'line',
                     data: {
                       labels: result.map(function(a) {return a.blockindex;}),
-                      datasets: [
-                        {
-                          label: 'Difficulty',
-                          data: result.map(function(a) {return a.difficulty;}),
-                          backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.fill_color}'],
-                          borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.line_color}'],
-                          fill: 'start'
-                        }
-                      ]
+                      datasets: diffDataSets
                     },
                     options: {
                       maintainAspectRatio: false,
@@ -509,7 +532,29 @@ html(lang='en')
                   $('#difficultyChartParent').fadeIn();
                 } else {
                   difficultyChart.data.labels = result.map(function(a) {return a.blockindex;});
-                  difficultyChart.data.datasets[0].data = result.map(function(a) {return a.difficulty;});
+
+                  if (difficultyChart.data.datasets.length != diffDataSets.length)
+                    difficultyChart.data.datasets = diffDataSets;
+                  else {
+                    if (
+                      (
+                        difficultyChart.data.datasets[0].label.indexOf('POW') > -1 &&
+                        diffDataSets[0].label.indexOf('POW') > -1
+                      )
+                      ||
+                      (
+                        difficultyChart.data.datasets[0].label.indexOf('POS') > -1 &&
+                        diffDataSets[0].label.indexOf('POS') > -1
+                      )
+                    ) {
+                      difficultyChart.data.datasets[0].data = diffDataSets[0].data;
+
+                      if (difficultyChart.data.datasets.length == 2)
+                        difficultyChart.data.datasets[1].data = diffDataSets[1].data;
+                    } else
+                      difficultyChart.data.datasets = diffDataSets;
+                  }
+
                   difficultyChart.update();
                 }
               }

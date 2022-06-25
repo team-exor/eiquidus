@@ -310,14 +310,22 @@
           //          Set this to any valid html color
           //          Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
           "bgcolor": "#ffffff",
-          // line_color: Change the line color of the network difficulty chart
-          //             Set this to any valid html color
-          //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
-          "line_color": "rgba(255, 99, 132, 1)",
-          // fill_color: Change the fill color of the network difficulty chart
-          //             Set this to any valid html color
-          //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
-          "fill_color": "rgba(255, 99, 132, 0.2)",
+          // pow_line_color: Change the line color of the network difficulty chart for POW coins
+          //                 Set this to any valid html color
+          //                 Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+          "pow_line_color": "rgba(255, 99, 132, 1)",
+          // pow_fill_color: Change the fill color of the network difficulty chart for POW coins
+          //                 Set this to any valid html color
+          //                 Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+          "pow_fill_color": "rgba(255, 99, 132, 0.2)",
+          // pos_line_color: Change the line color of the network difficulty chart for POS coins
+          //                 Set this to any valid html color
+          //                 Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+          "pos_line_color": "rgba(255, 161, 0, 1)",
+          // pos_fill_color: Change the fill color of the network difficulty chart for POS coins
+          //                 Set this to any valid html color
+          //                 Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+          "pos_fill_color": "rgba(255, 161, 0, 0.2)",
           // crosshair_color: Change the vertical crosshair line color of the network difficulty chart
           //             Set this to any valid html color
           //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
