@@ -1207,6 +1207,7 @@
     //         Valid options:
     //         COINBASE : retrieve the total coins sent from the coinbase (Often used for PoW coins)
     //         GETINFO : retrieved from getinfo rpc cmd (Often used for PoS coins)
+    //         GETBLOCKCHAININFO : retrieved from getblockchaininfo rpc cmd
     //         HEAVY: retrieved from getsupply rpc cmd (The "blockchain_specific.heavycoin.enabled" setting must be set to true and the "blockchain_specific.heavycoin.api_cmds.getsupply" setting must be set up correctly for this option to work properly)
     //         BALANCES : get the supply by running a query on the addresses collection and summing up all positive balances (potentially a long running query for blockchains with tons of addresses)
     //         TXOUTSET : retrieved from gettxoutsetinfo rpc cmd
@@ -1277,6 +1278,8 @@
     "getrawtransaction": "getrawtransaction",
     // getinfo: Returns an object containing various state info
     "getinfo": "getinfo",
+    // getblockchaininfo: Returns an object containing various state info regarding blockchain processing
+    "getblockchaininfo": "getblockchaininfo",
     // getpeerinfo: Returns data about each connected network node as a json array of objects
     "getpeerinfo": "getpeerinfo",
     // gettxoutsetinfo: Returns an object with statistics about the unspent transaction output set

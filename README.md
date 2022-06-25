@@ -175,6 +175,7 @@ Table of Contents
   - **getblock:** Returns an object with information about the block
   - **getrawtransaction:** Returns raw transaction data
   - **getinfo:** Returns an object containing various state info
+  - **getblockchaininfo:** Returns an object containing various state info regarding blockchain processing
   - **getpeerinfo:** Returns data about each connected network node as a json array of objects
   - **gettxoutsetinfo:** Returns an object with statistics about the unspent transaction output set
   - **getvotelist:** Returns an object with details regarding the current vote list
