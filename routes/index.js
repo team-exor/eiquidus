@@ -459,22 +459,28 @@ router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
       db.get_market(market_id, coin_symbol, pair_symbol, function(data) {
         // load market data
         var market_data = require('../lib/markets/' + market_id);
+        var isAlt = false;
         var url = '';
 
-        // build the external exchange url link
+        // build the external exchange url link and determine if using the alt name + logo
         if (market_data.market_url_template != null && market_data.market_url_template != '') {
           switch ((market_data.market_url_case == null || market_data.market_url_case == '' ? 'l' : market_data.market_url_case.toLowerCase())) {
             case 'l':
             case 'lower':
-              url = market_data.market_url_template.replace('{base}', pair_symbol.toLowerCase()).replace('{coin}', coin_symbol.toLowerCase());
+              url = market_data.market_url_template.replace('{base}', pair_symbol.toLowerCase()).replace('{coin}', coin_symbol.toLowerCase()).replace('{url_prefix}', (market_data.market_url != null ? market_data.market_url({coin: coin_symbol.toLowerCase(), exchange: pair_symbol.toLowerCase()}) : ''));
+              isAlt = (market_data.isAlt != null ? market_data.isAlt({coin: coin_symbol.toLowerCase(), exchange: pair_symbol.toLowerCase()}) : false);
               break;
             case 'u':
             case 'upper':
-              url = market_data.market_url_template.replace('{base}', pair_symbol.toUpperCase()).replace('{coin}', coin_symbol.toUpperCase());
+              url = market_data.market_url_template.replace('{base}', pair_symbol.toUpperCase()).replace('{coin}', coin_symbol.toUpperCase()).replace('{url_prefix}', (market_data.market_url != null ? market_data.market_url({coin: coin_symbol.toUpperCase(), exchange: pair_symbol.toUpperCase()}) : ''));
+              isAlt = (market_data.isAlt != null ? market_data.isAlt({coin: coin_symbol.toUpperCase(), exchange: pair_symbol.toUpperCase()}) : false);
               break;
             default:
           }
         }
+
+        var market_name = (isAlt ? (market_data.market_name_alt == null ? '' : market_data.market_name_alt) : (market_data.market_name == null ? '' : market_data.market_name));
+        var market_logo = (isAlt ? (market_data.market_logo_alt == null ? '' : market_data.market_logo_alt) : (market_data.market_logo == null ? '' : market_data.market_logo));
 
         // check if markets page should show last updated date
         if (settings.markets_page.page_header.show_last_updated == true) {
@@ -485,8 +491,8 @@ router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
               {
                 active: 'markets',
                 marketdata: {
-                  market_name: (market_data.market_name == null ? '' : market_data.market_name),
-                  market_logo: (market_data.market_logo == null ? '' : market_data.market_logo),
+                  market_name: market_name,
+                  market_logo: market_logo,
                   coin: coin_symbol,
                   exchange: pair_symbol,
                   data: data,
@@ -498,7 +504,7 @@ router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
                 customHash: get_file_timestamp('./public/css/custom.scss'),
                 styleHash: get_file_timestamp('./public/css/style.scss'),
                 themeHash: get_file_timestamp('./public/css/themes/' + settings.shared_pages.theme.toLowerCase() + '/bootstrap.min.css'),
-                page_title_prefix: locale.mkt_title.replace('{1}', (market_data.market_name == null ? '' : market_data.market_name) + ' (' + coin_symbol + '/' + pair_symbol + ')')
+                page_title_prefix: locale.mkt_title.replace('{1}', market_name + ' (' + coin_symbol + '/' + pair_symbol + ')')
               }
             );
           });
@@ -509,8 +515,8 @@ router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
             {
               active: 'markets',
               marketdata: {
-                market_name: (market_data.market_name == null ? '' : market_data.market_name),
-                market_logo: (market_data.market_logo == null ? '' : market_data.market_logo),
+                market_name: market_name,
+                market_logo: market_logo,
                 coin: coin_symbol,
                 exchange: pair_symbol,
                 data: data,
@@ -522,7 +528,7 @@ router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
               customHash: get_file_timestamp('./public/css/custom.scss'),
               styleHash: get_file_timestamp('./public/css/style.scss'),
               themeHash: get_file_timestamp('./public/css/themes/' + settings.shared_pages.theme.toLowerCase() + '/bootstrap.min.css'),
-              page_title_prefix: locale.mkt_title.replace('{1}', (market_data.market_name == null ? '' : market_data.market_name) + ' (' + coin_symbol + '/' + pair_symbol + ')')
+              page_title_prefix: locale.mkt_title.replace('{1}', market_name + ' (' + coin_symbol + '/' + pair_symbol + ')')
             }
           );
         }

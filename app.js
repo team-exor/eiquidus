@@ -616,16 +616,48 @@ if (settings.markets_page.enabled == true) {
         // load market file
         var exMarket = require('./lib/markets/' + key);
         // save market_name and market_logo from market file to settings
-        eval('market_data.push({id: "' + key + '", name: "' + (exMarket.market_name == null ? '' : exMarket.market_name) + '", logo: "' + (exMarket.market_logo == null ? '' : exMarket.market_logo) + '", trading_pairs: []});');
+        eval('market_data.push({id: "' + key + '", name: "' + (exMarket.market_name == null ? '' : exMarket.market_name) + '", alt_name: "' + (exMarket.market_name_alt == null ? '' : exMarket.market_name_alt) + '", logo: "' + (exMarket.market_logo == null ? '' : exMarket.market_logo) + '", alt_logo: "' + (exMarket.market_logo_alt == null ? '' : exMarket.market_logo_alt) + '", trading_pairs: []});');
         // loop through all trading pairs for this market
         for (var i = 0; i < settings.markets_page.exchanges[key].trading_pairs.length; i++) {
-          // ensure trading pair setting is always uppercase
-          settings.markets_page.exchanges[key].trading_pairs[i] = settings.markets_page.exchanges[key].trading_pairs[i].toUpperCase();
+          var isAlt = false;
+          var pair = settings.markets_page.exchanges[key].trading_pairs[i].toUpperCase(); // ensure trading pair setting is always uppercase
+          var coin_symbol = pair.split('/')[0];
+          var pair_symbol = pair.split('/')[1];
+
+          // determine if using the alt name + logo
+          if (exMarket.market_url_template != null && exMarket.market_url_template != '') {
+            switch ((exMarket.market_url_case == null || exMarket.market_url_case == '' ? 'l' : exMarket.market_url_case.toLowerCase())) {
+              case 'l':
+              case 'lower':
+                isAlt = (exMarket.isAlt != null ? exMarket.isAlt({coin: coin_symbol.toLowerCase(), exchange: pair_symbol.toLowerCase()}) : false);
+                break;
+              case 'u':
+              case 'upper':
+                isAlt = (exMarket.isAlt != null ? exMarket.isAlt({coin: coin_symbol.toUpperCase(), exchange: pair_symbol.toUpperCase()}) : false);
+                break;
+              default:
+            }
+          }
+
           // add trading pair to market_data
-          market_data[market_data.length - 1].trading_pairs.push(settings.markets_page.exchanges[key].trading_pairs[i]);
+          market_data[market_data.length - 1].trading_pairs.push({
+            pair: pair,
+            isAlt: isAlt
+          });
+
           // increment the market count
           market_count++;
         }
+
+        // sort trading pairs by alt status
+        market_data[market_data.length - 1].trading_pairs.sort(function(a, b) {
+          if (a.isAlt < b.isAlt)
+            return -1;
+          else if (a.isAlt > b.isAlt)
+            return 1;
+          else
+            return 0;
+        });
       }
     }
   });

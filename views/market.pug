@@ -131,24 +131,40 @@ block content
                 each mkt in settings.market_data
                   if mkt != null && mkt.id != null
                     each pair in mkt.trading_pairs
-                      if market == mkt.id && marketdata.coin.toLowerCase() + '/' + marketdata.exchange.toLowerCase() == pair.toLowerCase()
+                      if market == mkt.id && marketdata.coin.toLowerCase() + '/' + marketdata.exchange.toLowerCase() == pair.pair.toLowerCase()
                         li.nav-item
-                          a.nav-link.active(href='/markets/' + mkt.id + '/' + pair)
-                            if mkt.logo != null && mkt.logo != ''
-                              img.align-top.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair + ')', alt=mkt.name + ' (' + pair + ')')
+                          a.nav-link.active(href='/markets/' + mkt.id + '/' + pair.pair)
+                            if pair.isAlt == true
+                              if mkt.alt_logo != null && mkt.alt_logo != ''
+                                img.align-top.market-logo(src='data:image/png;base64,' + mkt.alt_logo, title=mkt.alt_name + ' (' + pair.pair + ')', alt=mkt.alt_name + ' (' + pair.pair + ')')
+                              else
+                                i.market-logo.fas.fa-question-circle
+                              span #{mkt.alt_name}
+                                span.small.fw-normal  (#{pair.pair})
                             else
-                              i.market-logo.fas.fa-question-circle
-                            span #{mkt.name}
-                              span.small.fw-normal  (#{pair})
+                              if mkt.logo != null && mkt.logo != ''
+                                img.align-top.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair.pair + ')', alt=mkt.name + ' (' + pair.pair + ')')
+                              else
+                                i.market-logo.fas.fa-question-circle
+                              span #{mkt.name}
+                                span.small.fw-normal  (#{pair.pair})
                       else
                         li.nav-item
-                          a.nav-link(href='/markets/' + mkt.id + '/' + pair)
-                            if mkt.logo != null && mkt.logo != ''
-                              img.align-top.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair + ')', alt=mkt.name + ' (' + pair + ')')
+                          a.nav-link(href='/markets/' + mkt.id + '/' + pair.pair)
+                            if pair.isAlt == true
+                              if mkt.alt_logo != null && mkt.alt_logo != ''
+                                img.align-top.market-logo(src='data:image/png;base64,' + mkt.alt_logo, title=mkt.alt_name + ' (' + pair.pair + ')', alt=mkt.alt_name + ' (' + pair.pair + ')')
+                              else
+                                i.market-logo.fas.fa-question-circle
+                              span #{mkt.alt_name}
+                                span.small.fw-normal  (#{pair.pair})
                             else
-                              i.market-logo.fas.fa-question-circle
-                            span #{mkt.name}
-                              span.small.fw-normal  (#{pair})
+                              if mkt.logo != null && mkt.logo != ''
+                                img.align-top.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair.pair + ')', alt=mkt.name + ' (' + pair.pair + ')')
+                              else
+                                i.market-logo.fas.fa-question-circle
+                              span #{mkt.name}
+                                span.small.fw-normal  (#{pair.pair})
     if marketdata.data != null && ((marketdata.data.buys != null && marketdata.data.buys.length > 0) || (marketdata.data.sells != null && marketdata.data.sells.length > 0) || (marketdata.data.history != null && marketdata.data.history.length > 0))
       block market_view
         script.

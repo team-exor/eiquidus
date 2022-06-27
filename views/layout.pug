@@ -735,13 +735,21 @@ html(lang='en')
                       each mkt in settings.market_data
                         if mkt != null && mkt.id != null
                           each pair in mkt.trading_pairs
-                            a.dropdown-item(href='/markets/' + mkt.id + '/' + pair)
-                              if mkt.logo != null && mkt.logo != ''
-                                img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair + ')', alt=mkt.name + ' (' + pair + ')')
+                            a.dropdown-item(href='/markets/' + mkt.id + '/' + pair.pair)
+                              if pair.isAlt == true
+                                if mkt.alt_logo != null && mkt.alt_logo != ''
+                                  img.market-logo(src='data:image/png;base64,' + mkt.alt_logo, title=mkt.alt_name + ' (' + pair.pair + ')', alt=mkt.alt_name + ' (' + pair.pair + ')')
+                                else
+                                  i.market-logo.fas.fa-question-circle
+                                span #{mkt.alt_name}
+                                  span.small.fw-normal  (#{pair.pair})
                               else
-                                i.market-logo.fas.fa-question-circle
-                              span #{mkt.name}
-                                span.small.fw-normal  (#{pair})
+                                if mkt.logo != null && mkt.logo != ''
+                                  img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair.pair + ')', alt=mkt.name + ' (' + pair.pair + ')')
+                                else
+                                  i.market-logo.fas.fa-question-circle
+                                span #{mkt.name}
+                                  span.small.fw-normal  (#{pair.pair})
                 else
                   li#markets.nav-item
                     a.nav-link(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
