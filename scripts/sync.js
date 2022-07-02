@@ -436,7 +436,7 @@ if (lib.is_locked([database]) == false) {
                 address = address.replace("[", "").replace("]", "");
               }
 
-              db.find_peer(address, function(peer) {
+              db.find_peer(address, port, function(peer) {
                 if (peer) {
                   if ((peer['port'] != null && (isNaN(peer['port']) || peer['port'].length < 2)) || peer['country'].length < 1 || peer['country_code'].length < 1) {
                     db.drop_peers(function() {
@@ -445,9 +445,22 @@ if (lib.is_locked([database]) == false) {
                     });
                   }
 
-                  // peer already exists
-                  console.log('Updated peer %s [%s/%s]', address, (i + 1).toString(), body.length.toString());
-                  loop.next();
+                  // peer already exists and should be refreshed
+                  // drop peer
+                  db.drop_peer(address, port, function() {
+                    // re-add the peer to refresh the data and extend the expiry date
+                    db.create_peer({
+                      address: address,
+                      port: port,
+                      protocol: peer.protocol,
+                      version: peer.version,
+                      country: peer.country,
+                      country_code: peer.country_code
+                    }, function() {
+                      console.log('Updated peer %s:%s [%s/%s]', address, port.toString(), (i + 1).toString(), body.length.toString());
+                      loop.next();
+                    });
+                  });
                 } else {
                   const rateLimitLib = require('../lib/ratelimit');
                   const rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
@@ -471,7 +484,7 @@ if (lib.is_locked([database]) == false) {
                           country: geo.country_name,
                           country_code: geo.country_code
                         }, function() {
-                          console.log('Added new peer %s [%s/%s]', address, (i + 1).toString(), body.length.toString());
+                          console.log('Added new peer %s:%s [%s/%s]', address, port.toString(), (i + 1).toString(), body.length.toString());
                           loop.next();
                         });
                       }

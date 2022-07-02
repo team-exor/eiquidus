@@ -19,128 +19,166 @@ block content
       return lengthMenuOpts;
     }
     $(document).ready(function() {
-      var setting_txPerPage = parseInt("#{settings.network_page.connections_table.items_per_page}");
-      $('#connections-table').dataTable({
-        autoWidth: true,
-        searching: false,
-        ordering: false,
-        responsive: true,
-        lengthChange: true,
-        processing: true,
-        iDisplayLength: setting_txPerPage,
-        lengthMenu: generateLengthMenu(setting_txPerPage, !{JSON.stringify(settings.network_page.connections_table.page_length_options)}),
-        scrollX: true,
-        language: {
-          paginate: {
-            previous: '<',
-            next: '>'
-          }
-        },
-        ajax: {
-          url: '/ext/getnetworkpeers/internal',
-          dataSrc: function (json) {
-            return json.data;
-          }
-        },
-        rowCallback: function (row, data, index) {
-          var flagBlock = '';
-          if (data['country_code'].length > 1) {
-            flagBlock = '<div class="margin-left-5 flag-icon flag-icon-'+data['country_code'].toLowerCase()+'"></div>';
-          }
-          $("td:eq(0)", row).html(data['address']).addClass('breakWord');
-          $("td:eq(1)", row).html(data['protocol']);
-          $("td:eq(2)", row).html(data['version']);
-          $("td:eq(3)", row).html(data['country']+flagBlock);
-        },
-        fnDrawCallback: function(settings) {
-          fixDataTableColumns();
-          fixFooterHeightAndPosition();
-        },
-        columns: [
-          { data: 'address', width: '25%' },
-          { data: 'protocol', width: '25%' },
-          { data: 'version', width:'25%' },
-          { data: 'country', width: '25%'}
-        ]
+      $.ajax({
+        method: 'GET',
+        url: '/ext/getnetworkpeers/internal',
+        dataType: 'json'
+      }).done(function(peers) {
+        var setting_txPerPage = parseInt("#{settings.network_page.connections_table.items_per_page}");
+        var setting_con_port_filter = "#{settings.network_page.connections_table.port_filter}";
+        var setting_con_hide_protocols = !{JSON.stringify(settings.network_page.connections_table.hide_protocols)};
+        var connectionRows = peers;
+
+        if (setting_con_port_filter == null || setting_con_port_filter == '')
+          setting_con_port_filter = '0';
+
+        if (setting_con_port_filter != '0')
+          connectionRows = connectionRows.filter(v => v.port == setting_con_port_filter);
+
+        setting_con_hide_protocols.forEach(function (protocol) {
+          connectionRows = connectionRows.filter(v => v.protocol != protocol);
+        });
+
+        $('#connections-table').dataTable({
+          autoWidth: true,
+          searching: false,
+          ordering: true,
+          order: [],
+          responsive: true,
+          lengthChange: true,
+          processing: true,
+          iDisplayLength: setting_txPerPage,
+          lengthMenu: generateLengthMenu(setting_txPerPage, !{JSON.stringify(settings.network_page.connections_table.page_length_options)}),
+          scrollX: true,
+          language: {
+            paginate: {
+              previous: '<',
+              next: '>'
+            }
+          },
+          data: connectionRows,
+          rowCallback: function (row, data, index) {
+            var flagBlock = '';
+            if (data['country_code'].length > 1) {
+              flagBlock = '<div class="margin-left-5 flag-icon flag-icon-'+data['country_code'].toLowerCase()+'"></div>';
+            }
+            $("td:eq(0)", row).html(data['address']).addClass('breakWord');
+            $("td:eq(1)", row).html(data['port']);
+            $("td:eq(2)", row).html(data['protocol']);
+            $("td:eq(3)", row).html(data['version']);
+            $("td:eq(4)", row).html(data['country']+flagBlock);
+          },
+          fnDrawCallback: function(settings) {
+            fixDataTableColumns();
+            fixFooterHeightAndPosition();
+          },
+          columns: [
+            { data: 'address', width: '20%' },
+            { data: 'port', width: '20%' },
+            { data: 'protocol', width: '20%' },
+            { data: 'version', width:'20%' },
+            { data: 'country', width: '20%'}
+          ]
+        });
+
+        setting_txPerPage = parseInt("#{settings.network_page.addnodes_table.items_per_page}");
+
+        var addNodeRows = [];
+        var setting_add_port_filter = "#{settings.network_page.addnodes_table.port_filter}";
+        var setting_add_hide_protocols = !{JSON.stringify(settings.network_page.addnodes_table.hide_protocols)};
+        var addNodePeers = peers;
+
+        if (setting_add_port_filter == null || setting_add_port_filter == '')
+          setting_add_port_filter = '0';
+
+        if (setting_add_port_filter != '0')
+          addNodePeers = addNodePeers.filter(v => v.port == setting_add_port_filter);
+
+        setting_add_hide_protocols.forEach(function (protocol) {
+          addNodePeers = addNodePeers.filter(v => v.protocol != protocol);
+        });
+
+        for (var i=0; i < addNodePeers.length; i++)
+          addNodeRows.push({'nodes': 'addnode=' + (addNodePeers[i]['address'] != null && addNodePeers[i]['address'].indexOf(':') > -1 ? '[' + addNodePeers[i]['address'] + ']' : addNodePeers[i]['address']) + (addNodePeers[i]['port'] == null ? '' : ':' + addNodePeers[i]['port'])});
+
+        $('#addnodes-table').dataTable({
+          autoWidth: true,
+          searching: false,
+          ordering: false,
+          responsive: true,
+          lengthChange: true,
+          processing: true,
+          iDisplayLength: setting_txPerPage,
+          lengthMenu: generateLengthMenu(setting_txPerPage, !{JSON.stringify(settings.network_page.addnodes_table.page_length_options)}),
+          scrollX: true,
+          language: {
+            paginate: {
+              previous: '<',
+              next: '>'
+            }
+          },
+          data: addNodeRows,
+          fnDrawCallback: function(settings) {
+            fixDataTableColumns();
+            fixFooterHeightAndPosition();
+          },
+          columns: [
+            {data: 'nodes', width: '100%'}
+          ],
+          columnDefs: [
+            {targets: '_all', className: 'text-start'}
+          ]
+        });
+
+        setting_txPerPage = parseInt("#{settings.network_page.onetry_table.items_per_page}");
+
+        var oneTryRows = [];
+        var setting_one_port_filter = "#{settings.network_page.onetry_table.port_filter}";
+        var setting_one_hide_protocols = !{JSON.stringify(settings.network_page.onetry_table.hide_protocols)};
+
+        if (setting_one_port_filter == null || setting_one_port_filter == '')
+          setting_one_port_filter = '0';
+
+        if (setting_one_port_filter != '0')
+          peers = peers.filter(v => v.port == setting_one_port_filter);
+
+        setting_one_hide_protocols.forEach(function (protocol) {
+          peers = peers.filter(v => v.protocol != protocol);
+        });
+
+        for (var i=0; i < peers.length; i++)
+          oneTryRows.push({'nodes': 'addnode ' + (peers[i]['address'] != null && peers[i]['address'].indexOf(':') > -1 ? '[' + peers[i]['address'] + ']' : peers[i]['address']) + (peers[i]['port'] == null ? '' : ':' + peers[i]['port']) + ' onetry'});
+
+        $('#onetry-table').dataTable({
+          autoWidth: true,
+          searching: false,
+          ordering: false,
+          responsive: true,
+          lengthChange: true,
+          processing: true,
+          iDisplayLength: setting_txPerPage,
+          lengthMenu: generateLengthMenu(setting_txPerPage, !{JSON.stringify(settings.network_page.onetry_table.page_length_options)}),
+          scrollX: true,
+          language: {
+            paginate: {
+              previous: '<',
+              next: '>'
+            }
+          },
+          data: oneTryRows,
+          fnDrawCallback: function(settings) {
+            fixDataTableColumns();
+            fixFooterHeightAndPosition();
+          },
+          columns: [
+            {data: 'nodes', width: '100%'}
+          ],
+          columnDefs: [
+            {targets: '_all', className: 'text-start'}
+          ]
+        });
       });
-      setting_txPerPage = parseInt("#{settings.network_page.addnodes_table.items_per_page}");
-      $('#addnodes-table').dataTable({
-        autoWidth: true,
-        searching: false,
-        ordering: false,
-        responsive: true,
-        lengthChange: true,
-        processing: true,
-        iDisplayLength: setting_txPerPage,
-        lengthMenu: generateLengthMenu(setting_txPerPage, !{JSON.stringify(settings.network_page.addnodes_table.page_length_options)}),
-        scrollX: true,
-        language: {
-          paginate: {
-            previous: '<',
-            next: '>'
-          }
-        },
-        ajax: {
-          url: '/ext/getnetworkpeers/internal',
-          dataSrc: function (json) {
-            var rows = [];
 
-            for (var i=0; i<json.data.length; i++)
-              rows.push({'nodes': 'addnode=' + (json.data[i]['address'] != null && json.data[i]['address'].indexOf(':') > -1 ? '[' + json.data[i]['address'] + ']' : json.data[i]['address']) + (json.data[i]['port'] == null ? '' : ':' + json.data[i]['port'])});
-
-            return rows;
-          }
-        },
-        fnDrawCallback: function(settings) {
-          fixDataTableColumns();
-          fixFooterHeightAndPosition();
-        },
-        columns: [
-          {data: 'nodes', width: '100%'}
-        ],
-        columnDefs: [
-          {targets: '_all', className: 'text-start'}
-        ]
-      });
-      setting_txPerPage = parseInt("#{settings.network_page.onetry_table.items_per_page}");
-      $('#onetry-table').dataTable({
-        autoWidth: true,
-        searching: false,
-        ordering: false,
-        responsive: true,
-        lengthChange: true,
-        processing: true,
-        iDisplayLength: setting_txPerPage,
-        lengthMenu: generateLengthMenu(setting_txPerPage, !{JSON.stringify(settings.network_page.onetry_table.page_length_options)}),
-        scrollX: true,
-        language: {
-          paginate: {
-            previous: '<',
-            next: '>'
-          }
-        },
-        ajax: {
-          url: '/ext/getnetworkpeers/internal',
-          dataSrc: function (json) {
-            var rows = [];
-
-            for (var i=0; i<json.data.length; i++)
-              rows.push({'nodes': 'addnode ' + (json.data[i]['address'] != null && json.data[i]['address'].indexOf(':') > -1 ? '[' + json.data[i]['address'] + ']' : json.data[i]['address']) + (json.data[i]['port'] == null ? '' : ':' + json.data[i]['port']) + ' onetry'});
-
-            return rows;
-          }
-        },
-        fnDrawCallback: function(settings) {
-          fixDataTableColumns();
-          fixFooterHeightAndPosition();
-        },
-        columns: [
-          {data: 'nodes', width: '100%'}
-        ],
-        columnDefs: [
-          {targets: '_all', className: 'text-start'}
-        ]
-      });
       $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
         fixDataTableColumns();
         fixFooterHeightAndPosition();
@@ -204,6 +242,7 @@ block content
             thead
               tr(class=theadClasses)
                 th.text-center #{settings.locale.net_address}
+                th.text-center='Port'
                 th.text-center #{settings.locale.net_protocol}
                 th.text-center #{settings.locale.net_subversion}
                 th.text-center #{settings.locale.net_country}

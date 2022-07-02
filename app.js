@@ -505,13 +505,6 @@ app.use('/ext/getsummary', function(req, res) {
 app.use('/ext/getnetworkpeers', function(req, res) {
   // check if the getnetworkpeers api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
   if ((settings.api_page.enabled == true && settings.api_page.public_apis.ext.getnetworkpeers.enabled == true) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
-    var internal = false;
-    // split url suffix by forward slash and remove blank entries
-    var split = req.url.split('/').filter(function(v) { return v; });
-    // check if this is an internal request
-    if (split.length > 0 && split[0].indexOf('internal') > -1)
-      internal = true;
-
     // get list of peers
     db.get_peers(function(peers) {
       // loop through peers list and remove the mongo _id and __v keys
@@ -520,14 +513,21 @@ app.use('/ext/getnetworkpeers', function(req, res) {
         delete peers[i]['_doc']['__v'];
       }
 
-      // check if this is an internal request
-      if (internal) {
-        // display data formatted for internal datatable
-        res.json({"data": peers});
-      } else {
-        // display data in more readable format for public api
-        res.json(peers);
-      }
+      // sort ip6 addresses to the bottom
+      peers.sort(function(a, b) {
+        var address1 = a.address.indexOf(':') > -1;
+        var address2 = b.address.indexOf(':') > -1;
+
+        if (address1 < address2)
+          return -1;
+        else if (address1 > address2)
+          return 1;
+        else
+          return 0;
+      });
+
+      // return peer data
+      res.json(peers);
     });
   } else
     res.end('This method is disabled');
