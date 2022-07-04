@@ -38,8 +38,10 @@ Table of Contents
   - [Start Explorer Using PM2 (Recommended for Production)](#start-explorer-using-pm2-recommended-for-production)
   - [Start Explorer Using PM2 and Log Viewer](#start-explorer-using-pm2-and-log-viewer)
   - [Stop Explorer Using PM2 (Recommended for Production)](#stop-explorer-using-pm2-recommended-for-production)
+  - [Reload Explorer Using PM2 (Recommended for Production)](#reload-explorer-using-pm2-recommended-for-production)
   - [Start Explorer Using Forever (Alternate Production Option)](#start-explorer-using-forever-alternate-production-option)
   - [Stop Explorer Using Forever (Alternate Production Option)](#stop-explorer-using-forever-alternate-production-option)
+  - [Reload Explorer Using Forever (Alternate Production Option)](#reload-explorer-using-forever-alternate-production-option)
 - [Syncing Databases with the Blockchain](#syncing-databases-with-the-blockchain)
   - [Commands for Manually Syncing Databases](#commands-for-manually-syncing-databases)
   - [Sample Crontab](#sample-crontab)
@@ -311,7 +313,7 @@ npm run start-instance
 or (useful for crontab):
 
 ```
-cd /path/to/explorer && /path/to/npm run prestart && /path/to/node --stack-size=10000 ./bin/instance
+cd /path/to/explorer && /path/to/npm run prestart && /path/to/node --stack-size=10000 ./bin/cluster 1
 ```
 
 #### Stop Explorer (Use for Testing)
@@ -341,7 +343,7 @@ npm run start-pm2
 or (useful for crontab):
 
 ```
-cd /path/to/explorer && /path/to/npm run prestart "pm2" && /path/to/pm2 start ./bin/instance -i 0 --node-args="--stack-size=10000"
+cd /path/to/explorer && /path/to/npm run prestart "pm2" && /path/to/pm2 start ./bin/instance -i 0 -n explorer -p "./tmp/pm2.pid" --node-args="--stack-size=10000"
 ```
 
 **NOTE:** Use the following cmd to find the install path for PM2 (Linux only):
@@ -361,7 +363,7 @@ npm run start-pm2-debug
 or (useful for crontab):
 
 ```
-cd /path/to/explorer && /path/to/npm run prestart "pm2" && /path/to/pm2 start ./bin/instance -i 0 --node-args="--stack-size=10000" && /path/to/pm2 logs
+cd /path/to/explorer && /path/to/npm run prestart "pm2" && /path/to/pm2 start ./bin/instance -i 0 -n explorer -p "./tmp/pm2.pid" --node-args="--stack-size=10000" && /path/to/pm2 logs
 ```
 
 #### Stop Explorer Using PM2 (Recommended for Production)
@@ -375,7 +377,23 @@ npm run stop-pm2
 or (useful for crontab):
 
 ```
-cd /path/to/explorer && /path/to/pm2 stop ./bin/instance
+cd /path/to/explorer && /path/to/pm2 stop explorer
+```
+
+#### Reload Explorer Using PM2 (Recommended for Production)
+
+The explorer can be stopped and restarted in a single cmd when it is running via PM2, which is often necessary after updating the explorer code for example. Use one of the following terminal cmds to reload the explorer (be sure to run from within the explorer directory):
+
+**NOTE:** Assuming the explorer has access to 2 or more cpus, this reload will be done in such a way that there will be zero-downtime while the restart is being performed. If you only have a single cpu then the explorer will be inaccessible for a few seconds while the restart is being performed.
+
+```
+npm run reload-pm2
+```
+
+or (useful for crontab):
+
+```
+cd /path/to/explorer && /path/to/pm2 reload explorer
 ```
 
 #### Start Explorer Using Forever (Alternate Production Option)
@@ -391,7 +409,7 @@ npm run start-forever
 or (useful for crontab):
 
 ```
-cd /path/to/explorer && /path/to/npm run prestart && /path/to/forever start ./bin/cluster
+cd /path/to/explorer && /path/to/npm run prestart "forever"
 ```
 
 **NOTE:** Use the following cmd to find the install path for forever (Linux only):
@@ -411,7 +429,23 @@ npm run stop-forever
 or (useful for crontab):
 
 ```
-cd /path/to/explorer && /path/to/forever stop ./bin/cluster
+cd /path/to/explorer && /path/to/forever stop "explorer"
+```
+
+#### Reload Explorer Using Forever (Alternate Production Option)
+
+The explorer can be stopped and restarted in a single cmd when it is running via forever, which is often necessary after updating the explorer code for example. Use one of the following terminal cmds to reload the explorer (be sure to run from within the explorer directory):
+
+**NOTE:** The explorer will be inaccessible for a few seconds while the restart is being performed.
+
+```
+npm run reload-forever
+```
+
+or (useful for crontab):
+
+```
+cd /path/to/explorer && /path/to/forever restart "explorer"
 ```
 
 ### Syncing Databases with the Blockchain
@@ -726,7 +760,7 @@ jQuery(document).ready(function($) {
 
 #### Update Explorer Script
 
-Automatically download and install the newest explorer source code, update out-of-date dependencies and initialize new changes with a single command. In most cases this update script can be safely run while the explorer is actively running to prevent needing to shut down to do updates, but please note that it may be possible for certain updates with large changes to require a reboot to the explorer for all changes to take effect properly. If you notice the explorer having issues after updating, try shutting down and restarting the explorer before seeking support.
+Automatically download and install the newest explorer source code, update out-of-date dependencies and reload the explorer with a single command. This update script can be safely run while the explorer is actively running to prevent needing to manually shut down to do updates, but please note that the website may be inaccessible for a few seconds or more while the explorer is being updated.
 
 **NOTE:** Only explorer installations that were installed via cloning the source from git can be automatically updated. Be sure to follow the [Quick Install Instructions](#quick-install-instructions) to set up the explorer for optimum use with this update script.
 

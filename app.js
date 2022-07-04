@@ -10,8 +10,7 @@ var express = require('express'),
     lib = require('./lib/explorer'),
     db = require('./lib/database'),
     package_metadata = require('./package.json'),
-    locale = require('./lib/locale'),
-    request = require('postman-request');
+    locale = require('./lib/locale');
 var app = express();
 var apiAccessList = [];
 const { exec } = require('child_process');
@@ -600,6 +599,20 @@ app.use('/ext/getnetworkchartdata', function(req, res) {
     else
       res.send();
   });
+});
+
+app.use('/system/restartexplorer', function(req, res, next) {
+  // check to ensure this special cmd is only executed by the local server
+  if (req._remoteAddress != null && req._remoteAddress.indexOf('127.0.0.1') > -1) {
+    // send a msg to the cluster process telling it to restart
+    process.send('restart');
+    res.end();
+  } else {
+    // show the error page
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+  }
 });
 
 var market_data = [];

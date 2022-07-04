@@ -48,13 +48,16 @@ if (validate_port(settings.webserver.port) == true) {
       exec(killcmd, (err, stdout, stderr) => {
         // show shutdown msg
         console.log('Explorer shutting down... Please wait...');
+        process.exit(0);
       });
     } else {
       // webserver is not running
       console.log('Error: Cannot stop explorer because it is not currently running');
+      process.exit(1);
     }
   });
 } else {
   // invalid port number
   console.log('Error: webserver.port value not found in settings.json.');
+  process.exit(1);
 }
