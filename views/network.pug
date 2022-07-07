@@ -118,6 +118,9 @@ block content
             }
           },
           data: addNodeRows,
+          rowCallback: function(row, data, index) {
+            $("td:eq(0)", row).css('white-space', 'nowrap').html(`<button class="btn btn-sm btn-copy" type="button"><i class="far fa-copy"></i></button>&nbsp;<span>${data.nodes}</span>`);
+          },
           fnDrawCallback: function(settings) {
             fixDataTableColumns();
             fixFooterHeightAndPosition();
@@ -166,6 +169,9 @@ block content
             }
           },
           data: oneTryRows,
+          rowCallback: function(row, data, index) {
+            $("td:eq(0)", row).css('white-space', 'nowrap').html(`<button class="btn btn-sm btn-copy" type="button"><i class="far fa-copy"></i></button>&nbsp;<span>${data.nodes}</span>`);
+          },
           fnDrawCallback: function(settings) {
             fixDataTableColumns();
             fixFooterHeightAndPosition();
@@ -199,6 +205,26 @@ block content
       }
       if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.network_page.page_header.show_img} == true)
         startRotateElement('img#header-img');
+
+      $('#addnodes').on('click', 'button.btn-copy', function (event) {
+        var btn = $(this);
+
+        if (btn.html().indexOf('fa-copy') > -1) {
+          var tmp = $('<input>');
+          $('body').append(tmp);
+          tmp.val(btn.parent().find('span').html()).select();
+          document.execCommand('copy');
+          tmp.remove();
+
+          btn.tooltip({title: 'Copied!', placement: 'top', trigger: 'manual'}).tooltip('show');
+          btn.html('<i class="fas fa-check"></i>');
+
+          setTimeout(function() {
+            btn.html('<i class="far fa-copy"></i>');
+            btn.tooltip('dispose');
+          }, 1500);
+        }
+      });
     });
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''

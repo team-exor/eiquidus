@@ -1093,3 +1093,32 @@ tr {
 #showClaimInstructions:hover {
   color: #efefef;
 }
+
+.btn-copy {
+  padding: 0.1rem 0.3rem;
+  font-size: 0.85em;
+  color: #24292f;
+  background-color: #f6f8fa;
+  border: 1px solid #ccced1;
+  border-radius: .25rem;
+  line-height: normal;
+
+  &:hover {
+    background-color: #ebecf0;
+    color: #24292f;
+    border: 1px solid #ccced1;
+  }
+
+  &:active, &:active:focus, &:focus {
+    border: 1px solid #ccced1;
+  }
+
+  &.btn:not(.disabled):hover {
+    margin-top: 0;
+    border: 1px solid #ccced1;
+  }
+
+  > i {
+    width: 12px;
+  }
+}
