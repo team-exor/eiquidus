@@ -284,7 +284,7 @@ cp ./settings.json.template ./settings.json
 
 *Make required changes in settings.json*
 
-**NOTE:** You can further customize the site by adding css rules to the `public/css/custom.scss` file. Adding changes to `custom.scss` is the preferred method of customizing the css rules for your site, without affecting the ability to receive explorer code updates in the future.
+**NOTE:** You can further customize the site by adding your own javascript code to the `public/js/custom.js` file and css rules to the `public/css/custom.scss` file. Adding changes to `custom.js` and `custom.scss` is the preferred method of customizing your site, without affecting the ability to receive explorer code updates in the future.
 
 ### Start/Stop the Explorer
 
