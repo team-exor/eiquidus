@@ -51,10 +51,10 @@ block content
           if block.previousblockhash != null
             a(href='/block/' + block.previousblockhash)
               span.fa.fa-chevron-left.block-last(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.block_previous, style='color: var(--bs-body-color);')
-            strong.d-none.d-md-block #{settings.coin.symbol} block: #{block.hash}
+            strong.d-none.d-md-block #{settings.locale.tx_block_hash}: #{block.hash}
             strong.d-block.d-md-none #{settings.locale.ex_summary}
           else
-            strong.d-none.d-md-block(style='margin-left:10px;') #{settings.coin.symbol} #{settings.locale.ex_block}: #{block.hash}
+            strong.d-none.d-md-block(style='margin-left:10px;') #{settings.locale.tx_block_hash}: #{block.hash}
             strong.d-block.d-md-none(style='margin-left:10px;') #{settings.locale.ex_summary}
           if block.nextblockhash != null
             a(href='/block/' + block.nextblockhash)
