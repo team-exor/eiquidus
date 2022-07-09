@@ -766,7 +766,41 @@ Automatically download and install the newest explorer source code, update out-o
 
 Update the explorer with the following command:
 
-`npm run update-explorer`
+```
+npm run update-explorer
+```
+
+or (useful for crontab):
+
+```
+cd /path/to/explorer && /path/to/node ./scripts/update_explorer.js
+```
+
+**NOTE:** The update script also supports a couple optional parameters.
+
+Use the following command if you want to update the explorer code only, without checking for out-of-date dependencies:
+
+```
+npm run update-explorer "explorer-only"
+```
+
+or (useful for crontab):
+
+```
+cd /path/to/explorer && /path/to/node ./scripts/update_explorer.js "explorer-only"
+```
+
+Use the following command if you want to upgrade outdated dependencies only, without checking for explorer code updates:
+
+```
+npm run update-explorer "dependencies-only"
+```
+
+or (useful for crontab):
+
+```
+cd /path/to/explorer && /path/to/node ./scripts/update_explorer.js "dependencies-only"
+```
 
 #### Backup Database Script
 
