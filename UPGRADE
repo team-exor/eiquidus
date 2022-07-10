@@ -1,4 +1,52 @@
-NOTE: All updates require the explorer to be restarted
+NOTE: As of v1.100.0-bae4d50, it is no longer necessary to manually restart the explorer after updating, as long as you are using the built-in update script `npm run update-explorer`. All other manual updates such as `git pull` will still require a restart to the explorer after updating.
+
+1.101.0 [July 09, 2022]
+
+-Locale string tx_hash was changed from "Hash" to "Tx Hash" to be clearer about which Hash it refers to
+-TXid was renamed to "Tx Hash" throughout the site
+-Removed the coin name from the tx hash label on the transaction page
+-Removed the coin name from the block hash label on the block page and changed the text "block" to "Block Hash"
+-The header_logo.png was renamed to header-logo.png
+-Added 2 optional arguments to the update script to update the explorer code only (`npm run update-explorer "explorer-only"`) and another option to update outdated dependencies only (`npm run update-explorer "dependencies-only"`)
+-Added a custom.js file that can be used to add custom javascript code without affecting the ability to do a `git pull` or `npm run update-explorer` update
+-Added "copy to clipboard" buttons to the network addnode tables
+-Network addnode table data no longer wraps onto multiple lines when the data cannot fit on the screen
+-Fixed a bug which caused the error page to not show a proper page title
+-Fixed a bug which caused the locking mechanism to fail on non-windows computers when the explorer is installed to a directory that has a space character somewhere in the absolute path
+-The update_explorer.js script has been improved with better spacing and the ability to restart the explorer automatically to ensure new changes take effect immidiately (works with npm start, pm2 and forever)
+-The code to compile scss to css has been moved from the prestart script into its own compile_css.js script which is now called from the update-explorer.js script to apply css changes after update
+-The cluster code now handles a custom restart msg which is used to restart the explorer from the update explorer process
+-Pm2 and Forever are now referenced by the name 'explorer' instead of ./bin/instance or ./bin/cluster
+-Added reload/restart scripts to the package.json for pm2 and forever
+-Pm2 and forever now write a pid file to the tmp directory when started. NOTE: Forever is now started from the prestart script due to a bug in forever that prevents the pid from being written to a different directory without the absolute path
+-Fixed a bug which caused the prestart script to be run twice when starting the explorer with `npm start`
+-The cluster code now accepts a numeric argument to force a specific number of instances to be loaded
+-The `npm run start-instance` cmd now loads using the cluster code with a single instance
+-The is_locked function now accepts an optional 'silent' argument to prevent displaying msgs while checking for pid/lock files
+-Added a port_filter setting to the 3 network_page tables which allows showing only results from peers on the selected port
+-Added a hide_protocols setting to the 3 network_page tables which allows hiding results from peers on the selected protocols
+-Added a Port column to the data table on the Network page Connections tab
+-The data table on the Network page Connections tab is now sortable
+-The peer sync now refreshes data for peers that existed since last sync
+-Adding and updating peers now displays the port # in the log output
+-The /ext/getnetworkpeers api is now sorted by ip4/ip6, address and port which also means all data on the Network page is sorted this way by default as well
+-Improved loading speed of the network page by combining 3 separate database calls into 1
+-Added support for the Dex-Trade exchange
+-Added support for the FreiExchange/FreiXLite exchange (this exchange has 2 separate sites using the same api, so new functionality was added to the explorer to handle alt markets like this with an alt market name, alt logo, market url and an "isAlt" function to determine if the alt name/logo should be used)
+-Support was added for the getblockchaininfo rpc cmd which now allows the coin supply to be populated via this function
+-The network difficulty chart now supports 2 datasets: POW and POS
+-Fixed a bug with the network difficulty chart where it would fail to populate if the shared_pages.difficulty setting was 'Hybrid'
+-NetworkHistory.difficulty field was renamed to difficulty_pow and a new difficulty_pos field was added
+-The shared_pages.page_header.network_charts.difficulty_chart.line_color setting was renamed to pow_line_color
+-The shared_pages.page_header.network_charts.difficulty_chart.fill_color setting was renamed to pow_fill_color
+-The favicon functionality was updated so that instead of using a single file for the favicon, there are now 4 size options for a more modern favicon experience
+-Fixed a bug which did not properly handle certain special characters in the mongo username/password such as % or @ for example
+-Updated the README with details of the "bind EACCES" error msg that can appear when you try to run the explorer on a port number lower than 1024
+-Updated the README with instructions for using the newer node.js production flag (--only=prod) instead of the old flag (--production)
+-Added pm2 and forever to the dev dependencies list to help prevent package.json from being automatically updated/changed in production which could make `git pull` fail due to the changes
+-Both dependencies and dev dependencies sections have been sorted alphabetically to help prevent auto package.json changes
+-The custom user-agent strings for http requests have all been removed
+-Fixed an issue with the crex24 market chart that could cause it to be overpopulated with data and therefore unreadable/unusable
 
 1.100.0 [May 29, 2022]
 -Added a custom.scss file that can be used to add custom css changes without affecting the ability to do a git pull update
