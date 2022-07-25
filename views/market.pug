@@ -301,8 +301,10 @@ block content
                           - var price_change = "0.00";
                         else
                           - var price_change = Number(marketdata.data.summary.change).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':true});
-                      else
+                      else if marketdata.data.summary.last != 0
                         - var price_change = Number((100 - ((parseFloat(marketdata.data.summary.prev) / parseFloat(marketdata.data.summary.last)) * 100))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':true});
+                      else
+                        - var price_change = Number(0).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':true});
                       - var splitChange = price_change.split(".");
                       if price_change > 0
                         td.text-center.text-success.fw-bold +#{splitChange[0]}.
