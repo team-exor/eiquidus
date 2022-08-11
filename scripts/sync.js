@@ -594,9 +594,9 @@ if (lib.is_locked([database]) == false) {
 
               db.find_peer(address, port, function(peer) {
                 if (peer) {
-                  if ((peer['port'] != null && (isNaN(peer['port']) || peer['port'].length < 2)) || peer['country'].length < 1 || peer['country_code'].length < 1) {
+                  if (peer['port'] != null && (isNaN(peer['port']) || peer['port'].length < 2)) {
                     db.drop_peers(function() {
-                      console.log('Saved peers missing ports or country, dropping peers. Re-run this script afterwards.');
+                      console.log('Removing peers due to missing port information. Re-run this script to add peers again.');
                       exit(1);
                     });
                   }
