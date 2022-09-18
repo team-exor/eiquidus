@@ -157,7 +157,7 @@ html(lang='en')
         return decodeURIComponent(results[2].replace(/\+/g, ' '));
       }
       function fixFooterHeightAndPosition() {
-        var screenWidth = $(window).width();
+        var screenWidth = $(window).outerWidth();
 
         if (screenWidth <= 575) {
           // Mobile
@@ -205,7 +205,7 @@ html(lang='en')
       }
       function getSocialLinkHeight() {
         var retVal = 70;
-        var screenWidth = $(window).width();
+        var screenWidth = $(window).outerWidth();
 
         if (screenWidth <= 575) {
           // Mobile
