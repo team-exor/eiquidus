@@ -492,6 +492,240 @@ $theme-name: to-lower-case(theme-selector.$theme-name);
   }
 }
 
+@mixin menu-text-color-dark() {
+  @if $theme-name == "cerulean" {
+    color: rgba(255, 255, 255, 0.8);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "cosmo" {
+    color: rgba(255, 255, 255, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "cyborg" {
+    color: rgba(255, 255, 255, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "darkly" {
+    color: rgba(255, 255, 255, 0.6);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "exor" {
+    color: exor.$black;
+  } @else if $theme-name == "flatly" {
+    color: flatly.$white;
+  } @else if $theme-name == "journal" {
+    color: rgba(255, 255, 255, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "litera" {
+    color: rgba(255, 255, 255, 0.6);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "lumen" {
+    color: rgba(255, 255, 255, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "lux" {
+    color: rgba(255, 255, 255, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "materia" {
+    color: rgba(255, 255, 255, 0.75);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "minty" {
+    color: rgba(255, 255, 255, 0.6);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "morph" {
+    color: rgba(255, 255, 255, 0.75);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "pulse" {
+    color: rgba(255, 255, 255, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "quartz" {
+    color: rgba(255, 255, 255, 0.8);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "sandstone" {
+    color: rgba(255, 255, 255, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "simplex" {
+    color: rgba(255, 255, 255, 0.75);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "sketchy" {
+    color: sketchy.$white;
+  } @else if $theme-name == "slate" {
+    color: rgba(255, 255, 255, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "solar" {
+    color: rgba(255, 255, 255, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "spacelab" {
+    color: rgba(255, 255, 255, 0.75);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "superhero" {
+    color: rgba(255, 255, 255, 0.75);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "united" {
+    color: rgba(255, 255, 255, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "vapor" {
+    color: rgba(255, 255, 255, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "yeti" {
+    color: rgba(255, 255, 255, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "zephyr" {
+    color: zephyr.$white;
+  } @else {
+    color: rgba(0, 0, 0, 0.55);
+  }
+}
+
+@mixin menu-text-color-light() {
+  @if $theme-name == "cerulean" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "cosmo" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "cyborg" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "darkly" {
+    color: rgba(34, 34, 34, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "exor" {
+    color: exor.$black;
+  } @else if $theme-name == "flatly" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "journal" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "litera" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "lumen" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "lux" {
+    color: rgba(0, 0, 0, 0.3);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "materia" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "minty" {
+    color: rgba(0, 0, 0, 0.3);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "morph" {
+    color: morph.$gray-700;
+  } @else if $theme-name == "pulse" {
+    color: rgba(0, 0, 0, 0.4);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "quartz" {
+    color: rgba(52, 58, 64, 0.8);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "sandstone" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "simplex" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "sketchy" {
+    color: sketchy.$gray-800;
+  } @else if $theme-name == "slate" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "solar" {
+    color: rgba(0, 0, 0, 0.4);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "spacelab" {
+    color: rgba(0, 0, 0, 0.4);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "superhero" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "united" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "vapor" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "yeti" {
+    color: rgba(0, 0, 0, 0.55);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "zephyr" {
+    color: zephyr.$black;
+  } @else {
+    color: rgba(0, 0, 0, 0.55);
+  }
+}
+
+@mixin menu-text-focus-color-dark() {
+  @if $theme-name == "cerulean" {
+    color: cerulean.$white;
+  } @else if $theme-name == "cosmo" {
+    color: cosmo.$white;
+  } @else if $theme-name == "cyborg" {
+    color: cyborg.$white;
+  } @else if $theme-name == "darkly" {
+    color: darkly.$white;
+  } @else if $theme-name == "exor" {
+    color: exor.$black;
+  } @else if $theme-name == "flatly" {
+    color: flatly.$blue;
+  } @else if $theme-name == "journal" {
+    color: rgba(255, 255, 255, 0.75);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "litera" {
+    color: litera.$white;
+  } @else if $theme-name == "lumen" {
+    color: rgba(255, 255, 255, 0.75);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "lux" {
+    color: lux.$white;
+  } @else if $theme-name == "materia" {
+    color: materia.$white;
+  } @else if $theme-name == "minty" {
+    color: minty.$white;
+  } @else if $theme-name == "morph" {
+    color: morph.$white;
+  } @else if $theme-name == "pulse" {
+    color: rgba(255, 255, 255, 0.9);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "quartz" {
+    color: quartz.$white;
+  } @else if $theme-name == "sandstone" {
+    color: sandstone.$white;
+  } @else if $theme-name == "simplex" {
+    color: simplex.$white;
+  } @else if $theme-name == "sketchy" {
+    color: sketchy.$white;
+  } @else if $theme-name == "slate" {
+    color: slate.$white;
+  } @else if $theme-name == "solar" {
+    color: rgba(255, 255, 255, 0.75);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "spacelab" {
+    color: spacelab.$white;
+  } @else if $theme-name == "superhero" {
+    color: superhero.$white;
+  } @else if $theme-name == "united" {
+    color: rgba(255, 255, 255, 0.75);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "vapor" {
+    color: rgba(255, 255, 255, 0.75);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "yeti" {
+    color: yeti.$white;
+  } @else if $theme-name == "zephyr" {
+    color: zephyr.$white;
+    background-color: rgba(255,255,255,.1);  /* Hardcoded value not present in _variables.scss */
+  } @else {
+    color: #fff;
+  }
+}
+
+@mixin menu-text-focus-color-light() {
+  @if $theme-name == "cerulean" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "cosmo" {
+    color: rgba(0, 0, 0, 0.9);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "cyborg" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "darkly" {
+    color: darkly.$gray-900;
+  } @else if $theme-name == "exor" {
+    color: exor.$white;
+  } @else if $theme-name == "flatly" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "journal" {
+    color: journal.$black;
+  } @else if $theme-name == "litera" {
+    color: litera.$gray-800;
+  } @else if $theme-name == "lumen" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "lux" {
+    color: lux.$gray-900;
+  } @else if $theme-name == "materia" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "minty" {
+    color: minty.$gray-700;
+  } @else if $theme-name == "morph" {
+    color: #485785;  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "pulse" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "quartz" {
+    color: quartz.$gray-800;
+  } @else if $theme-name == "sandstone" {
+    color: sandstone.$black;
+  } @else if $theme-name == "simplex" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "sketchy" {
+    color: sketchy.$gray-800;
+  } @else if $theme-name == "slate" {
+    color: slate.$gray-800;
+  } @else if $theme-name == "solar" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "spacelab" {
+    color: spacelab.$cyan;
+  } @else if $theme-name == "superhero" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "united" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "vapor" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "yeti" {
+    color: rgba(0, 0, 0, 0.7);  /* Hardcoded value not present in _variables.scss */
+  } @else if $theme-name == "zephyr" {
+    color: zephyr.$black;
+    background-color: rgba(0,0,0,.03);  /* Hardcoded value not present in _variables.scss */
+  } @else {
+    color: rgba(0, 0, 0, 0.7);
+  }
+}
+
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
@@ -536,6 +770,7 @@ h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .navbar {
   padding: 0.2rem 0.4rem;
+  box-shadow: none;
 }
 
 .nav-tabs {
@@ -799,6 +1034,9 @@ tr {
   #navbar-collapse .nav-link {
     padding-left: 10px;
   }
+  li#markets > div.dropdown-menu {
+    border: 0;
+  }
 }
 
 .tab-pane .dataTables_wrapper, .tab-pane > .card-default > table, .wrapper-border-0 .dataTables_wrapper {
@@ -1001,12 +1239,252 @@ tr {
   }
 }
 
-#search-navbar-collapse {
-  padding: 5px 15px;
+#inner-header-side {
+  padding: 0.2rem 9px 0.2rem 0;
+
+  > div.container {
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+    justify-content: normal;
+
+    > span#search-header-span {
+      margin-left: auto;
+    }
+  }
 }
 
-#search-navbar-collapse.collapse:not(.show) {
+.side-header {
+  width: 100%;
+  top: 0;
+  left: 0;
+  display: block;
+  background-color: #F7F6FB;
+  z-index: 100;
+  transition: .5s;
+  border-bottom-width: 1px;
+  border-bottom-style: solid;
+  @include table-border-color;
+
+  .logo-main {
+    padding: 0 9px;
+  }
+
+  > div#inner-header-side > div.container {
+    > #search-navbar-collapse > div.search-box-custom {
+      padding: 0 0 0 24px;
+    }
+    > a.navbar-brand {
+      padding-right: 0;
+      margin-right: 0;
+    }
+  }
+
+  > #search-navbar-collapse > div.search-box-custom {
+    padding: 5px 9px;
+  }
+}
+
+.side-header-toggle {
+  font-size: 1.5rem;
+  padding-left: 15px;
+  cursor: pointer;
+}
+
+.show-menu {
+  width: 224px;
+}
+
+div#side-nav-bar {
   display: none;
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 0;
+  top: 0;
+  left: 0;
+  padding: .5rem 1rem 0 0;
+  transition: .5s;
+  z-index: 99;
+  padding: 1rem 1rem 0 1rem;
+  margin-top: 56px;
+  margin-bottom: -11px;
+
+  &:not(.show-menu) {
+    width: 68px;
+  }
+
+  a.nav-link {
+    padding: 0.5rem 0;
+  }
+}
+
+.side-nav {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  .nav-item {
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
+div.offcanvas-body {
+  padding: 0;
+  overflow-x: hidden;
+
+  div#side-nav-bar {
+    display: block;
+    margin-top: 0;
+    padding-top: 0.3rem;
+    border-right: 0;
+    width: 224px;
+
+    #sidebar-offcanvas-close {
+      display: list-item;
+    }
+  }
+}
+
+#sidebar-offcanvas-close {
+  display: none;
+}
+
+.navbar-nav #sidebar-offcanvas-close .nav-link:hover, .navbar-nav #sidebar-offcanvas-close .nav-link:focus {
+  background-color: transparent;
+}
+
+#side-offcanvas {
+  width: 227px;
+}
+
+.nav-icon {
+  font-size: 1.25rem;
+  width: 36px;
+  text-align: center;
+}
+
+#footer-container {
+  z-index: 100;
+}
+
+.navbar-light #side-header-toggle > span {
+  @include header-button-light;
+}
+
+.navbar-dark #side-header-toggle > span {
+  @include header-button-dark;
+}
+
+.dropdown-menu:not(.show) {
+  display: none;
+}
+
+div#side-market-menu, div#navbar-collapse .dropdown-menu {
+  background-image: none;
+}
+
+div.navbar-dark div#side-market-menu > a.dropdown-item, div#main-header.navbar-dark li#markets a.dropdown-item {
+  @include menu-text-color-dark;
+
+  &:focus, &:hover {
+    background-color: transparent;
+    @include menu-text-focus-color-dark;
+  }
+}
+
+div.navbar-light div#side-market-menu > a.dropdown-item, div#main-header.navbar-light li#markets a.dropdown-item {
+  @include menu-text-color-light;
+
+  &:focus, &:hover {
+    background-color: transparent;
+    @include menu-text-focus-color-light;
+  }
+}
+
+/* Fix for flatly v5.13 theme to handle primary color on focus/active */
+@if $theme-name == "flatly" {
+  div.bg-primary div#side-market-menu > a.dropdown-item, div#main-header.bg-primary li#markets a.dropdown-item {
+    &:focus, &:hover {
+      color: flatly.$green;
+    }
+  }
+}
+
+div#side-offcanvas {
+  div#side-market-menu {
+    background-color: transparent !important;
+    border: 0;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+div.navbar-expand-lg {
+  border: 0;
+}
+
+.transition05s {
+  transition: 0.5s;
+}
+
+.displayFlex {
+  display: flex;
+}
+
+.flexGrow1 {
+  flex-grow: 1;
+}
+
+.width1 {
+  width: 1px;
+}
+
+.marginTop20 {
+  margin-top: 20px;
+}
+
+.marginTop80 {
+  margin-top: 80px;
+}
+
+@media screen and (min-width: 992px) {
+  div#side-nav-bar {
+    display: block;
+
+    li.side-market-menu > a.nav-link::after {
+      display: none;
+    }
+
+    &.show-menu, &.activating {
+      li.side-market-menu > a.nav-link::after {
+        display: inline-block;
+      }
+    }
+
+    li.nav-item > a.nav-link > span:last-child {
+      display: none;
+    }
+  }
+
+  #side-offcanvas, .offcanvas-backdrop {
+    display: none;
+  }
+
+  #inner-header-side button#search-header-button {
+    display: none;
+  }
+}
+
+#search-navbar-collapse {
+  &.collapse:not(.show) {
+    display: none;
+  }
+
+  > div.search-box-custom {
+    padding: 5px 15px;
+  }
 }
 
 #search-header-button {
@@ -1034,8 +1512,26 @@ tr {
   @include header-button-dark;
 }
 
-.navbar-nav .nav-link {
-  color: #000;
+.os-content > .navbar-nav > li#markets > div.dropdown-menu {
+  background-color: transparent !important;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-nav {
+  > li#markets > div.dropdown-menu {
+    padding: 0.5rem 0;
+  }
+
+  .nav-link {
+    color: #000;
+    border: 0;
+
+    &:hover, &:focus {
+      background-image: none !important;
+      border: 0 !important;
+    }
+  }
 }
 
 .navbar-nav .active .nav-link {

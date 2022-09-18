@@ -20,6 +20,7 @@ html(lang='en')
     if active == 'network'
       link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/4.1.4/css/flag-icons.min.css')
     link(rel='stylesheet', type='text/css', href='https://cdn.datatables.net/v/bs5/dt-1.11.3/datatables.min.css')
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.13.3/css/OverlayScrollbars.min.css')
     link(rel='stylesheet', href='/css/style.min.css' + (styleHash == null ? '' : '?h=' + styleHash))
     link(rel='stylesheet', href='/css/custom.min.css' + (customHash == null ? '' : '?h=' + customHash))
     script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js', integrity='sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==', crossorigin='anonymous', referrerpolicy='no-referrer')
@@ -34,6 +35,7 @@ html(lang='en')
     if active == 'richlist'
       script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.pieRenderer.min.js')
     script(type='text/javascript', src='https://cdn.datatables.net/v/bs5/dt-1.11.3/datatables.min.js')
+    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.13.3/js/jquery.overlayScrollbars.min.js', integrity="sha512-PviP63d43OXLyLjCv3TawK1Rw4LQQsnH6yschHgK63LBvLpd1U1+7LM/OESlV/cSze5lFI3+f7JwKFEBEWNp1w==", crossorigin="anonymous", referrerpolicy="no-referrer")
     - var showPanels = false
     - var showNethashChart = false
     - var showDifficultyChart = false
@@ -133,7 +135,18 @@ html(lang='en')
       script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chart.js@3.6.1/dist/chart.min.js')
     if settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true))
       script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chartjs-plugin-crosshair@1.2.0')
+    - var sideBarClasses = [];
+    if settings.shared_pages.page_header.bgcolor != null && settings.shared_pages.page_header.bgcolor != ''
+      - sideBarClasses.push('bg-' + settings.shared_pages.page_header.bgcolor);
+      if settings.shared_pages.page_header.bgcolor.toString().toLowerCase() == 'dark' || settings.shared_pages.page_header.bgcolor.toString().toLowerCase() == 'light'
+        - sideBarClasses.push('navbar-' + settings.shared_pages.page_header.bgcolor);
+    else
+      - sideBarClasses.push('bg-primary');
+      - sideBarClasses.push('navbar-dark');
     script.
+      var sideMarketVisible = false;
+      var topMenuExpanded = false;
+      var sideBarClasses = '!{sideBarClasses}'.replace(/,/g, " ");
       /* Special thanks to the stackoverflow community for the getParameterByName function: https://stackoverflow.com/a/901144/3038650 */
       function getParameterByName(name, url = window.location.href) {
         name = name.replace(/[\[\]]/g, '\\$&');
@@ -159,16 +172,20 @@ html(lang='en')
 
         if (!#{settings.shared_pages.page_footer.sticky_footer}) {
           // Wait a tick before fixing footer position to give time for elements to be rendered
-          var nonStickyFooterSetIntervalID = setInterval(function() {
-            // Stop setInterval from running again
-            clearInterval(nonStickyFooterSetIntervalID);
+          setTimeout(function() {
             // Ensure footer is shown at the bottom of the viewport
             var offset = (window.innerHeight - $('#footer-container').position().top - $('#footer-container').outerHeight());
             $('#footer-container').css('margin-top', (offset > 0 ? offset - 1 : '10') + 'px');
-          }, 1, "tmrFixFooter");
+
+            if ('#{settings.shared_pages.page_header.menu}' == 'side')
+              fixSidebarHeight();
+          }, 1);
         } else {
           // Add spacing to the bottom of the body for the sticky footer
           $('body').css('margin-bottom', ($('#footer-container').outerHeight() + 10) + 'px');
+
+          if ('#{settings.shared_pages.page_header.menu}' == 'side')
+            fixSidebarHeight();
         }
 
         fixSocialLinkFontSize();
@@ -177,6 +194,14 @@ html(lang='en')
         var fontSize = $('#footer-container').height() * (getSocialLinkHeight() / 100);
         $('#footer-container .social-link').css('font-size', fontSize);
         $('#footer-container .social-link > img').css('width', fontSize + 'px').css('height', fontSize + 'px');
+      }
+      function fixSidebarHeight() {
+        if ('#{settings.shared_pages.page_footer.sticky_footer}' != 'true')
+          $('div#side-nav-bar').css('margin-bottom', -($('div#body-container > div#side-nav-bar').length ? ($('div#footer-container').offset().top - $('div#footer-container').position().top + 1) : 0).toString() + 'px');
+        else if ($('div#footer-container').offset().top > ($('#main-container').position().top + $('#main-container').outerHeight(true)))
+          $('div#side-nav-bar').css('margin-bottom', -($('div#body-container > div#side-nav-bar').length ? ($('div#footer-container').offset().top - ($('#main-container').position().top + $('#main-container').outerHeight(true)) + $('div#footer-container').outerHeight(true)) : 0).toString() + 'px');
+        else
+          $('div#side-nav-bar').css('margin-bottom', '');
       }
       function getSocialLinkHeight() {
         var retVal = 70;
@@ -257,6 +282,24 @@ html(lang='en')
             break;
         }
         return networkSuffix;
+      }
+      function fixTopMenuCollapse(isResizing) {
+        if (topMenuExpanded && isResizing) {
+          // force collapse the menu if it is open and the screen is being resized,
+          // otherwise it could cause problems with the market dropdown after resizing back and forth between mobile and desktop sizes
+          bootstrap.Collapse.getOrCreateInstance($('#navbar-collapse')).hide();
+          topMenuExpanded = false;
+        }
+
+        if ($().tooltip)
+          $('#navbar-toggler-span').tooltip('hide');
+
+        if (topMenuExpanded) {
+          $('#search-header-button').hide();
+          $('#search-navbar-collapse').addClass('d-none');
+          $('#navbar-collapse').css('max-height', ($(window).outerHeight() - ($('#main-header div.navbar-header').outerHeight()) - (#{settings.shared_pages.page_footer.sticky_footer} == true ? $('div#footer-container').outerHeight(true) : 0) - 20).toString() + 'px');
+        } else
+          $('#navbar-collapse').css('max-height', 'none');
       }
       $(document).ready(function() {
         if ('#{active}' != '')
@@ -565,6 +608,16 @@ html(lang='en')
         $(window).resize(function () {
           fixDataTableColumns();
           fixFooterHeightAndPosition();
+
+          if ('#{settings.shared_pages.page_header.menu}' == 'side') {
+            fixSidebar();
+            positionSidebarSearch();
+          } else {
+            if ($(window).outerWidth() < 992)
+              hideMarketDropdown();
+
+            fixTopMenuCollapse(true);
+          }
         });
         function getNetworkPanel() {
           var hashRateType='<label id="hashrate"></label>';
@@ -630,6 +683,19 @@ html(lang='en')
             }
           }
         }
+        function hideMarketDropdown() {
+          if ('#{settings.shared_pages.page_header.menu}' == 'side') {
+            if ($('div#side-market-menu').hasClass('show')) {
+              // close the market dropdown which was left open
+              bootstrap.Dropdown.getOrCreateInstance($('li.side-market-menu > a.dropdown-toggle')).hide();
+            }
+          } else {
+            if ($('li#markets > div.dropdown-menu').hasClass('show')) {
+              // close the market dropdown which was left open
+              bootstrap.Dropdown.getOrCreateInstance($('li#markets > a.dropdown-toggle')).hide();
+            }
+          }
+        }
         $(document).on('click', 'button.btn-close', function (e) {
           e.preventDefault();
 
@@ -638,12 +704,248 @@ html(lang='en')
             fixFooterHeightAndPosition();
           });
         });
+        $(document).on('click', 'button#search-header-button', function (e) {
+          if ($().tooltip)
+            $('#search-header-span').tooltip('hide');
+        });
+        $('#search-navbar-collapse').on('shown.bs.collapse', function (e) {
+          fixFooterHeightAndPosition();
+        });
+        $('#search-navbar-collapse').on('hidden.bs.collapse', function (e) {
+          fixFooterHeightAndPosition();
+        });
         if (#{showPanels} == true) {
           hideShowPanel('#{settings.panel1}', 'pnlOne');
           hideShowPanel('#{settings.panel2}', 'pnlTwo');
           hideShowPanel('#{settings.panel3}', 'pnlThree');
           hideShowPanel('#{settings.panel4}', 'pnlFour');
           hideShowPanel('#{settings.panel5}', 'pnlFive');
+        }
+        if ('#{settings.shared_pages.page_header.menu}' == 'side') {
+          function positionSidebarSearch() {
+            if (#{settings.shared_pages.page_header.search.enabled} == true && '#{settings.shared_pages.page_header.search.position.toString().toLowerCase()}' == 'inside-header') {
+              if ($(window).outerWidth() < 992) {
+                if ($('div#inner-header-side > div.container > div#search-navbar-collapse').length)
+                  $('div#search-navbar-collapse').addClass('collapse').removeClass('flexGrow1').appendTo('header#main-header-side');
+              } else {
+                if ($('header#main-header-side > div#search-navbar-collapse').length)
+                  $('div#search-navbar-collapse').addClass('flexGrow1').removeClass('collapse').appendTo('div#inner-header-side > div.container');
+              }
+            }
+          }
+          function fixSideBarTop() {
+            if ('#{settings.shared_pages.page_header.sticky_header}' == 'true') {
+              if ($(window).outerWidth() < 992)
+                $('div#side-nav-bar').css('margin-top', '');
+              else
+                $('div#side-nav-bar').css('margin-top', $('header#main-header-side').outerHeight(true).toString() + 'px');
+            } else
+              $('div#side-nav-bar').css('margin-top', '0');
+          }
+          function fixSidebar() {
+            if ($(window).outerWidth() < 992) {
+              if ($('div#side-nav-bar').hasClass('show-menu'))
+                toggleSideMenu();
+
+              if ($('div#body-container > div#side-nav-bar').length > 0) {
+                let hasScrollbar = false;
+                $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').show();
+                $('nav.side-nav').css('overflow', 'visible');
+                $('div#side-nav-bar').removeClass(sideBarClasses);
+
+                if ($('div#side-offcanvas > div.offcanvas-body div.os-content').length > 0) {
+                  $('div#body-container > div#side-nav-bar').appendTo('div#side-offcanvas > div.offcanvas-body div.os-content');
+                  hasScrollbar = true;
+                } else
+                  $('div#body-container > div#side-nav-bar').appendTo('div#side-offcanvas > div.offcanvas-body');
+
+                hideMarketDropdown();
+                $('div#side-header-toggle').attr('data-bs-toggle', 'offcanvas').attr('data-bs-target', '#side-offcanvas').attr('aria-controls', 'side-offcanvas');
+                if ($().tooltip)
+                  $('nav.side-nav li.nav-item').tooltip('disable');
+                $('li.side-market-menu').removeClass('dropend').addClass('dropdown');
+                $('li.side-market-menu > a.nav-link').attr('data-bs-toggle', 'collapse').attr('data-bs-target', '#side-market-menu').attr('aria-controls', '#side-market-menu').attr('aria-expanded', 'false');
+                $('div#side-market-menu').removeClass('dropdown-menu dropdown-menu-dark').addClass('collapse');
+
+                if (!hasScrollbar)
+                  $('div#side-offcanvas > div.offcanvas-body').overlayScrollbars({overflowBehavior: {x: 'hidden'}});
+
+                fixSidebarHeight();
+              }
+            } else {
+              if ($('div#side-offcanvas > div.offcanvas-body div#side-nav-bar').length > 0) {
+                if ($('div#side-market-menu').hasClass('show')) {
+                  // close the market collapse which was left open
+                  bootstrap.Collapse.getOrCreateInstance($('#side-market-menu')).hide();
+                }
+
+                if ($('div#side-offcanvas').hasClass('show')) {
+                  // close the offcanvas side-menu which was left open
+                  bootstrap.Offcanvas.getOrCreateInstance($('div#side-offcanvas')).hide();
+                }
+
+                resetSideBarWidth();
+                $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').hide();
+                $('div#side-nav-bar').addClass(sideBarClasses);
+                $('div#side-offcanvas > div.offcanvas-body div#side-nav-bar').prependTo('div#body-container');
+                $('div#side-header-toggle').removeAttr('data-bs-toggle').removeAttr('data-bs-target').removeAttr('aria-controls');
+                if ($().tooltip)
+                  $('nav.side-nav li.nav-item').tooltip('enable');
+                $('li.side-market-menu').removeClass('dropdown').addClass('dropend');
+                $('li.side-market-menu > a.nav-link').removeAttr('data-bs-toggle').removeAttr('data-bs-target').removeAttr('aria-controls').removeAttr('aria-expanded');
+                $('div#side-market-menu').removeClass('collapse').addClass('dropdown-menu' + ('#{settings.shared_pages.page_header.bgcolor}' == null || '#{settings.shared_pages.page_header.bgcolor}' == 'null' || '#{settings.shared_pages.page_header.bgcolor}' == '' || '#{settings.shared_pages.page_header.bgcolor}'.toLowerCase() == 'dark' ? ' dropdown-menu-dark' : ''));
+                fixSidebarHeight();
+              }
+            }
+
+            fixSideBarTop();
+          }
+          function toggleSideMenu() {
+            if (!$('div#side-nav-bar').hasClass('activating')) {
+              $('div#side-nav-bar').toggleClass('activating');
+              $('div#side-nav-bar').toggleClass('show-menu');
+              var showMenu = $('div#side-nav-bar').hasClass('show-menu');
+              $('div#side-header-toggle > span').toggleClass('fas far fa-window-close fa-bars').attr('data-bs-original-title', (showMenu ? 'Shrink Menu' : 'Expand Menu')).attr('alt', (showMenu ? 'Shrink Menu' : 'Expand Menu'));
+              hideMarketDropdown();
+
+              if ($().tooltip) {
+                $('div#side-header-toggle > span').tooltip('hide');
+                $('nav.side-nav li.nav-item').tooltip((showMenu ? 'disable' : 'enable'));
+              }
+
+              $('nav.side-nav').css('overflow', 'hidden');
+
+              if (showMenu)
+                $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').show();
+
+              // wait for the side bar to reach the desired width
+              var sideBarActivateSetIntervalID = setInterval(function() {
+                // check if the side bar has reached the full width or menu has been activated before finish
+                if (
+                  (showMenu && $('div#side-nav-bar').outerWidth() >= 224) ||
+                  (!showMenu && $('div#side-nav-bar').outerWidth() <= 68) ||
+                  (showMenu != $('div#side-nav-bar').hasClass('show-menu'))
+                ) {
+                  // stop setInterval from running again
+                  clearInterval(sideBarActivateSetIntervalID);
+                  $('div#side-nav-bar').toggleClass('activating');
+
+                  if (!showMenu)
+                    $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').hide();
+
+                  $('nav.side-nav').css('overflow', 'visible');
+
+                  // programatically call the resize event
+                  $(window).trigger('resize');
+                }
+              }, 1, "tmrWaitActivateSideMenu");
+            }
+          }
+          function resetSideBarWidth() {
+            $('div#side-offcanvas').css('width', '');
+            $('div#side-nav-bar').css('width', '');
+          }
+          $(document).on('click', 'div#side-header-toggle', function(e) {
+            if ($(window).outerWidth() >= 992)
+              toggleSideMenu();
+            else if ($().tooltip)
+              $('div#side-header-toggle > span').tooltip('hide');
+          });
+          $(document).on('click', 'li#sidebar-offcanvas-close > a.nav-link', function(e) {
+            if ($().tooltip)
+              $('li#sidebar-offcanvas-close > a.nav-link').tooltip('hide');
+          });
+          $(document).on('click', 'li.side-market-menu', function(e) {
+            if ($().tooltip && !$('#side-nav-bar').hasClass('show-menu') && $(window).outerWidth() >= 992)
+              $('nav.side-nav li#markets.nav-item').tooltip('hide');
+          });
+          $(document).on('click', 'li.side-market-menu > a.dropdown-toggle', function(e) {
+            e.preventDefault();
+
+            if ($('div#body-container > div#side-nav-bar').length > 0) {
+              // manually set the positon of the market dropdown since botostrap disables popper when called from within a .navbar
+              $('#side-market-menu').css({
+                'position': 'absolute',
+                'inset': 'auto auto 0px 0px',
+                'margin': '0px',
+                'transform': 'translate3d(' + e.pageX.toString() + 'px, 30px, 0px)'
+              });
+
+              // programatically trigger the dropdown since controlling bs dropdowns via data attributes has some unintended consequences of
+              // keeping the popper attributes around too long in specific scenarios when changing screen size and the dropdown is left open
+              bootstrap.Dropdown.getOrCreateInstance($('li.side-market-menu > a.dropdown-toggle')).toggle();
+            } else {
+              if ($('li.side-market-menu > a.dropdown-toggle[aria-expanded="true"]').length > 0) {
+                const sideBarWidth = 226;
+                const normalItemWidth = 192;
+                const firstItem = $('div#side-market-menu > a.dropdown-item').first();
+                const leftRightPadding = (firstItem == null ? 0 : parseFloat(firstItem.css('padding-right').replace('px', '')) + parseFloat(firstItem.css('margin-right').replace('px', ''))) * 2;
+                let largestItemWidth = 0;
+
+                // find the largest market item to see if the sidebar should be expanded even wider
+                $('div#side-market-menu > a.dropdown-item').each(function () {
+                  let currentItemWidth = $(this).find('> img').outerWidth(true) + $(this).find('> span').outerWidth(true);
+                  largestItemWidth = (currentItemWidth > largestItemWidth ? currentItemWidth : largestItemWidth);
+                });
+
+                if (largestItemWidth > (normalItemWidth - leftRightPadding)) {
+                  $('div#side-offcanvas').css('width', (sideBarWidth + largestItemWidth - (normalItemWidth - leftRightPadding)).toString() + 'px');
+                  $('div#side-nav-bar').css('width', 'auto');
+                } else
+                  resetSideBarWidth();
+              } else
+                resetSideBarWidth();
+            }
+          });
+          /* Add a click event for the whole document when markets are enabled to emulate the autoClose feature which doesn't work when controlling bootstrap dropdowns via javascript */
+          if (#{settings.markets_page.enabled} == true && #{settings.markets_page.show_market_dropdown_menu} == true && #{settings.market_count} > 1) {
+            $(document).on('click', function(e) {
+              if (sideMarketVisible)
+                bootstrap.Dropdown.getOrCreateInstance($('li.side-market-menu > a.dropdown-toggle')).hide();
+            });
+            $('li.side-market-menu > a.dropdown-toggle').on('shown.bs.dropdown', function (e) {
+              if ($().tooltip)
+                $('li#markets.nav-item').tooltip('disable');
+
+              // wait a tick before upating the sideMarketVisible value
+              setTimeout(function() {
+                sideMarketVisible = true;
+              }, 1);
+            });
+            $('li.side-market-menu > a.dropdown-toggle').on('hidden.bs.dropdown', function (e) {
+              sideMarketVisible = false;
+
+              if ($().tooltip && !$('div#side-nav-bar').hasClass('show-menu'))
+                $('li#markets.nav-item').tooltip('enable');
+
+              $('#side-market-menu').css({
+                'position': '',
+                'inset': '',
+                'margin': '',
+                'transform': ''
+              });
+            });
+          }
+          fixSidebar();
+          positionSidebarSearch();
+        } else {
+          $('#navbar-collapse').on('show.bs.collapse', function (e) {
+            topMenuExpanded = true;
+            fixTopMenuCollapse(false);
+          });
+          $('#navbar-collapse').on('shown.bs.collapse', function (e) {
+            // initialize the scrollbar only after the navbar collapse has finished since it goes too slow if initialized before
+            $('#navbar-collapse').overlayScrollbars({});
+          });
+          $('#navbar-collapse').on('hide.bs.collapse', function (e) {
+            topMenuExpanded = false;
+            fixTopMenuCollapse(false);
+            OverlayScrollbars($('#navbar-collapse')[0], {}).destroy();
+          });
+          $('#navbar-collapse').on('hidden.bs.collapse', function (e) {
+            $('#search-header-button').show();
+            $('#search-navbar-collapse').removeClass('d-none');
+          });
         }
         setInterval(function() {
           update_stats();
@@ -661,20 +963,47 @@ html(lang='en')
         fixFooterHeightAndPosition();
         enableTooltips();
       });
-  body
+    - var bodyClasses = [];
+    - var bodyContainerClasses = [];
+    - var mainContainerClasses = [];
+    - var mainContainerChildClasses = [];
+    if settings.shared_pages.page_header.menu == 'side'
+      - bodyContainerClasses.push('transition05s');
+      - bodyContainerClasses.push('displayFlex');
+      - bodyClasses.push('transition05s');
+      - mainContainerClasses.push('flexGrow1');
+      - mainContainerClasses.push('width1');
+      - mainContainerChildClasses.push('container');
+      if settings.shared_pages.page_header.sticky_header == true
+        - mainContainerChildClasses.push('marginTop80');
+      else
+        - mainContainerChildClasses.push('marginTop20');
+    else
+      - bodyContainerClasses.push('container');
+      if settings.shared_pages.page_header.sticky_header == true
+        - bodyContainerClasses.push('marginTop80');
+      else
+        - bodyContainerClasses.push('marginTop20');
+  body(class=bodyClasses)
     - var headerClasses = [];
     - var footerClasses = ['nav','navbar','navbar-default','d-flex','footer'];
+    - var dropdownClasses = ['dropdown-menu'];
     if settings.shared_pages.page_header.sticky_header == true
       - headerClasses.push('fixed-top');
     if settings.shared_pages.page_footer.sticky_footer == true
       - footerClasses.push('fixed-bottom');
     if settings.shared_pages.page_header.bgcolor != null && settings.shared_pages.page_header.bgcolor != ''
       - headerClasses.push('bg-' + settings.shared_pages.page_header.bgcolor);
+      - dropdownClasses.push('bg-' + settings.shared_pages.page_header.bgcolor);
       if settings.shared_pages.page_header.bgcolor.toString().toLowerCase() == 'dark' || settings.shared_pages.page_header.bgcolor.toString().toLowerCase() == 'light'
         - headerClasses.push('navbar-' + settings.shared_pages.page_header.bgcolor);
+        if settings.shared_pages.page_header.bgcolor.toString().toLowerCase() == 'dark'
+          - dropdownClasses.push('dropdown-menu-dark');
     else
       - headerClasses.push('bg-primary');
       - headerClasses.push('navbar-dark');
+      - dropdownClasses.push('bg-primary');
+      - dropdownClasses.push('dropdown-menu-dark');
     if settings.shared_pages.page_footer.bgcolor != null && settings.shared_pages.page_footer.bgcolor != ''
       - footerClasses.push('bg-' + settings.shared_pages.page_footer.bgcolor);
       if settings.shared_pages.page_footer.bgcolor.toString().toLowerCase() == 'dark' || settings.shared_pages.page_footer.bgcolor.toString().toLowerCase() == 'light'
@@ -682,57 +1011,171 @@ html(lang='en')
     else
       - footerClasses.push('bg-primary');
       - footerClasses.push('navbar-dark');
-    div#main-header.navbar(class=headerClasses)
-      div.navbar.navbar-expand-lg(style=settings.shared_pages.page_header.home_link == 'logo' ? 'padding-left:0;' : '')
-        div.container
-          .navbar-header
-            button.navbar-toggler(type='button', data-bs-toggle='collapse', data-bs-target='#navbar-collapse', aria-controls='navbar-collapse', aria-expanded='false', aria-label='Toggle navigation')
-              span.navbar-toggler-icon
-          if settings.shared_pages.page_header.home_link == 'title'
-            a.navbar-brand(href='/', style='order:-1;') #{settings.shared_pages.page_title}
-          else if settings.shared_pages.page_header.home_link == 'coin'
-            a.navbar-brand(href='/', style='order:-1;') #{settings.coin.name}
-          else if settings.shared_pages.page_header.home_link == 'logo'
-            a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='order:-1;', data-bs-toggle='tooltip', data-bs-placement='bottom')
-              img.logo-main(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0;max-height:' + settings.shared_pages.page_header.home_link_logo_height + 'px;')
-          .collapse.navbar-collapse(id='navbar-collapse')
-            ul.navbar-nav(style='width:100%;')
-              li#home.nav-item
+    if settings.shared_pages.page_header.menu == 'top'
+      div#main-header.navbar(class=headerClasses)
+        div.navbar.navbar-expand-lg(style=settings.shared_pages.page_header.home_link == 'logo' ? 'padding-left:0;' : '')
+          div.container
+            .navbar-header
+              span#navbar-toggler-span(alt='Toggle Menu', title='Toggle Menu', data-bs-toggle='tooltip', data-bs-placement='left')
+                button.navbar-toggler(type='button', data-bs-toggle='collapse', data-bs-target='#navbar-collapse', aria-controls='navbar-collapse', aria-expanded='false', aria-label='Toggle navigation')
+                  span.navbar-toggler-icon
+            if settings.shared_pages.page_header.home_link == 'title'
+              a.navbar-brand(href='/', style='order:-1;') #{settings.shared_pages.page_title}
+            else if settings.shared_pages.page_header.home_link == 'coin'
+              a.navbar-brand(href='/', style='order:-1;') #{settings.coin.name}
+            else if settings.shared_pages.page_header.home_link == 'logo'
+              a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='order:-1;', data-bs-toggle='tooltip', data-bs-placement='bottom')
+                img.logo-main(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0;max-height:' + settings.shared_pages.page_header.home_link_logo_height + 'px;')
+            .collapse.navbar-collapse(id='navbar-collapse')
+              ul.navbar-nav(style='width:100%;')
+                li#home.nav-item
+                  a.nav-link(href='/')
+                    span.fas.fa-cubes
+                    span.margin-left-5 #{settings.locale.menu_explorer}
+                if settings.blockchain_specific.heavycoin.enabled == true && settings.blockchain_specific.heavycoin.reward_page.enabled == true
+                  li#reward.nav-item
+                    a.nav-link(href='/reward')
+                      span.fa.fa-star
+                      span.margin-left-5 #{settings.locale.menu_reward}
+                if settings.masternodes_page.enabled == true
+                  li#masternodes.nav-item
+                    a.nav-link(href='/masternodes')
+                      span.fa.fa-share-alt
+                      span.margin-left-5 Masternodes
+                if settings.movement_page.enabled == true
+                  li#movement.nav-item
+                    a.nav-link(href='/movement')
+                      span.far.fa-money-bill-alt
+                      span.margin-left-5 #{settings.locale.menu_movement}
+                if settings.network_page.enabled == true
+                  li#network.nav-item
+                    a.nav-link(href='/network')
+                      span.fas.fa-network-wired
+                      span.margin-left-5 #{settings.locale.menu_network}
+                if settings.richlist_page.enabled == true
+                  li#richlist.nav-item
+                    a.nav-link(href='/richlist')
+                      span.fab.fa-btc
+                      span.margin-left-5 #{settings.locale.menu_richlist}
+                if settings.markets_page.enabled == true
+                  if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
+                    li#markets.dropdown.nav-item
+                      a.nav-link.dropdown-toggle(data-bs-toggle='dropdown', href='#')
+                        span.fas.fa-chart-line
+                        span.margin-left-5 #{settings.locale.menu_markets}
+                      div.navbar(class=dropdownClasses)
+                        each mkt in settings.market_data
+                          if mkt != null && mkt.id != null
+                            each pair in mkt.trading_pairs
+                              a.dropdown-item(href='/markets/' + mkt.id + '/' + pair.pair)
+                                if pair.isAlt == true
+                                  if mkt.alt_logo != null && mkt.alt_logo != ''
+                                    img.market-logo(src='data:image/png;base64,' + mkt.alt_logo, title=mkt.alt_name + ' (' + pair.pair + ')', alt=mkt.alt_name + ' (' + pair.pair + ')')
+                                  else
+                                    i.market-logo.fas.fa-question-circle
+                                  span #{mkt.alt_name}
+                                    span.small.fw-normal  (#{pair.pair})
+                                else
+                                  if mkt.logo != null && mkt.logo != ''
+                                    img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair.pair + ')', alt=mkt.name + ' (' + pair.pair + ')')
+                                  else
+                                    i.market-logo.fas.fa-question-circle
+                                  span #{mkt.name}
+                                    span.small.fw-normal  (#{pair.pair})
+                  else
+                    li#markets.nav-item
+                      a.nav-link(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
+                        span.fas.fa-chart-line
+                        span.margin-left-5 #{settings.locale.menu_markets}
+                if settings.api_page.enabled == true
+                  li#info.nav-item
+                    a.nav-link(href='/info')
+                      span.fa.fa-info-circle
+                      span.margin-left-5 #{settings.locale.menu_api}
+                if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
+                  li#claim-address.nav-item
+                    a.nav-link(href='/claim')
+                      span.far.fa-address-card
+                      span.margin-left-5 #{settings.locale.menu_claim_address}
+            if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
+              span#search-header-span(alt='Search', title='Search', data-bs-toggle='tooltip', data-bs-placement='left')
+                button#search-header-button(data-bs-toggle='collapse', data-bs-target='#search-navbar-collapse')
+                  span.fas.fa-search
+        if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
+          div#search-navbar-collapse.collapse
+            div.navbar-nav.align-items-lg-center.search-box-custom(style='width:100%;')
+              form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
+                div.input-group.input-group-md.search-for(style='width:100%;')
+                  input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message)
+                  button.btn.btn-success.btn-sm(type='submit') #{settings.locale.ex_search_button}
+    else
+      header#main-header-side.side-header.navbar(class=headerClasses)
+        div#inner-header-side.navbar.navbar-expand-lg
+          div.container
+            if settings.shared_pages.page_header.home_link == 'title'
+              a.navbar-brand.nav-link(href='/', style='order:-1;') #{settings.shared_pages.page_title}
+            else if settings.shared_pages.page_header.home_link == 'coin'
+              a.navbar-brand.nav-link(href='/', style='order:-1;') #{settings.coin.name}
+            else if settings.shared_pages.page_header.home_link == 'logo'
+              a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='order:-1;', data-bs-toggle='tooltip', data-bs-placement='bottom')
+                img.logo-main(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0;max-height:' + settings.shared_pages.page_header.home_link_logo_height + 'px;')
+            div#side-header-toggle.side-header-toggle
+              span.fas.fa-bars(alt='Expand Menu', title='Expand Menu', data-bs-toggle='tooltip', data-bs-placement='right')
+            if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
+              span#search-header-span(alt='Search', title='Search', data-bs-toggle='tooltip', data-bs-placement='left')
+                button#search-header-button(data-bs-toggle='collapse', data-bs-target='#search-navbar-collapse')
+                  span.fas.fa-search
+        if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
+          div#search-navbar-collapse.collapse.flexGrow1
+            div.navbar-nav.align-items-lg-center.search-box-custom(style='width:100%;')
+              form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
+                div.input-group.input-group-md.search-for(style='width:100%;')
+                  input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message)
+                  button.btn.btn-success.btn-sm(type='submit') #{settings.locale.ex_search_button}
+    div#body-container(class=bodyContainerClasses)
+      if settings.shared_pages.page_header.menu == 'side'
+        div#side-nav-bar.navbar(class=sideBarClasses)
+          nav.side-nav
+            ul.navbar-nav
+              li#sidebar-offcanvas-close.nav-item.text-end
+                a.nav-link.d-inline(href='#', alt='Close Menu', title='Close Menu', data-bs-toggle='tooltip', data-bs-placement='right')
+                  span.fa-2x.far.fa-window-close(type='button', data-bs-dismiss='offcanvas' aria-label='Close')
+              li#home.nav-item(alt=settings.locale.menu_explorer, title=settings.locale.menu_explorer, data-bs-toggle='tooltip', data-bs-placement='right')
                 a.nav-link(href='/')
-                  span.fas.fa-cubes
+                  span.nav-icon.fas.fa-cubes
                   span.margin-left-5 #{settings.locale.menu_explorer}
               if settings.blockchain_specific.heavycoin.enabled == true && settings.blockchain_specific.heavycoin.reward_page.enabled == true
-                li#reward.nav-item
+                li#reward.nav-item(alt=settings.locale.menu_reward, title=settings.locale.menu_reward, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/reward')
-                    span.fa.fa-star
+                    span.nav-icon.fa.fa-star
                     span.margin-left-5 #{settings.locale.menu_reward}
               if settings.masternodes_page.enabled == true
-                li#masternodes.nav-item
+                li#masternodes.nav-item(alt="Masternodes", title="Masternodes", data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/masternodes')
-                    span.fa.fa-share-alt
+                    span.nav-icon.fa.fa-share-alt
                     span.margin-left-5 Masternodes
               if settings.movement_page.enabled == true
-                li#movement.nav-item
+                li#movement.nav-item(alt=settings.locale.menu_movement, title=settings.locale.menu_movement, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/movement')
-                    span.far.fa-money-bill-alt
+                    span.nav-icon.far.fa-money-bill-alt
                     span.margin-left-5 #{settings.locale.menu_movement}
               if settings.network_page.enabled == true
-                li#network.nav-item
+                li#network.nav-item(alt=settings.locale.menu_network, title=settings.locale.menu_network, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/network')
-                    span.fas.fa-network-wired
+                    span.nav-icon.fas.fa-network-wired
                     span.margin-left-5 #{settings.locale.menu_network}
               if settings.richlist_page.enabled == true
-                li#richlist.nav-item
+                li#richlist.nav-item(alt=settings.locale.menu_richlist, title=settings.locale.menu_richlist, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/richlist')
-                    span.fab.fa-btc
+                    span.nav-icon.fab.fa-btc
                     span.margin-left-5 #{settings.locale.menu_richlist}
               if settings.markets_page.enabled == true
                 if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
-                  li#markets.dropdown.nav-item
-                    a.nav-link.dropdown-toggle(data-bs-toggle='dropdown', href='#')
-                      span.fas.fa-chart-line
+                  li#markets.dropend.nav-item.side-market-menu(alt=settings.locale.menu_markets, title=settings.locale.menu_markets, data-bs-toggle='tooltip', data-bs-placement='right')
+                    a.nav-link.dropdown-toggle(href='#')
+                      span.nav-icon.fas.fa-chart-line
                       span.margin-left-5 #{settings.locale.menu_markets}
-                    div.dropdown-menu
+                    div#side-market-menu.navbar(class=dropdownClasses)
                       each mkt in settings.market_data
                         if mkt != null && mkt.id != null
                           each pair in mkt.trading_pairs
@@ -752,89 +1195,82 @@ html(lang='en')
                                 span #{mkt.name}
                                   span.small.fw-normal  (#{pair.pair})
                 else
-                  li#markets.nav-item
+                  li#markets.nav-item(alt=settings.locale.menu_markets, title=settings.locale.menu_markets, data-bs-toggle='tooltip', data-bs-placement='right')
                     a.nav-link(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
-                      span.fas.fa-chart-line
+                      span.nav-icon.fas.fa-chart-line
                       span.margin-left-5 #{settings.locale.menu_markets}
               if settings.api_page.enabled == true
-                li#info.nav-item
+                li#info.nav-item(alt=settings.locale.menu_api, title=settings.locale.menu_api, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/info')
-                    span.fa.fa-info-circle
+                    span.nav-icon.fa.fa-info-circle
                     span.margin-left-5 #{settings.locale.menu_api}
               if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
-                li#claim-address.nav-item
+                li#claim-address.nav-item(alt=settings.locale.menu_claim_address, title=settings.locale.menu_claim_address, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/claim')
-                    span.far.fa-address-card
+                    span.nav-icon.far.fa-address-card
                     span.margin-left-5 #{settings.locale.menu_claim_address}
-          if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
-            button#search-header-button(data-bs-toggle='collapse', data-bs-target='#search-navbar-collapse')
-              span.fas.fa-search
-      if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
-        div#search-navbar-collapse.collapse
-          div.navbar-nav.align-items-lg-center.search-box-custom(style='width:100%;')
-            form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
-              div.input-group.input-group-md.search-for(style='width:100%;')
-                input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message)
-                button.btn.btn-success.btn-sm(type='submit') #{settings.locale.ex_search_button}
-    div#body-container.container(style='margin-top:' + (settings.shared_pages.page_header.sticky_header == true ? '80px;' : '20px;'))
-      if showSync != null && showSync == true
-        .col-lg-12
-          .alert.alert-warning
-            .cardSpacer
-              span.fas.fa-exclamation-triangle(style='margin-right:5px;')
-              strong #{settings.locale.ex_warning}
-            div #{settings.locale.initial_index_alert}
-      if showPanels == true || (settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'below-header')
-        .col-lg-12
-          if showPanels == true
-            .row.text-center.d-flex.justify-content-center
-              div(class="col-lg-2 col-lg-offset-" + settings.paneloffset)
-                - if (settings.panel1 != '') {
-                  .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlOne')
-                - }
-              - if (settings.panel2 != '') {
-                .col-lg-2
-                  .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlTwo')
-              - }
-              - if (settings.panel3 != '') {
-                .col-lg-2
-                  .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlThree')
-              - }
-              - if (settings.panel4 != '') {
-                .col-lg-2
-                  .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlFour')
-              - }
-              - if (settings.panel5 != '') {
-              .col-lg-2
-                .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlFive')
-              - }
-          if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'below-header'
-            div#search-row.row.text-center
-              form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
-                #index-search.form-group.d-flex.justify-content-center
-                  input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
-                  button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
-      if settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true))
-        .container
-          .row.align-items-start
-            - var chartColumnClass = 'col-lg-12';
-            if showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true && showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true
-              - chartColumnClass = 'col-lg-6';
-            if showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true
-              div#nethashChartParent(class=chartColumnClass, style='display:none;margin:10px 0;')
-                .card.card-default.border-0
-                  .card-header
-                    strong Network Hashrate
-                  .card-body
-                    canvas#nethashChart(style='max-height:300px;background-color:'+settings.shared_pages.page_header.network_charts.nethash_chart.bgcolor+';')
-            if showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true
-              div#difficultyChartParent(class=chartColumnClass, style='display:none;margin:10px 0;')
-                .card.card-default.border-0
-                  .card-header
-                    strong Network Difficulty
-                  .card-body
-                    canvas#difficultyChart(style='max-height:300px;background-color:'+settings.shared_pages.page_header.network_charts.difficulty_chart.bgcolor+';')
-      block content
+        div#side-offcanvas.offcanvas.offcanvas-start(tabindex='-1')
+          div.offcanvas-body.d-block.navbar(class=sideBarClasses)
+      div#main-container(class=mainContainerClasses)
+        div#main-child-container(class=mainContainerChildClasses)
+          if showSync != null && showSync == true
+            .col-lg-12
+              .alert.alert-warning
+                .cardSpacer
+                  span.fas.fa-exclamation-triangle(style='margin-right:5px;')
+                  strong #{settings.locale.ex_warning}
+                div #{settings.locale.initial_index_alert}
+          if showPanels == true || (settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'below-header')
+            .col-lg-12
+              if showPanels == true
+                .row.text-center.d-flex.justify-content-center
+                  div(class="col-lg-2 col-lg-offset-" + settings.paneloffset)
+                    - if (settings.panel1 != '') {
+                      .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlOne')
+                    - }
+                  - if (settings.panel2 != '') {
+                    .col-lg-2
+                      .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlTwo')
+                  - }
+                  - if (settings.panel3 != '') {
+                    .col-lg-2
+                      .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlThree')
+                  - }
+                  - if (settings.panel4 != '') {
+                    .col-lg-2
+                      .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlFour')
+                  - }
+                  - if (settings.panel5 != '') {
+                  .col-lg-2
+                    .card.card-default.border-0.d-lg-block.d-block.cardSpacer(id='pnlFive')
+                  - }
+              if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'below-header'
+                div#search-row.row.text-center
+                  form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
+                    #index-search.form-group.d-flex.justify-content-center
+                      input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
+                      button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
+          if settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true))
+            .container
+              .row.align-items-start
+                - var chartColumnClass = 'col-lg-12';
+                if showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true && showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true
+                  - chartColumnClass = 'col-lg-6';
+                if showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true
+                  div#nethashChartParent(class=chartColumnClass, style='display:none;margin:10px 0;')
+                    .card.card-default.border-0
+                      .card-header
+                        strong Network Hashrate
+                      .card-body
+                        canvas#nethashChart(style='max-height:300px;background-color:'+settings.shared_pages.page_header.network_charts.nethash_chart.bgcolor+';')
+                if showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true
+                  div#difficultyChartParent(class=chartColumnClass, style='display:none;margin:10px 0;')
+                    .card.card-default.border-0
+                      .card-header
+                        strong Network Difficulty
+                      .card-body
+                        canvas#difficultyChart(style='max-height:300px;background-color:'+settings.shared_pages.page_header.network_charts.difficulty_chart.bgcolor+';')
+          block content
     div#footer-container(class=footerClasses, role='navigation')
       .col-4.navbar-nav
         ul.nav.justify-content-left

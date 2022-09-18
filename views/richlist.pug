@@ -16,7 +16,7 @@ block content
         var burned = '!{burned}';
         if ('#{settings.richlist_page.burned_coins.include_burned_coins_in_distribution}' == 'true' && burned != 'null' && burned != '' && burned != '0')
           data.push(['Burned Coins', parseFloat(((burned / 100000000) / !{stats.supply}) * 100)]);
-        $.jqplot('pieChart', [data],
+        var piePlot = $.jqplot('pieChart', [data],
           {
             seriesColors: !{JSON.stringify(settings.richlist_page.wealth_distribution.colors)},
             series: [{
@@ -55,13 +55,22 @@ block content
         }
         if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.richlist_page.page_header.show_img} == true)
           startRotateElement('img#header-img');
+        $(window).resize(function () {
+          if (piePlot != null && $('#pieChart').is(':visible')) {
+            let parentWidth = $('#pieChart').parent().outerWidth();
+
+            $('#pieChart').css('height', (parentWidth <= 300 ? parentWidth + 5 : 305).toString() + 'px');
+            $('#pieChart').css('width', (parentWidth <= 300 ? parentWidth : 300).toString() + 'px');
+            piePlot.replot({ resetAxes: false });
+          }
+        });
       });
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
     - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);
   if settings.richlist_page.page_header.show_img == true || settings.richlist_page.page_header.show_title == true || settings.richlist_page.page_header.show_last_updated == true || settings.richlist_page.page_header.show_description == true
     .row(style='margin: 0 0 5px 0;')
-      div(class=(settings.richlist_page.wealth_distribution.show_distribution_table == true || settings.richlist_page.wealth_distribution.show_distribution_chart == true ? 'col-xs-12 col-lg-8' : 'col-12'))
+      div(class=(settings.richlist_page.wealth_distribution.show_distribution_table == true || settings.richlist_page.wealth_distribution.show_distribution_chart == true ? 'col-xs-12' : 'col-12'))
         .container
           #page-header-container(style='align-items:' + (settings.richlist_page.page_header.show_img == true && settings.richlist_page.page_header.show_title == true && settings.richlist_page.page_header.show_last_updated == true && settings.richlist_page.page_header.show_description == true ? 'flex-start' : 'center'))
             if settings.richlist_page.page_header.show_img == true
@@ -270,4 +279,4 @@ block content
                   td.fw-bold.text-center #{percentParts[0]}.
                     span.decimal #{percentParts[1]}
         if settings.richlist_page.wealth_distribution.show_distribution_chart == true
-          div#pieChart(style="width:300px;height:305px;margin:0 auto;")
+          div#pieChart(style="max-width:300px;max-height:305px;margin:0 auto;")

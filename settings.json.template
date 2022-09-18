@@ -153,6 +153,10 @@
     "show_hashrate": true,
     // page_header: A collection of settings that pertain to the page header that is displayed at the top of all pages
     "page_header": {
+      // menu: Valid options:
+      //       top: display menu items horizontally across the top of the page
+      //       side: display menu items vertically across the left-hand side of the page
+      "menu": "side",
       // sticky_header: Determine whether page header "sticks" to top of page or not (true/false)
       "sticky_header": true,
       // bgcolor: Change the background color of the page header
