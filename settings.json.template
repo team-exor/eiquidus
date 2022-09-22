@@ -709,7 +709,8 @@
       "items_per_page": 10,
       // port_filter: Specify a port number to only allow showing peers on the selected port.
       //              Set this value to 0 to show all peers on any port.
-      "port_filter": 0,
+      //              Set this value to -1 to hide the port column. NOTE: If the -1 value is set then instead of showing multiple duplicate rows for ip addresses that connected on different ports, only a single row will be shown per unique ip address
+      "port_filter": -1,
       // hide_protocols: An array of protocol numbers that will be filtered out of the table results
       //                 If a peer connects to the explorer wallet with one of these protocol numbers, that record will not be displayed in this table
       //                 Add as many protocol values as necessary in the following format: [ 0, 70803, 70819 ]
@@ -724,7 +725,8 @@
       "items_per_page": 10,
       // port_filter: Specify a port number to only allow showing peers on the selected port.
       //              Set this value to 0 to show all peers on any port.
-      "port_filter": 0,
+      //              Set this value to -1 to prevent the port portion of the addnode string from being displayed. NOTE: If the -1 value is set then instead of showing multiple duplicate rows for ip addresses that connected on different ports, only a single row will be shown per unique ip address
+      "port_filter": -1,
       // hide_protocols: An array of protocol numbers that will be filtered out of the table results
       //                 If a peer connects to the explorer wallet with one of these protocol numbers, that record will not be displayed in this table
       //                 Add as many protocol values as necessary in the following format: [ 0, 70803, 70819 ]
@@ -739,7 +741,8 @@
       "items_per_page": 10,
       // port_filter: Specify a port number to only allow showing peers on the selected port.
       //              Set this value to 0 to show all peers on any port.
-      "port_filter": 0,
+      //              Set this value to -1 to prevent the port portion of the onetry string from being displayed. NOTE: If the -1 value is set then instead of showing multiple duplicate rows for ip addresses that connected on different ports, only a single row will be shown per unique ip address
+      "port_filter": -1,
       // hide_protocols: An array of protocol numbers that will be filtered out of the table results
       //                 If a peer connects to the explorer wallet with one of these protocol numbers, that record will not be displayed in this table
       //                 Add as many protocol values as necessary in the following format: [ 0, 70803, 70819 ]

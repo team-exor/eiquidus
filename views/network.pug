@@ -27,17 +27,45 @@ block content
         var setting_txPerPage = parseInt("#{settings.network_page.connections_table.items_per_page}");
         var setting_con_port_filter = "#{settings.network_page.connections_table.port_filter}";
         var setting_con_hide_protocols = !{JSON.stringify(settings.network_page.connections_table.hide_protocols)};
-        var connectionRows = peers;
+        var connectionRows = JSON.parse(JSON.stringify(peers));
 
         if (setting_con_port_filter == null || setting_con_port_filter == '')
-          setting_con_port_filter = '0';
+          setting_con_port_filter = '-1';
 
-        if (setting_con_port_filter != '0')
+        if (parseInt(setting_con_port_filter) > 0)
           connectionRows = connectionRows.filter(v => v.port == setting_con_port_filter);
+        else if (setting_con_port_filter == '-1') {
+          // remove port key
+          connectionRows.forEach(function(obj) {
+            delete obj.port
+          });
+
+          // remove duplicate rows by ip address
+          connectionRows = connectionRows.filter((v, i, a) => a.findIndex(t => (t.address === v.address)) === i);
+        }
 
         setting_con_hide_protocols.forEach(function (protocol) {
           connectionRows = connectionRows.filter(v => v.protocol != protocol);
         });
+
+        var columns = [];
+
+        if (setting_con_port_filter == '-1') {
+          columns = [
+            { data: 'address', width: '25%' },
+            { data: 'protocol', width: '25%' },
+            { data: 'version', width:'25%' },
+            { data: 'country', width: '25%'}
+          ];
+        } else {
+          columns = [
+            { data: 'address', width: '20%' },
+            { data: 'port', width: '20%' },
+            { data: 'protocol', width: '20%' },
+            { data: 'version', width:'20%' },
+            { data: 'country', width: '20%'}
+          ];
+        }
 
         $('#connections-table').dataTable({
           autoWidth: true,
@@ -58,27 +86,29 @@ block content
           },
           data: connectionRows,
           rowCallback: function (row, data, index) {
+            var colIndex = 1;
             var flagBlock = '';
+
             if (data['country_code'].length > 1) {
               flagBlock = '<div class="margin-left-5 flag-icon flag-icon-'+data['country_code'].toLowerCase()+'"></div>';
             }
+
             $("td:eq(0)", row).html(data['address']).addClass('breakWord');
-            $("td:eq(1)", row).html(data['port']);
-            $("td:eq(2)", row).html(data['protocol']);
-            $("td:eq(3)", row).html(data['version']);
-            $("td:eq(4)", row).html(data['country']+flagBlock);
+
+            if (setting_con_port_filter != '-1') {
+              $("td:eq(1)", row).html(data['port']);
+              colIndex = 2;
+            }
+
+            $(`td:eq(${colIndex})`, row).html(data['protocol']);
+            $(`td:eq(${colIndex + 1})`, row).html(data['version']);
+            $(`td:eq(${colIndex + 2})`, row).html(data['country'] + flagBlock);
           },
           fnDrawCallback: function(settings) {
             fixDataTableColumns();
             fixFooterHeightAndPosition();
           },
-          columns: [
-            { data: 'address', width: '20%' },
-            { data: 'port', width: '20%' },
-            { data: 'protocol', width: '20%' },
-            { data: 'version', width:'20%' },
-            { data: 'country', width: '20%'}
-          ]
+          columns: columns
         });
 
         setting_txPerPage = parseInt("#{settings.network_page.addnodes_table.items_per_page}");
@@ -86,19 +116,28 @@ block content
         var addNodeRows = [];
         var setting_add_port_filter = "#{settings.network_page.addnodes_table.port_filter}";
         var setting_add_hide_protocols = !{JSON.stringify(settings.network_page.addnodes_table.hide_protocols)};
-        var addNodePeers = peers;
+        var addNodePeers = JSON.parse(JSON.stringify(peers));
 
         if (setting_add_port_filter == null || setting_add_port_filter == '')
-          setting_add_port_filter = '0';
+          setting_add_port_filter = '-1';
 
-        if (setting_add_port_filter != '0')
+        if (parseInt(setting_add_port_filter) > 0)
           addNodePeers = addNodePeers.filter(v => v.port == setting_add_port_filter);
+        else if (setting_add_port_filter == '-1') {
+          // remove port key
+          addNodePeers.forEach(function(obj) {
+            delete obj.port
+          });
+
+          // remove duplicate rows by ip address
+          addNodePeers = addNodePeers.filter((v, i, a) => a.findIndex(t => (t.address === v.address)) === i);
+        }
 
         setting_add_hide_protocols.forEach(function (protocol) {
           addNodePeers = addNodePeers.filter(v => v.protocol != protocol);
         });
 
-        for (var i=0; i < addNodePeers.length; i++)
+        for (var i = 0; i < addNodePeers.length; i++)
           addNodeRows.push({'nodes': 'addnode=' + (addNodePeers[i]['address'] != null && addNodePeers[i]['address'].indexOf(':') > -1 ? '[' + addNodePeers[i]['address'] + ']' : addNodePeers[i]['address']) + (addNodePeers[i]['port'] == null ? '' : ':' + addNodePeers[i]['port'])});
 
         $('#addnodes-table').dataTable({
@@ -140,10 +179,19 @@ block content
         var setting_one_hide_protocols = !{JSON.stringify(settings.network_page.onetry_table.hide_protocols)};
 
         if (setting_one_port_filter == null || setting_one_port_filter == '')
-          setting_one_port_filter = '0';
+          setting_one_port_filter = '-1';
 
-        if (setting_one_port_filter != '0')
+        if (parseInt(setting_one_port_filter) > 0)
           peers = peers.filter(v => v.port == setting_one_port_filter);
+        else if (setting_one_port_filter == '-1') {
+          // remove port key
+          peers.forEach(function(obj) {
+            delete obj.port
+          });
+
+          // remove duplicate rows by ip address
+          peers = peers.filter((v, i, a) => a.findIndex(t => (t.address === v.address)) === i);
+        }
 
         setting_one_hide_protocols.forEach(function (protocol) {
           peers = peers.filter(v => v.protocol != protocol);
@@ -268,7 +316,8 @@ block content
             thead
               tr(class=theadClasses)
                 th.text-center #{settings.locale.net_address}
-                th.text-center='Port'
+                if settings.network_page.connections_table.port_filter != '-1'
+                  th.text-center='Port'
                 th.text-center #{settings.locale.net_protocol}
                 th.text-center #{settings.locale.net_subversion}
                 th.text-center #{settings.locale.net_country}
