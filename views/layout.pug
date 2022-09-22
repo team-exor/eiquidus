@@ -852,6 +852,8 @@ html(lang='en')
               $('div#side-header-toggle > span').tooltip('hide');
           });
           $(document).on('click', 'li#sidebar-offcanvas-close > a.nav-link', function(e) {
+            e.preventDefault();
+
             if ($().tooltip)
               $('li#sidebar-offcanvas-close > a.nav-link').tooltip('hide');
           });
