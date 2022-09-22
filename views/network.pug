@@ -32,6 +32,10 @@ block content
         if (setting_con_port_filter == null || setting_con_port_filter == '')
           setting_con_port_filter = '-1';
 
+        setting_con_hide_protocols.forEach(function (protocol) {
+          connectionRows = connectionRows.filter(v => v.protocol != protocol);
+        });
+
         if (parseInt(setting_con_port_filter) > 0)
           connectionRows = connectionRows.filter(v => v.port == setting_con_port_filter);
         else if (setting_con_port_filter == '-1') {
@@ -43,10 +47,6 @@ block content
           // remove duplicate rows by ip address
           connectionRows = connectionRows.filter((v, i, a) => a.findIndex(t => (t.address === v.address)) === i);
         }
-
-        setting_con_hide_protocols.forEach(function (protocol) {
-          connectionRows = connectionRows.filter(v => v.protocol != protocol);
-        });
 
         var columns = [];
 
@@ -121,6 +121,10 @@ block content
         if (setting_add_port_filter == null || setting_add_port_filter == '')
           setting_add_port_filter = '-1';
 
+        setting_add_hide_protocols.forEach(function (protocol) {
+          addNodePeers = addNodePeers.filter(v => v.protocol != protocol);
+        });
+
         if (parseInt(setting_add_port_filter) > 0)
           addNodePeers = addNodePeers.filter(v => v.port == setting_add_port_filter);
         else if (setting_add_port_filter == '-1') {
@@ -132,10 +136,6 @@ block content
           // remove duplicate rows by ip address
           addNodePeers = addNodePeers.filter((v, i, a) => a.findIndex(t => (t.address === v.address)) === i);
         }
-
-        setting_add_hide_protocols.forEach(function (protocol) {
-          addNodePeers = addNodePeers.filter(v => v.protocol != protocol);
-        });
 
         for (var i = 0; i < addNodePeers.length; i++)
           addNodeRows.push({'nodes': 'addnode=' + (addNodePeers[i]['address'] != null && addNodePeers[i]['address'].indexOf(':') > -1 ? '[' + addNodePeers[i]['address'] + ']' : addNodePeers[i]['address']) + (addNodePeers[i]['port'] == null ? '' : ':' + addNodePeers[i]['port'])});
@@ -181,6 +181,10 @@ block content
         if (setting_one_port_filter == null || setting_one_port_filter == '')
           setting_one_port_filter = '-1';
 
+        setting_one_hide_protocols.forEach(function (protocol) {
+          peers = peers.filter(v => v.protocol != protocol);
+        });
+
         if (parseInt(setting_one_port_filter) > 0)
           peers = peers.filter(v => v.port == setting_one_port_filter);
         else if (setting_one_port_filter == '-1') {
@@ -192,10 +196,6 @@ block content
           // remove duplicate rows by ip address
           peers = peers.filter((v, i, a) => a.findIndex(t => (t.address === v.address)) === i);
         }
-
-        setting_one_hide_protocols.forEach(function (protocol) {
-          peers = peers.filter(v => v.protocol != protocol);
-        });
 
         for (var i=0; i < peers.length; i++)
           oneTryRows.push({'nodes': 'addnode ' + (peers[i]['address'] != null && peers[i]['address'].indexOf(':') > -1 ? '[' + peers[i]['address'] + ']' : peers[i]['address']) + (peers[i]['port'] == null ? '' : ':' + peers[i]['port']) + ' onetry'});
