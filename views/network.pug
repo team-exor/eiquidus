@@ -325,18 +325,17 @@ block content
       #addnodes.container.tab-pane(style='margin-top:0;border-top:0;')
         .card.card-default.border-0
           .card-body.border-top-0
-            :markdown-it
-              If you have trouble syncing your wallet, add these lines to your coin daemon .conf file and restart the wallet.
-              
-              *Typically you can access the config file through QT-wallet menu, Tools > Open Wallet Configuration File*
+            p If you have trouble syncing your wallet, add these lines to your coin daemon .conf file and restart the wallet.
+            p
+              em Typically you can access the config file through QT-wallet menu, Tools > Open Wallet Configuration File
           table#addnodes-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
             thead
               tr(class=theadClasses)
                 th AddNode Config Lines
             tbody
           .card-body.border-top-0
-            :markdown-it
-              Alternatively you can try one of these lines in the coin wallet debug window, or add them with *coindaemon*-cli
+            p="Alternatively you can try one of these lines in the coin wallet debug window, or add them with" + " "
+              em coindaemon-cli
           table#onetry-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
             thead
               tr(class=theadClasses)
