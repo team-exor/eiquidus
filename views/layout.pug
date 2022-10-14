@@ -448,7 +448,7 @@ html(lang='en')
                               return 'Block ' + context[0].label + ' Hashrate';
                             },
                             label: function(context) {
-                              return context.formattedValue + ' ' + getNetHashUnits()
+                              return (context.raw || 0).toString() + ' ' + getNetHashUnits()
                             }
                           }
                         },
@@ -554,7 +554,7 @@ html(lang='en')
                               return 'Block ' + context[0].label + ' Difficulty';
                             },
                             label: function(context) {
-                              return context.formattedValue;
+                              return (context.raw || 0).toString();
                             }
                           }
                         },
