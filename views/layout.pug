@@ -388,6 +388,18 @@ html(lang='en')
         }
         var nethashChart;
         var difficultyChart;
+        var countDecimals = function(value) {
+          let text = value.toString();
+
+          if (text.indexOf('e-') > -1) {
+            let [base, trail] = text.split('e-');
+            let deg = parseInt(trail, 10);
+            return deg;
+          } else if (Math.floor(value) !== value)
+            return value.toString().split(".")[1].length || 0;
+          else
+            return 0;
+        }
         function update_network_charts() {
           $.ajax({
             url: '/ext/getnetworkchartdata',
@@ -448,7 +460,19 @@ html(lang='en')
                               return 'Block ' + context[0].label + ' Hashrate';
                             },
                             label: function(context) {
-                              return (context.raw || 0).toString() + ' ' + getNetHashUnits()
+                              var val = #{settings.shared_pages.page_header.network_charts.nethash_chart.round_decimals};
+                              var max = 20;
+
+                              if (val != -1)
+                                max = val;
+                              else {
+                                let decimalCount = countDecimals(context.raw || 0);
+
+                                if (decimalCount < max)
+                                  max = decimalCount;
+                              }
+
+                              return Number((context.raw || 0)).toLocaleString('en',{'minimumFractionDigits':0,'maximumFractionDigits':max,'useGrouping':true}) + ' ' + getNetHashUnits();
                             }
                           }
                         },
@@ -554,7 +578,19 @@ html(lang='en')
                               return 'Block ' + context[0].label + ' Difficulty';
                             },
                             label: function(context) {
-                              return (context.raw || 0).toString();
+                              var val = #{settings.shared_pages.page_header.network_charts.difficulty_chart.round_decimals};
+                              var max = 20;
+
+                              if (val != -1)
+                                max = val;
+                              else {
+                                let decimalCount = countDecimals(context.raw || 0);
+
+                                if (decimalCount < max)
+                                  max = decimalCount;
+                              }
+
+                              return Number((context.raw || 0)).toLocaleString('en',{'minimumFractionDigits':0,'maximumFractionDigits':max,'useGrouping':true});
                             }
                           }
                         },

@@ -303,7 +303,10 @@
           // crosshair_color: Change the vertical crosshair line color of the network hashrate chart
           //             Set this to any valid html color
           //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
-          "crosshair_color": "#000000"
+          "crosshair_color": "#000000",
+          // round_decimals: Set how many decimal places the hash rates are rounded to (Max 20)
+          //                 NOTE: Set to a value of -1 to output the raw value without rounding
+          "round_decimals": 3
         },
         // difficulty_chart: A collection of settings that pertain to the network difficulty chart
         "difficulty_chart": {
@@ -333,7 +336,10 @@
           // crosshair_color: Change the vertical crosshair line color of the network difficulty chart
           //             Set this to any valid html color
           //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
-          "crosshair_color": "#000000"
+          "crosshair_color": "#000000",
+          // round_decimals: Set how many decimal places the difficulty values are rounded to (Max 20)
+          //                 NOTE: Set to a value of -1 to output the raw value without rounding
+          "round_decimals": 3
         },
         // reload_chart_seconds: The time in seconds to automatically reload the network chart data from the server
         //                       Set to 0 to disable automatic reloading of chart data
