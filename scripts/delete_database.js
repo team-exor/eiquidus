@@ -92,6 +92,8 @@ rl.question('Are you sure you want to do this? [y/n]: ', function (deleteAnswer)
 
           console.log('Connecting to database..');
 
+          mongoose.set('strictQuery', true);
+
           // connect to mongo database
           mongoose.connect(dbString, function(err) {
             if (err) {

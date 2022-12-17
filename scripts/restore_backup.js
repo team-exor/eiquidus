@@ -82,6 +82,8 @@ function delete_database(mongoose, settings, cb) {
 
   console.log('Connecting to database..');
 
+  mongoose.set('strictQuery', true);
+
   // connect to mongo database
   mongoose.connect(dbString, function(err) {
     if (err) {

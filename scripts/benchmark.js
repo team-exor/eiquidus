@@ -20,6 +20,8 @@ dbString = dbString + '@' + settings.dbsettings.address;
 dbString = dbString + ':' + settings.dbsettings.port;
 dbString = dbString + "/IQUIDUS-BENCHMARK";
 
+mongoose.set('strictQuery', true);
+
 mongoose.connect(dbString, function(err) {
   if (err) {
     console.log('Error: Unable to connect to database: %s', dbString);

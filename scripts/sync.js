@@ -359,6 +359,8 @@ if (lib.is_locked([database]) == false) {
     dbString = dbString + ':' + settings.dbsettings.port;
     dbString = dbString + '/' + settings.dbsettings.database;
 
+    mongoose.set('strictQuery', true);
+
     mongoose.connect(dbString, function(err) {
       if (err) {
         console.log('Error: Unable to connect to database: %s', dbString);
