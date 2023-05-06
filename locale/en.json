@@ -10,6 +10,7 @@
   "menu_node": "Nodes",
   "menu_network": "Network",
   "menu_claim_address": "Claim Address",
+  "menu_orphans": "Orphaned Blocks",
 
   // explorer view
   "ex_title": "{1} Block Explorer",
@@ -168,6 +169,16 @@
   // claim address view
   "claim_title": "{1} Wallet Address Claim",
   "claim_description": "Verify ownership of your {1} wallet address and set a custom display name in the explorer",
+
+  // orphans view
+  "orphan_title": "{1} Orphaned Blocks",
+  "orphan_description": "A listing of valid blocks that have been orphaned and do not belong to the main blockchain",
+  "orphan_block_list": "Orphaned Block List",
+  "orphan_block_hash": "Orphaned Block Hash",
+  "orphan_actual_block": "Actual Block",
+  "orphan_prev_block": "Previous Block",
+  "orphan_next_block": "Next Block",
+  "view_orphan": "View Orphaned Block",
 
   // heavycoin rewards view
   "heavy_title": "{1} Reward/Voting Details",

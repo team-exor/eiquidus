@@ -30,6 +30,14 @@ block content
         startRotateElement('img#header-img');
     });
   .col-xs-12.col-md-12
+    if orphan != null && orphan == true
+      .col-12
+        .alert.alert-warning.alert-dismissible.fade.show(role='alert')
+          button.btn-close(type='button', data-bs-dismiss='alert')
+          .cardSpacer
+            span.fas.fa-exclamation-triangle(style='margin-right:5px')
+            strong=settings.locale.ex_warning
+          div="This is an orphaned block"
     if settings.block_page.page_header.show_img == true || settings.block_page.page_header.show_title == true || settings.block_page.page_header.show_description == true
       #page-header-container(style='align-items:' + (settings.block_page.page_header.show_img == true && settings.block_page.page_header.show_title == true && settings.block_page.page_header.show_description == true ? 'flex-start' : 'center'))
         if settings.block_page.page_header.show_img == true

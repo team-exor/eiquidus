@@ -592,6 +592,39 @@ app.use('/ext/getmasternoderewardstotal/:hash/:since', function(req, res) {
     res.end('This method is disabled');
 });
 
+// get the list of orphans from local collection
+app.use('/ext/getorphanlist/:start/:length', function(req, res) {
+  // check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
+  if (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1) {
+    // fix parameters
+    if (typeof req.params.start === 'undefined' || isNaN(req.params.start) || req.params.start < 0)
+      req.params.start = 0;
+    if (typeof req.params.length === 'undefined' || isNaN(req.params.length))
+      req.params.length = 10;
+
+    // get the orphan list from local collection
+    db.get_orphans(req.params.start, req.params.length, function(orphans, count) {
+      var data = [];
+
+      for (i = 0; i < orphans.length; i++) {
+        var row = [];
+
+        row.push(orphans[i].blockindex);
+        row.push(orphans[i].orphan_blockhash);
+        row.push(orphans[i].good_blockhash);
+        row.push(orphans[i].prev_blockhash);
+        row.push(orphans[i].next_blockhash);
+
+        data.push(row);
+      }
+
+      // display data formatted for internal datatable
+      res.json({"data": data, "recordsTotal": count, "recordsFiltered": count});
+    });
+  } else
+    res.end('This method is disabled');
+});
+
 app.use('/ext/getnetworkchartdata', function(req, res) {
   db.get_network_chart_data(function(data) {
     if (data)
@@ -766,6 +799,7 @@ app.set('richlist_page', settings.richlist_page);
 app.set('markets_page', settings.markets_page);
 app.set('api_page', settings.api_page);
 app.set('claim_address_page', settings.claim_address_page);
+app.set('orphans_page', settings.orphans_page);
 app.set('labels', settings.labels);
 app.set('api_cmds', settings.api_cmds);
 app.set('blockchain_specific', settings.blockchain_specific);

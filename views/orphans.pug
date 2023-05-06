@@ -1,0 +1,123 @@
+extends layout
+
+block content
+  include ./includes/common.pug
+  script.
+    var setting_txPerPage = parseInt("#{settings.orphans_page.orphans_table.items_per_page}");
+    var lengthMenuOpts = !{JSON.stringify(settings.orphans_page.orphans_table.page_length_options)};
+    var addedLength = false;
+    for (i = 0; i < lengthMenuOpts.length; i++) {
+      if (!addedLength) {
+        if (lengthMenuOpts[i] > setting_txPerPage) {
+          lengthMenuOpts.splice(i, 0, setting_txPerPage);
+          addedLength = true;
+        } else if (lengthMenuOpts[i] == setting_txPerPage)
+          addedLength = true;
+      }
+    }
+    if (!addedLength && setting_txPerPage != lengthMenuOpts[lengthMenuOpts.length - 1])
+      lengthMenuOpts.push(setting_txPerPage);
+    $(document).ready(function() {
+      var otable = $('#orphans-table').dataTable({
+        autoWidth: true,
+        searching: false,
+        ordering: false,
+        lengthChange: true,
+        processing: true,
+        serverSide: true,
+        iDisplayLength: setting_txPerPage,
+        lengthMenu: lengthMenuOpts,
+        scrollX: true,
+        ajax: {
+          url: '/ext/getorphanlist',
+          beforeSend: function(jqXHR, settings) {
+            settings.url = settings.url.substring(0, settings.url.indexOf('?')) + '/' + getParameterByName('start', settings.url) + '/' + getParameterByName('length', settings.url);
+            return true;
+          }
+        },
+        language: {
+          paginate: {
+            previous: '<',
+            next: '>'
+          }
+        },
+        rowCallback: function(row, data, index) {
+          var blockindex = data[0];
+          var orphan_blockhash = data[1];
+          var good_blockhash = data[2];
+          var prev_blockhash = data[3];
+          var next_blockhash = data[4];
+          $("td:eq(0)", row).html('<a href="/block/' + orphan_blockhash + '"><span class="fa fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="#{settings.locale.view_orphan}"></span></a>').addClass('text-center d-table-cell d-md-none');
+          $("td:eq(1)", row).html('<a href="/block/' + orphan_blockhash + '">' + orphan_blockhash + '</a>').addClass('breakWord d-none d-md-table-cell');
+          $("td:eq(2)", row).html('<a href="/block/' + good_blockhash + '">' + blockindex.toString() + '</a>').addClass('text-center');
+          $("td:eq(3)", row).html('<a href="/block/' + prev_blockhash + '">' + (blockindex - 1).toString() + '</a>').addClass('text-center');
+
+          if (next_blockhash == null)
+            $("td:eq(4)", row).html('&nbsp;');
+          else
+            $("td:eq(4)", row).html('<a href="/block/' + next_blockhash + '">' + (blockindex + 1).toString() + '</a>').addClass('text-center');
+        },
+        fnDrawCallback: function(settings) {
+          fixDataTableColumns();
+          fixFooterHeightAndPosition();
+          enableTooltips();
+        }
+      });
+
+      if ('#{settings.orphans_page.page_header.show_last_updated}' == 'true') {
+        var lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
+
+        if (lastUpdatedDate != 0) {
+          $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
+
+          if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
+            $('span#lastUpdatedDate').attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
+            enableTooltips();
+          }
+        } else
+          $('span#lastUpdatedDate').html(' N/A');
+      }
+      if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.orphans_page.page_header.show_img} == true)
+        startRotateElement('img#header-img');
+    });
+  .col-md-12
+    if settings.orphans_page.page_header.show_img == true || settings.orphans_page.page_header.show_title == true || settings.orphans_page.page_header.show_last_updated == true || settings.orphans_page.page_header.show_description == true
+      #page-header-container(style='align-items:' + (settings.orphans_page.page_header.show_img == true && settings.orphans_page.page_header.show_title == true && settings.orphans_page.page_header.show_last_updated == true && settings.orphans_page.page_header.show_description == true ? 'flex-start' : 'center'))
+        if settings.orphans_page.page_header.show_img == true
+          #header-img-container
+            img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
+        #page-title-container
+          if settings.orphans_page.page_header.show_title == true
+            h3#page-title #{settings.locale.orphan_title.replace('{1}', settings.coin.name)}
+          if settings.orphans_page.page_header.show_last_updated == true
+            if settings.orphans_page.page_header.show_title != true && settings.orphans_page.page_header.show_description != true
+              #page-title-container
+                .sub-page-header
+                  span.fw-bold=settings.locale.last_updated + ':'
+                  span.text-muted#lastUpdatedDate
+            else
+              .sub-page-header(style='margin-bottom:' + (settings.orphans_page.page_header.show_description == true ? '5' : '0') + 'px')
+                span.fw-bold=settings.locale.last_updated + ':'
+                span.text-muted#lastUpdatedDate
+          if settings.orphans_page.page_header.show_description == true
+            if settings.orphans_page.page_header.show_title != true && settings.orphans_page.page_header.show_last_updated != true
+              #page-title-container
+                .sub-page-header.text-muted=settings.locale.orphan_description
+            else
+              .sub-page-header.text-muted=settings.locale.orphan_description
+      .cardSpacer.clearfix
+    .card.card-default.border-0.cardSpacer
+      .card-header
+        strong=settings.locale.orphan_block_list
+      table#orphans-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
+        - var theadClasses = [];
+        if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
+          - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);
+        thead
+          tr(class=theadClasses)
+            th.d-table-cell.d-md-none
+            th.d-none.d-md-table-cell #{settings.locale.orphan_block_hash}
+            th.text-center #{settings.locale.orphan_actual_block}
+            th.text-center #{settings.locale.orphan_prev_block}
+            th.text-center #{settings.locale.orphan_next_block}
+        tbody

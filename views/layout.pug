@@ -117,6 +117,13 @@ html(lang='en')
           - showNethashChart = true
         if settings.claim_address_page.show_difficulty_chart == true
           - showDifficultyChart = true
+      when 'orphans'
+        if settings.orphans_page.show_panels == true
+          - showPanels = true
+        if settings.orphans_page.show_nethash_chart == true
+          - showNethashChart = true
+        if settings.orphans_page.show_difficulty_chart == true
+          - showDifficultyChart = true
       when 'reward'
         if settings.blockchain_specific.heavycoin.reward_page.show_panels == true
           - showPanels = true
@@ -1135,6 +1142,11 @@ html(lang='en')
                     a.nav-link(href='/claim')
                       span.far.fa-address-card
                       span.margin-left-5 #{settings.locale.menu_claim_address}
+                if settings.orphans_page.enabled == true
+                  li#orphans.nav-item
+                    a.nav-link(href='/orphans')
+                      span.far.fa-window-close
+                      span.margin-left-5 #{settings.locale.menu_orphans}
             if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
               span#search-header-span(alt='Search', title='Search', data-bs-toggle='tooltip', data-bs-placement='left')
                 button#search-header-button(data-bs-toggle='collapse', data-bs-target='#search-navbar-collapse')
@@ -1247,6 +1259,11 @@ html(lang='en')
                   a.nav-link(href='/claim')
                     span.nav-icon.far.fa-address-card
                     span.margin-left-5 #{settings.locale.menu_claim_address}
+              if settings.orphans_page.enabled == true
+                li#orphans.nav-item(alt=settings.locale.menu_orphans, title=settings.locale.menu_orphans, data-bs-toggle='tooltip', data-bs-placement='right')
+                  a.nav-link(href='/orphans')
+                    span.nav-icon.far.fa-window-close
+                    span.margin-left-5 #{settings.locale.menu_orphans}
         div#side-offcanvas.offcanvas.offcanvas-start(tabindex='-1')
           div.offcanvas-body.d-block.navbar(class=sideBarClasses)
       div#main-container(class=mainContainerClasses)
