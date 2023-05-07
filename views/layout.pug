@@ -676,7 +676,7 @@ html(lang='en')
         }
         function getCoinSupplyPanel() {
           var supplyType='<label id="supply"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small fw-normal">(#{settings.coin.symbol})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa fa-chart-pie"></span>'+supplyType+'</div></div>';
+          return `<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small fw-normal">(${"#{settings.coin.symbol}".replace(/"/g, '&quot;')})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa fa-chart-pie"></span>${supplyType}</div></div>`;
         }
         function getPricePanel() {
           var priceType='<label id="lastPrice">-</label>';
@@ -686,7 +686,7 @@ html(lang='en')
           return '<div class="card-header"><strong>Market Cap <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
         }
         function getLogoPanel() {
-          return '<img src="#{settings.shared_pages.logo}" style="margin-top:-15px;height:128px;" alt="#{settings.coin.name} Logo" title="#{settings.coin.name} Logo" />';
+          return `<img src="#{settings.shared_pages.logo}" style="margin-top:-15px;height:128px;" alt="${"#{settings.coin.name}".replace(/"/g, '&quot;')} Logo" title="${"#{settings.coin.name}".replace(/"/g, '&quot;')} Logo" />`;
         }
         function getActivePanel(panelName) {
           var sReturn='';
