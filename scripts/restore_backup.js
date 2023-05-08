@@ -68,12 +68,15 @@ function check_module_directory_exists(dirName, cb) {
 
 function drop_collection(mongoose, colName, cb) {
   // attempt to delete the collection
-  mongoose.connection.db.dropCollection(colName, function(err, result) {
-    if (err || !result) {
+  mongoose.connection.db.dropCollection(colName).then((result) => {
+    if (!result) {
       console.log(`Error: Unable to delete the ${colName} collection`);
       exit(mongoose, 1);
     } else
       return cb(true);
+  }).catch((err) => {
+    console.log(err);
+    exit(mongoose, 1);
   });
 }
 
@@ -85,45 +88,41 @@ function delete_database(mongoose, settings, cb) {
   mongoose.set('strictQuery', true);
 
   // connect to mongo database
-  mongoose.connect(dbString, function(err) {
-    if (err) {
-      console.log('Error: Unable to connect to database: %s', dbString);
-      exit(mongoose, 999);
-    } else {
-      // get the list of collections
-      mongoose.connection.db.listCollections().toArray(function (err, collections) {
-        if (err) {
-          console.log('Error: Unable to list collections in database: %s', err);
-          exit(mongoose, 1);
-        } else {
-          // check if there are any collections
-          if (collections.length > 0) {
-            var counter = 0;
+  mongoose.connect(dbString).then(() => {
+    // get the list of collections
+    mongoose.connection.db.listCollections().toArray().then((collections) => {
+      // check if there are any collections
+      if (collections.length > 0) {
+        var counter = 0;
 
-            // loop through all collections
-            collections.forEach((collection) => {
-              console.log(`Deleting ${collection.name}..`);
+        // loop through all collections
+        collections.forEach((collection) => {
+          console.log(`Deleting ${collection.name}..`);
 
-              // delete this collection
-              drop_collection(mongoose, collection.name, function(retVal) {
-                // check if the collection was successfully deleted
-                if (retVal)
-                  counter++;
+          // delete this collection
+          drop_collection(mongoose, collection.name, function(retVal) {
+            // check if the collection was successfully deleted
+            if (retVal)
+              counter++;
 
-                // check if the last collection was deleted
-                if (counter == collections.length) {
-                  // finished the delete process
-                  return cb(true);
-                }
-              });
-            });
-          } else {
-            // nothing to delete
-            return cb(true);
-          }
-        }
-      });
-    }
+            // check if the last collection was deleted
+            if (counter == collections.length) {
+              // finished the delete process
+              return cb(true);
+            }
+          });
+        });
+      } else {
+        // nothing to delete
+        return cb(true);
+      }
+    }).catch((err) => {
+      console.log(err);
+      return cb(true);
+    });
+  }).catch((err) => {
+    console.log('Error: Unable to connect to database: %s', err);
+    exit(mongoose, 999);
   });
 }
 

@@ -89,7 +89,7 @@ function update_tx_db(coin, start, end, txes, timeout, check_only, cb) {
       Stats.updateOne({coin: coin}, {
         last: block_height - 1,
         txes: txes
-      }, function() {});
+      }).then(() => {});
     } else if (check_only == 1) {
       console.log('Checking block ' + block_height + '...');
     }
@@ -99,7 +99,7 @@ function update_tx_db(coin, start, end, txes, timeout, check_only, cb) {
         lib.get_block(blockhash, function(block) {
           if (block) {
             async.eachLimit(block.tx, task_limit_txs, function(txid, next_tx) {
-              Tx.findOne({txid: txid}, function(err, tx) {
+              Tx.findOne({txid: txid}).then((tx) => {
                 if (tx && check_only != 2) {
                   setTimeout(function() {
                     tx = null;
@@ -155,6 +155,19 @@ function update_tx_db(coin, start, end, txes, timeout, check_only, cb) {
                     }
                   });
                 }
+              }).catch((err) => {
+                console.log(err);
+
+                setTimeout(function() {
+                  tx = null;
+
+                  // check if the script is stopping
+                  if (stopSync && check_only != 2) {
+                    // stop the loop
+                    next_tx({});
+                  } else
+                    next_tx();
+                }, timeout);
               });
             }, function() {
               setTimeout(function() {
@@ -209,7 +222,10 @@ function update_tx_db(coin, start, end, txes, timeout, check_only, cb) {
     }
 
     // update local stats
-    Stats.updateOne({coin: coin}, statUpdateObject, function() {
+    Stats.updateOne({coin: coin}, statUpdateObject).then(() => {
+      return cb(txes);
+    }).catch((err) => {
+      console.log(err);
       return cb(txes);
     });
   });
@@ -246,7 +262,9 @@ function update_orphans(orphan_index, orphan_current, last_blockindex, timeout, 
             Stats.updateOne({coin: settings.coin.name}, {
               orphan_index: current_block - 1,
               orphan_current: (unresolved_forks.length == 0 ? 0 : unresolved_forks[0])
-            }, function() {});
+            }).then(() => {}).catch((staterr) => {
+              console.log(staterr);
+            });
           }
 
           // do not show the 'checking...' msg if this block is about to be resolved
@@ -360,7 +378,7 @@ function update_orphans(orphan_index, orphan_current, last_blockindex, timeout, 
                     });
                   }, function() {
                     // get the most recent stats
-                    Stats.findOne({coin: settings.coin.name}, function(stat_err, stats) {
+                    Stats.findOne({coin: settings.coin.name}).then((stats) => {
                       // add missing txes for the current block
                       update_tx_db(settings.coin.name, current_block, current_block, (stats.txes + tx_count), timeout, 2, function(updated_tx_count) {
                         // update the stats collection by removing the orphaned txes in this block from the tx count
@@ -368,9 +386,19 @@ function update_orphans(orphan_index, orphan_current, last_blockindex, timeout, 
                         Stats.updateOne({coin: settings.coin.name}, {
                           orphan_index: current_block,
                           orphan_current: (unresolved_forks.length == 0 ? 0 : unresolved_forks[0])
-                        }, function (stats_err) {
-                          if (stats_err != null)
-                            console.log(stats_err);
+                        }).then(() => {
+                          // clear the saved block hash data
+                          correct_block_data = null;
+
+                          // move to the next block
+                          current_block++;
+
+                          setTimeout(function() {
+                            // process next block
+                            next(null);
+                          }, timeout);
+                        }).catch((err) => {
+                          console.log(err);
 
                           // clear the saved block hash data
                           correct_block_data = null;
@@ -384,6 +412,13 @@ function update_orphans(orphan_index, orphan_current, last_blockindex, timeout, 
                           }, timeout);
                         });
                       });
+                    }).catch((err) => {
+                      console.log(err);
+
+                      setTimeout(function() {
+                        // process next block
+                        next(null);
+                      }, timeout);
                     });
                   });
                 });
@@ -420,7 +455,7 @@ function update_orphans(orphan_index, orphan_current, last_blockindex, timeout, 
             console.log('Finished looking for forks');
 
           // get the list of orphans with a null next_blockhash
-          Orphans.find({next_blockhash: null}).exec(function(next_err, orphans) {
+          Orphans.find({next_blockhash: null}).exec().then((orphans) => {
             // loop through the list of orphans
             lib.syncLoop(orphans.length, function(orphan_loop) {
               var o = orphan_loop.iteration();
@@ -432,7 +467,14 @@ function update_orphans(orphan_index, orphan_current, last_blockindex, timeout, 
                   // update the next blockhash for this orphan record
                   Orphans.updateOne({blockindex: orphans[o].blockindex, orphan_blockhash: orphans[o].orphan_blockhash}, {
                     next_blockhash: good_block_data.nextblockhash
-                  }, function() {
+                  }).then(() => {
+                    setTimeout(function() {
+                      // move to the next orphan record
+                      orphan_loop.next();
+                    }, timeout);
+                  }).catch((err) => {
+                    console.log(err);
+
                     setTimeout(function() {
                       // move to the next orphan record
                       orphan_loop.next();
@@ -450,11 +492,17 @@ function update_orphans(orphan_index, orphan_current, last_blockindex, timeout, 
               Stats.updateOne({coin: settings.coin.name}, {
                 orphan_index: current_block - 1,
                 orphan_current: (unresolved_forks.length == 0 ? 0 : unresolved_forks[0])
-              }, function() {
+              }).then(() => {
                 // finished fixing orphaned block data
+                return cb();
+              }).catch((err) => {
+                console.log(err);
                 return cb();
               });
             });
+          }).catch((err) => {
+            console.log(err);
+            return cb();
           });
         }
       });
@@ -485,10 +533,8 @@ function get_earliest_orphan_block(orphan_index, orphan_current, last_blockindex
       { $project: {
         "_id": 1
       }}
-    ], function(err, data) {
-      if (err) {
-        return cb(null, err);
-      } else if (data.length > 0) {
+    ]).option({ allowDiskUse: true }).then((data) => {
+      if (data.length > 0) {
         // found the first unprocessed orphaned block
         orphan_current = data[0]._id;
         orphan_index = (orphan_current - 1);
@@ -497,7 +543,7 @@ function get_earliest_orphan_block(orphan_index, orphan_current, last_blockindex
         Stats.updateOne({coin: settings.coin.name}, {
           orphan_current: orphan_current,
           orphan_index: orphan_index
-        }, function() {
+        }).then(() => {
           return cb({orphan_index: orphan_index, orphan_current: orphan_current}, null);
         });
       } else {
@@ -509,11 +555,13 @@ function get_earliest_orphan_block(orphan_index, orphan_current, last_blockindex
         Stats.updateOne({coin: settings.coin.name}, {
           orphan_current: orphan_current,
           orphan_index: orphan_index
-        }, function() {
+        }).then(() => {
           return cb({orphan_index: orphan_index, orphan_current: orphan_current}, null);
         });
       }
-    }).option({ allowDiskUse: true });
+    }).catch((err) => {
+      return cb(null, err);
+    });
   } else
     return cb({orphan_index: orphan_index, orphan_current: orphan_current}, null);
 }
@@ -531,11 +579,8 @@ function check_block_height_for_fork(block_height, cb) {
       _id: "$blockindex",
       blockhashes: { $addToSet: "$blockhash" }
     }}
-  ], function(err, data) {
-    if (err) {
-      // an error was returned
-      return cb(null, err);
-    } else if (data.length > 0) {
+  ]).then((data) => {
+    if (data.length > 0) {
       // lookup the "good" block hash using the block height
       lib.get_blockhash(block_height, function(block_hash) {
         // check if there is more than 1 block hash
@@ -568,6 +613,9 @@ function check_block_height_for_fork(block_height, cb) {
       // no blocks found
       return cb(null, null);
     }
+  }).catch((err) => {
+    // an error was returned
+    return cb(null, err);
   });
 }
 
@@ -581,27 +629,22 @@ function create_orphan(blockindex, orphan_blockhash, good_blockhash, prev_blockh
   });
 
   // create a new orphan record in the local database
-  newOrphan.save(function(err) {
-    if (err) {
-      // check if this is a duplicate key error which can be ignored
-      if (!(err.toString().indexOf('E11000') > -1 || err.toString().indexOf('duplicate key error') > -1))
-        console.log(err);
+  newOrphan.save().then(() => {
+    // new orphan record saved successfully
+    return cb();
+  }).catch((err) => {
+    // check if this is a duplicate key error which can be ignored
+    if (!(err.toString().indexOf('E11000') > -1 || err.toString().indexOf('duplicate key error') > -1))
+      console.log(err);
 
-      return cb();
-    } else {
-      // new orphan record saved successfully
-      return cb();
-    }
+    return cb();
   });
 }
 
 function get_orphaned_txids(block_hash, cb) {
   // get all transactions by block hash
-  Tx.find({blockhash: block_hash}).exec(function(err, txes) {
-    if (err) {
-      // an error was returned
-      return cb(null, err);
-    } else if (txes.length > 0) {
+  Tx.find({blockhash: block_hash}).exec().then((txes) => {
+    if (txes.length > 0) {
       // found at least one orphaned transaction
       var txids = [];
 
@@ -614,6 +657,9 @@ function get_orphaned_txids(block_hash, cb) {
       // no txes found
       return cb(null, null);
     }
+  }).catch((err) => {
+    // an error was returned
+    return cb(null, err);
   });
 }
 
@@ -656,11 +702,8 @@ function check_add_tx(txid, blockhash, tx_count, cb) {
 
 function delete_and_cleanup_tx(txid, block_height, tx_count, timeout, cb) {
   // lookup all address tx records associated with the current tx
-  AddressTx.find({txid: txid}).exec(function (find_address_err, address_txes) {
-    if (find_address_err != null) {
-      console.log(find_address_err);
-      return cb(tx_count);
-    } else if (address_txes.length == 0) {
+  AddressTx.find({txid: txid}).exec().then((address_txes) => {
+    if (address_txes.length == 0) {
       // no vouts for this tx, so just delete the tx without cleaning up addresses
       delete_tx(txid, block_height, function(tx_err, tx_result) {
         if (tx_err) {
@@ -673,195 +716,211 @@ function delete_and_cleanup_tx(txid, block_height, tx_count, timeout, cb) {
       });
     } else {
       // lookup the current tx in the local database
-      Tx.findOne({txid: txid}, function(find_tx_err, tx) {
-        if (find_tx_err != null) {
-          console.log(find_tx_err);
-          return cb(tx_count);
-        } else {
-          var addressTxArray = [];
-          var has_vouts = (tx.vout != null && tx.vout.length > 0);
+      Tx.findOne({txid: txid}).then((tx) => {
+        var addressTxArray = [];
+        var has_vouts = (tx.vout != null && tx.vout.length > 0);
 
-          // check if this is a coinbase tx
-          if (tx.vin == null || tx.vin.length == 0) {
-            // add a coinbase tx into the addressTxArray array
-            addressTxArray.push({
-              txid: txid,
-              a_id: 'coinbase',
-              amount: tx.total
-            });
-          }
-
-          // check if there are any vin addresses
-          if (tx.vin != null && tx.vin.length > 0) {
-            // loop through the vin data
-            for (var vin_tx_counter = tx.vin.length - 1; vin_tx_counter >= 0; vin_tx_counter--) {
-              // loop through the addresstxe data
-              for (var vin_addresstx_counter = address_txes.length - 1; vin_addresstx_counter >= 0; vin_addresstx_counter--) {
-                // check if there is a tx record that exactly matches to the addresstx
-                if (tx.vin[vin_tx_counter].addresses == address_txes[vin_addresstx_counter].a_id && tx.vin[vin_tx_counter].amount == -address_txes[vin_addresstx_counter].amount) {
-                  // add the address into the addressTxArray array
-                  addressTxArray.push({
-                    txid: txid,
-                    a_id: tx.vin[vin_tx_counter].addresses,
-                    amount: address_txes[vin_addresstx_counter].amount
-                  });
-
-                  // remove the found records from both arrays
-                  tx.vin.splice(vin_tx_counter, 1);
-                  address_txes.splice(vin_addresstx_counter, 1);
-
-                  break;
-                }
-              }
-            }
-          }
-
-          // check if there are any vout addresses
-          if (tx.vout != null && tx.vout.length > 0) {
-            // loop through the vout data
-            for (var vout_tx_counter = tx.vout.length - 1; vout_tx_counter >= 0; vout_tx_counter--) {
-              // loop through the addresstxe data
-              for (var vout_addresstx_counter = address_txes.length - 1; vout_addresstx_counter >= 0; vout_addresstx_counter--) {
-                // check if there is a tx record that exactly matches to the addresstx
-                if (tx.vout[vout_tx_counter].addresses == address_txes[vout_addresstx_counter].a_id && tx.vout[vout_tx_counter].amount == address_txes[vout_addresstx_counter].amount) {
-                  // add the address into the addressTxArray array
-                  addressTxArray.push({
-                    txid: txid,
-                    a_id: tx.vout[vout_tx_counter].addresses,
-                    amount: address_txes[vout_addresstx_counter].amount
-                  });
-
-                  // remove the found records from both arrays
-                  tx.vout.splice(vout_tx_counter, 1);
-                  address_txes.splice(vout_addresstx_counter, 1);
-
-                  break;
-                }
-              }
-            }
-          }
-
-          // check if there are still more vin/vout records to process
-          if (tx.vin.length > 0 || tx.vout.length > 0 || address_txes.length > 0) {
-            // get all unique remaining addresses
-            var address_list = [];
-
-            // get unique addresses from the tx vin
-            tx.vin.forEach(function(vin) {
-              if (address_list.indexOf(vin.addresses) == -1)
-                address_list.push(vin.addresses);
-            });
-
-            // get unique addresses from the tx vout
-            tx.vout.forEach(function(vout) {
-              if (address_list.indexOf(vout.addresses) == -1)
-                address_list.push(vout.addresses);
-            });
-
-            // get unique addresses from the addresstxes
-            address_txes.forEach(function(address_tx) {
-              if (address_list.indexOf(address_tx.a_id) == -1)
-                address_list.push(address_tx.a_id);
-            });
-
-            // loop through each unique address
-            address_list.forEach(function(address) {
-              var vin_total = 0;
-              var vout_total = 0;
-              var address_tx_total = 0;
-
-              // add up all the vin amounts for this address
-              tx.vin.forEach(function(vin) {
-                // check if this is the correct address
-                if (vin.addresses == address)
-                  vin_total += vin.amount;
-              });
-
-              // add up all the vout amounts for this address
-              tx.vout.forEach(function(vout) {
-                // check if this is the correct address
-                if (vout.addresses == address)
-                  vout_total += vout.amount;
-              });
-
-              // add up all the addresstx amounts for this address
-              address_txes.forEach(function(address_tx) {
-                // check if this is the correct address
-                if (address_tx.a_id == address)
-                  address_tx_total += address_tx.amount;
-              });
-
-              // check if the tx and addresstx totals match
-              if ((vout_total - vin_total) == address_tx_total) {
-                // the values match (this indicates that this address sent coins to themselves)
-                // add a vin record for this address into the addressTxArray array
-                addressTxArray.push({
-                  txid: txid,
-                  a_id: address,
-                  amount: -vin_total
-                });
-
-                // add a vout record for this address into the addressTxArray array
-                addressTxArray.push({
-                  txid: txid,
-                  a_id: address,
-                  amount: vout_total
-                });
-              } else {
-                // the values do not match (this indicates there was a problem saving the data)
-                // output the data for this address as-is, using the addresstx values
-                address_txes.forEach(function(address_tx) {
-                  // check if this is the correct address
-                  if (address_tx.a_id == address) {
-                    // add a record for this address into the addressTxArray array
-                    addressTxArray.push({
-                      txid: txid,
-                      a_id: address,
-                      amount: address_tx.amount
-                    });
-                  }
-                });
-              }
-            });
-          }
-
-          // loop through the address txes
-          lib.syncLoop(addressTxArray.length, function(address_loop) {
-            var a = address_loop.iteration();
-
-             // fix the balance, sent and received data for the current address
-            fix_address_data(addressTxArray[a], function() {
-              setTimeout(function() {
-                // move to the next address record
-                address_loop.next();
-              }, timeout);
-            });
-          }, function() {
-            // delete all AddressTx records from the local collection for this tx
-            AddressTx.deleteMany({txid: txid}, function(address_tx_err, address_tx_result) {
-              if (address_tx_err)
-                console.log(address_tx_err);
-
-              // delete the tx from the local database
-              delete_tx(txid, block_height, function(tx_err, tx_result) {
-                if (tx_err) {
-                  console.log(tx_err);
-                  return cb(tx_count);
-                } else {
-                  // check if the deleted tx had vouts
-                  if (has_vouts) {
-                    // keep a running total of txes that were removed
-                    tx_count -= tx_result.deletedCount;
-                  }
-
-                  return cb(tx_count);
-                }
-              });
-            });
+        // check if this is a coinbase tx
+        if (tx.vin == null || tx.vin.length == 0) {
+          // add a coinbase tx into the addressTxArray array
+          addressTxArray.push({
+            txid: txid,
+            a_id: 'coinbase',
+            amount: tx.total
           });
         }
+
+        // check if there are any vin addresses
+        if (tx.vin != null && tx.vin.length > 0) {
+          // loop through the vin data
+          for (var vin_tx_counter = tx.vin.length - 1; vin_tx_counter >= 0; vin_tx_counter--) {
+            // loop through the addresstxe data
+            for (var vin_addresstx_counter = address_txes.length - 1; vin_addresstx_counter >= 0; vin_addresstx_counter--) {
+              // check if there is a tx record that exactly matches to the addresstx
+              if (tx.vin[vin_tx_counter].addresses == address_txes[vin_addresstx_counter].a_id && tx.vin[vin_tx_counter].amount == -address_txes[vin_addresstx_counter].amount) {
+                // add the address into the addressTxArray array
+                addressTxArray.push({
+                  txid: txid,
+                  a_id: tx.vin[vin_tx_counter].addresses,
+                  amount: address_txes[vin_addresstx_counter].amount
+                });
+
+                // remove the found records from both arrays
+                tx.vin.splice(vin_tx_counter, 1);
+                address_txes.splice(vin_addresstx_counter, 1);
+
+                break;
+              }
+            }
+          }
+        }
+
+        // check if there are any vout addresses
+        if (tx.vout != null && tx.vout.length > 0) {
+          // loop through the vout data
+          for (var vout_tx_counter = tx.vout.length - 1; vout_tx_counter >= 0; vout_tx_counter--) {
+            // loop through the addresstxe data
+            for (var vout_addresstx_counter = address_txes.length - 1; vout_addresstx_counter >= 0; vout_addresstx_counter--) {
+              // check if there is a tx record that exactly matches to the addresstx
+              if (tx.vout[vout_tx_counter].addresses == address_txes[vout_addresstx_counter].a_id && tx.vout[vout_tx_counter].amount == address_txes[vout_addresstx_counter].amount) {
+                // add the address into the addressTxArray array
+                addressTxArray.push({
+                  txid: txid,
+                  a_id: tx.vout[vout_tx_counter].addresses,
+                  amount: address_txes[vout_addresstx_counter].amount
+                });
+
+                // remove the found records from both arrays
+                tx.vout.splice(vout_tx_counter, 1);
+                address_txes.splice(vout_addresstx_counter, 1);
+
+                break;
+              }
+            }
+          }
+        }
+
+        // check if there are still more vin/vout records to process
+        if (tx.vin.length > 0 || tx.vout.length > 0 || address_txes.length > 0) {
+          // get all unique remaining addresses
+          var address_list = [];
+
+          // get unique addresses from the tx vin
+          tx.vin.forEach(function(vin) {
+            if (address_list.indexOf(vin.addresses) == -1)
+              address_list.push(vin.addresses);
+          });
+
+          // get unique addresses from the tx vout
+          tx.vout.forEach(function(vout) {
+            if (address_list.indexOf(vout.addresses) == -1)
+              address_list.push(vout.addresses);
+          });
+
+          // get unique addresses from the addresstxes
+          address_txes.forEach(function(address_tx) {
+            if (address_list.indexOf(address_tx.a_id) == -1)
+              address_list.push(address_tx.a_id);
+          });
+
+          // loop through each unique address
+          address_list.forEach(function(address) {
+            var vin_total = 0;
+            var vout_total = 0;
+            var address_tx_total = 0;
+
+            // add up all the vin amounts for this address
+            tx.vin.forEach(function(vin) {
+              // check if this is the correct address
+              if (vin.addresses == address)
+                vin_total += vin.amount;
+            });
+
+            // add up all the vout amounts for this address
+            tx.vout.forEach(function(vout) {
+              // check if this is the correct address
+              if (vout.addresses == address)
+                vout_total += vout.amount;
+            });
+
+            // add up all the addresstx amounts for this address
+            address_txes.forEach(function(address_tx) {
+              // check if this is the correct address
+              if (address_tx.a_id == address)
+                address_tx_total += address_tx.amount;
+            });
+
+            // check if the tx and addresstx totals match
+            if ((vout_total - vin_total) == address_tx_total) {
+              // the values match (this indicates that this address sent coins to themselves)
+              // add a vin record for this address into the addressTxArray array
+              addressTxArray.push({
+                txid: txid,
+                a_id: address,
+                amount: -vin_total
+              });
+
+              // add a vout record for this address into the addressTxArray array
+              addressTxArray.push({
+                txid: txid,
+                a_id: address,
+                amount: vout_total
+              });
+            } else {
+              // the values do not match (this indicates there was a problem saving the data)
+              // output the data for this address as-is, using the addresstx values
+              address_txes.forEach(function(address_tx) {
+                // check if this is the correct address
+                if (address_tx.a_id == address) {
+                  // add a record for this address into the addressTxArray array
+                  addressTxArray.push({
+                    txid: txid,
+                    a_id: address,
+                    amount: address_tx.amount
+                  });
+                }
+              });
+            }
+          });
+        }
+
+        // loop through the address txes
+        lib.syncLoop(addressTxArray.length, function(address_loop) {
+          var a = address_loop.iteration();
+
+           // fix the balance, sent and received data for the current address
+          fix_address_data(addressTxArray[a], function() {
+            setTimeout(function() {
+              // move to the next address record
+              address_loop.next();
+            }, timeout);
+          });
+        }, function() {
+          // delete all AddressTx records from the local collection for this tx
+          AddressTx.deleteMany({txid: txid}).then((address_tx_result) => {
+            // delete the tx from the local database
+            delete_tx(txid, block_height, function(tx_err, tx_result) {
+              if (tx_err) {
+                console.log(tx_err);
+                return cb(tx_count);
+              } else {
+                // check if the deleted tx had vouts
+                if (has_vouts) {
+                  // keep a running total of txes that were removed
+                  tx_count -= tx_result.deletedCount;
+                }
+
+                return cb(tx_count);
+              }
+            });
+          }).catch((err) => {
+            console.log(err);
+
+            // delete the tx from the local database
+            delete_tx(txid, block_height, function(tx_err, tx_result) {
+              if (tx_err) {
+                console.log(tx_err);
+                return cb(tx_count);
+              } else {
+                // check if the deleted tx had vouts
+                if (has_vouts) {
+                  // keep a running total of txes that were removed
+                  tx_count -= tx_result.deletedCount;
+                }
+
+                return cb(tx_count);
+              }
+            });
+          });
+        });
+      }).catch((err) => {
+        console.log(err);
+        return cb(tx_count);
       });
     }
+  }).catch((err) => {
+    console.log(err);
+    return cb(tx_count);
   });
 }
 
@@ -887,19 +946,21 @@ function fix_address_data(address_data, cb) {
     $inc: addr_inc
   }, {
     upsert: false
-  }, function (address_err, return_address) {
-    if (address_err != null)
-      console.log(address_err);
-
+  }).then((return_address) => {
     // finished fixing the address balance data 
+    return cb();
+  }).catch((err) => {
+    console.log(err);
     return cb();
   });
 }
 
 function delete_tx(txid, block_height, cb) {
   // delete the tx from the local database
-  Tx.deleteOne({txid: txid, blockindex: block_height}, function(tx_err, tx_result) {
-    return cb(tx_err, tx_result);
+  Tx.deleteOne({txid: txid, blockindex: block_height}).then((tx_result) => {
+    return cb(null, tx_result);
+  }).catch((err) => {
+    return cb(err, null);
   });
 }
 
@@ -1094,11 +1155,8 @@ if (lib.is_locked([database]) == false) {
 
     mongoose.set('strictQuery', true);
 
-    mongoose.connect(dbString, function(err) {
-      if (err) {
-        console.log('Error: Unable to connect to database: %s', dbString);
-        exit(1);
-      } else if (database == 'index') {
+    mongoose.connect(dbString).then(() => {
+      if (database == 'index') {
         db.check_stats(settings.coin.name, function(exists) {
           if (exists == false) {
             console.log('Run \'npm start\' to create database structures before running this script.');
@@ -1110,22 +1168,22 @@ if (lib.is_locked([database]) == false) {
                 // determine which index mode to run
                 if (mode == 'reindex') {
                   console.log('Deleting transactions.. Please wait..');
-                  Tx.deleteMany({}, function(err) {
+                  Tx.deleteMany({}).then(() => {
                     console.log('Transactions deleted successfully');
 
                     console.log('Deleting addresses.. Please wait..');
-                    Address.deleteMany({}, function(err2) {
+                    Address.deleteMany({}).then(() => {
                       console.log('Addresses deleted successfully');
 
                       console.log('Deleting address transactions.. Please wait..');
-                      AddressTx.deleteMany({}, function(err3) {
+                      AddressTx.deleteMany({}).then(() => {
                         console.log('Address transactions deleted successfully');
 
                         console.log('Deleting top 100 data.. Please wait..');
                         Richlist.updateOne({coin: settings.coin.name}, {
                           received: [],
                           balance: []
-                        }, function(err3) {
+                        }).then(() => {
                           console.log('Top 100 data deleted successfully');
 
                           console.log('Deleting block index.. Please wait..');
@@ -1137,7 +1195,7 @@ if (lib.is_locked([database]) == false) {
                             richlist_last_updated: 0,
                             orphan_index: 0,
                             orphan_current: 0
-                          }, function() {
+                          }).then(() => {
                             console.log('Block index deleted successfully');
 
                             // Check if the sync msg should be shown
@@ -1184,10 +1242,25 @@ if (lib.is_locked([database]) == false) {
                                 });
                               }
                             });
+                          }).catch((err) => {
+                            console.log(err);
+                            exit(1);
                           });
+                        }).catch((err) => {
+                          console.log(err);
+                          exit(1);
                         });
+                      }).catch((err) => {
+                        console.log(err);
+                        exit(1);
                       });
+                    }).catch((err) => {
+                      console.log(err);
+                      exit(1);
                     });
+                  }).catch((err) => {
+                    console.log(err);
+                    exit(1);
                   });
                 } else if (mode == 'check') {
                   console.log('Checking blocks.. Please wait..');
@@ -1284,40 +1357,55 @@ if (lib.is_locked([database]) == false) {
                   console.log('Calculating tx count.. Please wait..');
 
                   // Resetting the transaction counter requires a single lookup on the txes collection to find all txes that have a positive or zero total and 1 or more vout
-                  Tx.find({'total': {$gte: 0}, 'vout': { $gte: { $size: 1 }}}).countDocuments(function(err, count) {
+                  Tx.find({'total': {$gte: 0}, 'vout': { $gte: { $size: 1 }}}).countDocuments().then((count) => {
                     console.log('Found tx count: ' + count.toString());
                     Stats.updateOne({coin: settings.coin.name}, {
                       txes: count
-                    }, function() {
+                    }).then(() => {
                       console.log('Tx count update complete');
                       exit(0);
+                    }).catch((err) => {
+                      console.log(err);
+                      exit(1);
                     });
+                  }).catch((err) => {
+                    console.log(err);
+                    exit(1);
                   });
                 } else if (mode == 'reindex-last') {
                   console.log('Finding last blockindex.. Please wait..');
 
                   // Resetting the last blockindex counter requires a single lookup on the txes collection to find the last indexed blockindex
-                  Tx.find({}, {blockindex:1, _id:0}).sort({blockindex: -1}).limit(1).exec(function(err, tx) {
+                  Tx.find({}, {blockindex:1, _id:0}).sort({blockindex: -1}).limit(1).exec().then((tx) => {
                     // check if any blocks exists
-                    if (err != null || tx == null || tx.length == 0) {
+                    if (tx == null || tx.length == 0) {
                       console.log('No blocks found. setting last blockindex to 0.');
 
                       Stats.updateOne({coin: settings.coin.name}, {
                         last: 0
-                      }, function() {
+                      }).then(() => {
                         console.log('Last blockindex update complete');
                         exit(0);
+                      }).catch((err) => {
+                        console.log(err);
+                        exit(1);
                       });
                     } else {
                       console.log('Found last blockindex: ' + tx[0].blockindex.toString());
 
                       Stats.updateOne({coin: settings.coin.name}, {
                         last: tx[0].blockindex
-                      }, function() {
+                      }).then(() => {
                         console.log('Last blockindex update complete');
                         exit(0);
+                      }).catch((err) => {
+                        console.log(err);
+                        exit(1);
                       });
                     }
+                  }).catch((err) => {
+                    console.log(err);
+                    exit(1);
                   });
                 }
               } else {
@@ -1578,6 +1666,9 @@ if (lib.is_locked([database]) == false) {
           exit(1);
         }
       }
+    }).catch((err) => {
+      console.log('Error: Unable to connect to database: %s', err);
+      exit(1);
     });
   } else {
     // another script process is currently running

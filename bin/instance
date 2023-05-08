@@ -23,9 +23,12 @@ db.connect(dbString, function() {
       server.close(() => {
         var mongoose = require('mongoose');
 
-        mongoose.connection.close(false, () => {
+        mongoose.connection.close(false).then(() => {
           // close the main process now that all http and database connections have closed
           process.exit(0);
+        }).catch((err) => {
+          console.log(err);
+          process.exit(1);
         });
       });
     });

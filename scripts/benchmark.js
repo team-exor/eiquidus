@@ -22,14 +22,9 @@ dbString = dbString + "/IQUIDUS-BENCHMARK";
 
 mongoose.set('strictQuery', true);
 
-mongoose.connect(dbString, function(err) {
-  if (err) {
-    console.log('Error: Unable to connect to database: %s', dbString);
-    exit(999);
-  }
-
-  Tx.deleteMany({}, function(err) {
-    Address.deleteMany({}, function(err2) {
+mongoose.connect(dbString).then(() => {
+  Tx.deleteMany({}).then(() => {
+    Address.deleteMany({}).then(() => {
       var s_timer = new Date().getTime();
 
       // updates tx, address & richlist db's
@@ -54,7 +49,7 @@ mongoose.connect(dbString, function(err) {
             Stats.updateOne({coin: coin}, {
               last: block_height - 1,
               txes: txes
-            }, function() {});
+            }).then(() => {});
           } else if (check_only) {
             console.log('Checking block ' + block_height + '...');
           }
@@ -64,7 +59,7 @@ mongoose.connect(dbString, function(err) {
               lib.get_block(blockhash, function(block) {
                 if (block) {
                   async.eachLimit(block.tx, task_limit_txs, function(txid, next_tx) {
-                    Tx.findOne({txid: txid}, function(err, tx) {
+                    Tx.findOne({txid: txid}).then((tx) => {
                       if (tx) {
                         setTimeout( function() {
                           tx = null;
@@ -86,6 +81,13 @@ mongoose.connect(dbString, function(err) {
                           }, timeout);
                         });
                       }
+                    }).catch((err) => {
+                      console.log(err);
+
+                      setTimeout( function() {
+                        tx = null;
+                        next_tx();
+                      }, timeout);
                     });
                   }, function() {
                     setTimeout( function() {
@@ -112,7 +114,10 @@ mongoose.connect(dbString, function(err) {
           Stats.updateOne({coin: coin}, {
             last: end,
             txes: txes
-          }, function() {
+          }).then(() => {
+            return cb();
+          }).catch((err) => {
+            console.log(err);
             return cb();
           });
         });
@@ -121,8 +126,8 @@ mongoose.connect(dbString, function(err) {
       update_tx_db(settings.coin.name, 1, COUNT, 0, settings.sync.update_timeout, false, function() {
         var e_timer = new Date().getTime();
 
-        Tx.countDocuments({}, function(txerr, txcount) {
-          Address.countDocuments({}, function(aerr, acount) {
+        Tx.countDocuments({}).then((txcount) => {
+          Address.countDocuments({}).then((acount) => {
             var stats = {
               tx_count: txcount,
               address_count: acount,
@@ -136,4 +141,7 @@ mongoose.connect(dbString, function(err) {
       });
     });
   });
+}).catch((err) => {
+  console.log('Error: Unable to connect to database: %s', dbString);
+  exit(999);
 });
