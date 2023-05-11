@@ -463,7 +463,10 @@
       // social_link_percent_height_tablet: Forced social link height percentage value for tablet screens
       "social_link_percent_height_tablet": 42,
       // social_link_percent_height_mobile: Forced social link height percentage value for mobile screens
-      "social_link_percent_height_mobile": 40
+      "social_link_percent_height_mobile": 40,
+      // powered_by_text: Customize the "powered by" text in the center of the footer with some custom html
+      //                  NOTE: Add the keyword {explorer_version} to display the current version number of the explorer
+      "powered_by_text": "<a class='nav-link poweredby' href='https://github.com/team-exor/eiquidus' target='_blank'>eIquidus v{explorer_version}</a>"
     }
   },
 

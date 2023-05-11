@@ -1341,7 +1341,7 @@ html(lang='en')
         ul.nav.justify-content-center
           li.text-center
             p
-              a.nav-link.poweredby.border-0(href='https://github.com/team-exor/eiquidus', target='_blank') eIquidus Explorer v#{settings.explorer_version}#{(settings.revision == null || settings.revision == '' ? '' : `-${settings.revision}`)}
+              | !{settings.shared_pages.page_footer.powered_by_text.replace('{explorer_version}', settings.explorer_version + (settings.revision == null || settings.revision == '' ? '' : `-${settings.revision}`))}
       .col-4.navbar-nav
         ui.nav.justify-content-end
           label#lblBlockcount.badge.nav-link.border-0.float-end
