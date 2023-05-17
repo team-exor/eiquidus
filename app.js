@@ -19,7 +19,7 @@ const { exec } = require('child_process');
 nodeapi.setWalletDetails(settings.wallet);
 // dynamically build the nodeapi cmd access list by adding all non-blockchain-specific api cmds that have a value
 Object.keys(settings.api_cmds).forEach(function(key, index, map) {
-  if (key != 'use_rpc' && settings.api_cmds[key] != null && settings.api_cmds[key] != '')
+  if (key != 'use_rpc' && key != 'rpc_concurrent_tasks' && settings.api_cmds[key] != null && settings.api_cmds[key] != '')
     apiAccessList.push(key);
 });
 // dynamically find and add additional blockchain_specific api cmds
