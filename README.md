@@ -6,7 +6,7 @@
 <img src="public/img/screenshots/platform-windows macos linux-lightgrey.svg" />
 ![GitHub](https://img.shields.io/github/license/team-exor/eiquidus?color=ffbd11)
 
-Written in node.js and mongodb, eIquidus is the most stable, secure, customizable and feature-rich open-source block explorer with support for virtually any altcoin that implements some form of the [Bitcoin RPC API protocol](https://developer.bitcoin.org/reference/rpc/index.html). Originally built for the [Exor blockchain](https://github.com/team-exor/exor), eIquidus has since grown into a fully-featured explorer with a focus on stability and security at its core. All features from the [original iquidus explorer](https://github.com/iquidus/explorer) are included here along with many new ideas from other iquidus forks, and an absolute ton of new custom changes and bug fixes that were developed specifically for eIquidus.
+Written in node.js and mongodb, eIquidus is the most stable, secure, customizable and feature-rich open-source block explorer with support for virtually any altcoin that implements some form of the [Bitcoin RPC API protocol](https://developer.bitcoin.org/reference/rpc/index.html) (EVM blockchains such as ETH, BNB, etc. are not supported). Originally built for the [Exor blockchain](https://github.com/team-exor/exor), eIquidus has since grown into a fully-featured explorer with a focus on stability and security at its core. All features from the [original iquidus explorer](https://github.com/iquidus/explorer) are included here along with many new ideas from other iquidus forks, and an absolute ton of new custom changes and bug fixes that were developed specifically for eIquidus.
 
 ![Homepage](public/img/screenshots/homepage-1-101-0.png)
 
@@ -25,13 +25,13 @@ Table of Contents
 - [Features](#features)
 - [See it in Action](#see-it-in-action)
 - [Installation](#installation)
-  - [Full Setup Guide](#full-setup-guide)
-  - [Quick Install Instructions](#quick-install-instructions)
-    - [Pre-Install](#pre-install)
-    - [Database Setup](#database-setup)
-    - [Download Source Code](#download-source-code)
-    - [Install Node Modules](#install-node-modules)
-    - [Configure Explorer Settings](#configure-explorer-settings)
+  - [Pre-Install](#pre-install)
+    - [Node.js](#nodejs)
+    - [MongoDB](#mongodb)
+  - [Database Setup](#database-setup)
+  - [Download Source Code](#download-source-code)
+  - [Install Node Modules](#install-node-modules)
+  - [Configure Explorer Settings](#configure-explorer-settings)
 - [Start/Stop the Explorer](#startstop-the-explorer)
   - [Start Explorer (Use for Testing)](#start-explorer-use-for-testing)
   - [Stop Explorer (Use for Testing)](#stop-explorer-use-for-testing)
@@ -69,8 +69,8 @@ Table of Contents
 ### Features
 
 - Built using the following scripts and technologies:
-  - Node.js (v16.13.1 or newer recommended)
-  - MongoDB (v5.0.4 or newer recommended)
+  - Node.js (v18.16.0 or newer recommended)
+  - MongoDB (v6.0.6 or newer recommended)
   - JQuery v3.6.0
   - Bootstrap v5.1.3
   - DataTables v1.11.3
@@ -226,32 +226,66 @@ Table of Contents
 
 ### Installation
 
-#### Full Setup Guide
-
-While we do not yet have our own step-by-step setup instructions, there are a few well-written guides out there already that detail how to set up and install the [original iquidus explorer](https://github.com/iquidus/explorer). Because the setup process for iquidus is more-or-less identical to eIquidus at this moment in time (making changes to settings.json is probably the biggest difference although we have helpful comments for each setting), here are some of the more complete guides that may be useful for anyone who needs more detailed instructions than are provided in the [Quick Install Instructions](#quick-install-instructions):
-
-1. [Beginners Guide for Iquidus Explorer Setup](https://gist.github.com/samqju/b9fc6c007f083e6429387051e24da1c3)
-2. [Node and Iquidus Explorer Setup for Dummies](https://gist.github.com/scottie/b6179c34ce3cf200fcc5d08727a46623)
-3. [Iquidus Block Explorer Guide](https://www.reddit.com/r/BiblePay/comments/7elm7r/iquidus_block_explorer_guide)
-4. [The Ultimate Iquidus Explorer Installation Guide - WAYBACKMACHINE](https://web.archive.org/web/20210228210054/https://stakeandnodes.net/iquidus-explorer-installation-guide/)
-
-#### Quick Install Instructions
-
-##### Pre-Install
+#### Pre-Install
 
 The following prerequisites must be installed before using the explorer:
 
-- [Node.js](https://nodejs.org/en/) (v14.15.4 or newer recommended)
-- [MongoDB](https://www.mongodb.com/) (v4.4.3 or newer recommended)
+- [Node.js](https://nodejs.org/en/) (v18.16.0 or newer recommended)
+- [MongoDB](https://www.mongodb.com/) (v6.0.6 or newer recommended)
 - [Git](https://git-scm.com/downloads) (v2.36.0 or newer recommended)
 - A fully synchronized *coind* wallet daemon that supports the [Bitcoin RPC API protocol](https://developer.bitcoin.org/reference/rpc/index.html). **NOTE:** In most cases, the blockchain must be synced with the `txindex` feature enabled to have access to all transactions. See the [Wallet Settings](#wallet-settings) section for more details.
 
-##### Database Setup
+##### Node.js
 
-Open the MongoDB cli:
+The recommended way to install Node.js is by using the Node Version Manager (NVM):
 
 ```
-mongo
+sudo apt update
+sudo apt install curl
+curl https://raw.githubusercontent.com/creationix/nvm/master/install.sh | bash
+source ~/.profile
+nvm install --lts
+```
+
+Using the `--lts` option in the last cmd above will install the most recent LTS version of Node.js. If you want to install a specific version you can do it with the following cmd:
+
+```
+nvm install 18.16.0
+```
+
+If desired, multiple versions of Node.js can be installed at the same time with NVM. Use the following syntax to easily change the current Node.js version to another installed version:
+
+```
+nvm use 18.14.2
+```
+
+##### MongoDB
+
+It is recommended to follow the install instructions at the official mongo website since they will be updated more often and have specific instructions for many different operating systems: [https://www.mongodb.com/docs/manual/administration/install-community/](https://www.mongodb.com/docs/manual/administration/install-community/).
+
+Below are instructions to install the latest v6.x version of MongoDB on Ubunutu 22.04 (run one line at a time):
+
+```
+sudo apt-get install gnupg
+curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+sudo apt-get update
+sudo apt-get install -y mongodb-org
+```
+
+Once MongoDB is installed it is recommended to run the following cmds to start the database server and add it as a service to ensure it starts up automatically after a reboot:
+
+```
+sudo systemctl start mongod
+sudo systemctl enable mongod.service
+```
+
+#### Database Setup
+
+Open the MongoDB cli (The legacy mongo shell `mongo` was deprecated in MongoDB v5.0 and removed in MongoDB v6.0. Newer installs must now use `mongosh`):
+
+```
+mongosh
 ```
 
 Select database:
@@ -268,19 +302,25 @@ Create a new user with read/write access:
 db.createUser( { user: "eiquidus", pwd: "Nd^p2d77ceBX!L", roles: [ "readWrite" ] } )
 ```
 
-##### Download Source Code
+Exit the mongo shell:
+
+```
+exit
+```
+
+#### Download Source Code
 
 ```
 git clone https://github.com/team-exor/eiquidus explorer
 ```
 
-##### Install Node Modules
+#### Install Node Modules
 
 ```
 cd explorer && npm install --only=prod
 ```
 
-##### Configure Explorer Settings
+#### Configure Explorer Settings
 
 ```
 cp ./settings.json.template ./settings.json
@@ -659,7 +699,17 @@ Follow the steps below to configure the Express webserver for use with TLS/SSL:
 
 1. If you haven't already done so, run the `setcap` cmd from the [Use Setcap to Safely Grant User Permissions Instructions](#use-setcap-to-safely-grant-user-permissions) which will allow node.js to bind to port 443 without needing root permissions.
 
-2. There are different options for generating a valid TLS/SSL certificate, but in this case it is assumed that you do not have another webserver running on port 80 and therefore the standalone install method will be used. If you do have a webserver running, this cmd will fail unless you temporarily stop the webserver before continuing:
+2. There are different options for generating a valid TLS/SSL certificate via certbot. If you are running the explorer on port 80 you can run the cmd on step 2A), otherwise run the cmd on step 2B) if the explorer is running on any port # other than 80. This step is important because certbot will automatically renew your TLS/SSL certificate periodically and it will fail to renew if the wrong option is chosen:
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;A. The Webroot method is used when port 80 is already in use by the explorer. Be sure to change the webroot-path to the absolute path of the explorer/public directory:
+
+**NOTE:** The explorer must be running for this cmd to work properly:
+
+```
+sudo certbot certonly --webroot --webroot-path /path/to/explorer/public
+```
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;B. The Standalone method is used when port 80 is not already in use by the explorer:
 
 ```
 sudo certbot certonly --standalone
@@ -888,10 +938,17 @@ Where [SIZE] is an integer higher than the default.
 
 *note: SIZE will depend on which blockchain you are using, you may need to play around a bit to find an optimal setting*
 
-
 **Error: bind EACCES ...**
 
 This error can appear when you try to run the explorer on a port number lower than 1024. There are a couple solutions to this problem which are explained in more detail in the [Run Express Webserver on Port 80](#run-express-webserver-on-port-80) section.
+
+**Error: Callback was already called**
+
+This error typically means there is some kind of connection issue between the explorer and the wallet daemon. The most common mistake that can cause this error is by configuring the wallet's P2P port # instead of the RPC port # in the settings.json. This can also happen if your wallet is not set up to accept RPC connections.
+
+**Warning: Accessing non-existent property 'padLevels' of module exports inside circular dependency**
+
+This warning is currently displayed when starting or stopping the explorer using the `forever` module. The good news is that this warning can safely be ignored although it can be confusing as to why it is displayed at all. This is a deep rooted issue with `forever` that is actively being discussed [here](https://github.com/foreversd/forever/issues/1077). Long story short is that `forever` depends on a number of outdated dependencies that require certain parts of the code to be rewritten and so far it has not been officially resolved yet. `Forever` is still included as an option for those who are used to using it although we recommend using `pm2` to run your production explorer since it is more modern and can do everything `forever` does and more.
 
 ### Donations / Support Us
 
