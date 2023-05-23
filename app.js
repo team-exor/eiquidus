@@ -33,8 +33,26 @@ Object.keys(settings.blockchain_specific).forEach(function(key, index, map) {
     });
   }
 });
+
 // whitelist the cmds in the nodeapi access list
 nodeapi.setAccess('only', apiAccessList);
+
+// determine if http traffic should be forwarded to https
+if (settings.webserver.tls.enabled == true && settings.webserver.tls.always_redirect == true) {
+  app.use(function(req, res, next) {
+    if (req.secure) {
+      // continue without redirecting
+      next();
+    } else {
+      // add webserver port to the host value if it does not already exist
+      const host = req.headers.host + (req.headers.host.indexOf(':') > -1 ? '' : ':' + settings.webserver.port.toString());
+
+      // redirect to the correct https page
+      res.redirect(301, 'https://' + host.replace(':' + settings.webserver.port.toString(), (settings.webserver.tls.port != 443 ? ':' + settings.webserver.tls.port.toString() : '')) + req.url);
+    }
+  });
+}
+
 // determine if cors should be enabled
 if (settings.webserver.cors.enabled == true) {
   app.use(function(req, res, next) {
@@ -44,6 +62,7 @@ if (settings.webserver.cors.enabled == true) {
     next();
   });
 }
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
