@@ -1,7 +1,43 @@
 NOTE: As of v1.100.0-bae4d50, it is no longer necessary to manually restart the explorer after updating, as long as you are using the built-in update script `npm run update-explorer`. All other manual updates such as `git pull` will still require a restart to the explorer after updating.
 
-1.101.0 [July 09, 2022]
+1.102.0 [June 14, 2023]
+-Added better support for NODE_ENV
+-Added a new setting to redirect http to https
+-Removed the "Full Setup Guide" section from the README
+-Updated the README with new recommended versions for Node.js and MongoDB
+-Updated the README with more text to make it more clear that EVM blockchains are not supported
+-Updated the README with an extra step for exiting the mongo shell in the "Database Setup" section
+-Updated the README by removing the "Quick Install Instructions" section title and now all install instructions are under the main Installation section
+-Updated the README with new steps to the "Pre-Install" section for installing node.js and mongodb
+-Updated the README with a new entry to the "Known Issues" section to explain the "Callback was already called" error msg
+-Updated the README with a new entry to the "Known Issues" section that better explains the padLevels warning msgs when using the forever module
+-Updated the README with alternate instructions to the "Manually Link TLS/SSL Certificates to the Explorer" section which better explain which method should be used depending on whether the explorer is running on port 80 for http traffic or not
+-Added an rpc cmd queue
+-Fixed an issue that caused 2 or more masternodes created in the same transaction to be treated as the same entry
+-The "Powered By" footer text is now configurable
+-Better handling of null market data
+-The mongoose and mongodb dependencies have been updated to the most recent versions in package.json which required fixing many breaking changes to a number of files in the explorer
+-Fixed a few Deprecation Warning msgs for the Flatly, Litera and Solar themes
+-Added better quote support for the coin name and symbol settings
+-Added support for handling orphaned blocks along with a new optional page to display them
+-The coinbase address now updates sent totals from POS rewards and other transactions that have vout but no vin addresses
+-The block and transaction pages now display a warning when viewing an orphaned block or tx
+-Fixed the incorrect confirmations value in the gettx api
+-Fixed the "DeprecationWarning: Mongoose: the `strictQuery` option will be switched back to `false` by default in Mongoose 7" warning msg from newer mongoose versions
+-Added new settings to improve the network chart precision for small decimal values like 0.00028363 which were previously being rounded to 0
+-Removed the jstransformer-markdown-it dependency
+-Added new settings to allow hiding the port number on the network page tables
+-Fixed the footer width calculations
+-Improvements to the core layout including new scrollbars on the mobile menu items when there are too many items to fit on the screen at once
+-Added side menu support
+-Fixed the peer sync for addresses without country data
+-Fixed a divide by zero error when calculating market change
+-Added support for the Unnamed exchange
+-Added support for the Txbit exchange
+-Better handling of stop/kill sync processes (The SIGINT and SIGTERM signals are now being caught and handled in the sync.js file so that most options for syncing blocks, markets, peers, masternodes, etc. are now being gracefully shut down instead of killed in the middle of the process. This should help prevent data anomalies when you need to stop or kill a sync process)
+-Added support for vin/vout hashes inside an array
 
+1.101.0 [July 09, 2022]
 -Locale string tx_hash was changed from "Hash" to "Tx Hash" to be clearer about which Hash it refers to
 -TXid was renamed to "Tx Hash" throughout the site
 -Removed the coin name from the tx hash label on the transaction page
