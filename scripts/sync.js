@@ -1455,7 +1455,7 @@ if (lib.is_locked([database]) == false) {
                       country: peer.country,
                       country_code: peer.country_code
                     }, function() {
-                      console.log('Updated peer %s:%s [%s/%s]', address, port.toString(), (i + 1).toString(), body.length.toString());
+                      console.log('Updated peer %s%s [%s/%s]', address, (port == null || port == '' ? '' : ':' + port.toString()), (i + 1).toString(), body.length.toString());
 
                       // check if the script is stopping
                       if (stopSync) {
@@ -1489,7 +1489,7 @@ if (lib.is_locked([database]) == false) {
                           country: geo.country_name,
                           country_code: geo.country_code
                         }, function() {
-                          console.log('Added new peer %s:%s [%s/%s]', address, port.toString(), (i + 1).toString(), body.length.toString());
+                          console.log('Added new peer %s%s [%s/%s]', address, (port == null || port == '' ? '' : ':' + port.toString()), (i + 1).toString(), body.length.toString());
 
                           // check if the script is stopping
                           if (stopSync) {
