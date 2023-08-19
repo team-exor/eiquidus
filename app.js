@@ -831,7 +831,10 @@ var panelcount = (settings.shared_pages.page_header.panels.network_panel.enabled
   (settings.shared_pages.page_header.panels.coin_supply_panel.enabled == true && settings.shared_pages.page_header.panels.coin_supply_panel.display_order > 0 ? 1 : 0) +
   (settings.shared_pages.page_header.panels.price_panel.enabled == true && settings.shared_pages.page_header.panels.price_panel.display_order > 0 ? 1 : 0) +
   (settings.shared_pages.page_header.panels.market_cap_panel.enabled == true && settings.shared_pages.page_header.panels.market_cap_panel.display_order > 0 ? 1 : 0) +
-  (settings.shared_pages.page_header.panels.logo_panel.enabled == true && settings.shared_pages.page_header.panels.logo_panel.display_order > 0 ? 1 : 0);
+  (settings.shared_pages.page_header.panels.logo_panel.enabled == true && settings.shared_pages.page_header.panels.logo_panel.display_order > 0 ? 1 : 0) +
+  (settings.shared_pages.page_header.panels.spacer_panel_1.enabled == true && settings.shared_pages.page_header.panels.spacer_panel_1.display_order > 0 ? 1 : 0) +
+  (settings.shared_pages.page_header.panels.spacer_panel_2.enabled == true && settings.shared_pages.page_header.panels.spacer_panel_2.display_order > 0 ? 1 : 0) +
+  (settings.shared_pages.page_header.panels.spacer_panel_3.enabled == true && settings.shared_pages.page_header.panels.spacer_panel_3.display_order > 0 ? 1 : 0);
 app.set('paneloffset', paneltotal + 1 - panelcount);
 
 // determine panel order
@@ -844,6 +847,9 @@ if (settings.shared_pages.page_header.panels.coin_supply_panel.enabled == true &
 if (settings.shared_pages.page_header.panels.price_panel.enabled == true && settings.shared_pages.page_header.panels.price_panel.display_order > 0) panel_order.push({name: 'price_panel', val: settings.shared_pages.page_header.panels.price_panel.display_order});
 if (settings.shared_pages.page_header.panels.market_cap_panel.enabled == true && settings.shared_pages.page_header.panels.market_cap_panel.display_order > 0) panel_order.push({name: 'market_cap_panel', val: settings.shared_pages.page_header.panels.market_cap_panel.display_order});
 if (settings.shared_pages.page_header.panels.logo_panel.enabled == true && settings.shared_pages.page_header.panels.logo_panel.display_order > 0) panel_order.push({name: 'logo_panel', val: settings.shared_pages.page_header.panels.logo_panel.display_order});
+if (settings.shared_pages.page_header.panels.spacer_panel_1.enabled == true && settings.shared_pages.page_header.panels.spacer_panel_1.display_order > 0) panel_order.push({name: 'spacer_panel_1', val: settings.shared_pages.page_header.panels.spacer_panel_1.display_order});
+if (settings.shared_pages.page_header.panels.spacer_panel_2.enabled == true && settings.shared_pages.page_header.panels.spacer_panel_2.display_order > 0) panel_order.push({name: 'spacer_panel_2', val: settings.shared_pages.page_header.panels.spacer_panel_2.display_order});
+if (settings.shared_pages.page_header.panels.spacer_panel_3.enabled == true && settings.shared_pages.page_header.panels.spacer_panel_3.display_order > 0) panel_order.push({name: 'spacer_panel_3', val: settings.shared_pages.page_header.panels.spacer_panel_3.display_order});
 
 panel_order.sort(function(a,b) { return a.val - b.val; });
 

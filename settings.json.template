@@ -261,6 +261,39 @@
           //                1 = far left panel, 5 = far right panel
           //                The panel will be disabled with a value of 0
           "display_order": 3
+        },
+        // spacer_panel_1: a collection of settings that pertain to the 1st spacer panel which allows inserting a blank space into the top panels
+        //                 NOTE: spacer panels are only visible on desktop and tablet screen sizes and are hidden on mobile screens
+        "spacer_panel_1": {
+          // enabled: Enable/disable the spacer panel (true/false)
+          //          If set to false, the spacer panel will be completely inaccessible
+          "enabled": false,
+          // display_order: Determine which order this panel is shown from 1-5
+          //                1 = far left panel, 5 = far right panel
+          //                The panel will be disabled with a value of 0
+          "display_order": 0
+        },
+        // spacer_panel_2: a collection of settings that pertain to the 2nd spacer panel which allows inserting a blank space into the top panels
+        //                 NOTE: spacer panels are only visible on desktop and tablet screen sizes and are hidden on mobile screens
+        "spacer_panel_2": {
+          // enabled: Enable/disable the spacer panel (true/false)
+          //          If set to false, the spacer panel will be completely inaccessible
+          "enabled": false,
+          // display_order: Determine which order this panel is shown from 1-5
+          //                1 = far left panel, 5 = far right panel
+          //                The panel will be disabled with a value of 0
+          "display_order": 0
+        },
+        // spacer_panel_3: a collection of settings that pertain to the 3rd spacer panel which allows inserting a blank space into the top panels
+        //                 NOTE: spacer panels are only visible on desktop and tablet screen sizes and are hidden on mobile screens
+        "spacer_panel_3": {
+          // enabled: Enable/disable the spacer panel (true/false)
+          //          If set to false, the spacer panel will be completely inaccessible
+          "enabled": false,
+          // display_order: Determine which order this panel is shown from 1-5
+          //                1 = far left panel, 5 = far right panel
+          //                The panel will be disabled with a value of 0
+          "display_order": 0
         }
       },
       // search: A collection of settings that pertain to the search feature

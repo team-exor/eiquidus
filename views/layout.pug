@@ -688,6 +688,9 @@ html(lang='en')
         function getLogoPanel() {
           return `<img src="#{settings.shared_pages.logo}" style="margin-top:-15px;height:128px;" alt="${"#{settings.coin.name}".replace(/"/g, '&quot;')} Logo" title="${"#{settings.coin.name}".replace(/"/g, '&quot;')} Logo" />`;
         }
+        function getSpacerPanel() {
+          return `<div class="panel_spacer"></div>`;
+        }
         function getActivePanel(panelName) {
           var sReturn='';
           switch (panelName) {
@@ -711,6 +714,11 @@ html(lang='en')
               break;
             case "logo_panel":
               sReturn=getLogoPanel();
+              break;
+            case "spacer_panel_1":
+            case "spacer_panel_2":
+            case "spacer_panel_3":
+              sReturn=getSpacerPanel();
               break;
           }
           return sReturn;
