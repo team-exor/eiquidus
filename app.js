@@ -877,18 +877,40 @@ app.use(function(err, req, res, next) {
 
 // determine if tls features should be enabled
 if (settings.webserver.tls.enabled == true) {
+  function readCertsSync() {
+    var tls_options = {};
+
+    try {
+      tls_options = {
+        key: db.fs.readFileSync(settings.webserver.tls.key_file),
+        cert: db.fs.readFileSync(settings.webserver.tls.cert_file),
+        ca: db.fs.readFileSync(settings.webserver.tls.chain_file)
+      };
+    } catch(e) {
+      console.warn('There was a problem reading tls certificates. Check that the certificate, chain and key paths are correct.');
+    }
+
+    return tls_options;
+  }
+
+  const https = require('https');
+  let httpd = https.createServer(readCertsSync(), app).listen(settings.webserver.tls.port);
+
   try {
-    var tls_options = {
-      key: db.fs.readFileSync(settings.webserver.tls.key_file),
-      cert: db.fs.readFileSync(settings.webserver.tls.cert_file),
-      ca: db.fs.readFileSync(settings.webserver.tls.chain_file)
-    };
+    let waitForCertsToRefresh;
+
+    // watch for changes to the certificate directory
+    db.fs.watch(path.dirname(settings.webserver.tls.key_file), () => {
+      clearTimeout(waitForCertsToRefresh);
+
+      // refresh certificates as they are changed on disk
+      waitForCertsToRefresh = setTimeout(() => {
+        httpd.setSecureContext(readCertsSync());
+      }, 1000);
+    });
   } catch(e) {
     console.warn('There was a problem reading tls certificates. Check that the certificate, chain and key paths are correct.');
   }
-
-  var https = require('https');
-  https.createServer(tls_options, app).listen(settings.webserver.tls.port);
 }
 
 // get the latest git commit id (if exists)
