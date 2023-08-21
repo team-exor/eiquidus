@@ -6,30 +6,21 @@ var app = require('../app');
 
 app.set('port', process.env.PORT || settings.webserver.port);
 
-var dbString = 'mongodb://' + encodeURIComponent(settings.dbsettings.user);
-dbString = dbString + ':' + encodeURIComponent(settings.dbsettings.password);
-dbString = dbString + '@' + settings.dbsettings.address;
-dbString = dbString + ':' + settings.dbsettings.port;
-dbString = dbString + '/' + settings.dbsettings.database;
+db.connect(null, function() {
+  var server = app.listen(app.get('port'), '::', function() {
+    debug('Express server listening on port ' + server.address().port);
+  });
 
-db.connect(dbString, function() {
-  // initialize the database
-  db.initialize_data_startup(function() {
-    var server = app.listen(app.get('port'), '::', function() {
-      debug('Express server listening on port ' + server.address().port);
-    });
+  process.on('SIGINT', () => {
+    server.close(() => {
+      var mongoose = require('mongoose');
 
-    process.on('SIGINT', () => {
-      server.close(() => {
-        var mongoose = require('mongoose');
-
-        mongoose.connection.close(false).then(() => {
-          // close the main process now that all http and database connections have closed
-          process.exit(0);
-        }).catch((err) => {
-          console.log(err);
-          process.exit(1);
-        });
+      mongoose.connection.close(false).then(() => {
+        // close the main process now that all http and database connections have closed
+        process.exit(0);
+      }).catch((err) => {
+        console.log(err);
+        process.exit(1);
       });
     });
   });

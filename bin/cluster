@@ -2,7 +2,6 @@ var cluster = require('cluster');
 
 if (cluster.isMaster) {
   const isWinOS = process.platform == 'win32';
-  const lib = require('../lib/explorer');
   const instances = (process.argv[2] != null && process.argv[2] != '' && !isNaN(process.argv[2]) && Number.isInteger(parseFloat(process.argv[2])) ? parseInt(process.argv[2]) : require('os').cpus().length);
 
   console.log('Starting cluster with pid: ' + process.pid);

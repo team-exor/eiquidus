@@ -10,7 +10,7 @@ var nodeVersionRevision = '0';
 
 // check if the nodejs version # is blank or a very long string as that would usually indicate a problem
 if (nodeVersion != null && nodeVersion != '' && nodeVersion.length < 16) {
-  // Remove the 'v' from the beginning of the version string
+  // remove the 'v' from the beginning of the version string
   if (nodeVersion.indexOf('v') == 0)
     nodeVersion = nodeVersion.slice(1);
 
@@ -99,48 +99,56 @@ check_arguments_passed(function(pidName, node_env) {
   // compile scss to css
   execSync('node ./scripts/compile_css.js', {stdio : 'inherit'});
 
-  // check if the webserver should be started from here based on the pidName
-  switch (pidName) {
-    case 'pm2':
-      let startOrReload = 'start';
+  const db = require('../lib/database');
 
-      // get a json list of pm2 processes
-      let result = execSync(`pm2 jlist`);
+  // connect to the mongo database
+  db.connect(null, function() {
+    // initialize the database
+    db.initialize_data_startup(function() {
+      // check if the webserver should be started from here based on the pidName
+      switch (pidName) {
+        case 'pm2':
+          let startOrReload = 'start';
 
-      // check if the result is null
-      if (result != null) {
-        try {
-          // convert return result to JSON
-          result = JSON.parse(result);
+          // get a json list of pm2 processes
+          let result = execSync(`pm2 jlist`);
 
-          // loop through the results
-          for (let i = 0; i < result.length; i++) {
-            // check if this is an explorer process
-            if (result[i].name == 'explorer') {
-              // explorer process exists, so reload the process
-              startOrReload = 'reload';
-              break;
+          // check if the result is null
+          if (result != null) {
+            try {
+              // convert return result to JSON
+              result = JSON.parse(result);
+
+              // loop through the results
+              for (let i = 0; i < result.length; i++) {
+                // check if this is an explorer process
+                if (result[i].name == 'explorer') {
+                  // explorer process exists, so reload the process
+                  startOrReload = 'reload';
+                  break;
+                }
+              }
+            } catch(e) {
+              // do nothing
             }
           }
-        } catch(e) {
-          // do nothing
-        }
+
+          // Setting the NODE_ENV variable is more easily done from here seeing at the syntax changes slightly depending on operating system
+          execSync(`${(process.platform == 'win32' ? 'set' : 'export')} NODE_ENV=${node_env} && pm2 ${startOrReload} ./bin/instance -i 0 -n explorer -p "./tmp/pm2.pid" --node-args="--stack-size=10000" --update-env`, {stdio : 'inherit'});
+          break;
+        case 'forever':
+          const path = require('path');
+
+          // there is a long-time bug or shortcoming in forever that still exists in the latest version which requires the absolute path to the pid file option
+          // more info: https://github.com/foreversd/forever/issues/421
+          // forever is therefore started from here to be able to more easily resolve the absolute path
+          // also, setting the NODE_ENV variable is more easily done from here as well seeing at the syntax changes slightly depending on operating system
+          execSync(`${(process.platform == 'win32' ? 'set' : 'export')} NODE_ENV=${node_env} && forever start --append --uid "explorer" --pidFile "${path.resolve('./tmp/forever.pid')}" ./bin/cluster`, {stdio : 'inherit'});    
+          break;
       }
 
-      // Setting the NODE_ENV variable is more easily done from here seeing at the syntax changes slightly depending on operating system
-      execSync(`${(process.platform == 'win32' ? 'set' : 'export')} NODE_ENV=${node_env} && pm2 ${startOrReload} ./bin/instance -i 0 -n explorer -p "./tmp/pm2.pid" --node-args="--stack-size=10000" --update-env`, {stdio : 'inherit'});
-      break;
-    case 'forever':
-      const path = require('path');
-
-      // there is a long-time bug or shortcoming in forever that still exists in the latest version which requires the absolute path to the pid file option
-      // more info: https://github.com/foreversd/forever/issues/421
-      // forever is therefore started from here to be able to more easily resolve the absolute path
-      // also, setting the NODE_ENV variable is more easily done from here as well seeing at the syntax changes slightly depending on operating system
-      execSync(`${(process.platform == 'win32' ? 'set' : 'export')} NODE_ENV=${node_env} && forever start --append --uid "explorer" --pidFile "${path.resolve('./tmp/forever.pid')}" ./bin/cluster`, {stdio : 'inherit'});    
-      break;
-  }
-
-  // finished pre-loading
-  process.exit(0);
+      // finished pre-loading
+      process.exit(0);
+    });
+  });
 });
