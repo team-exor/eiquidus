@@ -50,10 +50,10 @@ function check_arguments_passed(cb) {
         // run a cmd to check if pm2 is installed
         exec(`npm list${(isWinOS ? ' -g' : '')} pm2`, (err, stdout, stderr) => {
           // split stdout string by new line
-          var splitResponse = (stdout == null ? '' : stdout).split('\n').filter(element => element);
+          var splitResponse = (stdout == null ? '' : stdout.trim()).split('\n').filter(element => element);
 
           // check if the cmd result contains an @ symbol
-          if (splitResponse[splitResponse.length - 1].indexOf('@') == -1) {
+          if (splitResponse[1].indexOf('@') == -1) {
             console.log('Installing pm2 module.. Please wait..');
 
             // install pm2
@@ -69,10 +69,10 @@ function check_arguments_passed(cb) {
         // run a cmd to check if forever is installed
         exec('npm list forever', (err, stdout, stderr) => {
           // split stdout string by new line
-          var splitResponse = (stdout == null ? '' : stdout).split('\n').filter(element => element);
+          var splitResponse = (stdout == null ? '' : stdout.trim()).split('\n').filter(element => element);
 
           // check if the cmd result contains an @ symbol
-          if (splitResponse[splitResponse.length - 1].indexOf('@') == -1) {
+          if (splitResponse[1].indexOf('@') == -1) {
             console.log('Installing forever module.. Please wait..');
             
             // install forever
