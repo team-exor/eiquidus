@@ -644,6 +644,29 @@ app.use('/ext/getorphanlist/:start/:length', function(req, res) {
     res.end('This method is disabled');
 });
 
+// get the last updated date for a particular section
+app.use('/ext/getlastupdated/:section', function(req, res) {
+  // check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
+  if (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1) {
+    // fix parameters
+    if (req.params.section == null)
+      req.params.section = '';
+
+    switch (req.params.section.toLowerCase()) {
+      case 'blockchain':
+      case 'movement':
+        // lookup last updated date
+        db.get_stats(settings.coin.name, function (stats) {
+          res.json({'last_updated_date': stats.blockchain_last_updated});
+        });
+        break;
+      default:
+        res.send({error: 'Cannot find last updated date'});
+    }
+  } else
+    res.end('This method is disabled');
+});
+
 app.use('/ext/getnetworkchartdata', function(req, res) {
   db.get_network_chart_data(function(data) {
     if (data)

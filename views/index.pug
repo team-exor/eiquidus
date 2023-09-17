@@ -82,25 +82,40 @@ block content
           enableTooltips();
         }
       });
-      var setting_reload_table_seconds = parseInt("#{settings.index_page.transaction_table.reload_table_seconds}");
-      if (setting_reload_table_seconds > 0) {
-        setInterval( function () {
-          rtable.api().ajax.reload(null, false);
-        }, (setting_reload_table_seconds * 1000) );
-      }
 
-      if ('#{settings.index_page.page_header.show_last_updated}' == 'true') {
-        var lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
-
+      function update_last_updated(lastUpdatedDate) {
         if (lastUpdatedDate != 0) {
           $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
 
           if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
-            $('span#lastUpdatedDate').attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
+            $('span#lastUpdatedDate').attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true)).attr('data-bs-original-title', format_unixtime(lastUpdatedDate, true));
             enableTooltips();
           }
         } else
           $('span#lastUpdatedDate').html(' N/A');
+      }
+
+      var setting_reload_table_seconds = parseInt("#{settings.index_page.transaction_table.reload_table_seconds}");
+      if (setting_reload_table_seconds > 0) {
+        setInterval(function () {
+          rtable.api().ajax.reload(null, false);
+        }, (setting_reload_table_seconds * 1000));
+
+        if ('#{settings.index_page.page_header.show_last_updated}' == 'true') {
+          setInterval(function () {
+            $.ajax({url: '/ext/getlastupdated/blockchain', headers: { Accept: 'application/json, text/javascript, */*; q=0.01' }, success: function(json) {
+              if (json != null && json.last_updated_date != null)
+                update_last_updated(json.last_updated_date);
+              else
+                update_last_updated(0);
+            }});
+          }, (setting_reload_table_seconds * 1000));
+        }
+      }
+
+      if ('#{settings.index_page.page_header.show_last_updated}' == 'true') {
+        var lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
+        update_last_updated(lastUpdatedDate);
       }
       if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.index_page.page_header.show_img} == true)
         startRotateElement('img#header-img');
