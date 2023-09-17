@@ -9,9 +9,20 @@ function exit() {
   process.exit(0);
 }
 
-function compile_css() {
+function init_database(cb) {
   // compile scss to css
   execSync('node ./scripts/compile_css.js', {stdio : 'inherit'});
+
+  const db = require('../lib/database');
+
+  // connect to mongo database
+  db.connect(null, function() {
+    // initialize the database
+    db.initialize_data_startup(function() {
+      // finish the database init
+      return cb(null);
+    });
+  });
 }
 
 // check if the script should check for code updates
@@ -123,19 +134,19 @@ if (reloadWebserver == true) {
 
   // check if any pm2 pids were active
   if (pidActive == true) {
-    // compile css
-    compile_css();
+    // compile css and initialize database
+    init_database(function() {
+      console.log('\nReloading the explorer.. Please wait..\n');
 
-    console.log('\nReloading the explorer.. Please wait..\n');
+      // reload pm2 using the zero-downtime reload function
+      execSync(`pm2 reload explorer`, {stdio : 'inherit'});
 
-    // reload pm2 using the zero-downtime reload function
-    execSync(`pm2 reload explorer`, {stdio : 'inherit'});
+      // add a new line for better spacing
+      console.log('');
 
-    // add a new line for better spacing
-    console.log('');
-
-    // finish the script
-    exit();
+      // finish the script
+      exit();
+    });
   } else {
     // check if the forever pid file exists and is valid
     if (fs.existsSync('./tmp/forever.pid') && lib.is_locked(['forever'], true) == true) {
@@ -145,19 +156,19 @@ if (reloadWebserver == true) {
 
     // check if the forever.pid is active
     if (pidActive == true) {
-      // compile css
-      compile_css();
-    
-      console.log('\nReloading the explorer.. Please wait..\n');
+      // compile css and initialize database
+      init_database(function() {
+        console.log('\nReloading the explorer.. Please wait..\n');
 
-      // reload forever using the restart function
-      execSync(`forever restart explorer`, {stdio : 'inherit'});
+        // reload forever using the restart function
+        execSync(`forever restart explorer`, {stdio : 'inherit'});
 
-      // add a new line for better spacing
-      console.log('');
+        // add a new line for better spacing
+        console.log('');
 
-      // finish the script
-      exit();
+        // finish the script
+        exit();
+      });
     } else {
       const request = require('postman-request');
       const settings = require('../lib/settings');
@@ -165,17 +176,20 @@ if (reloadWebserver == true) {
       // try executing the restart explorer api
       request({uri: `http://localhost:${settings.webserver.port}/system/restartexplorer`, timeout: 1000}, function (error, response, summary) {
         // check if there was an error
-        if (error != null)
+        if (error != null) {
           console.log('Webserver is not runnning\n');
-        else {
-          // compile css
-          compile_css();
 
-          console.log('\nReloading the explorer.. Please wait..\n');
+          // finish the script
+          exit();
+        } else {
+          // compile css and initialize database
+          init_database(function() {
+            console.log('\nReloading the explorer.. Please wait..\n');
+
+            // finish the script
+            exit();
+          });
         }
-
-        // finish the script
-        exit();
       });
     }
   }
