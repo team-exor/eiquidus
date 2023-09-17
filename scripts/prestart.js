@@ -1,5 +1,5 @@
-const minNodeVersionMajor = '14';
-const minNodeVersionMinor = '13';
+const minNodeVersionMajor = '16';
+const minNodeVersionMinor = '20';
 const minNodeVersionRevision = '1';
 
 // get the nodejs version
@@ -29,7 +29,7 @@ if (nodeVersion != null && nodeVersion != '' && nodeVersion.length < 16) {
 // check if the installed nodejs is an older version than supported by the explorer
 if (!(nodeVersionMajor > minNodeVersionMajor || (nodeVersionMajor == minNodeVersionMajor && (nodeVersionMinor > minNodeVersionMinor || (nodeVersionMinor == minNodeVersionMinor && nodeVersionRevision >= minNodeVersionRevision))))) {
   console.log(`Please install an updated version of nodejs.\n\nInstalled: ${nodeVersion}\nRequired:  ${minNodeVersionMajor}.${minNodeVersionMinor}.${minNodeVersionRevision}`);
-  process.exit(0);
+  process.exit(1);
 }
 
 function check_arguments_passed(cb) {
