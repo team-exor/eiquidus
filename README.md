@@ -101,6 +101,7 @@ Table of Contents
     - [SouthXchange](https://southxchange.com)
     - [Txbit](https://txbit.io) *\*no chart support due to a lack of OHLCV api data*
     - [Unnamed](https://unnamed.exchange)
+    - [Xeggex](https://xeggex.com) *\*no chart support due to a lack of OHLCV api data*
     - [Yobit](https://yobit.io) *\*no chart support due to a lack of OHLCV api data*
   - **API:** A listing of available public API's that can be used to retrieve information from the network without the need for a local wallet. The following public API's are supported:
     - **RPC API calls** (Return data from coind)
