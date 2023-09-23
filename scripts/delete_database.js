@@ -1,9 +1,5 @@
 const lib = require('../lib/explorer');
 const readline = require('readline');
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
 const deleteLockName = 'delete';
 var lockCreated = false;
 
@@ -64,94 +60,122 @@ function drop_collection(mongoose, colName, cb) {
   });
 }
 
-console.log('You are about to delete the entire eIquidus database.');
+function delete_prompt(cb) {
+  // Check if the delete prompt should be skipped
+  if (process.argv[2] == null || process.argv[2] != 'reindex') {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
 
-// prompt for deleting explorer database
-rl.question('Are you sure you want to do this? [y/n]: ', function (deleteAnswer) {
-  // stop prompting
-  rl.close();
+    console.log('You are about to delete the entire eIquidus database.');
 
-  // determine if the explorer database should be deleted
-  switch (deleteAnswer) {
-    case 'y':
-    case 'Y':
-    case 'yes':
-    case 'YES':
-    case 'Yes':
-      // check if the "delete database" process is already running
-      if (lib.is_locked([deleteLockName]) == false) {
-        // create a new delete lock before checking the rest of the locks to minimize problems with running scripts at the same time
-        lib.create_lock(deleteLockName);
-        // ensure the lock will be deleted on exit
-        lockCreated = true;
-        // check all other possible locks since database deletion should not run at the same time that data is being changed
-        if (lib.is_locked(['backup', 'restore', 'index', 'markets', 'peers', 'masternodes']) == false) {
-          // all tests passed. OK to run delete
-          console.log("Script launched with pid: " + process.pid);
+    // prompt for deleting explorer database
+    rl.question('Are you sure you want to do this? [y/n]: ', function (deleteAnswer) {
+      // stop prompting
+      rl.close();
 
-          const settings = require('../lib/settings');
-          const mongoose = require('mongoose');
-          const dbString = `mongodb://${encodeURIComponent(settings.dbsettings.user)}:${encodeURIComponent(settings.dbsettings.password)}@${settings.dbsettings.address}:${settings.dbsettings.port}/${settings.dbsettings.database}`;
+      // determine if the explorer database should be deleted
+      switch (deleteAnswer) {
+        case 'y':
+        case 'Y':
+        case 'yes':
+        case 'YES':
+        case 'Yes':
+          return cb(true);
+          break;
+        default:
+          return cb(false);
+      }
+    });
+  } else {
+    // skip the delete prompt
+    return cb(true);
+  }
+}
 
-          console.log('Connecting to database..');
+delete_prompt(function(continue_process) {
+  if (continue_process) {
+    // check if the "delete database" process is already running
+    if (lib.is_locked([deleteLockName]) == false) {
+      // create a new delete lock before checking the rest of the locks to minimize problems with running scripts at the same time
+      lib.create_lock(deleteLockName);
+      // ensure the lock will be deleted on exit
+      lockCreated = true;
 
-          mongoose.set('strictQuery', true);
+      var lock_list = ['backup', 'restore', 'markets', 'peers', 'masternodes'];
 
-          // connect to mongo database
-          mongoose.connect(dbString).then(() => {
-            // get the list of collections
-            mongoose.connection.db.listCollections().toArray().then((collections) => {
-              // check if there are any collections
-              if (collections.length > 0) {
-                var counter = 0;
+      // do not check the index lock if this is called from the reindex process
+      if (process.argv[2] == null || process.argv[2] != 'reindex') {
+        lock_list.push('index');
+      }
 
-                // loop through all collections
-                collections.forEach((collection) => {
-                  console.log(`Deleting ${collection.name}..`);
+      // check all other possible locks since database deletion should not run at the same time that data is being changed
+      if (lib.is_locked(lock_list) == false) {
+        // all tests passed. OK to run delete
+        console.log("Script launched with pid: " + process.pid);
 
-                  // delete this collection
-                  drop_collection(mongoose, collection.name, function(retVal) {
-                    // check if the collection was successfully deleted
-                    if (retVal)
-                      counter++;
+        const settings = require('../lib/settings');
+        const mongoose = require('mongoose');
+        const dbString = `mongodb://${encodeURIComponent(settings.dbsettings.user)}:${encodeURIComponent(settings.dbsettings.password)}@${settings.dbsettings.address}:${settings.dbsettings.port}/${settings.dbsettings.database}`;
 
-                    // check if the last collection was deleted
-                    if (counter == collections.length) {
-                      // finish the delete process
-                      console.log('Finished deleting database');
-                      exit(mongoose, 0);
-                    }
-                  });
+        console.log('Connecting to database..');
+
+        mongoose.set('strictQuery', true);
+
+        // connect to mongo database
+        mongoose.connect(dbString).then(() => {
+          // get the list of collections
+          mongoose.connection.db.listCollections().toArray().then((collections) => {
+            // check if there are any collections
+            if (collections.length > 0) {
+              var counter = 0;
+
+              // loop through all collections
+              collections.forEach((collection) => {
+                console.log(`Deleting ${collection.name}..`);
+
+                // delete this collection
+                drop_collection(mongoose, collection.name, function(retVal) {
+                  // check if the collection was successfully deleted
+                  if (retVal)
+                    counter++;
+
+                  // check if the last collection was deleted
+                  if (counter == collections.length) {
+                    // finish the delete process
+                    console.log('Finished deleting database');
+                    exit(mongoose, 0);
+                  }
                 });
-              } else {
-                // nothing to delete
-                console.log('Nothing to delete, the database is already empty..');
+              });
+            } else {
+              // nothing to delete
+              console.log('Nothing to delete, the database is already empty..');
 
-                // finish the delete process
-                exit(mongoose, 0);
-              }
-            }).catch((err) => {
-              console.log('Error: Unable to list collections in database: %s', err);
-              exit(mongoose, 1);
-            });
+              // finish the delete process
+              exit(mongoose, 0);
+            }
           }).catch((err) => {
-            console.log('Error: Unable to connect to database: %s', err);
-            exit(mongoose, 999);
+            console.log('Error: Unable to list collections in database: %s', err);
+            exit(mongoose, 1);
           });
-        } else {
-          // another script process is currently running
-          console.log("Delete aborted");
-          exit(null, 2);
-        }
+        }).catch((err) => {
+          console.log('Error: Unable to connect to database: %s', err);
+          exit(mongoose, 999);
+        });
       } else {
-        // delete process is already running
+        // another script process is currently running
         console.log("Delete aborted");
         exit(null, 2);
       }
-
-      break;
-    default:
-      console.log('Process aborted. Nothing was deleted.');
+    } else {
+      // delete process is already running
+      console.log("Delete aborted");
       exit(null, 2);
+    }
+  } else {
+    console.log('Process aborted. Nothing was deleted.');
+    exit(null, 2);
   }
 });

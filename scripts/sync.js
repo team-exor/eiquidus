@@ -1065,6 +1065,92 @@ function occurrences(string, subString, allowOverlapping) {
   return n;
 }
 
+function block_sync(reindex, stats) {
+  // Get the last synced block index value
+  var last = (stats.last ? stats.last : 0);
+  // Get the total number of blocks
+  var count = (stats.count ? stats.count : 0);
+
+  // Check if the sync msg should be shown
+  check_show_sync_message(count - last);
+
+  update_tx_db(settings.coin.name, last, count, stats.txes, settings.sync.update_timeout, 0, function() {
+    // check if the script stopped prematurely
+    if (stopSync) {
+      console.log(`${(reindex ? 'Reindex' : 'Block sync')} was stopped prematurely`);
+      exit(1);
+    } else {
+      // update blockchain_last_updated value
+      db.update_last_updated_stats(settings.coin.name, { blockchain_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
+        // fix data from orphaned blocks
+        update_orphans(stats.orphan_index, stats.orphan_current, count, settings.sync.update_timeout, function() {
+          // check if the script stopped prematurely
+          if (stopSync) {
+            console.log(`${(reindex ? 'Reindex' : 'Block sync')} was stopped prematurely`);
+            exit(1);
+          } else {
+            db.update_richlist('received', function() {
+              db.update_richlist('balance', function() {
+                // update richlist_last_updated value
+                db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {                              
+                  db.get_stats(settings.coin.name, function(nstats) {
+                    // check for and update heavycoin data if applicable
+                    update_heavy(settings.coin.name, count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
+                      // check for and update network history data if applicable
+                      update_network_history(nstats.last, settings.network_history.enabled, function(network_hist) {
+                        // always check for and remove the sync msg if exists
+                        db.remove_sync_message();
+
+                        console.log(`${(reindex ? 'Reindex' : 'Block sync')} complete (block: %s)`, nstats.last);
+                        exit(0);
+                      });
+                    });
+                  });
+                });
+              });
+            });
+          }
+        });
+      });
+    }
+  });
+}
+
+function check_reindex_prompt(cb) {
+  // check if this is a reindex
+  if (mode == 'reindex') {
+    const readline = require('readline');
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout
+    });
+
+    console.log('You are about to delete all blockchain data (transactions and addresses)');
+    console.log('and resync from the genesis block.');
+
+    // prompt for reindexing the database
+    rl.question('Are you sure you want to do this? [y/n]: ', function (reindexAnswer) {
+      // stop prompting
+      rl.close();
+
+      // determine if the reindex should proceed
+      switch (reindexAnswer) {
+        case 'y':
+        case 'Y':
+        case 'yes':
+        case 'YES':
+        case 'Yes':
+          return cb(true);
+          break;
+        default:
+          return cb(false);
+      }
+    });
+  } else {
+    return cb(true);
+  }
+}
+
 // check options
 if (process.argv[2] == null || process.argv[2] == 'index' || process.argv[2] == 'update') {
   mode = null;
@@ -1089,30 +1175,7 @@ if (process.argv[2] == null || process.argv[2] == 'index' || process.argv[2] == 
 
       break;
     case 'reindex':
-      // check if readlinesync module is installed
-      if (!db.fs.existsSync('./node_modules/readline-sync')) {
-        const { execSync } = require('child_process');
-
-        console.log('Installing missing packages.. Please wait..');
-
-        // install updated packages
-        execSync('npm update');
-      }
-
-      const readlineSync = require('readline-sync');
-
-      console.log('You are about to delete all blockchain data (transactions and addresses)');
-      console.log('and resync from the genesis block.');
-
-      // prompt for the reindex
-      if (readlineSync.keyInYN('Are you sure you want to do this? ')) {
-        // set mode to 'reindex'
-        mode = 'reindex';
-      } else {
-        console.log('Process aborted. Nothing was deleted');
-        exit(2);
-      }
-
+      mode = 'reindex';
       break;
     case 'reindex-rich':
       mode = 'reindex-rich';
@@ -1133,119 +1196,142 @@ else if (process.argv[2] == 'market')
 else
   usage();
 
-// check if this sync option is already running/locked
-if (lib.is_locked([database]) == false) {
-  // create a new sync lock before checking the rest of the locks to minimize problems with running scripts at the same time
-  lib.create_lock(database);
-  // ensure the lock will be deleted on exit
-  lockCreated = true;
-  // check the backup, restore and delete locks since those functions would be problematic when updating data
-  if (lib.is_locked(['backup', 'restore', 'delete']) == false) {
-    // all tests passed. OK to run sync
-    console.log("Script launched with pid: " + process.pid);
+// check if this is a reindex which requires a prompt before continuing
+check_reindex_prompt(function(reindexAnswer) {
+  // check if the process should continue
+  if (reindexAnswer) {
+    // check if this sync option is already running/locked
+    if (lib.is_locked([database]) == false) {
+      // create a new sync lock before checking the rest of the locks to minimize problems with running scripts at the same time
+      lib.create_lock(database);
+      // ensure the lock will be deleted on exit
+      lockCreated = true;
+      // check the backup, restore and delete locks since those functions would be problematic when updating data
+      if (lib.is_locked(['backup', 'restore', 'delete']) == false) {
+        // all tests passed. OK to run sync
+        console.log("Script launched with pid: " + process.pid);
 
-    if (mode == 'update')
-      console.log(`Syncing ${(database == 'index' ? 'blocks' : database)}.. Please wait..`);
+        if (mode == 'update')
+          console.log(`Syncing ${(database == 'index' ? 'blocks' : database)}.. Please wait..`);
 
-    var dbString = 'mongodb://' + encodeURIComponent(settings.dbsettings.user);
-    dbString = dbString + ':' + encodeURIComponent(settings.dbsettings.password);
-    dbString = dbString + '@' + settings.dbsettings.address;
-    dbString = dbString + ':' + settings.dbsettings.port;
-    dbString = dbString + '/' + settings.dbsettings.database;
+        var dbString = 'mongodb://' + encodeURIComponent(settings.dbsettings.user);
+        dbString = dbString + ':' + encodeURIComponent(settings.dbsettings.password);
+        dbString = dbString + '@' + settings.dbsettings.address;
+        dbString = dbString + ':' + settings.dbsettings.port;
+        dbString = dbString + '/' + settings.dbsettings.database;
 
-    mongoose.set('strictQuery', true);
+        mongoose.set('strictQuery', true);
 
-    mongoose.connect(dbString).then(() => {
-      if (database == 'index') {
-        db.check_stats(settings.coin.name, function(exists) {
-          if (exists == false) {
-            console.log('Run \'npm start\' to create database structures before running this script.');
-            exit(1);
-          } else {
-            db.update_db(settings.coin.name, function(stats) {
-              // check if stats returned properly
-              if (stats !== false) {
+        mongoose.connect(dbString).then(() => {
+          if (database == 'index') {
+            db.check_stats(settings.coin.name, function(exists) {
+              if (exists == false) {
+                console.log('Run \'npm start\' to create database structures before running this script.');
+                exit(1);
+              } else {
                 // determine which index mode to run
                 if (mode == 'reindex') {
-                  console.log('Deleting transactions.. Please wait..');
-                  Tx.deleteMany({}).then(() => {
-                    console.log('Transactions deleted successfully');
+                  const { execSync } = require('child_process');
 
-                    console.log('Deleting addresses.. Please wait..');
-                    Address.deleteMany({}).then(() => {
-                      console.log('Addresses deleted successfully');
+                  console.log('Deleting database.. Please wait..');
 
-                      console.log('Deleting address transactions.. Please wait..');
-                      AddressTx.deleteMany({}).then(() => {
-                        console.log('Address transactions deleted successfully');
+                  // delete the database
+                  execSync(`node ./scripts/delete_database.js ${mode}`, {stdio : 'inherit'});
 
-                        console.log('Deleting top 100 data.. Please wait..');
-                        Richlist.updateOne({coin: settings.coin.name}, {
-                          received: [],
-                          balance: []
-                        }).then(() => {
-                          console.log('Top 100 data deleted successfully');
+                  db.update_db(settings.coin.name, function(stats) {
+                    // check if stats returned properly
+                    if (stats !== false) {
+                      // start the block sync
+                      block_sync(true, stats);
+                    } else {
+                      // update_db threw an error so exit
+                      exit(1);
+                    }
+                  });
+                } else if (mode == 'check') {
+                  db.update_db(settings.coin.name, function(stats) {
+                    // check if stats returned properly
+                    if (stats !== false) {
+                      console.log('Checking blocks.. Please wait..');
 
-                          console.log('Deleting block index.. Please wait..');
-                          Stats.updateOne({coin: settings.coin.name}, {
-                            last: 0,
-                            supply: 0,
-                            txes: 0,
-                            blockchain_last_updated: 0,
-                            richlist_last_updated: 0,
-                            orphan_index: 0,
-                            orphan_current: 0
-                          }).then(() => {
-                            console.log('Block index deleted successfully');
-
-                            // Check if the sync msg should be shown
-                            check_show_sync_message(stats.count);
-
-                            console.log('Starting resync of blockchain data.. Please wait..');
-                            update_tx_db(settings.coin.name, block_start, stats.count, 0, settings.sync.update_timeout, 0, function() {
-                              // check if the script stopped prematurely
-                              if (stopSync) {
-                                console.log('Reindex was stopped prematurely');
-                                exit(1);
-                              } else {
-                                // update blockchain_last_updated value
-                                db.update_last_updated_stats(settings.coin.name, { blockchain_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
-                                  // fix data from orphaned blocks
-                                  update_orphans(0, 0, stats.count, settings.sync.update_timeout, function() {
-                                    // check if the script stopped prematurely
-                                    if (stopSync) {
-                                      console.log('Reindex was stopped prematurely');
-                                      exit(1);
-                                    } else {
-                                      db.update_richlist('received', function() {
-                                        db.update_richlist('balance', function() {
-                                          // update richlist_last_updated value
-                                          db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
-                                            db.get_stats(settings.coin.name, function(nstats) {
-                                              // check for and update heavycoin data if applicable
-                                              update_heavy(settings.coin.name, stats.count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
-                                                // check for and update network history data if applicable
-                                                update_network_history(nstats.last, settings.network_history.enabled, function(network_hist) {
-                                                  // always check for and remove the sync msg if exists
-                                                  db.remove_sync_message();
-
-                                                  console.log('Reindex complete (block: %s)', nstats.last);
-                                                  exit(0);
-                                                });
-                                              });
-                                            });
-                                          });
-                                        });
-                                      });
-                                    }
-                                  });
-                                });
-                              }
-                            });
-                          }).catch((err) => {
-                            console.log(err);
-                            exit(1);
+                      update_tx_db(settings.coin.name, block_start, stats.count, stats.txes, settings.sync.check_timeout, 1, function() {
+                        // check if the script stopped prematurely
+                        if (stopSync) {
+                          console.log('Block check was stopped prematurely');
+                          exit(1);
+                        } else {
+                          db.get_stats(settings.coin.name, function(nstats) {
+                            console.log('Block check complete (block: %s)', nstats.last);
+                            exit(0);
                           });
+                        }
+                      });
+                    } else {
+                      // update_db threw an error so exit
+                      exit(1);
+                    }
+                  });
+                } else if (mode == 'update') {
+                  db.update_db(settings.coin.name, function(stats) {
+                    // check if stats returned properly
+                    if (stats !== false) {
+                      // start the block sync
+                      block_sync(false, stats);
+                    } else {
+                      // update_db threw an error so exit
+                      exit(1);
+                    }
+                  });
+                } else if (mode == 'reindex-rich') {
+                  db.update_db(settings.coin.name, function(stats) {
+                    // check if stats returned properly
+                    if (stats !== false) {
+                      console.log('Check richlist');
+
+                      db.check_richlist(settings.coin.name, function(exists) {
+                        if (exists)
+                          console.log('Richlist entry found, deleting now..');
+
+                        db.delete_richlist(settings.coin.name, function(deleted) {
+                          if (deleted)
+                            console.log('Richlist entry deleted');
+
+                          db.create_richlist(settings.coin.name, false, function() {
+                            console.log('Richlist created');
+
+                            db.update_richlist('received', function() {
+                              console.log('Richlist updated received');
+
+                              db.update_richlist('balance', function() {
+                                // update richlist_last_updated value
+                                db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
+                                  console.log('Richlist update complete');
+                                  exit(0);
+                                });
+                              });
+                            });
+                          });
+                        });
+                      });
+                    } else {
+                      // update_db threw an error so exit
+                      exit(1);
+                    }
+                  });
+                } else if (mode == 'reindex-txcount') {
+                  db.update_db(settings.coin.name, function(stats) {
+                    // check if stats returned properly
+                    if (stats !== false) {
+                      console.log('Calculating tx count.. Please wait..');
+
+                      // Resetting the transaction counter requires a single lookup on the txes collection to find all txes that have a positive or zero total and 1 or more vout
+                      Tx.find({'total': {$gte: 0}, 'vout': { $gte: { $size: 1 }}}).countDocuments().then((count) => {
+                        console.log('Found tx count: ' + count.toString());
+                        Stats.updateOne({coin: settings.coin.name}, {
+                          txes: count
+                        }).then(() => {
+                          console.log('Tx count update complete');
+                          exit(0);
                         }).catch((err) => {
                           console.log(err);
                           exit(1);
@@ -1254,242 +1340,98 @@ if (lib.is_locked([database]) == false) {
                         console.log(err);
                         exit(1);
                       });
-                    }).catch((err) => {
-                      console.log(err);
-                      exit(1);
-                    });
-                  }).catch((err) => {
-                    console.log(err);
-                    exit(1);
-                  });
-                } else if (mode == 'check') {
-                  console.log('Checking blocks.. Please wait..');
-
-                  update_tx_db(settings.coin.name, block_start, stats.count, stats.txes, settings.sync.check_timeout, 1, function() {
-                    // check if the script stopped prematurely
-                    if (stopSync) {
-                      console.log('Block check was stopped prematurely');
-                      exit(1);
                     } else {
-                      db.get_stats(settings.coin.name, function(nstats) {
-                        console.log('Block check complete (block: %s)', nstats.last);
-                        exit(0);
-                      });
-                    }
-                  });
-                } else if (mode == 'update') {
-                  // Get the last synced block index value
-                  var last = (stats.last ? stats.last : 0);
-                  // Get the total number of blocks
-                  var count = (stats.count ? stats.count : 0);
-                  // Check if the sync msg should be shown
-                  check_show_sync_message(count - last);
-
-                  update_tx_db(settings.coin.name, last, count, stats.txes, settings.sync.update_timeout, 0, function() {
-                    // check if the script stopped prematurely
-                    if (stopSync) {
-                      console.log('Block sync was stopped prematurely');
+                      // update_db threw an error so exit
                       exit(1);
-                    } else {
-                      // update blockchain_last_updated value
-                      db.update_last_updated_stats(settings.coin.name, { blockchain_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
-                        // fix data from orphaned blocks
-                        update_orphans(stats.orphan_index, stats.orphan_current, count, settings.sync.update_timeout, function() {
-                          // check if the script stopped prematurely
-                          if (stopSync) {
-                            console.log('Block sync was stopped prematurely');
-                            exit(1);
-                          } else {
-                            db.update_richlist('received', function() {
-                              db.update_richlist('balance', function() {
-                                // update richlist_last_updated value
-                                db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {                              
-                                  db.get_stats(settings.coin.name, function(nstats) {
-                                    // check for and update heavycoin data if applicable
-                                    update_heavy(settings.coin.name, count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
-                                      // check for and update network history data if applicable
-                                      update_network_history(nstats.last, settings.network_history.enabled, function(network_hist) {
-                                        // always check for and remove the sync msg if exists
-                                        db.remove_sync_message();
-
-                                        console.log('Block sync complete (block: %s)', nstats.last);
-                                        exit(0);
-                                      });
-                                    });
-                                  });
-                                });
-                              });
-                            });
-                          }
-                        });
-                      });
                     }
-                  });
-                } else if (mode == 'reindex-rich') {
-                  console.log('Check richlist');
-
-                  db.check_richlist(settings.coin.name, function(exists) {
-                    if (exists)
-                      console.log('Richlist entry found, deleting now..');
-
-                    db.delete_richlist(settings.coin.name, function(deleted) {
-                      if (deleted)
-                        console.log('Richlist entry deleted');
-
-                      db.create_richlist(settings.coin.name, false, function() {
-                        console.log('Richlist created');
-
-                        db.update_richlist('received', function() {
-                          console.log('Richlist updated received');
-
-                          db.update_richlist('balance', function() {
-                            // update richlist_last_updated value
-                            db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
-                              console.log('Richlist update complete');
-                              exit(0);
-                            });
-                          });
-                        });
-                      });
-                    });
-                  });
-                } else if (mode == 'reindex-txcount') {
-                  console.log('Calculating tx count.. Please wait..');
-
-                  // Resetting the transaction counter requires a single lookup on the txes collection to find all txes that have a positive or zero total and 1 or more vout
-                  Tx.find({'total': {$gte: 0}, 'vout': { $gte: { $size: 1 }}}).countDocuments().then((count) => {
-                    console.log('Found tx count: ' + count.toString());
-                    Stats.updateOne({coin: settings.coin.name}, {
-                      txes: count
-                    }).then(() => {
-                      console.log('Tx count update complete');
-                      exit(0);
-                    }).catch((err) => {
-                      console.log(err);
-                      exit(1);
-                    });
-                  }).catch((err) => {
-                    console.log(err);
-                    exit(1);
                   });
                 } else if (mode == 'reindex-last') {
-                  console.log('Finding last blockindex.. Please wait..');
+                  db.update_db(settings.coin.name, function(stats) {
+                    // check if stats returned properly
+                    if (stats !== false) {
+                      console.log('Finding last blockindex.. Please wait..');
 
-                  // Resetting the last blockindex counter requires a single lookup on the txes collection to find the last indexed blockindex
-                  Tx.find({}, {blockindex:1, _id:0}).sort({blockindex: -1}).limit(1).exec().then((tx) => {
-                    // check if any blocks exists
-                    if (tx == null || tx.length == 0) {
-                      console.log('No blocks found. setting last blockindex to 0.');
+                      // Resetting the last blockindex counter requires a single lookup on the txes collection to find the last indexed blockindex
+                      Tx.find({}, {blockindex:1, _id:0}).sort({blockindex: -1}).limit(1).exec().then((tx) => {
+                        // check if any blocks exists
+                        if (tx == null || tx.length == 0) {
+                          console.log('No blocks found. setting last blockindex to 0.');
 
-                      Stats.updateOne({coin: settings.coin.name}, {
-                        last: 0
-                      }).then(() => {
-                        console.log('Last blockindex update complete');
-                        exit(0);
+                          Stats.updateOne({coin: settings.coin.name}, {
+                            last: 0
+                          }).then(() => {
+                            console.log('Last blockindex update complete');
+                            exit(0);
+                          }).catch((err) => {
+                            console.log(err);
+                            exit(1);
+                          });
+                        } else {
+                          console.log('Found last blockindex: ' + tx[0].blockindex.toString());
+
+                          Stats.updateOne({coin: settings.coin.name}, {
+                            last: tx[0].blockindex
+                          }).then(() => {
+                            console.log('Last blockindex update complete');
+                            exit(0);
+                          }).catch((err) => {
+                            console.log(err);
+                            exit(1);
+                          });
+                        }
                       }).catch((err) => {
                         console.log(err);
                         exit(1);
                       });
                     } else {
-                      console.log('Found last blockindex: ' + tx[0].blockindex.toString());
-
-                      Stats.updateOne({coin: settings.coin.name}, {
-                        last: tx[0].blockindex
-                      }).then(() => {
-                        console.log('Last blockindex update complete');
-                        exit(0);
-                      }).catch((err) => {
-                        console.log(err);
-                        exit(1);
-                      });
+                      // update_db threw an error so exit
+                      exit(1);
                     }
-                  }).catch((err) => {
-                    console.log(err);
-                    exit(1);
                   });
                 }
-              } else {
-                // update_db threw an error so exit
-                exit(1);
               }
             });
-          }
-        });
-      } else if (database == 'peers') {
-        lib.get_peerinfo(function(body) {
-          if (body != null) {
-            lib.syncLoop(body.length, function(loop) {
-              var i = loop.iteration();
-              var address = body[i].addr;
-              var port = null;
+          } else if (database == 'peers') {
+            lib.get_peerinfo(function(body) {
+              if (body != null) {
+                lib.syncLoop(body.length, function(loop) {
+                  var i = loop.iteration();
+                  var address = body[i].addr;
+                  var port = null;
 
-              if (occurrences(address, ':') == 1 || occurrences(address, ']:') == 1) {
-                // Separate the port # from the IP address
-                address = address.substring(0, address.lastIndexOf(":")).replace("[", "").replace("]", "");
-                port = body[i].addr.substring(body[i].addr.lastIndexOf(":") + 1);
-              }
-
-              if (address.indexOf("]") > -1) {
-                // Remove [] characters from IPv6 addresses
-                address = address.replace("[", "").replace("]", "");
-              }
-
-              db.find_peer(address, port, function(peer) {
-                if (peer) {
-                  if (peer['port'] != null && (isNaN(peer['port']) || peer['port'].length < 2)) {
-                    db.drop_peers(function() {
-                      console.log('Removing peers due to missing port information. Re-run this script to add peers again.');
-                      exit(1);
-                    });
+                  if (occurrences(address, ':') == 1 || occurrences(address, ']:') == 1) {
+                    // Separate the port # from the IP address
+                    address = address.substring(0, address.lastIndexOf(":")).replace("[", "").replace("]", "");
+                    port = body[i].addr.substring(body[i].addr.lastIndexOf(":") + 1);
                   }
 
-                  // peer already exists and should be refreshed
-                  // drop peer
-                  db.drop_peer(address, port, function() {
-                    // re-add the peer to refresh the data and extend the expiry date
-                    db.create_peer({
-                      address: address,
-                      port: port,
-                      protocol: peer.protocol,
-                      version: peer.version,
-                      country: peer.country,
-                      country_code: peer.country_code
-                    }, function() {
-                      console.log('Updated peer %s%s [%s/%s]', address, (port == null || port == '' ? '' : ':' + port.toString()), (i + 1).toString(), body.length.toString());
+                  if (address.indexOf("]") > -1) {
+                    // Remove [] characters from IPv6 addresses
+                    address = address.replace("[", "").replace("]", "");
+                  }
 
-                      // check if the script is stopping
-                      if (stopSync) {
-                        // stop the loop
-                        loop.break(true);
+                  db.find_peer(address, port, function(peer) {
+                    if (peer) {
+                      if (peer['port'] != null && (isNaN(peer['port']) || peer['port'].length < 2)) {
+                        db.drop_peers(function() {
+                          console.log('Removing peers due to missing port information. Re-run this script to add peers again.');
+                          exit(1);
+                        });
                       }
 
-                      loop.next();
-                    });
-                  });
-                } else {
-                  const rateLimitLib = require('../lib/ratelimit');
-                  const rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
-
-                  rateLimit.schedule(function() {
-                    lib.get_geo_location(address, function(error, geo) {
-                      // check if an error was returned
-                      if (error) {
-                        console.log(error);
-                        exit(1);
-                      } else if (geo == null || typeof geo != 'object') {
-                        console.log('Error: geolocation api did not return a valid object');
-                        exit(1);
-                      } else {
-                        // add peer to collection
+                      // peer already exists and should be refreshed
+                      // drop peer
+                      db.drop_peer(address, port, function() {
+                        // re-add the peer to refresh the data and extend the expiry date
                         db.create_peer({
                           address: address,
                           port: port,
-                          protocol: body[i].version,
-                          version: body[i].subver.replace('/', '').replace('/', ''),
-                          country: geo.country_name,
-                          country_code: geo.country_code
+                          protocol: peer.protocol,
+                          version: peer.version,
+                          country: peer.country,
+                          country_code: peer.country_code
                         }, function() {
-                          console.log('Added new peer %s%s [%s/%s]', address, (port == null || port == '' ? '' : ':' + port.toString()), (i + 1).toString(), body.length.toString());
+                          console.log('Updated peer %s%s [%s/%s]', address, (port == null || port == '' ? '' : ':' + port.toString()), (i + 1).toString(), body.length.toString());
 
                           // check if the script is stopping
                           if (stopSync) {
@@ -1499,184 +1441,223 @@ if (lib.is_locked([database]) == false) {
 
                           loop.next();
                         });
-                      }
-                    });
-                  });
-                }
-              });
-            }, function() {
-              // update network_last_updated value
-              db.update_last_updated_stats(settings.coin.name, { network_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
-                // check if the script stopped prematurely
-                if (stopSync) {
-                  console.log('Peer sync was stopped prematurely');
-                  exit(1);
-                } else {
-                  console.log('Peer sync complete');
-                  exit(0);
-                }
-              });
-            });
-          } else {
-            console.log('No peers found');
-            exit(2);
-          }
-        });
-      } else if (database == 'masternodes') {
-        lib.get_masternodelist(function(body) {
-          if (body != null) {
-            var isObject = false;
-            var objectKeys = null;
+                      });
+                    } else {
+                      const rateLimitLib = require('../lib/ratelimit');
+                      const rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
 
-            // Check if the masternode data is an array or an object
-            if (body.length == null) {
-              // Process data as an object
-              objectKeys = Object.keys(body);
-              isObject = true;
-            }
+                      rateLimit.schedule(function() {
+                        lib.get_geo_location(address, function(error, geo) {
+                          // check if an error was returned
+                          if (error) {
+                            console.log(error);
+                            exit(1);
+                          } else if (geo == null || typeof geo != 'object') {
+                            console.log('Error: geolocation api did not return a valid object');
+                            exit(1);
+                          } else {
+                            // add peer to collection
+                            db.create_peer({
+                              address: address,
+                              port: port,
+                              protocol: body[i].version,
+                              version: body[i].subver.replace('/', '').replace('/', ''),
+                              country: geo.country_name,
+                              country_code: geo.country_code
+                            }, function() {
+                              console.log('Added new peer %s%s [%s/%s]', address, (port == null || port == '' ? '' : ':' + port.toString()), (i + 1).toString(), body.length.toString());
 
-            lib.syncLoop((isObject ? objectKeys : body).length, function(loop) {
-              var i = loop.iteration();
-
-              db.save_masternode((isObject ? body[objectKeys[i]] : body[i]), function(success) {
-                if (success) {
-                  // check if the script is stopping
-                  if (stopSync) {
-                    // stop the loop
-                    loop.break(true);
-                  }
-
-                  loop.next();
-                } else {
-                  console.log('Error: Cannot save masternode %s.', (isObject ? (body[objectKeys[i]].payee ? body[objectKeys[i]].payee : 'UNKNOWN') : (body[i].addr ? body[i].addr : 'UNKNOWN')));
-                  exit(1);
-                }
-              });
-            }, function() {
-              db.remove_old_masternodes(function(cb) {
-                db.update_last_updated_stats(settings.coin.name, { masternodes_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
-                  // check if the script stopped prematurely
-                  if (stopSync) {
-                    console.log('Masternode sync was stopped prematurely');
-                    exit(1);
-                  } else {
-                    console.log('Masternode sync complete');
-                    exit(0);
-                  }
-                });
-              });
-            });
-          } else {
-            console.log('No masternodes found');
-            exit(2);
-          }
-        });
-      } else {
-        // check if market feature is enabled
-        if (settings.markets_page.enabled == true) {
-          var complete = 0;
-          var total_pairs = 0;
-          var exchanges = Object.keys(settings.markets_page.exchanges);
-
-          // loop through all exchanges to determine how many trading pairs must be updated
-          exchanges.forEach(function(key, index, map) {
-            // check if market is enabled via settings
-            if (settings.markets_page.exchanges[key].enabled == true) {
-              // check if market is installed/supported
-              if (db.fs.existsSync('./lib/markets/' + key + '.js')) {
-                // add trading pairs to total
-                total_pairs += settings.markets_page.exchanges[key].trading_pairs.length;
-
-                // loop through all trading pairs for this market
-                for (var i = 0; i < settings.markets_page.exchanges[key].trading_pairs.length; i++) {
-                  // ensure trading pair setting is always uppercase
-                  settings.markets_page.exchanges[key].trading_pairs[i] = settings.markets_page.exchanges[key].trading_pairs[i].toUpperCase();
-                }
-              }
-            }
-          });
-
-          // check if there are any trading pairs to update
-          if (total_pairs > 0) {
-            // initialize the rate limiter to wait 2 seconds between requests to prevent abusing external apis
-            var rateLimitLib = require('../lib/ratelimit');
-            var rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
-            // loop through and test all exchanges defined in the settings.json file
-            exchanges.forEach(function(key, index, map) {
-              // check if market is enabled via settings
-              if (settings.markets_page.exchanges[key].enabled == true) {
-                // check if market is installed/supported
-                if (db.fs.existsSync('./lib/markets/' + key + '.js')) {
-                  // loop through all trading pairs
-                  settings.markets_page.exchanges[key].trading_pairs.forEach(function(pair_key, pair_index, pair_map) {
-                    // split the pair data
-                    var split_pair = pair_key.split('/');
-                    // check if this is a valid trading pair
-                    if (split_pair.length == 2) {
-                      // lookup the exchange in the market collection
-                      db.check_market(key, split_pair[0], split_pair[1], function(mkt, exists) {
-                        // check if exchange trading pair exists in the market collection
-                        if (exists) {
-                          // automatically pause for 2 seconds in between requests
-                          rateLimit.schedule(function() {
-                            // update market data
-                            db.update_markets_db(key, split_pair[0], split_pair[1], function(err) {
-                              if (!err) {
-                                console.log('%s[%s]: Market data updated successfully.', key, pair_key);
-                                complete++;
-
-                                if (complete == total_pairs || stopSync)
-                                  get_last_usd_price();
-                              } else {
-                                console.log('%s[%s] Error: %s', key, pair_key, err);
-                                complete++;
-
-                                if (complete == total_pairs || stopSync)
-                                  get_last_usd_price();
+                              // check if the script is stopping
+                              if (stopSync) {
+                                // stop the loop
+                                loop.break(true);
                               }
+
+                              loop.next();
                             });
-                          });
-                        } else {
-                          console.log('Error: Entry for %s[%s] does not exist in markets database.', key, pair_key);
-                          complete++;
-                          if (complete == total_pairs || stopSync)
-                            get_last_usd_price();
-                        }
+                          }
+                        });
                       });
                     }
                   });
-                } else {
-                  // market not installed
-                  console.log('%s market not installed', key);
-                  complete++;
+                }, function() {
+                  // update network_last_updated value
+                  db.update_last_updated_stats(settings.coin.name, { network_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
+                    // check if the script stopped prematurely
+                    if (stopSync) {
+                      console.log('Peer sync was stopped prematurely');
+                      exit(1);
+                    } else {
+                      console.log('Peer sync complete');
+                      exit(0);
+                    }
+                  });
+                });
+              } else {
+                console.log('No peers found');
+                exit(2);
+              }
+            });
+          } else if (database == 'masternodes') {
+            lib.get_masternodelist(function(body) {
+              if (body != null) {
+                var isObject = false;
+                var objectKeys = null;
 
-                  if (complete == total_pairs || stopSync)
-                    get_last_usd_price();
+                // Check if the masternode data is an array or an object
+                if (body.length == null) {
+                  // Process data as an object
+                  objectKeys = Object.keys(body);
+                  isObject = true;
                 }
+
+                lib.syncLoop((isObject ? objectKeys : body).length, function(loop) {
+                  var i = loop.iteration();
+
+                  db.save_masternode((isObject ? body[objectKeys[i]] : body[i]), function(success) {
+                    if (success) {
+                      // check if the script is stopping
+                      if (stopSync) {
+                        // stop the loop
+                        loop.break(true);
+                      }
+
+                      loop.next();
+                    } else {
+                      console.log('Error: Cannot save masternode %s.', (isObject ? (body[objectKeys[i]].payee ? body[objectKeys[i]].payee : 'UNKNOWN') : (body[i].addr ? body[i].addr : 'UNKNOWN')));
+                      exit(1);
+                    }
+                  });
+                }, function() {
+                  db.remove_old_masternodes(function(cb) {
+                    db.update_last_updated_stats(settings.coin.name, { masternodes_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
+                      // check if the script stopped prematurely
+                      if (stopSync) {
+                        console.log('Masternode sync was stopped prematurely');
+                        exit(1);
+                      } else {
+                        console.log('Masternode sync complete');
+                        exit(0);
+                      }
+                    });
+                  });
+                });
+              } else {
+                console.log('No masternodes found');
+                exit(2);
               }
             });
           } else {
-            // no market trading pairs are enabled
-            console.log('Error: No market trading pairs are enabled in settings');
-            exit(1);
+            // check if market feature is enabled
+            if (settings.markets_page.enabled == true) {
+              var complete = 0;
+              var total_pairs = 0;
+              var exchanges = Object.keys(settings.markets_page.exchanges);
+
+              // loop through all exchanges to determine how many trading pairs must be updated
+              exchanges.forEach(function(key, index, map) {
+                // check if market is enabled via settings
+                if (settings.markets_page.exchanges[key].enabled == true) {
+                  // check if market is installed/supported
+                  if (db.fs.existsSync('./lib/markets/' + key + '.js')) {
+                    // add trading pairs to total
+                    total_pairs += settings.markets_page.exchanges[key].trading_pairs.length;
+
+                    // loop through all trading pairs for this market
+                    for (var i = 0; i < settings.markets_page.exchanges[key].trading_pairs.length; i++) {
+                      // ensure trading pair setting is always uppercase
+                      settings.markets_page.exchanges[key].trading_pairs[i] = settings.markets_page.exchanges[key].trading_pairs[i].toUpperCase();
+                    }
+                  }
+                }
+              });
+
+              // check if there are any trading pairs to update
+              if (total_pairs > 0) {
+                // initialize the rate limiter to wait 2 seconds between requests to prevent abusing external apis
+                var rateLimitLib = require('../lib/ratelimit');
+                var rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
+                // loop through and test all exchanges defined in the settings.json file
+                exchanges.forEach(function(key, index, map) {
+                  // check if market is enabled via settings
+                  if (settings.markets_page.exchanges[key].enabled == true) {
+                    // check if market is installed/supported
+                    if (db.fs.existsSync('./lib/markets/' + key + '.js')) {
+                      // loop through all trading pairs
+                      settings.markets_page.exchanges[key].trading_pairs.forEach(function(pair_key, pair_index, pair_map) {
+                        // split the pair data
+                        var split_pair = pair_key.split('/');
+                        // check if this is a valid trading pair
+                        if (split_pair.length == 2) {
+                          // lookup the exchange in the market collection
+                          db.check_market(key, split_pair[0], split_pair[1], function(mkt, exists) {
+                            // check if exchange trading pair exists in the market collection
+                            if (exists) {
+                              // automatically pause for 2 seconds in between requests
+                              rateLimit.schedule(function() {
+                                // update market data
+                                db.update_markets_db(key, split_pair[0], split_pair[1], function(err) {
+                                  if (!err) {
+                                    console.log('%s[%s]: Market data updated successfully.', key, pair_key);
+                                    complete++;
+
+                                    if (complete == total_pairs || stopSync)
+                                      get_last_usd_price();
+                                  } else {
+                                    console.log('%s[%s] Error: %s', key, pair_key, err);
+                                    complete++;
+
+                                    if (complete == total_pairs || stopSync)
+                                      get_last_usd_price();
+                                  }
+                                });
+                              });
+                            } else {
+                              console.log('Error: Entry for %s[%s] does not exist in markets database.', key, pair_key);
+                              complete++;
+                              if (complete == total_pairs || stopSync)
+                                get_last_usd_price();
+                            }
+                          });
+                        }
+                      });
+                    } else {
+                      // market not installed
+                      console.log('%s market not installed', key);
+                      complete++;
+
+                      if (complete == total_pairs || stopSync)
+                        get_last_usd_price();
+                    }
+                  }
+                });
+              } else {
+                // no market trading pairs are enabled
+                console.log('Error: No market trading pairs are enabled in settings');
+                exit(1);
+              }
+            } else {
+              // market page is not enabled
+              console.log('Error: Market feature is disabled in settings');
+              exit(1);
+            }
           }
-        } else {
-          // market page is not enabled
-          console.log('Error: Market feature is disabled in settings');
+        }).catch((err) => {
+          console.log('Error: Unable to connect to database: %s', err);
           exit(1);
-        }
+        });
+      } else {
+        // another script process is currently running
+        console.log("Sync aborted");
+        exit(2);
       }
-    }).catch((err) => {
-      console.log('Error: Unable to connect to database: %s', err);
-      exit(1);
-    });
+    } else {
+      // sync process is already running
+      console.log("Sync aborted");
+      exit(2);
+    }
   } else {
-    // another script process is currently running
-    console.log("Sync aborted");
+    console.log('Process aborted. Nothing was deleted');
     exit(2);
   }
-} else {
-  // sync process is already running
-  console.log("Sync aborted");
-  exit(2);
-}
+});
