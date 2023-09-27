@@ -117,7 +117,7 @@ app.post('/claim', function(req, res) {
       if (body == false)
         res.json({'status': 'failed', 'error': true, 'message': 'Invalid signature'});
       else if (body == true) {
-        db.update_label(req.body.address, req.body.message, function(val) {
+        db.update_claim_name(req.body.address, req.body.message, function(val) {
           // check if the update was successful
           if (val == '')
             res.json({'status': 'success'});

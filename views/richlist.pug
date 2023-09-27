@@ -132,10 +132,10 @@ block content
                         td.text-center
                           =count
                         td
-                          if settings.claim_address_page.enabled == false || address.name == null || address.name == ''
+                          if settings.claim_address_page.enabled == false || address.claim_name == null || address.claim_name == ''
                             a.breakWord(href='/address/' + address.a_id) #{address.a_id}
                           else
-                            a.breakWord(href='/address/' + address.a_id) #{address.name}
+                            a.breakWord(href='/address/' + address.a_id) #{address.claim_name}
                           include ./includes/rl_labels.pug
                         td.text-center #{itemFixedParts[0]}.
                           span.decimal #{itemFixedParts[1]}
@@ -162,10 +162,10 @@ block content
                         td.text-center
                           =count
                         td
-                          if settings.claim_address_page.enabled == false || address.name == null || address.name == ''
+                          if settings.claim_address_page.enabled == false || address.claim_name == null || address.claim_name == ''
                             a.breakWord(href='/address/' + address.a_id) #{address.a_id}
                           else
-                            a.breakWord(href='/address/' + address.a_id) #{address.name}
+                            a.breakWord(href='/address/' + address.a_id) #{address.claim_name}
                           include ./includes/rl_labels.pug
                         td.text-center #{itemFixedParts[0]}.
                           span.decimal #{itemFixedParts[1]}

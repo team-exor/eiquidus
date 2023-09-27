@@ -147,7 +147,7 @@ block content
       .cardSpacer.clearfix
     .card.card-default.border-0.card-address-summary.cardSpacer
       .card-header(style='position:relative;')
-        if settings.claim_address_page.enabled == false || address.name == null || address.name == ''
+        if settings.claim_address_page.enabled == false || claim_name == null || claim_name == ''
           if address.a_id == 'hidden_address'
             strong #{settings.locale.hidden_address}
           else if address.a_id == 'unknown_address'
@@ -155,12 +155,12 @@ block content
           else
             strong #{address.a_id}
         else
-          strong #{address.name}
+          strong #{claim_name}
         | &#8203;
         include ./includes/rl_labels.pug
         if (!settings.labels[address.a_id] || !settings.labels[address.a_id].enabled) && settings.claim_address_page.enabled == true
           a#claim-address.fw-bold(href='/claim/' + address.a_id, style='font-size:smaller;padding-bottom:0;')
-            if address.name == null || address.name == ''
+            if claim_name == null || claim_name == ''
               =" Is this yours? Claim it now for free!"
             else
               =" Update claimed address"

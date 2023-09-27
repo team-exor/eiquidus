@@ -330,21 +330,25 @@ function route_get_address(res, hash) {
   if (hash != null && hash.toLowerCase() != 'coinbase' && ((hash.toLowerCase() == 'hidden_address' && settings.address_page.enable_hidden_address_view == true) || (hash.toLowerCase() == 'unknown_address' && settings.address_page.enable_unknown_address_view == true) || (hash.toLowerCase() != 'hidden_address' && hash.toLowerCase() != 'unknown_address'))) {
     // lookup address in local collection
     db.get_address(hash, false, function(address) {
-      if (address)
-        res.render(
-          'address',
-          {
-            active: 'address',
-            address: address,
-            showSync: db.check_show_sync_message(),
-            customHash: get_file_timestamp('./public/css/custom.scss'),
-            styleHash: get_file_timestamp('./public/css/style.scss'),
-            themeHash: get_file_timestamp('./public/css/themes/' + settings.shared_pages.theme.toLowerCase() + '/bootstrap.min.css'),
-            page_title_prefix: settings.coin.name + ' Address ' + (address['name'] == null || address['name'] == '' ? address.a_id : address['name'])
-          }
-        );
-      else
-        route_get_index(res, hash + ' not found');
+      // lookup claim_name for this address if exists
+      db.get_claim_name(hash, function(claim_name) {
+        if (address)
+          res.render(
+            'address',
+            {
+              active: 'address',
+              address: address,
+              claim_name: claim_name,
+              showSync: db.check_show_sync_message(),
+              customHash: get_file_timestamp('./public/css/custom.scss'),
+              styleHash: get_file_timestamp('./public/css/style.scss'),
+              themeHash: get_file_timestamp('./public/css/themes/' + settings.shared_pages.theme.toLowerCase() + '/bootstrap.min.css'),
+              page_title_prefix: settings.coin.name + ' Address ' + (claim_name == null || claim_name == '' ? address.a_id : claim_name)
+            }
+          );
+        else
+          route_get_index(res, hash + ' not found');
+      });
     });
   } else
     route_get_index(res, hash + ' not found');
@@ -371,14 +375,14 @@ function route_get_claim_form(res, hash) {
       );
     } else {
       // lookup hash in the address collection
-      db.get_address(hash, false, function(address) {
+      db.get_claim_name(hash, function(claim_name) {
         // load the claim page regardless of whether the address exists or not
         res.render(
           'claim_address',
           {
             active: 'claim-address',
             hash: hash,
-            claim_name: (address == null || address.name == null ? '' : address.name),
+            claim_name: (claim_name == null ? '' : claim_name),
             showSync: db.check_show_sync_message(),
             customHash: get_file_timestamp('./public/css/custom.scss'),
             styleHash: get_file_timestamp('./public/css/style.scss'),
