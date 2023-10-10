@@ -2,6 +2,7 @@ extends layout
 
 block content
   include ./includes/common.pug
+  script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1')
   script.
     $(document).ready(function() {
       if ('#{settings.markets_page.page_header.show_last_updated}' == 'true') {
@@ -169,55 +170,115 @@ block content
       block market_view
         script.
           $(document).ready(function() {
-            var jqplot = null;
             var chartData = !{(marketdata.data.chartdata == null || marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]' ? 'null' : marketdata.data.chartdata)};
 
-            if (chartData != null && chartData.length > 0) {
-              jqplot = $.jqplot('chart', [chartData], {
-                seriesDefaults: {
-                  yaxis: 'y2axis'
+            if (chartData != null) {
+              chartData = chartData.map(function(item) {
+                return {
+                  x: item[0],
+                  o: item[1],
+                  h: item[2],
+                  l: item[3],
+                  c: item[4]
+                };
+              });
+
+              const backgroundPlugin = {
+                id: 'backgroundFill',
+                beforeDraw(chart) {
+                  const ctx = chart.ctx;
+                  ctx.save();
+                  ctx.fillStyle = '#FFFFFF';  // Change chart background color
+                  const chartArea = chart.chartArea;
+                  ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+                  ctx.restore();
+                }
+              };
+
+              Chart.register(backgroundPlugin);
+
+              var ohlcvChart = new Chart('chart', {
+                type: 'candlestick',
+                data: {
+                  datasets: [{
+                    label: 'Market Data',
+                    data: chartData,
+                    borderColor: {
+                      up: 'rgba(80, 160, 115, 1)',
+                      down: 'rgba(215, 85, 65, 1)',
+                      unchanged: 'rgba(90, 90, 90, 1)'
+                    },
+                    color: {
+                      up: 'rgba(80, 160, 115, 1)',
+                      down: 'rgba(215, 85, 65, 1)',
+                      unchanged: 'rgba(90, 90, 90, 1)'
+                    }
+                  }]
                 },
-                axes: {
-                  xaxis: {
-                    renderer: $.jqplot.DateAxisRenderer,
-                    tickOptions: { formatString: '%R' },
-                    tickInterval: '2 hours'
+                options: {
+                  maintainAspectRatio: true,
+                  aspectRatio: 3,
+                  scales: {
+                    x: {
+                      type: 'time',
+                      offset: true,
+                      ticks: {
+                        padding: 10
+                      }
+                    },
+                    y: {
+                      position: 'right',
+                      grace: '10%',
+                      ticks: {
+                        callback: function(value, index, values) {
+                          return parseFloat(value).toFixed(8);
+                        }
+                      }
+                    }
                   },
-                  y2axis: {
-                    tickOptions: { formatString: '%.8f' },
-                  }
-                },
-                series: [
-                  {
-                    renderer: $.jqplot.OHLCRenderer,
-                    rendererOptions: {
-                      candleStick: true,
-                      upBodyColor: '#2aa3a3',
-                      downBodyColor: '#e2595b',
-                      fillUpBody: true,
-                      fillDownBody: true
+                  plugins: {
+                    legend: {
+                      display: false
+                    },
+                    tooltip: {
+                      mode: 'nearest',
+                      callbacks: {
+                        title: function(context) {
+                          return format_unixtime(context[0].raw.x / 1000);
+                        },
+                        beforeBody: function(context) {
+                          const dataset = context[0].dataset;
+                          const data = dataset.data[context[0].dataIndex];
+
+                          return [
+                            'Open: ' + data.o.toFixed(8),
+                            'High: ' + data.h.toFixed(8),
+                            'Low: ' + data.l.toFixed(8),
+                            'Close: ' + data.c.toFixed(8)
+                          ];
+                        },
+                        label: function(context) {
+                          // Suppress the default body content
+                          return null;
+                        }
+                      }
+                    },
+                    crosshair: {
+                      line: {
+                        color: '#000000',
+                        width: 1
+                      },
+                      sync: {
+                        enabled: false
+                      },
+                      zoom: {
+                        enabled: false
+                      }
                     }
                   }
-                ],
-                highlighter: {
-                  show: true,
-                  showMarker: false,
-                  tooltipAxes: 'xy',
-                  yvalues: 4,
-                  formatString: '<table class="jqplot-highlighter"> \
-                  <tr><td>time:</td><td>%s</td></tr> \
-                  <tr><td>open:</td><td>%s</td></tr> \
-                  <tr><td>hi:</td><td>%s</td></tr> \
-                  <tr><td>low:</td><td>%s</td></tr> \
-                  <tr><td>close:</td><td>%s</td></tr></table>'
                 }
               });
-              $('#chart').css('width', '100%');
             }
-            $(window).resize(function () {
-              if (jqplot != null && $('#chart').is(':visible'))
-                jqplot.replot({ resetAxes: false });
-            });
           });
         .row
           .col-md-12.cardSpacer
@@ -351,7 +412,7 @@ block content
                     img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
                   strong #{marketdata.market_name} - #{marketdata.coin}/#{marketdata.exchange} - #{settings.locale.mkt_hours}
                 .card-body
-                  div#chart(style='height:300px;')
+                  canvas#chart(style='height:300px;')
         .row
           .col-md-6.col-xs-12.cardSpacer
             .card.card-default.border-0.wrapper-border-0(class=theadClasses)

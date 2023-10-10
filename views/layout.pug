@@ -15,8 +15,6 @@ html(lang='en')
       link(rel='icon', href='/' + settings.shared_pages.favicons.favicon192, sizes='192x192')
     link(rel='stylesheet', href='/css/themes/' + settings.shared_pages.theme.toLowerCase() + '/bootstrap.min.css' + (themeHash == null ? '' : '?h=' + themeHash))
     link(rel='stylesheet', href='https://use.fontawesome.com/releases/v5.15.4/css/all.css')
-    if active == 'markets' || active == 'richlist'
-      link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/jquery.jqplot.min.css')
     if active == 'network'
       link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/4.1.4/css/flag-icons.min.css')
     link(rel='stylesheet', type='text/css', href='https://cdn.datatables.net/v/bs5/dt-1.11.3/datatables.min.css')
@@ -26,14 +24,6 @@ html(lang='en')
     script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js', integrity='sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==', crossorigin='anonymous', referrerpolicy='no-referrer')
     script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', integrity='sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p', crossorigin='anonymous')
     script(type='text/javascript', src='/js/custom.js')
-    if active == 'markets' || active == 'richlist'
-      script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/jquery.jqplot.min.js')
-    if active == 'markets'
-      script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.dateAxisRenderer.min.js')
-      script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.ohlcRenderer.min.js')
-      script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.highlighter.min.js')
-    if active == 'richlist'
-      script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/plugins/jqplot.pieRenderer.min.js')
     script(type='text/javascript', src='https://cdn.datatables.net/v/bs5/dt-1.11.3/datatables.min.js')
     script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.13.3/js/jquery.overlayScrollbars.min.js', integrity="sha512-PviP63d43OXLyLjCv3TawK1Rw4LQQsnH6yschHgK63LBvLpd1U1+7LM/OESlV/cSze5lFI3+f7JwKFEBEWNp1w==", crossorigin="anonymous", referrerpolicy="no-referrer")
     - var showPanels = false
@@ -138,10 +128,12 @@ html(lang='en')
           - showNethashChart = true
         if settings.error_page.show_difficulty_chart == true
           - showDifficultyChart = true
-    if active == 'reward' || (settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true)))
-      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chart.js@3.6.1/dist/chart.min.js')
-    if settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true))
-      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chartjs-plugin-crosshair@1.2.0')
+    if active == 'markets' || active == 'richlist' || active == 'reward' || (settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true)))
+      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js')
+    if active == 'markets'
+      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.1.1/dist/chartjs-chart-financial.min.js')
+    if active == 'markets' || (settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true)))
+      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chartjs-plugin-crosshair@2.0.0')
     - var sideBarClasses = [];
     if settings.shared_pages.page_header.bgcolor != null && settings.shared_pages.page_header.bgcolor != ''
       - sideBarClasses.push('bg-' + settings.shared_pages.page_header.bgcolor);
@@ -440,7 +432,7 @@ html(lang='en')
                         }
                       },
                       scales: {
-                        yAxis: {
+                        y: {
                           title: {
                             display: true,
                             text: 'Network ' + getNetHashUnits(),
@@ -558,7 +550,7 @@ html(lang='en')
                         }
                       },
                       scales: {
-                        yAxis: {
+                        y: {
                           title: {
                             display: true,
                             text: 'Difficulty',

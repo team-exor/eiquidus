@@ -6,39 +6,42 @@ block content
   if settings.richlist_page.wealth_distribution.show_distribution_chart == true
     script.
       $(document).ready(function() {
-        var data = [
-          ['Top 1-25', !{dista.percent}],
-          ['Top 26-50', !{distb.percent}],
-          ['Top 51-75', !{distc.percent}],
-          ['Top 76-100', !{distd.percent}],
-          ['101+', !{diste.percent}]
-        ];
+        var xValues = ['Top 1-25', 'Top 26-50', 'Top 51-75', 'Top 76-100', '101+'];
+        var yValues = [!{dista.total}, !{distb.total}, !{distc.total}, !{distd.total}, !{diste.total}];
+        var percentages = [!{dista.percent}, !{distb.percent}, !{distc.percent}, !{distd.percent}, !{diste.percent}];
         var burned = '!{burned}';
-        if ('#{settings.richlist_page.burned_coins.include_burned_coins_in_distribution}' == 'true' && burned != 'null' && burned != '' && burned != '0')
-          data.push(['Burned Coins', parseFloat(((burned / 100000000) / !{stats.supply}) * 100)]);
-        var piePlot = $.jqplot('pieChart', [data],
-          {
-            seriesColors: !{JSON.stringify(settings.richlist_page.wealth_distribution.colors)},
-            series: [{
-              renderer: $.jqplot.PieRenderer,
-              rendererOptions: {
-                diameter: 260,
-                padding: 0,
-                sliceMargin: 4,
-                showDataLabels: false
-              }
-            }],
-            grid: {borderWidth:0, shadow:false},
-            legend: {
-              show: false,
-              rendererOptions: {
-                numberRows: 1,
-                border: 'none'
+
+        if ('#{settings.richlist_page.burned_coins.include_burned_coins_in_distribution}' == 'true' && burned != 'null' && burned != '' && burned != '0') {
+          xValues.push('Burned Coins');
+          yValues.push(burned / 100000000);
+          percentages.push(Number(parseFloat(((burned / 100000000) / !{stats.supply}) * 100).toFixed(2)));
+        }
+
+        new Chart("pieChart", {
+          type: "pie",
+          data: {
+            labels: xValues,
+            datasets: [{
+              backgroundColor: !{JSON.stringify(settings.richlist_page.wealth_distribution.colors)},
+              data: yValues
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                display: false
               },
-              location: 's'
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return `${context.label}: ${Number((context.parsed || 0)).toLocaleString('en',{'minimumFractionDigits':0,'maximumFractionDigits':20,'useGrouping':true})} (${percentages[xValues.indexOf(context.label)]}%)`;
+                  }
+                }
+              }
             }
-          }
-        );
+          }          
+        });
 
         if ('#{settings.richlist_page.page_header.show_last_updated}' == 'true') {
           var lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
@@ -55,15 +58,6 @@ block content
         }
         if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.richlist_page.page_header.show_img} == true)
           startRotateElement('img#header-img');
-        $(window).resize(function () {
-          if (piePlot != null && $('#pieChart').is(':visible')) {
-            let parentWidth = $('#pieChart').parent().outerWidth();
-
-            $('#pieChart').css('height', (parentWidth <= 300 ? parentWidth + 5 : 305).toString() + 'px');
-            $('#pieChart').css('width', (parentWidth <= 300 ? parentWidth : 300).toString() + 'px');
-            piePlot.replot({ resetAxes: false });
-          }
-        });
       });
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
@@ -279,4 +273,4 @@ block content
                   td.fw-bold.text-center #{percentParts[0]}.
                     span.decimal #{percentParts[1]}
         if settings.richlist_page.wealth_distribution.show_distribution_chart == true
-          div#pieChart(style="max-width:300px;max-height:305px;margin:0 auto;")
+          canvas#pieChart(style="margin-top:10px;max-height:305px;")

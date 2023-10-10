@@ -76,9 +76,10 @@ Table of Contents
   - DataTables v1.11.3
   - FontAwesome v5.15.4
   - Luxon v2.1.1
-  - jqPlot v1.0.9
-  - Chart.js v3.6.1
-    - chartjs-plugin-crosshair v1.2.0 ([https://github.com/abelheinsbroek/chartjs-plugin-crosshair](https://github.com/abelheinsbroek/chartjs-plugin-crosshair))
+  - Chart.js v4.4.0
+    - chartjs-plugin-crosshair v2.0.0 ([https://github.com/abelheinsbroek/chartjs-plugin-crosshair](https://github.com/abelheinsbroek/chartjs-plugin-crosshair))
+    - chartjs-chart-financial v0.1.1 ([https://github.com/chartjs/chartjs-chart-financial](https://github.com/chartjs/chartjs-chart-financial))
+    - chartjs-adapter-luxon v1.3.1 ([https://github.com/chartjs/chartjs-adapter-luxon](https://github.com/chartjs/chartjs-adapter-luxon))
   - OverlayScrollbars v1.13.3
   - flag-icon-css v4.1.4 ([https://github.com/lipis/flag-icon-css](https://github.com/lipis/flag-icon-css))
   - Intl.js (uses the v3.111.0 polyfill service to only download if using a browser that doesn't already support the ECMAScript Internationalization API)
