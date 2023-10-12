@@ -89,41 +89,42 @@ block content
         a#showClaimInstructions.badge.bg-primary(href='#claimInstructions', style='font-size:100%;margin-bottom:15px;', data-bs-toggle='collapse' role='button' aria-expanded='false' aria-controls='claimInstructions')
           i.fas.fa-angle-up(style='margin-right:5px;')
           span Show claim instructions
-        div#claimInstructions.alert.alert-primary.collapse
-          div
-            span Use the
-            span.fw-bold  Sign Message
-            span  feature from your
-            span.fw-bold  #{settings.coin.name}
-            span  wallet to verify ownership of a wallet address that belongs to you.
-          br
-          div Enter the following data into the wallet software:
-          br
-          div
-            span.fw-bold Address:
-            if hash == null || hash == ''
-              span=' <wallet address from the form below>'
-            else
-              span  #{hash}
-          div
-            span.fw-bold Message:
-            span=' <display name from the form below>'
-          br
-          div
-            span Click the
-            span.fw-bold  Sign Message
-            span  button in the wallet, and copy/paste the resulting
-            span.fw-bold  Signature
-            span  at the bottom of this form.
-          br
-          div
-            span Finally, click the
-            span.fw-bold  Claim
-            span  button below to claim your address, which will display your custom display name instead of the default wallet address on this site.
-          br
-          div
-            span.fw-bold NOTE:
-            span  You can update your claimed address at any time, as often as you wish. To remove a previously claimed display name, simply sign a blank message to return the address back to its original value.
+        div#claimInstructions.collapse
+          div.alert.alert-primary
+            div
+              span Use the
+              span.fw-bold  Sign Message
+              span  feature from your
+              span.fw-bold  #{settings.coin.name}
+              span  wallet to verify ownership of a wallet address that belongs to you.
+            br
+            div Enter the following data into the wallet software:
+            br
+            div
+              span.fw-bold Address:
+              if hash == null || hash == ''
+                span=' <wallet address from the form below>'
+              else
+                span  #{hash}
+            div
+              span.fw-bold Message:
+              span=' <display name from the form below>'
+            br
+            div
+              span Click the
+              span.fw-bold  Sign Message
+              span  button in the wallet, and copy/paste the resulting
+              span.fw-bold  Signature
+              span  at the bottom of this form.
+            br
+            div
+              span Finally, click the
+              span.fw-bold  Claim
+              span  button below to claim your address, which will display your custom display name instead of the default wallet address on this site.
+            br
+            div
+              span.fw-bold NOTE:
+              span  You can update your claimed address at any time, as often as you wish. To remove a previously claimed display name, simply sign a blank message to return the address back to its original value.
         form#claimForm
           .form-group
             fieldset.entryField
