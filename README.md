@@ -71,17 +71,17 @@ Table of Contents
 - Built using the following scripts and technologies:
   - Node.js (v18.16.0 or newer recommended)
   - MongoDB (v6.0.6 or newer recommended)
-  - JQuery v3.6.0
+  - jQuery v3.7.1
   - Bootstrap v5.1.3
-  - DataTables v1.11.3
-  - FontAwesome v5.15.4
-  - Luxon v2.1.1
+  - DataTables v1.13.6
+  - Font Awesome v6.4.2
+  - Luxon v3.4.3
   - Chart.js v4.4.0
     - chartjs-plugin-crosshair v2.0.0 ([https://github.com/abelheinsbroek/chartjs-plugin-crosshair](https://github.com/abelheinsbroek/chartjs-plugin-crosshair))
     - chartjs-chart-financial v0.1.1 ([https://github.com/chartjs/chartjs-chart-financial](https://github.com/chartjs/chartjs-chart-financial))
     - chartjs-adapter-luxon v1.3.1 ([https://github.com/chartjs/chartjs-adapter-luxon](https://github.com/chartjs/chartjs-adapter-luxon))
-  - OverlayScrollbars v1.13.3
-  - flag-icon-css v4.1.4 ([https://github.com/lipis/flag-icon-css](https://github.com/lipis/flag-icon-css))
+  - OverlayScrollbars v2.3.2
+  - flag-icons v6.11.1 ([https://github.com/lipis/flag-icons](https://github.com/lipis/flag-icons))
   - Intl.js (uses the v3.111.0 polyfill service to only download if using a browser that doesn't already support the ECMAScript Internationalization API)
 - Platform independent (tested to run on Windows, MacOS and Linux) **NOTE:** Most of the instructions in this guide were written for use with Linux and may need to be modified when using another OS
 - Mobile-friendly

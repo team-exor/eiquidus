@@ -69,7 +69,7 @@ block content
           var amountStr = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
           var timestamp = data[5]; //variables for better readability
           var total = "<label class='badge bg-" + (amount > '#{settings.movement_page.movement_table.high_warning_flag}' ? 'danger' : (amount > '#{settings.movement_page.movement_table.low_warning_flag}' ? 'warning' : 'success')) + "' style='margin-bottom:0;'>" + amountStr + "</label>";
-          $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
+          $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa-regular fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
           $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-md-table-cell');
           $("td:eq(2)", row).html(total).addClass('text-center');
           $("td:eq(3)", row).html('<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-bs-toggle="tooltip" data-bs-placement="auto" title="' + format_unixtime(timestamp, true) + '"' : '') + '>' + format_unixtime(timestamp) + '</span>').addClass('text-center');

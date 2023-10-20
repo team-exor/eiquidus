@@ -14,18 +14,18 @@ html(lang='en')
     if settings.shared_pages.favicons.favicon192 != ''
       link(rel='icon', href='/' + settings.shared_pages.favicons.favicon192, sizes='192x192')
     link(rel='stylesheet', href='/css/themes/' + settings.shared_pages.theme.toLowerCase() + '/bootstrap.min.css' + (themeHash == null ? '' : '?h=' + themeHash))
-    link(rel='stylesheet', href='https://use.fontawesome.com/releases/v5.15.4/css/all.css')
+    link(rel='stylesheet', href='https://use.fontawesome.com/releases/v6.4.2/css/all.css')
     if active == 'network'
-      link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/4.1.4/css/flag-icons.min.css')
-    link(rel='stylesheet', type='text/css', href='https://cdn.datatables.net/v/bs5/dt-1.11.3/datatables.min.css')
-    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.13.3/css/OverlayScrollbars.min.css')
+      link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/flag-icons/6.11.1/css/flag-icons.min.css')
+    link(rel='stylesheet', type='text/css', href='https://cdn.datatables.net/v/bs5/dt-1.13.6/datatables.min.css')
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/2.3.2/styles/overlayscrollbars.min.css')
     link(rel='stylesheet', href='/css/style.min.css' + (styleHash == null ? '' : '?h=' + styleHash))
     link(rel='stylesheet', href='/css/custom.min.css' + (customHash == null ? '' : '?h=' + customHash))
-    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js', integrity='sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==', crossorigin='anonymous', referrerpolicy='no-referrer')
+    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js', integrity='sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==', crossorigin='anonymous', referrerpolicy='no-referrer')
     script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js', integrity='sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p', crossorigin='anonymous')
     script(type='text/javascript', src='/js/custom.js')
-    script(type='text/javascript', src='https://cdn.datatables.net/v/bs5/dt-1.11.3/datatables.min.js')
-    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/1.13.3/js/jquery.overlayScrollbars.min.js', integrity="sha512-PviP63d43OXLyLjCv3TawK1Rw4LQQsnH6yschHgK63LBvLpd1U1+7LM/OESlV/cSze5lFI3+f7JwKFEBEWNp1w==", crossorigin="anonymous", referrerpolicy="no-referrer")
+    script(type='text/javascript', src='https://cdn.datatables.net/v/bs5/dt-1.13.6/datatables.min.js')
+    script(type='text/javascript', src='https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/2.3.2/browser/overlayscrollbars.browser.es6.min.js', integrity="sha512-jh4tHrf3Zaee6k2wOl1kVm4Gm5uIFbOQkUPfA419yLxADm1Q9jtihcGAJUl9ThBR8yc4/VYCOQCY/K87g14kSw==", crossorigin="anonymous", referrerpolicy="no-referrer")
     - var showPanels = false
     - var showNethashChart = false
     - var showDifficultyChart = false
@@ -146,6 +146,7 @@ html(lang='en')
       var sideMarketVisible = false;
       var topMenuExpanded = false;
       var sideBarClasses = '!{sideBarClasses}'.replace(/,/g, " ");
+      const { OverlayScrollbars } = OverlayScrollbarsGlobal;
       /* Special thanks to the stackoverflow community for the getParameterByName function: https://stackoverflow.com/a/901144/3038650 */
       function getParameterByName(name, url = window.location.href) {
         name = name.replace(/[\[\]]/g, '\\$&');
@@ -656,26 +657,26 @@ html(lang='en')
         });
         function getNetworkPanel() {
           var hashRateType='<label id="hashrate"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small fw-normal">'+getNetHashUnits()+'</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="fa fa-cogs"></span>'+hashRateType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small fw-normal">'+getNetHashUnits()+'</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-gears"></span>'+hashRateType+'</div></div>';
         }
         function getDifficultyPanel() {
           var difficultyType='<label id="difficulty"></label>';
-          if ('#{settings.shared_pages.difficulty}' == 'Hybrid') difficultyType+='<br /><span class="fas fa-sliders-h"></span><label id="difficultyHybrid"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.difficulty}</strong></div><div class="card-body"><div id="difficultyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="difficultypanel" class="header-panel" style="display:none;"><span class="fas fa-sliders-h"></span>'+difficultyType+'</div></div>';
+          if ('#{settings.shared_pages.difficulty}' == 'Hybrid') difficultyType+='<br /><span class="fa-solid fa-sliders"></span><label id="difficultyHybrid"></label>';
+          return '<div class="card-header"><strong>#{settings.locale.difficulty}</strong></div><div class="card-body"><div id="difficultyPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="difficultypanel" class="header-panel" style="display:none;"><span class="fa-solid fa-sliders"></span>'+difficultyType+'</div></div>';
         }
         function getMasternodesPanel() {
-          return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="masternodepanel" class="header-panel" style="display:none;"><span id="spnMasternodeCountOnline" class="fa fa-check-circle" data-bs-toggle="tooltip" data-bs-placement="top"></span><label id="masternodeCountOnline" data-bs-toggle="tooltip" data-bs-placement="top"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline" data-bs-toggle="tooltip" data-bs-placement="top"></label><span id="spnMasternodeCountOffline" class="fa fa-exclamation-triangle" data-bs-toggle="tooltip" data-bs-placement="top"></span></div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="masternodepanel" class="header-panel" style="display:none;"><span id="spnMasternodeCountOnline" class="fa-solid fa-circle-check" data-bs-toggle="tooltip" data-bs-placement="top"></span><label id="masternodeCountOnline" data-bs-toggle="tooltip" data-bs-placement="top"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline" data-bs-toggle="tooltip" data-bs-placement="top"></label><span id="spnMasternodeCountOffline" class="fa-solid fa-triangle-exclamation" data-bs-toggle="tooltip" data-bs-placement="top"></span></div></div>';
         }
         function getCoinSupplyPanel() {
           var supplyType='<label id="supply"></label>';
-          return `<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small fw-normal">(${"#{settings.coin.symbol}".replace(/"/g, '&quot;')})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa fa-chart-pie"></span>${supplyType}</div></div>`;
+          return `<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small fw-normal">(${"#{settings.coin.symbol}".replace(/"/g, '&quot;')})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-pie"></span>${supplyType}</div></div>`;
         }
         function getPricePanel() {
           var priceType='<label id="lastPrice">-</label>';
-          return '<div class="card-header"><strong>Price <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="fa fa-rocket"></span>'+priceType+'</div></div>';
+          return '<div class="card-header"><strong>Price <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-rocket"></span>'+priceType+'</div></div>';
         }
         function getMarketCapPanel() {
-          return '<div class="card-header"><strong>Market Cap <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa fa-spinner fa-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="fas fa-chart-line"></span><label id="marketCap"></label></div></div>';
+          return '<div class="card-header"><strong>Market Cap <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-line"></span><label id="marketCap"></label></div></div>';
         }
         function getLogoPanel() {
           return `<img src="#{settings.shared_pages.logo}" style="margin-top:-15px;height:128px;" alt="${"#{settings.coin.name}".replace(/"/g, '&quot;')} Logo" title="${"#{settings.coin.name}".replace(/"/g, '&quot;')} Logo" />`;
@@ -796,8 +797,8 @@ html(lang='en')
                 $('nav.side-nav').css('overflow', 'visible');
                 $('div#side-nav-bar').removeClass(sideBarClasses);
 
-                if ($('div#side-offcanvas > div.offcanvas-body div.os-content').length > 0) {
-                  $('div#body-container > div#side-nav-bar').appendTo('div#side-offcanvas > div.offcanvas-body div.os-content');
+                if ($('div#side-offcanvas > div.offcanvas-body > div[data-overlayscrollbars-viewport="scrollbarHidden"]').length > 0) {
+                  $('div#body-container > div#side-nav-bar').appendTo('div#side-offcanvas > div.offcanvas-body > div[data-overlayscrollbars-viewport="scrollbarHidden"]');
                   hasScrollbar = true;
                 } else
                   $('div#body-container > div#side-nav-bar').appendTo('div#side-offcanvas > div.offcanvas-body');
@@ -811,7 +812,7 @@ html(lang='en')
                 $('div#side-market-menu').removeClass('dropdown-menu dropdown-menu-dark').addClass('collapse');
 
                 if (!hasScrollbar)
-                  $('div#side-offcanvas > div.offcanvas-body').overlayScrollbars({overflowBehavior: {x: 'hidden'}});
+                  OverlayScrollbars($('div#side-offcanvas > div.offcanvas-body')[0], {overflow: {x: 'hidden'}});
 
                 fixSidebarHeight();
               }
@@ -848,7 +849,7 @@ html(lang='en')
               $('div#side-nav-bar').toggleClass('activating');
               $('div#side-nav-bar').toggleClass('show-menu');
               var showMenu = $('div#side-nav-bar').hasClass('show-menu');
-              $('div#side-header-toggle > span').toggleClass('fas far fa-window-close fa-bars').attr('data-bs-original-title', (showMenu ? 'Shrink Menu' : 'Expand Menu')).attr('alt', (showMenu ? 'Shrink Menu' : 'Expand Menu'));
+              $('div#side-header-toggle > span').toggleClass('fa-regular fa-solid fa-rectangle-xmark fa-bars').attr('data-bs-original-title', (showMenu ? 'Shrink Menu' : 'Expand Menu')).attr('alt', (showMenu ? 'Shrink Menu' : 'Expand Menu'));
               hideMarketDropdown();
 
               if ($().tooltip) {
@@ -980,7 +981,7 @@ html(lang='en')
           });
           $('#navbar-collapse').on('shown.bs.collapse', function (e) {
             // initialize the scrollbar only after the navbar collapse has finished since it goes too slow if initialized before
-            $('#navbar-collapse').overlayScrollbars({});
+            OverlayScrollbars($('#navbar-collapse')[0], {});
           });
           $('#navbar-collapse').on('hide.bs.collapse', function (e) {
             topMenuExpanded = false;
@@ -1075,38 +1076,38 @@ html(lang='en')
               ul.navbar-nav(style='width:100%;')
                 li#home.nav-item
                   a.nav-link(href='/')
-                    span.fas.fa-cubes
+                    span.fa-solid.fa-cubes
                     span.margin-left-5 #{settings.locale.menu_explorer}
                 if settings.blockchain_specific.heavycoin.enabled == true && settings.blockchain_specific.heavycoin.reward_page.enabled == true
                   li#reward.nav-item
                     a.nav-link(href='/reward')
-                      span.fa.fa-star
+                      span.fa-solid.fa-star
                       span.margin-left-5 #{settings.locale.menu_reward}
                 if settings.masternodes_page.enabled == true
                   li#masternodes.nav-item
                     a.nav-link(href='/masternodes')
-                      span.fa.fa-share-alt
+                      span.fa-solid.fa-share-nodes
                       span.margin-left-5 Masternodes
                 if settings.movement_page.enabled == true
                   li#movement.nav-item
                     a.nav-link(href='/movement')
-                      span.far.fa-money-bill-alt
+                      span.fa-regular.fa-money-bill-1
                       span.margin-left-5 #{settings.locale.menu_movement}
                 if settings.network_page.enabled == true
                   li#network.nav-item
                     a.nav-link(href='/network')
-                      span.fas.fa-network-wired
+                      span.fa-solid.fa-network-wired
                       span.margin-left-5 #{settings.locale.menu_network}
                 if settings.richlist_page.enabled == true
                   li#richlist.nav-item
                     a.nav-link(href='/richlist')
-                      span.fab.fa-btc
+                      span.fa-brands.fa-btc
                       span.margin-left-5 #{settings.locale.menu_richlist}
                 if settings.markets_page.enabled == true
                   if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
                     li#markets.dropdown.nav-item
                       a.nav-link.dropdown-toggle(data-bs-toggle='dropdown', href='#')
-                        span.fas.fa-chart-line
+                        span.fa-solid.fa-chart-line
                         span.margin-left-5 #{settings.locale.menu_markets}
                       div.navbar(class=dropdownClasses)
                         each mkt in settings.market_data
@@ -1117,40 +1118,40 @@ html(lang='en')
                                   if mkt.alt_logo != null && mkt.alt_logo != ''
                                     img.market-logo(src='data:image/png;base64,' + mkt.alt_logo, title=mkt.alt_name + ' (' + pair.pair + ')', alt=mkt.alt_name + ' (' + pair.pair + ')')
                                   else
-                                    i.market-logo.fas.fa-question-circle
+                                    i.market-logo.fa-solid.fa-circle-question
                                   span #{mkt.alt_name}
                                     span.small.fw-normal  (#{pair.pair})
                                 else
                                   if mkt.logo != null && mkt.logo != ''
                                     img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair.pair + ')', alt=mkt.name + ' (' + pair.pair + ')')
                                   else
-                                    i.market-logo.fas.fa-question-circle
+                                    i.market-logo.fa-solid.fa-circle-question
                                   span #{mkt.name}
                                     span.small.fw-normal  (#{pair.pair})
                   else
                     li#markets.nav-item
                       a.nav-link(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
-                        span.fas.fa-chart-line
+                        span.fa-solid.fa-chart-line
                         span.margin-left-5 #{settings.locale.menu_markets}
                 if settings.api_page.enabled == true
                   li#info.nav-item
                     a.nav-link(href='/info')
-                      span.fa.fa-info-circle
+                      span.fa-solid.fa-circle-info
                       span.margin-left-5 #{settings.locale.menu_api}
                 if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
                   li#claim-address.nav-item
                     a.nav-link(href='/claim')
-                      span.far.fa-address-card
+                      span.fa-regular.fa-address-card
                       span.margin-left-5 #{settings.locale.menu_claim_address}
                 if settings.orphans_page.enabled == true
                   li#orphans.nav-item
                     a.nav-link(href='/orphans')
-                      span.far.fa-window-close
+                      span.fa-regular.fa-rectangle-xmark
                       span.margin-left-5 #{settings.locale.menu_orphans}
             if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
               span#search-header-span(alt='Search', title='Search', data-bs-toggle='tooltip', data-bs-placement='left')
                 button#search-header-button(data-bs-toggle='collapse', data-bs-target='#search-navbar-collapse')
-                  span.fas.fa-search
+                  span.fa-solid.fa-magnifying-glass
         if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
           div#search-navbar-collapse.collapse
             div.navbar-nav.align-items-lg-center.search-box-custom(style='width:100%;')
@@ -1170,11 +1171,11 @@ html(lang='en')
               a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='order:-1;', data-bs-toggle='tooltip', data-bs-placement='bottom')
                 img.logo-main(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0;max-height:' + settings.shared_pages.page_header.home_link_logo_height + 'px;')
             div#side-header-toggle.side-header-toggle
-              span.fas.fa-bars(alt='Expand Menu', title='Expand Menu', data-bs-toggle='tooltip', data-bs-placement='right')
+              span.fa-solid.fa-bars(alt='Expand Menu', title='Expand Menu', data-bs-toggle='tooltip', data-bs-placement='right')
             if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
               span#search-header-span(alt='Search', title='Search', data-bs-toggle='tooltip', data-bs-placement='left')
                 button#search-header-button(data-bs-toggle='collapse', data-bs-target='#search-navbar-collapse')
-                  span.fas.fa-search
+                  span.fa-solid.fa-magnifying-glass
         if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
           div#search-navbar-collapse.collapse.flexGrow1
             div.navbar-nav.align-items-lg-center.search-box-custom(style='width:100%;')
@@ -1189,41 +1190,41 @@ html(lang='en')
             ul.navbar-nav
               li#sidebar-offcanvas-close.nav-item.text-end
                 a.nav-link.d-inline(href='#', alt='Close Menu', title='Close Menu', data-bs-toggle='tooltip', data-bs-placement='right')
-                  span.fa-2x.far.fa-window-close(type='button', data-bs-dismiss='offcanvas' aria-label='Close')
+                  span.fa-2xl.fa-regular.fa-rectangle-xmark(type='button', data-bs-dismiss='offcanvas' aria-label='Close')
               li#home.nav-item(alt=settings.locale.menu_explorer, title=settings.locale.menu_explorer, data-bs-toggle='tooltip', data-bs-placement='right')
                 a.nav-link(href='/')
-                  span.nav-icon.fas.fa-cubes
+                  span.nav-icon.fa-solid.fa-cubes
                   span.margin-left-5 #{settings.locale.menu_explorer}
               if settings.blockchain_specific.heavycoin.enabled == true && settings.blockchain_specific.heavycoin.reward_page.enabled == true
                 li#reward.nav-item(alt=settings.locale.menu_reward, title=settings.locale.menu_reward, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/reward')
-                    span.nav-icon.fa.fa-star
+                    span.nav-icon.fa-solid.fa-star
                     span.margin-left-5 #{settings.locale.menu_reward}
               if settings.masternodes_page.enabled == true
                 li#masternodes.nav-item(alt="Masternodes", title="Masternodes", data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/masternodes')
-                    span.nav-icon.fa.fa-share-alt
+                    span.nav-icon.fa-solid.fa-share-nodes
                     span.margin-left-5 Masternodes
               if settings.movement_page.enabled == true
                 li#movement.nav-item(alt=settings.locale.menu_movement, title=settings.locale.menu_movement, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/movement')
-                    span.nav-icon.far.fa-money-bill-alt
+                    span.nav-icon.fa-regular.fa-money-bill-1
                     span.margin-left-5 #{settings.locale.menu_movement}
               if settings.network_page.enabled == true
                 li#network.nav-item(alt=settings.locale.menu_network, title=settings.locale.menu_network, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/network')
-                    span.nav-icon.fas.fa-network-wired
+                    span.nav-icon.fa-solid.fa-network-wired
                     span.margin-left-5 #{settings.locale.menu_network}
               if settings.richlist_page.enabled == true
                 li#richlist.nav-item(alt=settings.locale.menu_richlist, title=settings.locale.menu_richlist, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/richlist')
-                    span.nav-icon.fab.fa-btc
+                    span.nav-icon.fa-brands.fa-btc
                     span.margin-left-5 #{settings.locale.menu_richlist}
               if settings.markets_page.enabled == true
                 if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
                   li#markets.dropend.nav-item.side-market-menu(alt=settings.locale.menu_markets, title=settings.locale.menu_markets, data-bs-toggle='tooltip', data-bs-placement='right')
                     a.nav-link.dropdown-toggle(href='#')
-                      span.nav-icon.fas.fa-chart-line
+                      span.nav-icon.fa-solid.fa-chart-line
                       span.margin-left-5 #{settings.locale.menu_markets}
                     div#side-market-menu.navbar(class=dropdownClasses)
                       each mkt in settings.market_data
@@ -1234,45 +1235,45 @@ html(lang='en')
                                 if mkt.alt_logo != null && mkt.alt_logo != ''
                                   img.market-logo(src='data:image/png;base64,' + mkt.alt_logo, title=mkt.alt_name + ' (' + pair.pair + ')', alt=mkt.alt_name + ' (' + pair.pair + ')')
                                 else
-                                  i.market-logo.fas.fa-question-circle
+                                  i.market-logo.fa-solid.fa-circle-question
                                 span #{mkt.alt_name}
                                   span.small.fw-normal  (#{pair.pair})
                               else
                                 if mkt.logo != null && mkt.logo != ''
                                   img.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair.pair + ')', alt=mkt.name + ' (' + pair.pair + ')')
                                 else
-                                  i.market-logo.fas.fa-question-circle
+                                  i.market-logo.fa-solid.fa-circle-question
                                 span #{mkt.name}
                                   span.small.fw-normal  (#{pair.pair})
                 else
                   li#markets.nav-item(alt=settings.locale.menu_markets, title=settings.locale.menu_markets, data-bs-toggle='tooltip', data-bs-placement='right')
                     a.nav-link(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
-                      span.nav-icon.fas.fa-chart-line
+                      span.nav-icon.fa-solid.fa-chart-line
                       span.margin-left-5 #{settings.locale.menu_markets}
               if settings.api_page.enabled == true
                 li#info.nav-item(alt=settings.locale.menu_api, title=settings.locale.menu_api, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/info')
-                    span.nav-icon.fa.fa-info-circle
+                    span.nav-icon.fa-solid.fa-circle-info
                     span.margin-left-5 #{settings.locale.menu_api}
               if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
                 li#claim-address.nav-item(alt=settings.locale.menu_claim_address, title=settings.locale.menu_claim_address, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/claim')
-                    span.nav-icon.far.fa-address-card
+                    span.nav-icon.fa-regular.fa-address-card
                     span.margin-left-5 #{settings.locale.menu_claim_address}
               if settings.orphans_page.enabled == true
                 li#orphans.nav-item(alt=settings.locale.menu_orphans, title=settings.locale.menu_orphans, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/orphans')
-                    span.nav-icon.far.fa-window-close
+                    span.nav-icon.fa-regular.fa-rectangle-xmark
                     span.margin-left-5 #{settings.locale.menu_orphans}
         div#side-offcanvas.offcanvas.offcanvas-start(tabindex='-1')
-          div.offcanvas-body.d-block.navbar(class=sideBarClasses)
+          div.offcanvas-body.navbar(class=sideBarClasses)
       div#main-container(class=mainContainerClasses)
         div#main-child-container(class=mainContainerChildClasses)
           if showSync != null && showSync == true
             .col-lg-12
               .alert.alert-warning
                 .cardSpacer
-                  span.fas.fa-exclamation-triangle(style='margin-right:5px;')
+                  span.fa-solid.fa-triangle-exclamation(style='margin-right:5px;')
                   strong #{settings.locale.ex_warning}
                 div #{settings.locale.initial_index_alert}
           if showPanels == true || (settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'below-header')

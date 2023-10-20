@@ -22,7 +22,7 @@ block content
         .alert.alert-warning.alert-dismissible.fade.show(role='alert')
           button.btn-close(type='button', data-bs-dismiss='alert')
           .cardSpacer
-            span.fas.fa-exclamation-triangle(style='margin-right:5px')
+            span.fa-solid.fa-triangle-exclamation(style='margin-right:5px')
             strong=settings.locale.ex_warning
           div="This is an orphaned transaction"
     if settings.transaction_page.page_header.show_img == true || settings.transaction_page.page_header.show_title == true || settings.transaction_page.page_header.show_description == true
@@ -45,7 +45,7 @@ block content
         strong=settings.locale.tx_hash + ': ' + tx.txid
         if settings.api_page.public_apis.rpc.getrawtransaction.enabled == true
           a.d-none.d-md-inline(href=`/api/getrawtransaction?txid=${tx.txid}&decrypt=1`, style='color: var(--bs-body-color);')
-            span.fa.fa-info-circle.float-end(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_raw_tx_data)
+            span.fa-solid.fa-circle-info.float-end(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_raw_tx_data)
       table#tx-table.table.table-bordered.table-striped.summary-table.mobile-border-right
         thead
           tr(class=theadClasses)
@@ -60,7 +60,7 @@ block content
           tr
             td.text-center.d-table-cell.d-md-none
               a(href='/block/' + tx.blockhash)
-                span.fa.fa-eye(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_block)
+                span.fa-regular.fa-eye(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_block)
             td.d-none.d-md-table-cell
               a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
             if settings.transaction_page.show_op_return == true
@@ -82,7 +82,7 @@ block content
           .card.card-default.border-0
             .card-header
               strong #{settings.locale.tx_contributors}
-              span.fa.fa-arrow-right.float-end.d-none.d-md-block
+              span.fa-solid.fa-arrow-right.float-end.d-none.d-md-block
             table.table.table-bordered.table-striped.table-hover.summary-table.mobile-border-right
               thead
                 tr(class=theadClasses)

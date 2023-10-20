@@ -90,7 +90,7 @@ block content
             var flagBlock = '';
 
             if (data['country_code'].length > 1) {
-              flagBlock = '<div class="margin-left-5 flag-icon flag-icon-'+data['country_code'].toLowerCase()+'"></div>';
+              flagBlock = '<span class="margin-left-5 fi fi-'+data['country_code'].toLowerCase()+'"></span>';
             }
 
             $("td:eq(0)", row).html(data['address']).addClass('breakWord');
@@ -158,7 +158,7 @@ block content
           },
           data: addNodeRows,
           rowCallback: function(row, data, index) {
-            $("td:eq(0)", row).css('white-space', 'nowrap').html(`<button class="btn btn-sm btn-copy" type="button"><i class="far fa-copy"></i></button>&nbsp;<span>${data.nodes}</span>`);
+            $("td:eq(0)", row).css('white-space', 'nowrap').html(`<button class="btn btn-sm btn-copy" type="button"><i class="fa-regular fa-copy"></i></button>&nbsp;<span>${data.nodes}</span>`);
           },
           fnDrawCallback: function(settings) {
             fixDataTableColumns();
@@ -218,7 +218,7 @@ block content
           },
           data: oneTryRows,
           rowCallback: function(row, data, index) {
-            $("td:eq(0)", row).css('white-space', 'nowrap').html(`<button class="btn btn-sm btn-copy" type="button"><i class="far fa-copy"></i></button>&nbsp;<span>${data.nodes}</span>`);
+            $("td:eq(0)", row).css('white-space', 'nowrap').html(`<button class="btn btn-sm btn-copy" type="button"><i class="fa-regular fa-copy"></i></button>&nbsp;<span>${data.nodes}</span>`);
           },
           fnDrawCallback: function(settings) {
             fixDataTableColumns();
@@ -265,10 +265,10 @@ block content
           tmp.remove();
 
           btn.tooltip({title: 'Copied!', placement: 'top', trigger: 'manual'}).tooltip('show');
-          btn.html('<i class="fas fa-check"></i>');
+          btn.html('<i class="fa-solid fa-check"></i>');
 
           setTimeout(function() {
-            btn.html('<i class="far fa-copy"></i>');
+            btn.html('<i class="fa-regular fa-copy"></i>');
             btn.tooltip('dispose');
           }, 1500);
         }

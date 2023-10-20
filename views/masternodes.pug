@@ -66,9 +66,9 @@ block content
 
               if (labels[addr] != null && labels[addr].enabled == true) {
                 if (labels[addr].type)
-                  json[i]['addr'] = '<div><label class="badge bg-' + labels[addr].type + '" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-bs-toggle="tooltip" data-bs-placement="top"><span class="fa fa-question-circle" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
+                  json[i]['addr'] = '<div><label class="badge bg-' + labels[addr].type + '" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-bs-toggle="tooltip" data-bs-placement="top"><span class="fa-solid fa-circle-question" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
                 else
-                  json[i]['addr'] = '<div><label class="badge bg-default" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-bs-toggle="tooltip" data-bs-placement="top"><span class="fa fa-question-circle" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
+                  json[i]['addr'] = '<div><label class="badge bg-default" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-bs-toggle="tooltip" data-bs-placement="top"><span class="fa-solid fa-circle-question" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
               }
             }
  

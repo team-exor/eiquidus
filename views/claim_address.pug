@@ -7,7 +7,7 @@ block content
           return '<div class="alert alert-' + alertClass + (allowDismiss ? ' alert-dismissible fade show' : '') + '" role="alert">' +
             (allowDismiss ? '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' : '') + 
             '<div' + (msgText == null || msgText == '' ? '' : ' class="cardSpacer"') + '>' +
-            '<span class="fas ' + (alertClass == 'success' ? 'fa-check-circle' : (alertClass == 'danger' ? 'fa-exclamation-circle' : (alertClass == 'info' ? 'fa-info-circle' : 'fa-exclamation-triangle'))) + '" style="margin-right:5px"></span>' +
+            '<span class="fa-solid ' + (alertClass == 'success' ? 'fa-circle-check' : (alertClass == 'danger' ? 'fa-circle-exclamation' : (alertClass == 'info' ? 'fa-circle-info' : 'fa-triangle-exclamation'))) + '" style="margin-right:5px"></span>' +
             '<strong>' + headerText + '</strong>' +
             '</div>' +
             (msgText == null || msgText == '' ? '' : '<span>' + msgText + '</span>') +
@@ -23,9 +23,9 @@ block content
           fixFooterHeightAndPosition();
         }
         $('#claimInstructions').on('show.bs.collapse', function () {
-          $('#showClaimInstructions').html('<i class="fas fa-angle-down" style="margin-right:5px;"></i><span>Hide claim instructions</span>');
+          $('#showClaimInstructions').html('<i class="fa-solid fa-angle-down" style="margin-right:5px;"></i><span>Hide claim instructions</span>');
         }).on('hide.bs.collapse', function () {
-          $('#showClaimInstructions').html('<i class="fas fa-angle-up" style="margin-right:5px;"></i><span>Show claim instructions</span>');
+          $('#showClaimInstructions').html('<i class="fa-solid fa-angle-up" style="margin-right:5px;"></i><span>Show claim instructions</span>');
         }).on('shown.bs.collapse', function () {
           fixFooterHeightAndPosition();
         }).on('hidden.bs.collapse', function () {
@@ -87,7 +87,7 @@ block content
         strong Claim Wallet Address
       .card-body
         a#showClaimInstructions.badge.bg-primary(href='#claimInstructions', style='font-size:100%;margin-bottom:15px;', data-bs-toggle='collapse' role='button' aria-expanded='false' aria-controls='claimInstructions')
-          i.fas.fa-angle-up(style='margin-right:5px;')
+          i.fa-solid.fa-angle-up(style='margin-right:5px;')
           span Show claim instructions
         div#claimInstructions.collapse
           div.alert.alert-primary

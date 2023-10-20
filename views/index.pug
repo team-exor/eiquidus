@@ -69,7 +69,7 @@ block content
           var amountParts = amount.split('.');
           var amount = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
           var timestamp = data[5];
-          $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
+          $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa-regular fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
           $("td:eq(1)", row).html('<a href="/block/' + blockhash + '">' + blockindex + '</a>');
           $("td:eq(2)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass("text-center breakWord d-none d-md-table-cell");
           $("td:eq(3)", row).html(outputs).addClass("text-center d-none d-sm-table-cell");
@@ -125,7 +125,7 @@ block content
       .alert.alert-danger.alert-dismissible.fade.show(role='alert')
         button.btn-close(type='button', data-bs-dismiss='alert')
         .cardSpacer
-          span.fas.fa-exclamation-circle(style='margin-right:5px')
+          span.fa-solid.fa-circle-exclamation(style='margin-right:5px')
           strong #{settings.locale.ex_error}
         div #{error}
   .col-md-12.cardSpacer

@@ -726,6 +726,64 @@ $theme-name: to-lower-case(theme-selector.$theme-name);
   }
 }
 
+@mixin loading-animation-color() {
+  @if $theme-name == "cerulean" {
+    background: cerulean.$primary;
+  } @else if $theme-name == "cosmo" {
+    background: cosmo.$primary;
+  } @else if $theme-name == "cyborg" {
+    background: cyborg.$primary;
+  } @else if $theme-name == "darkly" {
+    background: darkly.$primary;
+  } @else if $theme-name == "exor" {
+    background: exor.$primary;
+  } @else if $theme-name == "flatly" {
+    background: flatly.$primary;
+  } @else if $theme-name == "journal" {
+    background: journal.$primary;
+  } @else if $theme-name == "litera" {
+    background: litera.$primary;
+  } @else if $theme-name == "lumen" {
+    background: lumen.$primary;
+  } @else if $theme-name == "lux" {
+    background: lux.$primary;
+  } @else if $theme-name == "materia" {
+    background: materia.$primary;
+  } @else if $theme-name == "minty" {
+    background: minty.$primary;
+  } @else if $theme-name == "morph" {
+    background: morph.$primary;
+  } @else if $theme-name == "pulse" {
+    background: pulse.$primary;
+  } @else if $theme-name == "quartz" {
+    background: quartz.$primary;
+  } @else if $theme-name == "sandstone" {
+    background: sandstone.$primary;
+  } @else if $theme-name == "simplex" {
+    background: simplex.$primary;
+  } @else if $theme-name == "sketchy" {
+    background: sketchy.$primary;
+  } @else if $theme-name == "slate" {
+    background: slate.$secondary;
+  } @else if $theme-name == "solar" {
+    background: solar.$primary;
+  } @else if $theme-name == "spacelab" {
+    background: spacelab.$primary;
+  } @else if $theme-name == "superhero" {
+    background: superhero.$primary;
+  } @else if $theme-name == "united" {
+    background: united.$primary;
+  } @else if $theme-name == "vapor" {
+    background: vapor.$primary;
+  } @else if $theme-name == "yeti" {
+    background: yeti.$primary;
+  } @else if $theme-name == "zephyr" {
+    background: zephyr.$primary;
+  } @else {
+    background: rgb(13, 110, 253);
+  }
+}
+
 body {
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
 }
@@ -913,6 +971,10 @@ div.dataTables_scrollBody > table {
     border-top-style: solid;
     @include table-border-color;
   }
+}
+
+div.dataTables_processing > div:last-child > div {
+  @include loading-animation-color;
 }
 
 .card {
@@ -1337,6 +1399,7 @@ div#side-nav-bar {
 div.offcanvas-body {
   padding: 0;
   overflow-x: hidden;
+  align-items: normal;
 
   div#side-nav-bar {
     display: block;
@@ -1353,6 +1416,10 @@ div.offcanvas-body {
 
 #sidebar-offcanvas-close {
   display: none;
+
+  > a.nav-link > span {
+    line-height: 1;
+  }
 }
 
 .navbar-nav #sidebar-offcanvas-close .nav-link:hover, .navbar-nav #sidebar-offcanvas-close .nav-link:focus {
@@ -1481,6 +1548,10 @@ div.navbar-expand-lg {
   }
 }
 
+.navbar-collapse {
+  align-items: normal;
+}
+
 #search-navbar-collapse {
   &.collapse:not(.show) {
     display: none;
@@ -1516,7 +1587,7 @@ div.navbar-expand-lg {
   @include header-button-dark;
 }
 
-.os-content > .navbar-nav > li#markets > div.dropdown-menu {
+div[data-overlayscrollbars-viewport="scrollbarHidden"] > .navbar-nav > li#markets > div.dropdown-menu {
   background-color: transparent !important;
   margin: 0;
   padding: 0;

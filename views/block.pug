@@ -35,7 +35,7 @@ block content
         .alert.alert-warning.alert-dismissible.fade.show(role='alert')
           button.btn-close(type='button', data-bs-dismiss='alert')
           .cardSpacer
-            span.fas.fa-exclamation-triangle(style='margin-right:5px')
+            span.fa-solid.fa-triangle-exclamation(style='margin-right:5px')
             strong=settings.locale.ex_warning
           div="This is an orphaned block"
     if settings.block_page.page_header.show_img == true || settings.block_page.page_header.show_title == true || settings.block_page.page_header.show_description == true
@@ -58,7 +58,7 @@ block content
         div(style='display: flex;flex-wrap: wrap;')
           if block.previousblockhash != null
             a(href='/block/' + block.previousblockhash)
-              span.fa.fa-chevron-left.block-last(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.block_previous, style='color: var(--bs-body-color);')
+              span.fa-solid.fa-chevron-left.block-last(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.block_previous, style='color: var(--bs-body-color);')
             strong.d-none.d-md-block #{settings.locale.tx_block_hash}: #{block.hash}
             strong.d-block.d-md-none #{settings.locale.ex_summary}
           else
@@ -66,10 +66,10 @@ block content
             strong.d-block.d-md-none(style='margin-left:10px;') #{settings.locale.ex_summary}
           if block.nextblockhash != null
             a(href='/block/' + block.nextblockhash)
-              span.fa.fa-chevron-right.block-next(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.block_next, style='color: var(--bs-body-color);')
+              span.fa-solid.fa-chevron-right.block-next(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.block_next, style='color: var(--bs-body-color);')
           if settings.api_page.public_apis.rpc.getblock.enabled == true
             a.d-none.d-md-block(href='/api/getblock?hash=' + block.hash, style='margin-left:auto;', data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_raw_block_data)
-              span.fa.fa-info-circle(style='color: var(--bs-body-color);')
+              span.fa-solid.fa-circle-info(style='color: var(--bs-body-color);')
       table#block-summary.table.table-bordered.summary-table.bottom-border-0.single-row-table(style='border-top:0;margin-top:0 !important;')
         thead
           tr(class=theadClasses)
@@ -125,7 +125,7 @@ block content
               tr
                 td.text-center.d-table-cell.d-md-none
                   a(href='/tx/' + txn.txid)
-                    span.fa.fa-eye(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_tx)
+                    span.fa-regular.fa-eye(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_tx)
                 td.d-none.d-md-table-cell
                   a.breakWord(href='/tx/' + txn.txid) #{txn.txid}
                 td.text-center #{txn.vout.length}

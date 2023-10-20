@@ -126,7 +126,7 @@
     // date_time: a collection of settings that pertain to the date and time values displayed in the explorer
     "date_time": {
       // display_format: The format to use when displaying date/time values
-      //                 Date/time values are formatted using the Luxon library and must follow the correct syntax (read more: https://moment.github.io/luxon/docs/manual/formatting.html#table-of-tokens)
+      //                 Date/time values are formatted using the Luxon library and must follow the correct syntax (read more: https://moment.github.io/luxon/#/formatting?id=table-of-tokens)
       //                 Ex: LLL dd, yyyy HH:mm:ss ZZZZ = May 27, 2019 22:04:11 UTC
       "display_format": "LLL dd, yyyy HH:mm:ss ZZZZ",
       // timezone: All dates and times are stored as UTC dates and can either be displayed in UTC format or else they can be displayed in the local timezone according to a user's web browser settings
@@ -414,7 +414,7 @@
           // url: The exact url that the social link should navigate to
           "url": "https://github.com/team-exor",
           // fontawesome_class: A string of css classes, separated by spaces that can be used to display a fontawesome icon for this social link. See https://fontawesome.com/ for more info
-          "fontawesome_class": "fab fa-github",
+          "fontawesome_class": "fa-brands fa-github",
           // image_path: The path to an image file that will be displayed for this social link
           //             NOTE: The path root is /public
           "image_path": ""
@@ -428,7 +428,7 @@
           // url: The exact url that the social link should navigate to
           "url": "https://twitter.com/ExorOfficial",
           // fontawesome_class: A string of css classes, separated by spaces that can be used to display a fontawesome icon for this social link. See https://fontawesome.com/ for more info
-          "fontawesome_class": "fab fa-twitter",
+          "fontawesome_class": "fa-brands fa-twitter",
           // image_path: The path to an image file that will be displayed for this social link
           //             NOTE: The path root is /public
           "image_path": ""
@@ -442,7 +442,7 @@
           // url: The exact url that the social link should navigate to
           "url": "https://discord.gg/dSuGm3y",
           // fontawesome_class: A string of css classes, separated by spaces that can be used to display a fontawesome icon for this social link. See https://fontawesome.com/ for more info
-          "fontawesome_class": "fab fa-discord",
+          "fontawesome_class": "fa-brands fa-discord",
           // image_path: The path to an image file that will be displayed for this social link
           //             NOTE: The path root is /public
           "image_path": ""
@@ -456,7 +456,7 @@
           // url: The exact url that the social link should navigate to
           "url": "https://t.me/Exorofficial",
           // fontawesome_class: A string of css classes, separated by spaces that can be used to display a fontawesome icon for this social link. See https://fontawesome.com/ for more info
-          "fontawesome_class": "fab fa-telegram",
+          "fontawesome_class": "fa-brands fa-telegram",
           // image_path: The path to an image file that will be displayed for this social link
           //             NOTE: The path root is /public
           "image_path": ""

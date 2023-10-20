@@ -139,14 +139,14 @@ block content
                               if mkt.alt_logo != null && mkt.alt_logo != ''
                                 img.align-top.market-logo(src='data:image/png;base64,' + mkt.alt_logo, title=mkt.alt_name + ' (' + pair.pair + ')', alt=mkt.alt_name + ' (' + pair.pair + ')')
                               else
-                                i.market-logo.fas.fa-question-circle
+                                i.market-logo.fa-solid.fa-circle-question
                               span #{mkt.alt_name}
                                 span.small.fw-normal  (#{pair.pair})
                             else
                               if mkt.logo != null && mkt.logo != ''
                                 img.align-top.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair.pair + ')', alt=mkt.name + ' (' + pair.pair + ')')
                               else
-                                i.market-logo.fas.fa-question-circle
+                                i.market-logo.fa-solid.fa-circle-question
                               span #{mkt.name}
                                 span.small.fw-normal  (#{pair.pair})
                       else
@@ -156,14 +156,14 @@ block content
                               if mkt.alt_logo != null && mkt.alt_logo != ''
                                 img.align-top.market-logo(src='data:image/png;base64,' + mkt.alt_logo, title=mkt.alt_name + ' (' + pair.pair + ')', alt=mkt.alt_name + ' (' + pair.pair + ')')
                               else
-                                i.market-logo.fas.fa-question-circle
+                                i.market-logo.fa-solid.fa-circle-question
                               span #{mkt.alt_name}
                                 span.small.fw-normal  (#{pair.pair})
                             else
                               if mkt.logo != null && mkt.logo != ''
                                 img.align-top.market-logo(src='data:image/png;base64,' + mkt.logo, title=mkt.name + ' (' + pair.pair + ')', alt=mkt.name + ' (' + pair.pair + ')')
                               else
-                                i.market-logo.fas.fa-question-circle
+                                i.market-logo.fa-solid.fa-circle-question
                               span #{mkt.name}
                                 span.small.fw-normal  (#{pair.pair})
     if marketdata.data != null && ((marketdata.data.buys != null && marketdata.data.buys.length > 0) || (marketdata.data.sells != null && marketdata.data.sells.length > 0) || (marketdata.data.history != null && marketdata.data.history.length > 0))
@@ -290,7 +290,7 @@ block content
                 span.small.fw-normal  (#{marketdata.coin}/#{marketdata.exchange})
                 strong  - #{settings.locale.mkt_hours}
                 if marketdata.data.chartdata == null || marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]'
-                  span.fas.fa-chart-line.float-end.view-chart-disabled.market-toggle(style='cursor: pointer;color: var(--bs-body-color);', data-bs-toggle='tooltip', data-bs-placement='bottom', title=settings.locale.mkt_no_chart)
+                  span.fa-solid.fa-chart-line.float-end.view-chart-disabled.market-toggle(style='cursor: pointer;color: var(--bs-body-color);', data-bs-toggle='tooltip', data-bs-placement='bottom', title=settings.locale.mkt_no_chart)
               table#market-summary.table.table-bordered.bottom-border-0.summary-table.single-row-table(style='border-top:0;margin-top:0 !important;')
                 thead
                   tr(class=theadClasses)
@@ -536,6 +536,6 @@ block content
       .alert.alert-danger.alert-dismissible.fade.show(role='alert')
         button.btn-close(type='button', data-bs-dismiss='alert')
         .cardSpacer
-          span.fas.fa-exclamation-circle(style='margin-right:5px')
+          span.fa-solid.fa-circle-exclamation(style='margin-right:5px')
           strong #{marketdata.market_name} #{settings.locale.ex_error}
         div This market has no data to display.
