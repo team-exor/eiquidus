@@ -1138,6 +1138,13 @@ tr {
   }
 }
 
+/* Fix for sketchy v5.13 theme turning all table data black */
+@if $theme-name == "sketchy" {
+  .table-dark td {
+    background-color: transparent;
+  }
+}
+
 .margin-left-5 {
   margin-left: 5px;
 }
