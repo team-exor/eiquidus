@@ -1014,6 +1014,8 @@ function check_show_sync_message(blocks_to_sync) {
 }
 
 function get_last_usd_price() {
+  console.log('Calculating market price.. Please wait..');
+
   // get the last usd price for coinstats
   db.get_last_usd_price(function(err) {
     // check for errors
@@ -1514,7 +1516,6 @@ if (lib.is_locked([database]) == false) {
       } else {
         // check if market feature is enabled
         if (settings.markets_page.enabled == true) {
-          var complete = 0;
           var total_pairs = 0;
           var exchanges = Object.keys(settings.markets_page.exchanges);
 
@@ -1541,6 +1542,8 @@ if (lib.is_locked([database]) == false) {
             // initialize the rate limiter to wait 2 seconds between requests to prevent abusing external apis
             var rateLimitLib = require('../lib/ratelimit');
             var rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
+            var complete = 0;
+
             // loop through and test all exchanges defined in the settings.json file
             exchanges.forEach(function(key, index, map) {
               // check if market is enabled via settings
@@ -1561,28 +1564,32 @@ if (lib.is_locked([database]) == false) {
                           rateLimit.schedule(function() {
                             // update market data
                             db.update_markets_db(key, split_pair[0], split_pair[1], function(err) {
-                              if (!err) {
-                                console.log('%s[%s]: Market data updated successfully.', key, pair_key);
-                                complete++;
-
-                                if (complete == total_pairs || stopSync)
-                                  get_last_usd_price();
-                              } else {
+                              if (!err)
+                                console.log('%s[%s]: Market data updated successfully', key, pair_key);
+                              else
                                 console.log('%s[%s] Error: %s', key, pair_key, err);
-                                complete++;
 
-                                if (complete == total_pairs || stopSync)
-                                  get_last_usd_price();
-                              }
+                              complete++;
+
+                              if (complete == total_pairs || stopSync)
+                                get_last_usd_price();
                             });
                           });
                         } else {
-                          console.log('Error: Entry for %s[%s] does not exist in markets database.', key, pair_key);
+                          console.log('%s[%s] Error: Market not found in local database. Please restart the explorer', key, pair_key);
                           complete++;
+
                           if (complete == total_pairs || stopSync)
                             get_last_usd_price();
                         }
                       });
+                    } else {
+                      // market pair not formatted correctly
+                      console.log('%s market pair is invalid', pair_key);
+                      complete++;
+
+                      if (complete == total_pairs || stopSync)
+                        get_last_usd_price();
                     }
                   });
                 } else {

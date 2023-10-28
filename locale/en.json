@@ -1,5 +1,31 @@
 /* This file must be valid JSON. But comments are allowed */
 {
+  // global
+  "difficulty": "Difficulty",
+  "masternodecount": "Masternodes",
+  "network": "Network",
+  "height": "Height",
+  "timestamp": "Timestamp",
+  "size": "Size",
+  "transactions": "Transactions",
+  "total_sent": "Total Sent",
+  "total_received": "Total Received",
+  "confirmations": "Confirmations",
+  "total": "Total",
+  "total_top_100": "Top 1-100 Total",
+  "bits": "Bits",
+  "nonce": "Nonce",
+  "new_coins": "New Coins",
+  "proof_of_stake": "PoS",
+  "hidden_address": "Hidden Address",
+  "hidden_sender": "Hidden Sender",
+  "hidden_recipient": "Hidden Recipient",
+  "unknown_address": "Unknown Address",
+  "unknown_sender": "Unknown Sender",
+  "unknown_recipient": "Unknown Recipient",
+  "last_updated": "Last Updated",
+  "initial_index_alert": "Blockchain data is currently being synchronized. You may browse the site during this time, but keep in mind that data may not yet be fully accurate and some functionality may not work until synchronization is complete.",
+
   // menu items
   "menu_explorer": "Explorer",
   "menu_api": "API",
@@ -18,7 +44,8 @@
   "ex_search_title": "Search",
   "ex_search_button": "Search",
   "ex_search_message": "Search by block height, block hash, tx hash or address",
-  "ex_error": "Error!",
+  "ex_error": "Error",
+  "ex_warning": "Warning",
   "ex_search_error": "Search found no results for: ",
   "ex_latest_transactions": "Latest Transactions",
   "ex_summary": "Block Summary",
@@ -51,32 +78,6 @@
   "error_description": "The page you are looking for cannot be found",
   "error_description_alt": "An error occurred which prevented the page from loading correctly",
 
-  // global
-  "difficulty": "Difficulty",
-  "masternodecount": "Masternodes",
-  "network": "Network",
-  "height": "Height",
-  "timestamp": "Timestamp",
-  "size": "Size",
-  "transactions": "Transactions",
-  "total_sent": "Total Sent",
-  "total_received": "Total Received",
-  "confirmations": "Confirmations",
-  "total": "Total",
-  "total_top_100": "Top 1-100 Total",
-  "bits": "Bits",
-  "nonce": "Nonce",
-  "new_coins": "New Coins",
-  "proof_of_stake": "PoS",
-  "hidden_address": "Hidden Address",
-  "hidden_sender": "Hidden Sender",
-  "hidden_recipient": "Hidden Recipient",
-  "unknown_address": "Unknown Address",
-  "unknown_sender": "Unknown Sender",
-  "unknown_recipient": "Unknown Recipient",
-  "last_updated": "Last Updated",
-  "initial_index_alert": "Blockchain data is currently being synchronized. You may browse the site during this time, but keep in mind that data may not yet be fully accurate and some functionality may not work until synchronization is complete.",
-
   // address view
   "a_title": "{1} Wallet Address Details",
   "a_description": "Viewing balance and transaction data from {1} address {2}",
@@ -94,7 +95,7 @@
   "move_title": "{1} Coin Movements",
   "move_description": "A listing of larger movements where {1} or more {2} coins were sent in a single transaction",
 
-  // richlist
+  // richlist view
   "rl_title": "Top {1} Coin Holders",
   "rl_description": "A listing of the richest {1} wallet addresses and breakdown of the current coin distribution",
   "rl_received_coins": "Top 100 - Received Coins",
@@ -108,6 +109,7 @@
   "rl_top100": "Top 76-100",
   "rl_hundredplus": "101+",
 
+  // network view
   "net_title": "{1} Network Peers",
   "net_description": "A listing of {1} network peers that have connected to the explorer node in the last 24 hours",
   "net_addnodes": "Add Nodes",
@@ -165,6 +167,7 @@
   "mkt_type": "Type",
   "mkt_time_stamp": "Time Stamp",
   "mkt_select": "Market Select",
+  "mkt_unexpected_api_data": "Received unexpected API data response",
 
   // claim address view
   "claim_title": "{1} Wallet Address Claim",

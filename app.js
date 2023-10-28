@@ -780,7 +780,7 @@ if (settings.markets_page.enabled == true) {
   } else if (!ex[ex_name].enabled) {
     // exchange is not enabled
     ex_error = 'Default exchange is disabled in settings' + ': ' + ex_name;
-  } else if (ex[ex_name].trading_pairs.findIndex(p => p.toLowerCase() == ex_pair.toLowerCase()) == -1) {
+  } else if (ex[ex_name].trading_pairs.findIndex(p => p.toUpperCase() == ex_pair.toUpperCase()) == -1) {
     // invalid default exchange trading pair
     ex_error = 'Default exchange trading pair is not valid' + ': ' + ex_pair;
   }
@@ -808,10 +808,10 @@ if (settings.markets_page.enabled == true) {
       settings.markets_page.enabled = false;
     } else {
       // a valid and enabled market was found to replace the default
-      console.log('WARNING: ' + ex_error + '. ' + 'Default exchange will be set to' + ': ' + ex_keys[new_default_index] + ' (' + ex[ex_keys[new_default_index]].trading_pairs[0] + ')');
+      console.log('WARNING: ' + ex_error + '. ' + 'Default exchange will be set to' + ': ' + ex_keys[new_default_index] + '[' + ex[ex_keys[new_default_index]].trading_pairs[0].toUpperCase() + ']');
       // set new default exchange data
       settings.markets_page.default_exchange.exchange_name = ex_keys[new_default_index];
-      settings.markets_page.default_exchange.trading_pair = ex[ex_keys[new_default_index]].trading_pairs[0];
+      settings.markets_page.default_exchange.trading_pair = ex[ex_keys[new_default_index]].trading_pairs[0].toUpperCase();
     }
   }
 }
