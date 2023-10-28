@@ -804,7 +804,7 @@ html(lang='en')
                   $('div#body-container > div#side-nav-bar').appendTo('div#side-offcanvas > div.offcanvas-body');
 
                 hideMarketDropdown();
-                $('div#side-header-toggle').attr('data-bs-toggle', 'offcanvas').attr('data-bs-target', '#side-offcanvas').attr('aria-controls', 'side-offcanvas');
+                $('a#side-header-toggle').attr('data-bs-toggle', 'offcanvas').attr('data-bs-target', '#side-offcanvas').attr('aria-controls', 'side-offcanvas');
                 if ($().tooltip)
                   $('nav.side-nav li.nav-item').tooltip('disable');
                 $('li.side-market-menu').removeClass('dropend').addClass('dropdown');
@@ -832,7 +832,7 @@ html(lang='en')
                 $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').hide();
                 $('div#side-nav-bar').addClass(sideBarClasses);
                 $('div#side-offcanvas > div.offcanvas-body div#side-nav-bar').prependTo('div#body-container');
-                $('div#side-header-toggle').removeAttr('data-bs-toggle').removeAttr('data-bs-target').removeAttr('aria-controls');
+                $('a#side-header-toggle').removeAttr('data-bs-toggle').removeAttr('data-bs-target').removeAttr('aria-controls');
                 if ($().tooltip)
                   $('nav.side-nav li.nav-item').tooltip('enable');
                 $('li.side-market-menu').removeClass('dropdown').addClass('dropend');
@@ -849,11 +849,11 @@ html(lang='en')
               $('div#side-nav-bar').toggleClass('activating');
               $('div#side-nav-bar').toggleClass('show-menu');
               var showMenu = $('div#side-nav-bar').hasClass('show-menu');
-              $('div#side-header-toggle > span').toggleClass('fa-regular fa-solid fa-rectangle-xmark fa-bars').attr('data-bs-original-title', (showMenu ? 'Shrink Menu' : 'Expand Menu')).attr('alt', (showMenu ? 'Shrink Menu' : 'Expand Menu'));
+              $('a#side-header-toggle > span').toggleClass('fa-regular fa-solid fa-rectangle-xmark fa-bars').attr('data-bs-original-title', (showMenu ? 'Shrink Menu' : 'Expand Menu')).attr('alt', (showMenu ? 'Shrink Menu' : 'Expand Menu'));
               hideMarketDropdown();
 
               if ($().tooltip) {
-                $('div#side-header-toggle > span').tooltip('hide');
+                $('a#side-header-toggle > span').tooltip('hide');
                 $('nav.side-nav li.nav-item').tooltip((showMenu ? 'disable' : 'enable'));
               }
 
@@ -866,8 +866,8 @@ html(lang='en')
               var sideBarActivateSetIntervalID = setInterval(function() {
                 // check if the side bar has reached the full width or menu has been activated before finish
                 if (
-                  (showMenu && $('div#side-nav-bar').outerWidth() >= 224) ||
-                  (!showMenu && $('div#side-nav-bar').outerWidth() <= 68) ||
+                  (showMenu && Math.round($('div#side-nav-bar').outerWidth()) >= 224) ||
+                  (!showMenu && Math.round($('div#side-nav-bar').outerWidth()) <= 68) ||
                   (showMenu != $('div#side-nav-bar').hasClass('show-menu'))
                 ) {
                   // stop setInterval from running again
@@ -889,11 +889,13 @@ html(lang='en')
             $('div#side-offcanvas').css('width', '');
             $('div#side-nav-bar').css('width', '');
           }
-          $(document).on('click', 'div#side-header-toggle', function(e) {
+          $(document).on('click', 'a#side-header-toggle', function(e) {
+            e.preventDefault();
+
             if ($(window).outerWidth() >= 992)
               toggleSideMenu();
             else if ($().tooltip)
-              $('div#side-header-toggle > span').tooltip('hide');
+              $('a#side-header-toggle > span').tooltip('hide');
           });
           $(document).on('click', 'li#sidebar-offcanvas-close > a.nav-link', function(e) {
             e.preventDefault();
@@ -1170,8 +1172,8 @@ html(lang='en')
             else if settings.shared_pages.page_header.home_link == 'logo'
               a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='order:-1;', data-bs-toggle='tooltip', data-bs-placement='bottom')
                 img.logo-main(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0;max-height:' + settings.shared_pages.page_header.home_link_logo_height + 'px;')
-            div#side-header-toggle.side-header-toggle
-              span.fa-solid.fa-bars(alt='Expand Menu', title='Expand Menu', data-bs-toggle='tooltip', data-bs-placement='right')
+            a#side-header-toggle.side-header-toggle(href='#')
+              span.fa-solid.fa-bars(alt='Expand Menu', title='Expand Menu', data-bs-toggle='tooltip', data-bs-placement='right', style='width: 24px;')
             if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
               span#search-header-span(alt='Search', title='Search', data-bs-toggle='tooltip', data-bs-placement='left')
                 button#search-header-button(data-bs-toggle='collapse', data-bs-target='#search-navbar-collapse')
