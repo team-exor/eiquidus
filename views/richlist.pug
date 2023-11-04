@@ -2,7 +2,24 @@ extends layout
 
 block content
   include ./includes/common.pug
+  script.
+    $(document).ready(function() {
+      if ('#{settings.richlist_page.page_header.show_last_updated}' == 'true') {
+        var lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
 
+        if (lastUpdatedDate != 0) {
+          $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
+
+          if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
+            $('span#lastUpdatedDate').attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
+            enableTooltips();
+          }
+        } else
+          $('span#lastUpdatedDate').html(' N/A');
+      }
+      if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.richlist_page.page_header.show_img} == true)
+        startRotateElement('img#header-img');
+    });
   if settings.richlist_page.wealth_distribution.show_distribution_chart == true
     script.
       $(document).ready(function() {
@@ -42,22 +59,6 @@ block content
             }
           }          
         });
-
-        if ('#{settings.richlist_page.page_header.show_last_updated}' == 'true') {
-          var lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
-
-          if (lastUpdatedDate != 0) {
-            $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
-
-            if (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true) {
-              $('span#lastUpdatedDate').attr('data-bs-toggle', 'tooltip').attr('data-bs-placement', 'auto').attr('title', format_unixtime(lastUpdatedDate, true));
-              enableTooltips();
-            }
-          } else
-            $('span#lastUpdatedDate').html(' N/A');
-        }
-        if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.richlist_page.page_header.show_img} == true)
-          startRotateElement('img#header-img');
       });
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''

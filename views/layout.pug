@@ -142,101 +142,77 @@ html(lang='en')
     else
       - sideBarClasses.push('bg-primary');
       - sideBarClasses.push('navbar-dark');
+    - var showNetworkPanel = false
+    if settings.panel1 == 'network_panel' || settings.panel2 == 'network_panel' || settings.panel3 == 'network_panel' || settings.panel4 == 'network_panel' || settings.panel5 == 'network_panel'
+      - showNetworkPanel = true
     script.
-      var sideMarketVisible = false;
-      var topMenuExpanded = false;
-      var sideBarClasses = '!{sideBarClasses}'.replace(/,/g, " ");
       const { OverlayScrollbars } = OverlayScrollbarsGlobal;
-      /* Special thanks to the stackoverflow community for the getParameterByName function: https://stackoverflow.com/a/901144/3038650 */
+
+      /* special thanks to the stackoverflow community for the getParameterByName function: https://stackoverflow.com/a/901144/3038650 */
       function getParameterByName(name, url = window.location.href) {
         name = name.replace(/[\[\]]/g, '\\$&');
-        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+        const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
             results = regex.exec(url);
         if (!results) return null;
         if (!results[2]) return '';
         return decodeURIComponent(results[2].replace(/\+/g, ' '));
       }
       function fixFooterHeightAndPosition() {
-        var screenWidth = $(window).outerWidth();
+        const screenWidth = $(window).outerWidth();
+        let socialLinkHeight = 70;
 
         if (screenWidth <= 575) {
-          // Mobile
+          // mobile
           $('#footer-container').css('height', '!{settings.shared_pages.page_footer.footer_height_mobile}');
+          socialLinkHeight = !{settings.shared_pages.page_footer.social_link_percent_height_mobile};
         } else if (screenWidth >= 576 && screenWidth <= 991) {
-          // Tablet
+          // tablet
           $('#footer-container').css('height', '!{settings.shared_pages.page_footer.footer_height_tablet}');
+          socialLinkHeight = !{settings.shared_pages.page_footer.social_link_percent_height_tablet};
         } else {
-          // Desktop
+          // desktop
           $('#footer-container').css('height', '!{settings.shared_pages.page_footer.footer_height_desktop}');
+          socialLinkHeight = !{settings.shared_pages.page_footer.social_link_percent_height_desktop};
         }
 
         if (!#{settings.shared_pages.page_footer.sticky_footer}) {
-          // Wait a tick before fixing footer position to give time for elements to be rendered
+          // wait a tick before fixing footer position to give time for elements to be rendered
           setTimeout(function() {
-            // Ensure footer is shown at the bottom of the viewport
-            var offset = (window.innerHeight - $('#footer-container').position().top - $('#footer-container').outerHeight());
+            // ensure footer is shown at the bottom of the viewport
+            const offset = (window.innerHeight - $('#footer-container').position().top - $('#footer-container').outerHeight());
             $('#footer-container').css('margin-top', (offset > 0 ? offset - 1 : '10') + 'px');
 
             if ('#{settings.shared_pages.page_header.menu}' == 'side')
               fixSidebarHeight();
           }, 1);
         } else {
-          // Add spacing to the bottom of the body for the sticky footer
+          // add spacing to the bottom of the body for the sticky footer
           $('body').css('margin-bottom', ($('#footer-container').outerHeight() + 10) + 'px');
 
           if ('#{settings.shared_pages.page_header.menu}' == 'side')
             fixSidebarHeight();
         }
 
-        fixSocialLinkFontSize();
-      }
-      function fixSocialLinkFontSize() {
-        var fontSize = $('#footer-container').height() * (getSocialLinkHeight() / 100);
+        // fix social link font size
+        const fontSize = $('#footer-container').height() * (socialLinkHeight / 100);
         $('#footer-container .social-link').css('font-size', fontSize);
         $('#footer-container .social-link > img').css('width', fontSize + 'px').css('height', fontSize + 'px');
       }
-      function fixSidebarHeight() {
-        if ('#{settings.shared_pages.page_footer.sticky_footer}' != 'true')
-          $('div#side-nav-bar').css('margin-bottom', -($('div#body-container > div#side-nav-bar').length ? ($('div#footer-container').offset().top - $('div#footer-container').position().top + 1) : 0).toString() + 'px');
-        else if ($('div#footer-container').offset().top > ($('#main-container').position().top + $('#main-container').outerHeight(true)))
-          $('div#side-nav-bar').css('margin-bottom', -($('div#body-container > div#side-nav-bar').length ? ($('div#footer-container').offset().top - ($('#main-container').position().top + $('#main-container').outerHeight(true)) + $('div#footer-container').outerHeight(true)) : 0).toString() + 'px');
-        else
-          $('div#side-nav-bar').css('margin-bottom', '');
-      }
-      function getSocialLinkHeight() {
-        var retVal = 70;
-        var screenWidth = $(window).outerWidth();
-
-        if (screenWidth <= 575) {
-          // Mobile
-          retVal = !{settings.shared_pages.page_footer.social_link_percent_height_mobile};
-        } else if (screenWidth >= 576 && screenWidth <= 991) {
-          // Tablet
-          retVal = !{settings.shared_pages.page_footer.social_link_percent_height_tablet};
-        } else {
-          // Desktop
-          retVal = !{settings.shared_pages.page_footer.social_link_percent_height_desktop};
-        }
-
-        return retVal;
-      }
       function enableTooltips() {
         if ($().tooltip) {
-          // Enable tooltips only if browser supports them
+          // enable tooltips only if browser supports them
           $('[data-bs-toggle="tooltip"]').tooltip();
         }
       }
       function fixDataTableColumns() {
-        // Wait 2 ticks before adjusting table columns to give time for elements to be rendered (1 tick doesn't seem to be enough for some tables)
-        var ColumnAdjustSetIntervalID = setInterval(function() {
-          // Stop setInterval from running again
-          clearInterval(ColumnAdjustSetIntervalID);
-          // Ensure columns are properly aligned
+        // wait 2 ticks before adjusting table columns to give time for elements to be rendered (1 tick doesn't seem to be enough for some tables)
+        setTimeout(function() {
+          // ensure columns are properly aligned
           $($.fn.dataTable.tables(true)).DataTable().columns.adjust();
-        }, 2, 'adjustTableColumns');
+        }, 2);
       }
       function rotateElement(elementSelector) {
-        var element = $(elementSelector);
+        const element = $(elementSelector);
 
         if (element.length > 0) {
           $({ deg: 0 }).animate({ deg: 360 }, {
@@ -259,51 +235,54 @@ html(lang='en')
           rotateElement(elementSelector);
         }, 100);
       }
-      function getNetHashUnits() {
-        var networkSuffix='';
-        switch ('#{settings.shared_pages.page_header.panels.network_panel.nethash_units}') {
-          case "K":
-            networkSuffix='(KH/s)';
-            break;
-          case "M":
-            networkSuffix='(MH/s)';
-            break;
-          case "G":
-            networkSuffix='(GH/s)';
-            break;
-          case "T":
-            networkSuffix='(TH/s)';
-            break;
-          case "P":
-            networkSuffix='(PH/s)';
-            break;
-          case "H":
-            networkSuffix='(H/s)';
-            break;
-        }
-        return networkSuffix;
-      }
-      function fixTopMenuCollapse(isResizing) {
-        if (topMenuExpanded && isResizing) {
-          // force collapse the menu if it is open and the screen is being resized,
-          // otherwise it could cause problems with the market dropdown after resizing back and forth between mobile and desktop sizes
-          bootstrap.Collapse.getOrCreateInstance($('#navbar-collapse')).hide();
-          topMenuExpanded = false;
-        }
+      function update_block_and_connection_stats() {
+        const summary_headers = {
+          'Accept': 'application/json, text/javascript, */*; q=0.01',
+          'footer-only': 'true'
+        };
 
+        $.ajax({url: '/ext/getsummary', headers: summary_headers, success: function(json) {
+          $("#lblConnections").text(json.connections + ' connections');
+          $("#lblBlockcount").text(json.blockcount + ' blocks');
+        }});
+      }
+      $(document).on('click', 'button.btn-close', function (e) {
+        e.preventDefault();
+
+        $('.alert-dismissible').on('closed.bs.alert', function (e) {
+          e.preventDefault();
+          fixFooterHeightAndPosition();
+        });
+      });
+      $(document).on('click', 'button#search-header-button', function (e) {
         if ($().tooltip)
-          $('#navbar-toggler-span').tooltip('hide');
-
-        if (topMenuExpanded) {
-          $('#search-header-button').hide();
-          $('#search-navbar-collapse').addClass('d-none');
-          $('#navbar-collapse').css('max-height', ($(window).outerHeight() - ($('#main-header div.navbar-header').outerHeight()) - (#{settings.shared_pages.page_footer.sticky_footer} == true ? $('div#footer-container').outerHeight(true) : 0) - 20).toString() + 'px');
-        } else
-          $('#navbar-collapse').css('max-height', 'none');
-      }
+          $('#search-header-span').tooltip('hide');
+      });
+      $(window).resize(function () {
+        fixDataTableColumns();
+        fixFooterHeightAndPosition();
+      });
       $(document).ready(function() {
         if ('#{active}' != '')
           $('##{active} > a.nav-link').addClass('active');
+
+        $('#search-navbar-collapse').on('shown.bs.collapse', function (e) {
+          fixFooterHeightAndPosition();
+        });
+        $('#search-navbar-collapse').on('hidden.bs.collapse', function (e) {
+          fixFooterHeightAndPosition();
+        });
+
+        setInterval(function() {
+          update_block_and_connection_stats();
+        }, 60000);
+
+        update_block_and_connection_stats();
+        fixFooterHeightAndPosition();
+        enableTooltips();
+      });
+    if showPanels == true
+      script.
         function showTopPanelData(dataElement, loadingElement) {
           if ($('#' + loadingElement).length) {
             $('#' + loadingElement).fadeOut('slow', function() {
@@ -312,355 +291,11 @@ html(lang='en')
             });
           }
         }
-        function update_stats() {
-          var summary_headers = {
-            Accept: 'application/json, text/javascript, */*; q=0.01'
-          };
-
-          if (#{showPanels} == false)
-            summary_headers['footer-only'] = 'true';
-
-          $.ajax({url: '/ext/getsummary', headers: summary_headers, success: function(json) {
-            if (#{showPanels} == true) {
-              if (json.masternodeCountOnline == null)
-                json.masternodeCountOnline = '-';
-              if (json.masternodeCountOffline == null)
-                json.masternodeCountOffline = '-';
-
-              var mnOnlineText = json.masternodeCountOnline+" node"+(json.masternodeCountOnline == 1 ? "" : "s")+" online";
-              var mnOfflineText = json.masternodeCountOffline+" unreachable node"+(json.masternodeCountOffline == 1 ? "" : "s");
-
-              $("#masternodeCountOnline").text(json.masternodeCountOnline).prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-bs-original-title", mnOnlineText);
-              $("#masternodeCountOffline").text(json.masternodeCountOffline).prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-bs-original-title", mnOfflineText);
-              $("#spnMasternodeCountOnline").prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-bs-original-title", mnOnlineText);
-              $("#spnMasternodeCountOffline").prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-bs-original-title", mnOfflineText);
-              showTopPanelData('masternodepanel', 'masternodePanelLoading');
-
-              var supplyString = json.supply;
-              var diffString = json.difficulty;
-              var hashrateString = json.hashrate;
-              var splitValue, splitParts;
-
-              if (!isNaN(json.difficulty))
-                diffString = Number(json.difficulty).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-              if (!isNaN(json.supply))
-                supplyString = parseInt(parseFloat(json.supply).toFixed(0)).toLocaleString('en');
-              if (!isNaN(json.hashrate))
-                hashrateString = Number(json.hashrate).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-
-              $("#supply").text(supplyString);
-              splitValue = Number(parseFloat(json.lastPrice).toFixed(8) * parseInt(parseFloat(json.supply).toFixed(0))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-              splitParts = splitValue.split('.');
-              showTopPanelData('supplypanel', 'supplyPanelLoading');
-
-              $("#marketCap").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
-              showTopPanelData('marketCapPanel', 'marketCapPanelLoading');
-
-              splitParts = diffString.split('.');
-              $("#difficulty").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
-
-              if (json.difficultyHybrid == null || json.difficultyHybrid == '')
-                $("#difficultyHybrid").html('-');
-              else {
-                splitParts = json.difficultyHybrid.split('.');
-                $("#difficultyHybrid").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
-              }
-
-              showTopPanelData('difficultypanel', 'difficultyPanelLoading');
-
-              if (hashrateString == null || hashrateString == '' || hashrateString == '-')
-                $("#hashrate").html('-');
-              else {
-                splitParts = hashrateString.split('.');
-                $("#hashrate").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
-              }
-              showTopPanelData('hashratepanel', 'hashratePanelLoading');
-
-              splitValue = Number(json.lastPrice).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-              splitParts = splitValue.split('.');
-              $("#lastPrice").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
-              showTopPanelData('pricepanel', 'pricePanelLoading');
-            }
-
-            $("#lblConnections").text(json.connections + ' connections');
-            $("#lblBlockcount").text(json.blockcount + ' blocks');
-          }});
-        }
-        var nethashChart;
-        var difficultyChart;
-        var countDecimals = function(value) {
-          let text = value.toString();
-
-          if (text.indexOf('e-') > -1) {
-            let [base, trail] = text.split('e-');
-            let deg = parseInt(trail, 10);
-            return deg;
-          } else if (Math.floor(value) !== value)
-            return value.toString().split(".")[1].length || 0;
-          else
-            return 0;
-        }
-        function update_network_charts() {
-          $.ajax({
-            url: '/ext/getnetworkchartdata',
-            success: function(result) {
-              if (#{settings.network_history.enabled} == true && #{showNethashChart} == true && #{settings.shared_pages.page_header.network_charts.nethash_chart.enabled} == true && #{settings.shared_pages.show_hashrate} == true) {
-                const ctxNethash = document.getElementById('nethashChart').getContext('2d');
-
-                if (nethashChart == null) {
-                  nethashChart = new Chart(ctxNethash, {
-                    type: 'line',
-                    data: {
-                      labels: result.map(function(a) {return a.blockindex;}),
-                      datasets: [
-                        {
-                          label: 'Hashrate',
-                          data: result.map(function(a) {return a.nethash;}),
-                          backgroundColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.fill_color}'],
-                          borderColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.line_color}'],
-                          fill: 'start'
-                        }
-                      ]
-                    },
-                    options: {
-                      maintainAspectRatio: false,
-                      elements: {
-                        point: {
-                          radius: 1
-                        },
-                        line: {
-                          tension: 0.1
-                        }
-                      },
-                      scales: {
-                        y: {
-                          title: {
-                            display: true,
-                            text: 'Network ' + getNetHashUnits(),
-                            font: {
-                              weight: 'bold'
-                            }
-                          }
-                        }
-                      },
-                      plugins: {
-                        legend: {
-                          display: true,
-                          position: 'bottom'
-                        },
-                        title: {
-                          display: false
-                        },
-                        tooltip: {
-                          mode: 'index',
-                          intersect: false,
-                          displayColors: true,
-                          callbacks: {
-                            title: function(context) {
-                              return 'Block ' + context[0].label + ' Hashrate';
-                            },
-                            label: function(context) {
-                              var val = #{settings.shared_pages.page_header.network_charts.nethash_chart.round_decimals};
-                              var max = 20;
-
-                              if (val != -1)
-                                max = val;
-                              else {
-                                let decimalCount = countDecimals(context.raw || 0);
-
-                                if (decimalCount < max)
-                                  max = decimalCount;
-                              }
-
-                              return Number((context.raw || 0)).toLocaleString('en',{'minimumFractionDigits':0,'maximumFractionDigits':max,'useGrouping':true}) + ' ' + getNetHashUnits();
-                            }
-                          }
-                        },
-                        crosshair: {
-                          line: {
-                            color: '#{settings.shared_pages.page_header.network_charts.nethash_chart.crosshair_color}',
-                            width: 1
-                          },
-                          sync: {
-                            enabled: false
-                          },
-                          zoom: {
-                            enabled: false
-                          }
-                        }
-                      }
-                    }
-                  });
-                  $('#nethashChartParent').fadeIn();
-                } else {
-                  nethashChart.data.labels = result.map(function(a) {return a.blockindex;});
-                  nethashChart.data.datasets[0].data = result.map(function(a) {return a.nethash;});
-                  nethashChart.update();
-                }
-              }
-
-              if (#{settings.network_history.enabled} == true && #{showDifficultyChart} == true && #{settings.shared_pages.page_header.network_charts.difficulty_chart.enabled} == true) {
-                const ctxDifficulty = document.getElementById('difficultyChart').getContext('2d');
-
-                var diffDataSets = [];
-                var showPOW = false;
-                var showPOS = false;
-
-                for (var i = 0; i < result.length; i++) {
-                  if (result[i].difficulty_pow != 0)
-                    showPOW = true;
-                  if (result[i].difficulty_pos != 0)
-                    showPOS = true;
-                }
-
-                if (showPOS) {
-                  diffDataSets.push({
-                    label: 'POS Difficulty',
-                    data: result.map(function(a) {return a.difficulty_pos;}),
-                    backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pos_fill_color}'],
-                    borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pos_line_color}'],
-                    fill: 'start'
-                  });
-                }
-
-                if (showPOW || !showPOS) {
-                  diffDataSets.push({
-                    label: 'POW Difficulty',
-                    data: result.map(function(a) {return a.difficulty_pow;}),
-                    backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pow_fill_color}'],
-                    borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pow_line_color}'],
-                    fill: 'start'
-                  });
-                }
-
-                if (difficultyChart == null) {
-                  difficultyChart = new Chart(ctxDifficulty, {
-                    type: 'line',
-                    data: {
-                      labels: result.map(function(a) {return a.blockindex;}),
-                      datasets: diffDataSets
-                    },
-                    options: {
-                      maintainAspectRatio: false,
-                      elements: {
-                        point: {
-                          radius: 1
-                        },
-                        line: {
-                          tension: 0.1
-                        }
-                      },
-                      scales: {
-                        y: {
-                          title: {
-                            display: true,
-                            text: 'Difficulty',
-                            font: {
-                              weight: 'bold'
-                            }
-                          }
-                        }
-                      },
-                      plugins: {
-                        legend: {
-                          display: true,
-                          position: 'bottom'
-                        },
-                        title: {
-                          display: false
-                        },
-                        tooltip: {
-                          mode: 'index',
-                          intersect: false,
-                          displayColors: true,
-                          callbacks: {
-                            title: function(context) {
-                              return 'Block ' + context[0].label + ' Difficulty';
-                            },
-                            label: function(context) {
-                              var val = #{settings.shared_pages.page_header.network_charts.difficulty_chart.round_decimals};
-                              var max = 20;
-
-                              if (val != -1)
-                                max = val;
-                              else {
-                                let decimalCount = countDecimals(context.raw || 0);
-
-                                if (decimalCount < max)
-                                  max = decimalCount;
-                              }
-
-                              return Number((context.raw || 0)).toLocaleString('en',{'minimumFractionDigits':0,'maximumFractionDigits':max,'useGrouping':true});
-                            }
-                          }
-                        },
-                        crosshair: {
-                          line: {
-                            color: '#{settings.shared_pages.page_header.network_charts.difficulty_chart.crosshair_color}',
-                            width: 1
-                          },
-                          sync: {
-                            enabled: false
-                          },
-                          zoom: {
-                            enabled: false
-                          }
-                        }
-                      }
-                    }
-                  });
-                  $('#difficultyChartParent').fadeIn();
-                } else {
-                  difficultyChart.data.labels = result.map(function(a) {return a.blockindex;});
-
-                  if (difficultyChart.data.datasets.length != diffDataSets.length)
-                    difficultyChart.data.datasets = diffDataSets;
-                  else {
-                    if (
-                      (
-                        difficultyChart.data.datasets[0].label.indexOf('POW') > -1 &&
-                        diffDataSets[0].label.indexOf('POW') > -1
-                      )
-                      ||
-                      (
-                        difficultyChart.data.datasets[0].label.indexOf('POS') > -1 &&
-                        diffDataSets[0].label.indexOf('POS') > -1
-                      )
-                    ) {
-                      difficultyChart.data.datasets[0].data = diffDataSets[0].data;
-
-                      if (difficultyChart.data.datasets.length == 2)
-                        difficultyChart.data.datasets[1].data = diffDataSets[1].data;
-                    } else
-                      difficultyChart.data.datasets = diffDataSets;
-                  }
-
-                  difficultyChart.update();
-                }
-              }
-            }
-          });
-        }
-        $(window).resize(function () {
-          fixDataTableColumns();
-          fixFooterHeightAndPosition();
-
-          if ('#{settings.shared_pages.page_header.menu}' == 'side') {
-            fixSidebar();
-            positionSidebarSearch();
-          } else {
-            if ($(window).outerWidth() < 992)
-              hideMarketDropdown();
-
-            fixTopMenuCollapse(true);
-          }
-        });
         function getNetworkPanel() {
-          var hashRateType='<label id="hashrate"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small fw-normal">'+getNetHashUnits()+'</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-gears"></span>'+hashRateType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small fw-normal">' + getNetHashUnits() + '</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-gears"></span><label id="hashrate"></label></div></div>';
         }
         function getDifficultyPanel() {
-          var difficultyType='<label id="difficulty"></label>';
+          let difficultyType='<label id="difficulty"></label>';
           if ('#{settings.shared_pages.difficulty}' == 'Hybrid') difficultyType+='<br /><span class="fa-solid fa-sliders"></span><label id="difficultyHybrid"></label>';
           return '<div class="card-header"><strong>#{settings.locale.difficulty}</strong></div><div class="card-body"><div id="difficultyPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="difficultypanel" class="header-panel" style="display:none;"><span class="fa-solid fa-sliders"></span>'+difficultyType+'</div></div>';
         }
@@ -668,12 +303,10 @@ html(lang='en')
           return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="masternodepanel" class="header-panel" style="display:none;"><span id="spnMasternodeCountOnline" class="fa-solid fa-circle-check" data-bs-toggle="tooltip" data-bs-placement="top"></span><label id="masternodeCountOnline" data-bs-toggle="tooltip" data-bs-placement="top"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline" data-bs-toggle="tooltip" data-bs-placement="top"></label><span id="spnMasternodeCountOffline" class="fa-solid fa-triangle-exclamation" data-bs-toggle="tooltip" data-bs-placement="top"></span></div></div>';
         }
         function getCoinSupplyPanel() {
-          var supplyType='<label id="supply"></label>';
-          return `<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small fw-normal">(${"#{settings.coin.symbol}".replace(/"/g, '&quot;')})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-pie"></span>${supplyType}</div></div>`;
+          return `<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small fw-normal">(${"#{settings.coin.symbol}".replace(/"/g, '&quot;')})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-pie"></span><label id="supply"></label></div></div>`;
         }
         function getPricePanel() {
-          var priceType='<label id="lastPrice">-</label>';
-          return '<div class="card-header"><strong>Price <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-rocket"></span>'+priceType+'</div></div>';
+          return '<div class="card-header"><strong>Price <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-rocket"></span><label id="lastPrice">-</label></div></div>';
         }
         function getMarketCapPanel() {
           return '<div class="card-header"><strong>Market Cap <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-line"></span><label id="marketCap"></label></div></div>';
@@ -685,298 +318,638 @@ html(lang='en')
           return `<div class="panel_spacer"></div>`;
         }
         function getActivePanel(panelName) {
-          var sReturn='';
+          let sReturn = '';
+
           switch (panelName) {
             case "network_panel":
-              sReturn=getNetworkPanel();
+              sReturn = getNetworkPanel();
               break;
             case "difficulty_panel":
-              sReturn=getDifficultyPanel();
+              sReturn = getDifficultyPanel();
               break;
             case "masternodes_panel":
-              sReturn=getMasternodesPanel();
+              sReturn = getMasternodesPanel();
               break;
             case "coin_supply_panel":
-              sReturn=getCoinSupplyPanel();
+              sReturn = getCoinSupplyPanel();
               break;
             case "price_panel":
-              sReturn=getPricePanel();
+              sReturn = getPricePanel();
               break;
             case "market_cap_panel":
-              sReturn=getMarketCapPanel();
+              sReturn = getMarketCapPanel();
               break;
             case "logo_panel":
-              sReturn=getLogoPanel();
+              sReturn = getLogoPanel();
               break;
             case "spacer_panel_1":
             case "spacer_panel_2":
             case "spacer_panel_3":
-              sReturn=getSpacerPanel();
+              sReturn = getSpacerPanel();
               break;
           }
+
           return sReturn;
         }
         function hideShowPanel(panelID, panelName) {
-          var oPanel = document.getElementById(panelName);
+          const oPanel = document.getElementById(panelName);
+
           if (typeof(oPanel) != 'undefined' && oPanel != null) {
-            document.getElementById(panelName).innerHTML=getActivePanel(panelID);
+            document.getElementById(panelName).innerHTML = getActivePanel(panelID);
 
             if (panelID == 'logo_panel') {
-              // Remove css classes from logo panel
+              // remove css classes from logo panel
               $(oPanel).removeClass();
             }
           }
         }
-        function hideMarketDropdown() {
-          if ('#{settings.shared_pages.page_header.menu}' == 'side') {
-            if ($('div#side-market-menu').hasClass('show')) {
-              // close the market dropdown which was left open
-              bootstrap.Dropdown.getOrCreateInstance($('li.side-market-menu > a.dropdown-toggle')).hide();
-            }
-          } else {
-            if ($('li#markets > div.dropdown-menu').hasClass('show')) {
-              // close the market dropdown which was left open
-              bootstrap.Dropdown.getOrCreateInstance($('li#markets > a.dropdown-toggle')).hide();
-            }
-          }
-        }
-        $(document).on('click', 'button.btn-close', function (e) {
-          e.preventDefault();
+        function update_stats() {
+          const summary_headers = {
+            Accept: 'application/json, text/javascript, */*; q=0.01'
+          };
 
-          $('.alert-dismissible').on('closed.bs.alert', function (e) {
-            e.preventDefault();
-            fixFooterHeightAndPosition();
-          });
-        });
-        $(document).on('click', 'button#search-header-button', function (e) {
-          if ($().tooltip)
-            $('#search-header-span').tooltip('hide');
-        });
-        $('#search-navbar-collapse').on('shown.bs.collapse', function (e) {
-          fixFooterHeightAndPosition();
-        });
-        $('#search-navbar-collapse').on('hidden.bs.collapse', function (e) {
-          fixFooterHeightAndPosition();
-        });
-        if (#{showPanels} == true) {
+          $.ajax({url: '/ext/getsummary', headers: summary_headers, success: function(json) {
+            if (json.masternodeCountOnline == null)
+              json.masternodeCountOnline = '-';
+            if (json.masternodeCountOffline == null)
+              json.masternodeCountOffline = '-';
+
+            const mnOnlineText = json.masternodeCountOnline + " node"+(json.masternodeCountOnline == 1 ? "" : "s") + " online";
+            const mnOfflineText = json.masternodeCountOffline + " unreachable node" + (json.masternodeCountOffline == 1 ? "" : "s");
+
+            $("#masternodeCountOnline").text(json.masternodeCountOnline).prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-bs-original-title", mnOnlineText);
+            $("#masternodeCountOffline").text(json.masternodeCountOffline).prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-bs-original-title", mnOfflineText);
+            $("#spnMasternodeCountOnline").prop("alt", mnOnlineText).prop("title", mnOnlineText).attr("data-bs-original-title", mnOnlineText);
+            $("#spnMasternodeCountOffline").prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-bs-original-title", mnOfflineText);
+            showTopPanelData('masternodepanel', 'masternodePanelLoading');
+
+            let supplyString = json.supply;
+            let diffString = json.difficulty;
+            let hashrateString = json.hashrate;
+            let splitValue, splitParts;
+
+            if (!isNaN(json.difficulty))
+              diffString = Number(json.difficulty).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            if (!isNaN(json.supply))
+              supplyString = parseInt(parseFloat(json.supply).toFixed(0)).toLocaleString('en');
+            if (!isNaN(json.hashrate))
+              hashrateString = Number(json.hashrate).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+
+            $("#supply").text(supplyString);
+            splitValue = Number(parseFloat(json.lastPrice).toFixed(8) * parseInt(parseFloat(json.supply).toFixed(0))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            splitParts = splitValue.split('.');
+            showTopPanelData('supplypanel', 'supplyPanelLoading');
+
+            $("#marketCap").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+            showTopPanelData('marketCapPanel', 'marketCapPanelLoading');
+
+            splitParts = diffString.split('.');
+            $("#difficulty").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+
+            if (json.difficultyHybrid == null || json.difficultyHybrid == '')
+              $("#difficultyHybrid").html('-');
+            else {
+              splitParts = json.difficultyHybrid.split('.');
+              $("#difficultyHybrid").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+            }
+
+            showTopPanelData('difficultypanel', 'difficultyPanelLoading');
+
+            if (hashrateString == null || hashrateString == '' || hashrateString == '-')
+              $("#hashrate").html('-');
+            else {
+              splitParts = hashrateString.split('.');
+              $("#hashrate").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+            }
+            showTopPanelData('hashratepanel', 'hashratePanelLoading');
+
+            splitValue = Number(json.lastPrice).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            splitParts = splitValue.split('.');
+            $("#lastPrice").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+            showTopPanelData('pricepanel', 'pricePanelLoading');
+          }});
+        }
+        $(document).ready(function() {
           hideShowPanel('#{settings.panel1}', 'pnlOne');
           hideShowPanel('#{settings.panel2}', 'pnlTwo');
           hideShowPanel('#{settings.panel3}', 'pnlThree');
           hideShowPanel('#{settings.panel4}', 'pnlFour');
           hideShowPanel('#{settings.panel5}', 'pnlFive');
+
+          setInterval(function() {
+            update_stats();
+          }, 60000);
+
+          update_stats();
+        });
+    if settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true))
+      script.
+        const countDecimals = function(value) {
+          const text = value.toString();
+
+          if (text.indexOf('e-') > -1) {
+            return parseInt(text.split('e-'), 10);
+          } else if (Math.floor(value) !== value)
+            return value.toString().split(".")[1].length || 0;
+          else
+            return 0;
         }
-        if ('#{settings.shared_pages.page_header.menu}' == 'side') {
-          function positionSidebarSearch() {
-            if (#{settings.shared_pages.page_header.search.enabled} == true && '#{settings.shared_pages.page_header.search.position.toString().toLowerCase()}' == 'inside-header') {
-              if ($(window).outerWidth() < 992) {
-                if ($('div#inner-header-side > div.container > div#search-navbar-collapse').length)
-                  $('div#search-navbar-collapse').addClass('collapse').removeClass('flexGrow1').appendTo('header#main-header-side');
-              } else {
-                if ($('header#main-header-side > div#search-navbar-collapse').length)
-                  $('div#search-navbar-collapse').addClass('flexGrow1').removeClass('collapse').appendTo('div#inner-header-side > div.container');
-              }
+        function update_network_charts() {
+          $.ajax({
+            url: '/ext/getnetworkchartdata',
+            success: function(result) {
+              if (typeof populateNethashChart !== 'undefined' && typeof populateNethashChart === 'function')
+                populateNethashChart(result);
+
+              if (typeof populateDifficultyChart !== 'undefined' && typeof populateDifficultyChart === 'function')
+                populateDifficultyChart(result);
             }
+          });
+        }
+        $(document).ready(function() {
+          const setting_reload_chart_seconds = #{settings.shared_pages.page_header.network_charts.reload_chart_seconds};
+
+          if (setting_reload_chart_seconds > 0) {
+            setInterval(function() {
+              update_network_charts();
+            }, (setting_reload_chart_seconds * 1000));
           }
-          function fixSideBarTop() {
-            if ('#{settings.shared_pages.page_header.sticky_header}' == 'true') {
-              if ($(window).outerWidth() < 992)
-                $('div#side-nav-bar').css('margin-top', '');
-              else
-                $('div#side-nav-bar').css('margin-top', $('header#main-header-side').outerHeight(true).toString() + 'px');
+
+          update_network_charts();
+        });
+    if settings.network_history.enabled == true && showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true
+      script.
+        let nethashChart;
+
+        function populateNethashChart(result) {
+          const ctxNethash = document.getElementById('nethashChart').getContext('2d');
+
+          if (nethashChart == null) {
+            nethashChart = new Chart(ctxNethash, {
+              type: 'line',
+              data: {
+                labels: result.map(function(a) {return a.blockindex;}),
+                datasets: [
+                  {
+                    label: 'Hashrate',
+                    data: result.map(function(a) {return a.nethash;}),
+                    backgroundColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.fill_color}'],
+                    borderColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.line_color}'],
+                    fill: 'start'
+                  }
+                ]
+              },
+              options: {
+                maintainAspectRatio: false,
+                elements: {
+                  point: {
+                    radius: 1
+                  },
+                  line: {
+                    tension: 0.1
+                  }
+                },
+                scales: {
+                  y: {
+                    title: {
+                      display: true,
+                      text: 'Network ' + getNetHashUnits(),
+                      font: {
+                        weight: 'bold'
+                      }
+                    }
+                  }
+                },
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'bottom'
+                  },
+                  title: {
+                    display: false
+                  },
+                  tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    displayColors: true,
+                    callbacks: {
+                      title: function(context) {
+                        return 'Block ' + context[0].label + ' Hashrate';
+                      },
+                      label: function(context) {
+                        const val = #{settings.shared_pages.page_header.network_charts.nethash_chart.round_decimals};
+                        let max = 20;
+
+                        if (val != -1)
+                          max = val;
+                        else {
+                          const decimalCount = countDecimals(context.raw || 0);
+
+                          if (decimalCount < max)
+                            max = decimalCount;
+                        }
+
+                        return Number((context.raw || 0)).toLocaleString('en',{'minimumFractionDigits':0,'maximumFractionDigits':max,'useGrouping':true}) + ' ' + getNetHashUnits();
+                      }
+                    }
+                  },
+                  crosshair: {
+                    line: {
+                      color: '#{settings.shared_pages.page_header.network_charts.nethash_chart.crosshair_color}',
+                      width: 1
+                    },
+                    sync: {
+                      enabled: false
+                    },
+                    zoom: {
+                      enabled: false
+                    }
+                  }
+                }
+              }
+            });
+            $('#nethashChartParent').fadeIn();
+          } else {
+            nethashChart.data.labels = result.map(function(a) {return a.blockindex;});
+            nethashChart.data.datasets[0].data = result.map(function(a) {return a.nethash;});
+            nethashChart.update();
+          }
+        }
+    if settings.network_history.enabled == true && showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true
+      script.
+        let difficultyChart;
+
+        function populateDifficultyChart(result) {
+          const ctxDifficulty = document.getElementById('difficultyChart').getContext('2d');
+
+          let diffDataSets = [];
+          let showPOW = false;
+          let showPOS = false;
+
+          for (let i = 0; i < result.length; i++) {
+            if (result[i].difficulty_pow != 0)
+              showPOW = true;
+            if (result[i].difficulty_pos != 0)
+              showPOS = true;
+          }
+
+          if (showPOS) {
+            diffDataSets.push({
+              label: 'POS Difficulty',
+              data: result.map(function(a) {return a.difficulty_pos;}),
+              backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pos_fill_color}'],
+              borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pos_line_color}'],
+              fill: 'start'
+            });
+          }
+
+          if (showPOW || !showPOS) {
+            diffDataSets.push({
+              label: 'POW Difficulty',
+              data: result.map(function(a) {return a.difficulty_pow;}),
+              backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pow_fill_color}'],
+              borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pow_line_color}'],
+              fill: 'start'
+            });
+          }
+
+          if (difficultyChart == null) {
+            difficultyChart = new Chart(ctxDifficulty, {
+              type: 'line',
+              data: {
+                labels: result.map(function(a) {return a.blockindex;}),
+                datasets: diffDataSets
+              },
+              options: {
+                maintainAspectRatio: false,
+                elements: {
+                  point: {
+                    radius: 1
+                  },
+                  line: {
+                    tension: 0.1
+                  }
+                },
+                scales: {
+                  y: {
+                    title: {
+                      display: true,
+                      text: 'Difficulty',
+                      font: {
+                        weight: 'bold'
+                      }
+                    }
+                  }
+                },
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'bottom'
+                  },
+                  title: {
+                    display: false
+                  },
+                  tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    displayColors: true,
+                    callbacks: {
+                      title: function(context) {
+                        return 'Block ' + context[0].label + ' Difficulty';
+                      },
+                      label: function(context) {
+                        const val = #{settings.shared_pages.page_header.network_charts.difficulty_chart.round_decimals};
+                        let max = 20;
+
+                        if (val != -1)
+                          max = val;
+                        else {
+                          const decimalCount = countDecimals(context.raw || 0);
+
+                          if (decimalCount < max)
+                            max = decimalCount;
+                        }
+
+                        return Number((context.raw || 0)).toLocaleString('en',{'minimumFractionDigits':0,'maximumFractionDigits':max,'useGrouping':true});
+                      }
+                    }
+                  },
+                  crosshair: {
+                    line: {
+                      color: '#{settings.shared_pages.page_header.network_charts.difficulty_chart.crosshair_color}',
+                      width: 1
+                    },
+                    sync: {
+                      enabled: false
+                    },
+                    zoom: {
+                      enabled: false
+                    }
+                  }
+                }
+              }
+            });
+            $('#difficultyChartParent').fadeIn();
+          } else {
+            difficultyChart.data.labels = result.map(function(a) {return a.blockindex;});
+
+            if (difficultyChart.data.datasets.length != diffDataSets.length)
+              difficultyChart.data.datasets = diffDataSets;
+            else if (
+              (
+                difficultyChart.data.datasets[0].label.indexOf('POW') > -1 &&
+                diffDataSets[0].label.indexOf('POW') > -1
+              )
+              ||
+              (
+                difficultyChart.data.datasets[0].label.indexOf('POS') > -1 &&
+                diffDataSets[0].label.indexOf('POS') > -1
+              )
+            ) {
+              difficultyChart.data.datasets[0].data = diffDataSets[0].data;
+
+              if (difficultyChart.data.datasets.length == 2)
+                difficultyChart.data.datasets[1].data = diffDataSets[1].data;
             } else
-              $('div#side-nav-bar').css('margin-top', '0');
+              difficultyChart.data.datasets = diffDataSets;
+
+            difficultyChart.update();
           }
-          function fixSidebar() {
+        }
+    if (showPanels == true && showNetworkPanel == true) || (settings.network_history.enabled == true && showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true)
+      script.
+        function getNetHashUnits() {
+          let networkSuffix = '';
+
+          switch ('#{settings.shared_pages.page_header.panels.network_panel.nethash_units}') {
+            case "K":
+              networkSuffix='(KH/s)';
+              break;
+            case "M":
+              networkSuffix='(MH/s)';
+              break;
+            case "G":
+              networkSuffix='(GH/s)';
+              break;
+            case "T":
+              networkSuffix='(TH/s)';
+              break;
+            case "P":
+              networkSuffix='(PH/s)';
+              break;
+            case "H":
+              networkSuffix='(H/s)';
+              break;
+          }
+
+          return networkSuffix;
+        }
+    if settings.shared_pages.page_header.menu == 'side'
+      script.
+        let sideMarketVisible = false;
+        const sideBarClasses = '!{sideBarClasses}'.replace(/,/g, " ");
+
+        function fixSidebarHeight() {
+          if ('#{settings.shared_pages.page_footer.sticky_footer}' != 'true')
+            $('div#side-nav-bar').css('margin-bottom', -($('div#body-container > div#side-nav-bar').length ? ($('div#footer-container').offset().top - $('div#footer-container').position().top + 1) : 0).toString() + 'px');
+          else if ($('div#footer-container').offset().top > ($('#main-container').position().top + $('#main-container').outerHeight(true)))
+            $('div#side-nav-bar').css('margin-bottom', -($('div#body-container > div#side-nav-bar').length ? ($('div#footer-container').offset().top - ($('#main-container').position().top + $('#main-container').outerHeight(true)) + $('div#footer-container').outerHeight(true)) : 0).toString() + 'px');
+          else
+            $('div#side-nav-bar').css('margin-bottom', '');
+        }
+        function hideMarketDropdown() {
+          if ($('div#side-market-menu').hasClass('show')) {
+            // close the market dropdown which was left open
+            bootstrap.Dropdown.getOrCreateInstance($('li.side-market-menu > a.dropdown-toggle')).hide();
+          }
+        }
+        function positionSidebarSearch() {
+          if (#{settings.shared_pages.page_header.search.enabled} == true && '#{settings.shared_pages.page_header.search.position.toString().toLowerCase()}' == 'inside-header') {
             if ($(window).outerWidth() < 992) {
-              if ($('div#side-nav-bar').hasClass('show-menu'))
-                toggleSideMenu();
-
-              if ($('div#body-container > div#side-nav-bar').length > 0) {
-                let hasScrollbar = false;
-                $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').show();
-                $('nav.side-nav').css('overflow', 'visible');
-                $('div#side-nav-bar').removeClass(sideBarClasses);
-
-                if ($('div#side-offcanvas > div.offcanvas-body > div[data-overlayscrollbars-viewport="scrollbarHidden"]').length > 0) {
-                  $('div#body-container > div#side-nav-bar').appendTo('div#side-offcanvas > div.offcanvas-body > div[data-overlayscrollbars-viewport="scrollbarHidden"]');
-                  hasScrollbar = true;
-                } else
-                  $('div#body-container > div#side-nav-bar').appendTo('div#side-offcanvas > div.offcanvas-body');
-
-                hideMarketDropdown();
-                $('a#side-header-toggle').attr('data-bs-toggle', 'offcanvas').attr('data-bs-target', '#side-offcanvas').attr('aria-controls', 'side-offcanvas');
-                if ($().tooltip)
-                  $('nav.side-nav li.nav-item').tooltip('disable');
-                $('li.side-market-menu').removeClass('dropend').addClass('dropdown');
-                $('li.side-market-menu > a.nav-link').attr('data-bs-toggle', 'collapse').attr('data-bs-target', '#side-market-menu').attr('aria-controls', '#side-market-menu').attr('aria-expanded', 'false');
-                $('div#side-market-menu').removeClass('dropdown-menu dropdown-menu-dark').addClass('collapse');
-
-                if (!hasScrollbar)
-                  OverlayScrollbars($('div#side-offcanvas > div.offcanvas-body')[0], {overflow: {x: 'hidden'}});
-
-                fixSidebarHeight();
-              }
+              if ($('div#inner-header-side > div.container > div#search-navbar-collapse').length)
+                $('div#search-navbar-collapse').addClass('collapse').removeClass('flexGrow1').appendTo('header#main-header-side');
             } else {
-              if ($('div#side-offcanvas > div.offcanvas-body div#side-nav-bar').length > 0) {
-                if ($('div#side-market-menu').hasClass('show')) {
-                  // close the market collapse which was left open
-                  bootstrap.Collapse.getOrCreateInstance($('#side-market-menu')).hide();
-                }
-
-                if ($('div#side-offcanvas').hasClass('show')) {
-                  // close the offcanvas side-menu which was left open
-                  bootstrap.Offcanvas.getOrCreateInstance($('div#side-offcanvas')).hide();
-                }
-
-                resetSideBarWidth();
-                $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').hide();
-                $('div#side-nav-bar').addClass(sideBarClasses);
-                $('div#side-offcanvas > div.offcanvas-body div#side-nav-bar').prependTo('div#body-container');
-                $('a#side-header-toggle').removeAttr('data-bs-toggle').removeAttr('data-bs-target').removeAttr('aria-controls');
-                if ($().tooltip)
-                  $('nav.side-nav li.nav-item').tooltip('enable');
-                $('li.side-market-menu').removeClass('dropdown').addClass('dropend');
-                $('li.side-market-menu > a.nav-link').removeAttr('data-bs-toggle').removeAttr('data-bs-target').removeAttr('aria-controls').removeAttr('aria-expanded');
-                $('div#side-market-menu').removeClass('collapse').addClass('dropdown-menu' + ('#{settings.shared_pages.page_header.bgcolor}' == null || '#{settings.shared_pages.page_header.bgcolor}' == 'null' || '#{settings.shared_pages.page_header.bgcolor}' == '' || '#{settings.shared_pages.page_header.bgcolor}'.toLowerCase() == 'dark' ? ' dropdown-menu-dark' : ''));
-                fixSidebarHeight();
-              }
-            }
-
-            fixSideBarTop();
-          }
-          function toggleSideMenu() {
-            if (!$('div#side-nav-bar').hasClass('activating')) {
-              $('div#side-nav-bar').toggleClass('activating');
-              $('div#side-nav-bar').toggleClass('show-menu');
-              var showMenu = $('div#side-nav-bar').hasClass('show-menu');
-              $('a#side-header-toggle > span').toggleClass('fa-regular fa-solid fa-rectangle-xmark fa-bars').attr('data-bs-original-title', (showMenu ? 'Shrink Menu' : 'Expand Menu')).attr('alt', (showMenu ? 'Shrink Menu' : 'Expand Menu'));
-              hideMarketDropdown();
-
-              if ($().tooltip) {
-                $('a#side-header-toggle > span').tooltip('hide');
-                $('nav.side-nav li.nav-item').tooltip((showMenu ? 'disable' : 'enable'));
-              }
-
-              $('nav.side-nav').css('overflow', 'hidden');
-
-              if (showMenu)
-                $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').show();
-
-              // wait for the side bar to reach the desired width
-              var sideBarActivateSetIntervalID = setInterval(function() {
-                // check if the side bar has reached the full width or menu has been activated before finish
-                if (
-                  (showMenu && Math.round($('div#side-nav-bar').outerWidth()) >= 224) ||
-                  (!showMenu && Math.round($('div#side-nav-bar').outerWidth()) <= 68) ||
-                  (showMenu != $('div#side-nav-bar').hasClass('show-menu'))
-                ) {
-                  // stop setInterval from running again
-                  clearInterval(sideBarActivateSetIntervalID);
-                  $('div#side-nav-bar').toggleClass('activating');
-
-                  if (!showMenu)
-                    $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').hide();
-
-                  $('nav.side-nav').css('overflow', 'visible');
-
-                  // programatically call the resize event
-                  $(window).trigger('resize');
-                }
-              }, 1, "tmrWaitActivateSideMenu");
+              if ($('header#main-header-side > div#search-navbar-collapse').length)
+                $('div#search-navbar-collapse').addClass('flexGrow1').removeClass('collapse').appendTo('div#inner-header-side > div.container');
             }
           }
-          function resetSideBarWidth() {
-            $('div#side-offcanvas').css('width', '');
-            $('div#side-nav-bar').css('width', '');
-          }
-          $(document).on('click', 'a#side-header-toggle', function(e) {
-            e.preventDefault();
-
-            if ($(window).outerWidth() >= 992)
+        }
+        function fixSideBarTop() {
+          if ('#{settings.shared_pages.page_header.sticky_header}' == 'true') {
+            if ($(window).outerWidth() < 992)
+              $('div#side-nav-bar').css('margin-top', '');
+            else
+              $('div#side-nav-bar').css('margin-top', $('header#main-header-side').outerHeight(true).toString() + 'px');
+          } else
+            $('div#side-nav-bar').css('margin-top', '0');
+        }
+        function fixSidebar() {
+          if ($(window).outerWidth() < 992) {
+            if ($('div#side-nav-bar').hasClass('show-menu'))
               toggleSideMenu();
-            else if ($().tooltip)
-              $('a#side-header-toggle > span').tooltip('hide');
-          });
-          $(document).on('click', 'li#sidebar-offcanvas-close > a.nav-link', function(e) {
-            e.preventDefault();
-
-            if ($().tooltip)
-              $('li#sidebar-offcanvas-close > a.nav-link').tooltip('hide');
-          });
-          $(document).on('click', 'li.side-market-menu', function(e) {
-            if ($().tooltip && !$('#side-nav-bar').hasClass('show-menu') && $(window).outerWidth() >= 992)
-              $('nav.side-nav li#markets.nav-item').tooltip('hide');
-          });
-          $(document).on('click', 'li.side-market-menu > a.dropdown-toggle', function(e) {
-            e.preventDefault();
 
             if ($('div#body-container > div#side-nav-bar').length > 0) {
-              // manually set the positon of the market dropdown since botostrap disables popper when called from within a .navbar
-              $('#side-market-menu').css({
-                'position': 'absolute',
-                'inset': 'auto auto 0px 0px',
-                'margin': '0px',
-                'transform': 'translate3d(' + e.pageX.toString() + 'px, 30px, 0px)'
-              });
+              let hasScrollbar = false;
 
-              // programatically trigger the dropdown since controlling bs dropdowns via data attributes has some unintended consequences of
-              // keeping the popper attributes around too long in specific scenarios when changing screen size and the dropdown is left open
-              bootstrap.Dropdown.getOrCreateInstance($('li.side-market-menu > a.dropdown-toggle')).toggle();
-            } else {
-              if ($('li.side-market-menu > a.dropdown-toggle[aria-expanded="true"]').length > 0) {
-                const sideBarWidth = 226;
-                const normalItemWidth = 192;
-                const firstItem = $('div#side-market-menu > a.dropdown-item').first();
-                const leftRightPadding = (firstItem == null ? 0 : parseFloat(firstItem.css('padding-right').replace('px', '')) + parseFloat(firstItem.css('margin-right').replace('px', ''))) * 2;
-                let largestItemWidth = 0;
+              $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').show();
+              $('nav.side-nav').css('overflow', 'visible');
+              $('div#side-nav-bar').removeClass(sideBarClasses);
 
-                // find the largest market item to see if the sidebar should be expanded even wider
-                $('div#side-market-menu > a.dropdown-item').each(function () {
-                  let currentItemWidth = $(this).find('> img').outerWidth(true) + $(this).find('> span').outerWidth(true);
-                  largestItemWidth = (currentItemWidth > largestItemWidth ? currentItemWidth : largestItemWidth);
-                });
-
-                if (largestItemWidth > (normalItemWidth - leftRightPadding)) {
-                  $('div#side-offcanvas').css('width', (sideBarWidth + largestItemWidth - (normalItemWidth - leftRightPadding)).toString() + 'px');
-                  $('div#side-nav-bar').css('width', 'auto');
-                } else
-                  resetSideBarWidth();
+              if ($('div#side-offcanvas > div.offcanvas-body > div[data-overlayscrollbars-viewport="scrollbarHidden"]').length > 0) {
+                $('div#body-container > div#side-nav-bar').appendTo('div#side-offcanvas > div.offcanvas-body > div[data-overlayscrollbars-viewport="scrollbarHidden"]');
+                hasScrollbar = true;
               } else
-                resetSideBarWidth();
-            }
-          });
-          /* Add a click event for the whole document when markets are enabled to emulate the autoClose feature which doesn't work when controlling bootstrap dropdowns via javascript */
-          if (#{settings.markets_page.enabled} == true && #{settings.markets_page.show_market_dropdown_menu} == true && #{settings.market_count} > 1) {
-            $(document).on('click', function(e) {
-              if (sideMarketVisible)
-                bootstrap.Dropdown.getOrCreateInstance($('li.side-market-menu > a.dropdown-toggle')).hide();
-            });
-            $('li.side-market-menu > a.dropdown-toggle').on('shown.bs.dropdown', function (e) {
+                $('div#body-container > div#side-nav-bar').appendTo('div#side-offcanvas > div.offcanvas-body');
+
+              hideMarketDropdown();
+              $('a#side-header-toggle').attr('data-bs-toggle', 'offcanvas').attr('data-bs-target', '#side-offcanvas').attr('aria-controls', 'side-offcanvas');
+
               if ($().tooltip)
-                $('li#markets.nav-item').tooltip('disable');
+                $('nav.side-nav li.nav-item').tooltip('disable');
 
-              // wait a tick before upating the sideMarketVisible value
-              setTimeout(function() {
-                sideMarketVisible = true;
-              }, 1);
-            });
-            $('li.side-market-menu > a.dropdown-toggle').on('hidden.bs.dropdown', function (e) {
-              sideMarketVisible = false;
+              $('li.side-market-menu').removeClass('dropend').addClass('dropdown');
+              $('li.side-market-menu > a.nav-link').attr('data-bs-toggle', 'collapse').attr('data-bs-target', '#side-market-menu').attr('aria-controls', '#side-market-menu').attr('aria-expanded', 'false');
+              $('div#side-market-menu').removeClass('dropdown-menu dropdown-menu-dark').addClass('collapse');
 
-              if ($().tooltip && !$('div#side-nav-bar').hasClass('show-menu'))
-                $('li#markets.nav-item').tooltip('enable');
+              if (!hasScrollbar)
+                OverlayScrollbars($('div#side-offcanvas > div.offcanvas-body')[0], {overflow: {x: 'hidden'}});
 
-              $('#side-market-menu').css({
-                'position': '',
-                'inset': '',
-                'margin': '',
-                'transform': ''
-              });
-            });
+              fixSidebarHeight();
+            }
+          } else if ($('div#side-offcanvas > div.offcanvas-body div#side-nav-bar').length > 0) {
+            if ($('div#side-market-menu').hasClass('show')) {
+              // close the market collapse which was left open
+              bootstrap.Collapse.getOrCreateInstance($('#side-market-menu')).hide();
+            }
+
+            if ($('div#side-offcanvas').hasClass('show')) {
+              // close the offcanvas side-menu which was left open
+              bootstrap.Offcanvas.getOrCreateInstance($('div#side-offcanvas')).hide();
+            }
+
+            resetSideBarWidth();
+            $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').hide();
+            $('div#side-nav-bar').addClass(sideBarClasses);
+            $('div#side-offcanvas > div.offcanvas-body div#side-nav-bar').prependTo('div#body-container');
+            $('a#side-header-toggle').removeAttr('data-bs-toggle').removeAttr('data-bs-target').removeAttr('aria-controls');
+
+            if ($().tooltip)
+              $('nav.side-nav li.nav-item').tooltip('enable');
+
+            $('li.side-market-menu').removeClass('dropdown').addClass('dropend');
+            $('li.side-market-menu > a.nav-link').removeAttr('data-bs-toggle').removeAttr('data-bs-target').removeAttr('aria-controls').removeAttr('aria-expanded');
+            $('div#side-market-menu').removeClass('collapse').addClass('dropdown-menu' + ('#{settings.shared_pages.page_header.bgcolor}' == null || '#{settings.shared_pages.page_header.bgcolor}' == 'null' || '#{settings.shared_pages.page_header.bgcolor}' == '' || '#{settings.shared_pages.page_header.bgcolor}'.toLowerCase() == 'dark' ? ' dropdown-menu-dark' : ''));
+
+            fixSidebarHeight();
           }
+
+          fixSideBarTop();
+        }
+        function toggleSideMenu() {
+          if (!$('div#side-nav-bar').hasClass('activating')) {
+            $('div#side-nav-bar').toggleClass('activating');
+            $('div#side-nav-bar').toggleClass('show-menu');
+
+            const showMenu = $('div#side-nav-bar').hasClass('show-menu');
+
+            $('a#side-header-toggle > span').toggleClass('fa-regular fa-solid fa-rectangle-xmark fa-bars').attr('data-bs-original-title', (showMenu ? 'Shrink Menu' : 'Expand Menu')).attr('alt', (showMenu ? 'Shrink Menu' : 'Expand Menu'));
+            hideMarketDropdown();
+
+            if ($().tooltip) {
+              $('a#side-header-toggle > span').tooltip('hide');
+              $('nav.side-nav li.nav-item').tooltip((showMenu ? 'disable' : 'enable'));
+            }
+
+            $('nav.side-nav').css('overflow', 'hidden');
+
+            if (showMenu)
+              $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').show();
+
+            // wait for the side bar to reach the desired width
+            let sideBarActivateSetIntervalID = setInterval(function() {
+              // check if the side bar has reached the full width or menu has been activated before finish
+              if (
+                (showMenu && Math.round($('div#side-nav-bar').outerWidth()) >= 224) ||
+                (!showMenu && Math.round($('div#side-nav-bar').outerWidth()) <= 68) ||
+                (showMenu != $('div#side-nav-bar').hasClass('show-menu'))
+              ) {
+                // stop setInterval from running again
+                clearInterval(sideBarActivateSetIntervalID);
+
+                $('div#side-nav-bar').toggleClass('activating');
+
+                if (!showMenu)
+                  $('#side-nav-bar li.nav-item > a.nav-link > span:last-child').hide();
+
+                $('nav.side-nav').css('overflow', 'visible');
+
+                // programatically call the resize event
+                $(window).trigger('resize');
+              }
+            }, 1, "tmrWaitActivateSideMenu");
+          }
+        }
+        function resetSideBarWidth() {
+          $('div#side-offcanvas').css('width', '');
+          $('div#side-nav-bar').css('width', '');
+        }
+        $(document).on('click', 'a#side-header-toggle', function(e) {
+          e.preventDefault();
+
+          if ($(window).outerWidth() >= 992)
+            toggleSideMenu();
+          else if ($().tooltip)
+            $('a#side-header-toggle > span').tooltip('hide');
+        });
+        $(document).on('click', 'li#sidebar-offcanvas-close > a.nav-link', function(e) {
+          e.preventDefault();
+
+          if ($().tooltip)
+            $('li#sidebar-offcanvas-close > a.nav-link').tooltip('hide');
+        });
+        $(window).resize(function () {
           fixSidebar();
           positionSidebarSearch();
-        } else {
+        });
+        $(document).ready(function() {
+          fixSidebar();
+          positionSidebarSearch();
+        });
+    else
+      script.
+        let topMenuExpanded = false;
+
+        function fixTopMenuCollapse(isResizing) {
+          if (topMenuExpanded && isResizing) {
+            // force collapse the menu if it is open and the screen is being resized,
+            // otherwise it could cause problems with the market dropdown after resizing back and forth between mobile and desktop sizes
+            bootstrap.Collapse.getOrCreateInstance($('#navbar-collapse')).hide();
+            topMenuExpanded = false;
+          }
+
+          if ($().tooltip)
+            $('#navbar-toggler-span').tooltip('hide');
+
+          if (topMenuExpanded) {
+            $('#search-header-button').hide();
+            $('#search-navbar-collapse').addClass('d-none');
+            $('#navbar-collapse').css('max-height', ($(window).outerHeight() - ($('#main-header div.navbar-header').outerHeight()) - (#{settings.shared_pages.page_footer.sticky_footer} == true ? $('div#footer-container').outerHeight(true) : 0) - 20).toString() + 'px');
+          } else
+            $('#navbar-collapse').css('max-height', 'none');
+        }
+        function hideMarketDropdown() {
+          if ($('li#markets > div.dropdown-menu').hasClass('show')) {
+            // close the market dropdown which was left open
+            bootstrap.Dropdown.getOrCreateInstance($('li#markets > a.dropdown-toggle')).hide();
+          }
+        }
+        $(window).resize(function () {
+          if ($(window).outerWidth() < 992)
+            hideMarketDropdown();
+
+          fixTopMenuCollapse(true);
+        });
+        $(document).ready(function() {
           $('#navbar-collapse').on('show.bs.collapse', function (e) {
             topMenuExpanded = true;
             fixTopMenuCollapse(false);
@@ -994,23 +967,80 @@ html(lang='en')
             $('#search-header-button').show();
             $('#search-navbar-collapse').removeClass('d-none');
           });
-        }
-        setInterval(function() {
-          update_stats();
-        }, 60000);
-        if (#{settings.network_history.enabled} == true && ((#{showNethashChart} == true && #{settings.shared_pages.page_header.network_charts.nethash_chart.enabled} == true && #{settings.shared_pages.show_hashrate} == true) || (#{showDifficultyChart} == true && #{settings.shared_pages.page_header.network_charts.difficulty_chart.enabled} == true))) {
-          var setting_reload_chart_seconds = #{settings.shared_pages.page_header.network_charts.reload_chart_seconds};
-          if (setting_reload_chart_seconds > 0) {
-            setInterval(function() {
-              update_network_charts();
-            }, (setting_reload_chart_seconds * 1000));
+        });
+    if settings.shared_pages.page_header.menu == 'side' && settings.markets_page.enabled == true && settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
+      script.
+        /* Add a click event for the whole document when markets are enabled to emulate the autoClose feature which doesn't work when controlling bootstrap dropdowns via javascript - More info: https://github.com/twbs/bootstrap/issues/37042 */
+        $(document).on('click', function(e) {
+          if (sideMarketVisible)
+            bootstrap.Dropdown.getOrCreateInstance($('li.side-market-menu > a.dropdown-toggle')).hide();
+        });
+        $(document).on('click', 'li.side-market-menu', function(e) {
+          if ($().tooltip && !$('#side-nav-bar').hasClass('show-menu') && $(window).outerWidth() >= 992)
+            $('nav.side-nav li#markets.nav-item').tooltip('hide');
+        });
+        $(document).on('click', 'li.side-market-menu > a.dropdown-toggle', function(e) {
+          e.preventDefault();
+
+          if ($('div#body-container > div#side-nav-bar').length > 0) {
+            // manually set the positon of the market dropdown since bootstrap disables popper when called from within a .navbar
+            $('#side-market-menu').css({
+              'position': 'absolute',
+              'inset': 'auto auto 0px 0px',
+              'margin': '0px',
+              'transform': 'translate3d(' + e.pageX.toString() + 'px, 30px, 0px)'
+            });
+
+            // programatically trigger the dropdown since controlling bs dropdowns via data attributes has some unintended consequences of
+            // keeping the popper attributes around too long in specific scenarios when changing screen size and the dropdown is left open
+            bootstrap.Dropdown.getOrCreateInstance($('li.side-market-menu > a.dropdown-toggle')).toggle();
+          } else {
+            if ($('li.side-market-menu > a.dropdown-toggle[aria-expanded="true"]').length > 0) {
+              const sideBarWidth = 226;
+              const normalItemWidth = 192;
+              const firstItem = $('div#side-market-menu > a.dropdown-item').first();
+              const leftRightPadding = (firstItem == null ? 0 : parseFloat(firstItem.css('padding-right').replace('px', '')) + parseFloat(firstItem.css('margin-right').replace('px', ''))) * 2;
+              let largestItemWidth = 0;
+
+              // find the largest market item to see if the sidebar should be expanded even wider
+              $('div#side-market-menu > a.dropdown-item').each(function () {
+                const currentItemWidth = $(this).find('> img').outerWidth(true) + $(this).find('> span').outerWidth(true);
+                largestItemWidth = (currentItemWidth > largestItemWidth ? currentItemWidth : largestItemWidth);
+              });
+
+              if (largestItemWidth > (normalItemWidth - leftRightPadding)) {
+                $('div#side-offcanvas').css('width', (sideBarWidth + largestItemWidth - (normalItemWidth - leftRightPadding)).toString() + 'px');
+                $('div#side-nav-bar').css('width', 'auto');
+              } else
+                resetSideBarWidth();
+            } else
+              resetSideBarWidth();
           }
-          update_network_charts();
-        }
-        update_stats();
-        fixFooterHeightAndPosition();
-        enableTooltips();
-      });
+        });
+        $(document).ready(function() {
+          $('li.side-market-menu > a.dropdown-toggle').on('shown.bs.dropdown', function (e) {
+            if ($().tooltip)
+              $('li#markets.nav-item').tooltip('disable');
+
+            // wait a tick before upating the sideMarketVisible value
+            setTimeout(function() {
+              sideMarketVisible = true;
+            }, 1);
+          });
+          $('li.side-market-menu > a.dropdown-toggle').on('hidden.bs.dropdown', function (e) {
+            sideMarketVisible = false;
+
+            if ($().tooltip && !$('div#side-nav-bar').hasClass('show-menu'))
+              $('li#markets.nav-item').tooltip('enable');
+
+            $('#side-market-menu').css({
+              'position': '',
+              'inset': '',
+              'margin': '',
+              'transform': ''
+            });
+          });
+        });
     - var bodyClasses = [];
     - var bodyContainerClasses = [];
     - var mainContainerClasses = [];
