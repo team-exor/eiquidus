@@ -10,12 +10,20 @@ Written in node.js and mongodb, eIquidus is the most stable, secure, customizabl
 
 ![Homepage](public/img/screenshots/homepage-1-102-0.png)
 
+### Crowdfunding Program
+
+Exor accepts targeted donations in an effort to crowdfund various feature and improvement requests for the block explorer and other Exor-related projects. [Browse the list of unfunded tasks](https://exor.io/tasklist/?o=ta&c=0&f=0&u=1) and send Exor coins to the correct funding address to help meet the funding goal for tasks that you would like to see developed. Once the funding goal is met, Exor developers will begin work on the task asap and will remain a top priority until completed. If you are a software developer and would like to work on funded tasks in exchange for payment in EXOR, please get in touch with us using one of the [Developer Contact](#developer-contact) links below.
+
 ### Premium Support
 
-All code in this project is open source and available free-of-charge under the BSD-3-Clause license. If you require assistance setting up an explorer for your coin, or are interested in hiring a developer to incorporate custom changes for your explorer, you may contact the developer using the links below:
+All code in this project is open source and available free-of-charge under the BSD-3-Clause license. If you require assistance setting up an explorer for your coin, or are interested in hiring a developer to incorporate custom changes for your explorer, you may contact the developer using the [Developer Contact](#developer-contact) links below.
+
+### Developer Contact
+
+Feel free to contact the developer using one of the options below:
 
 <div align="center">
-<a href="https://discord.gg/dSuGm3y"><img src="https://img.shields.io/badge/Discord-Joe%20%5BTeam%20Exor%5D%235573-blue?style=for-the-badge&logo=Discord" /></a>&nbsp;
+<a href="https://discord.gg/dSuGm3y"><img src="https://img.shields.io/badge/Discord-Joe%20%5BTeam%20Exor%5D-blue?style=for-the-badge&logo=Discord" /></a>&nbsp;
 <a href="https://t.me/joeuhren"><img src="https://img.shields.io/badge/Telegram-joeuhren-blue?style=for-the-badge&logo=Telegram" /></a>
 </div>
 
@@ -69,8 +77,8 @@ Table of Contents
 ### Features
 
 - Built using the following scripts and technologies:
-  - Node.js (v18.16.0 or newer recommended)
-  - MongoDB (v6.0.6 or newer recommended)
+  - Node.js (v20.9.0 or newer recommended)
+  - MongoDB (v7.0.2 or newer recommended)
   - jQuery v3.7.1
   - Bootstrap v5.1.3
   - DataTables v1.13.6
@@ -228,8 +236,8 @@ Table of Contents
 
 The following prerequisites must be installed before using the explorer:
 
-- [Node.js](https://nodejs.org/en/) (v18.16.0 or newer recommended)
-- [MongoDB](https://www.mongodb.com/) (v6.0.6 or newer recommended)
+- [Node.js](https://nodejs.org/en/) (v20.9.0 or newer recommended)
+- [MongoDB](https://www.mongodb.com/) (v7.0.2 or newer recommended)
 - [Git](https://git-scm.com/downloads) (v2.36.0 or newer recommended)
 - A fully synchronized *coind* wallet daemon that supports the [Bitcoin RPC API protocol](https://developer.bitcoin.org/reference/rpc/index.html). **NOTE:** In most cases, the blockchain must be synced with the `txindex` feature enabled to have access to all transactions. See the [Wallet Settings](#wallet-settings) section for more details.
 
@@ -248,7 +256,7 @@ nvm install --lts
 Using the `--lts` option in the last cmd above will install the most recent LTS version of Node.js. If you want to install a specific version you can do it with the following cmd:
 
 ```
-nvm install 18.16.0
+nvm install 20.9.0
 ```
 
 If desired, multiple versions of Node.js can be installed at the same time with NVM. Use the following syntax to easily change the current Node.js version to another installed version:
@@ -261,12 +269,12 @@ nvm use 18.14.2
 
 It is recommended to follow the install instructions at the official mongo website since they will be updated more often and have specific instructions for many different operating systems: [https://www.mongodb.com/docs/manual/administration/install-community/](https://www.mongodb.com/docs/manual/administration/install-community/).
 
-Below are instructions to install the latest v6.x version of MongoDB on Ubunutu 22.04 (run one line at a time):
+Below are instructions to install the latest v7.x version of MongoDB on Ubunutu 22.04 (run one line at a time):
 
 ```
-sudo apt-get install gnupg
-curl -fsSL https://pgp.mongodb.com/server-6.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-6.0.gpg --dearmor
-echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-6.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+sudo apt-get install gnupg curl
+curl -fsSL https://pgp.mongodb.com/server-7.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-7.0.list
 sudo apt-get update
 sudo apt-get install -y mongodb-org
 ```
@@ -952,12 +960,14 @@ This warning is currently displayed when starting or stopping the explorer using
 
 The eIquidus block explorer is brought to you by the tireless efforts of the [Exor development team](https://exor.io/#section-team) for the benefit of the greater crypto community. If you enjoy our work, please consider supporting our continued development of this and many other cool crypto projects which you can find on our [github page](https://github.com/team-exor).
 
-Please consider supporting us with a small donation by sending us some cryptocurrency:
+You can support us via one of the following options:
 
-- **BTC:** [15zQAQFB9KR35nPWEJEKvmytUF6fg2zvdP](https://www.blockchain.com/btc/address/15zQAQFB9KR35nPWEJEKvmytUF6fg2zvdP)
-- **EXOR:** [EYYW8Nvz5aJz33M3JNHXG2FEHWUsntozrd](https://explorer.exor.io/address/EYYW8Nvz5aJz33M3JNHXG2FEHWUsntozrd)
-
-We also encourage submitting quality pull requests from software developers looking to help make the block explorer even better.
+1. [Buy and hodl EXOR](https://freixlite.com/market/EXOR/LTC). Buying and trading our EXOR coin helps stimulate the market price which allows us to hire more developers and continue to release high quality products in the future.
+2. Participate in our [crowdfunding program](https://exor.io/tasklist/?o=ta&c=0&f=0&u=1) by either sending some cryptocurrency to help fund the tasks you are most eager to see brought to life or [submit a new custom task request](https://exor.io/add-new-task/) detailing a feature or improvement you would like to see developed for any Exor-related project.
+3. Consider a small donation by sending us some cryptocurrency:
+    - **BTC:** [15zQAQFB9KR35nPWEJEKvmytUF6fg2zvdP](https://www.blockchain.com/btc/address/15zQAQFB9KR35nPWEJEKvmytUF6fg2zvdP)
+    - **EXOR:** [EYYW8Nvz5aJz33M3JNHXG2FEHWUsntozrd](https://explorer.exor.io/address/EYYW8Nvz5aJz33M3JNHXG2FEHWUsntozrd)
+4. Are you a software developer? Consider taking advantage of our [crowdfunding program](https://exor.io/tasklist/?o=ta&c=0&f=1&u=1) and get paid in EXOR to help make the block explorer and other Exor-related projects even better by submitting code improvements for open bounty tasks.
 
 ### Special Thanks
 
