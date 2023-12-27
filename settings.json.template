@@ -256,6 +256,16 @@
         "market_cap_panel": {
           // enabled: Enable/disable the market cap panel (true/false)
           //          If set to false, the market cap panel will be completely inaccessible
+          "enabled": false,
+          // display_order: Determine which order this panel is shown from 1-5
+          //                1 = far left panel, 5 = far right panel
+          //                The panel will be disabled with a value of 0
+          "display_order": 0
+        },
+        // usd_market_cap_panel: a collection of settings that pertain to the market cap panel which displays the current market cap value measured in USD
+        "usd_market_cap_panel": {
+          // enabled: Enable/disable the usd market cap panel (true/false)
+          //          If set to false, the usd market cap panel will be completely inaccessible
           "enabled": true,
           // display_order: Determine which order this panel is shown from 1-5
           //                1 = far left panel, 5 = far right panel

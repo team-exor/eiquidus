@@ -174,7 +174,8 @@ Table of Contents
   - **Coin Supply:** Displays the current circulating coin supply value
   - **Price:** Displays the current market price (value measured using default market pair)
   - **USD Price:** Displays the current market price (value measured in USD)
-  - **Market Cap:** Displays the current market cap value in (value measured using default market pair)
+  - **Market Cap:** Displays the current market cap value (value measured using default market pair)
+  - **USD Market Cap:** Displays the current market cap value (value measured in USD)
   - **Logo:** Display an image of your coin logo
 - Configurable network charts that can be independently displayed in the header of any page
   - **Hashrate chart:** Line graph listing of the estimated network hashes per second over the last number of blocks *\*Requires a full sync before network data will start being collected*

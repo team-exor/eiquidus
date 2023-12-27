@@ -314,6 +314,9 @@ html(lang='en')
         function getMarketCapPanel() {
           return '<div class="card-header"><strong>Market Cap <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-line"></span><label id="marketCap"></label></div></div>';
         }
+        function getUSDMarketCapPanel() {
+          return '<div class="card-header"><strong>Market Cap <span class="small fw-normal">(USD)</span></strong></div><div class="card-body"><div id="usdMarketCapPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="usdMarketCapPanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-line"></span><label id="usdMarketCap"></label></div></div>';
+        }
         function getLogoPanel() {
           return `<img src="#{settings.shared_pages.logo}" style="margin-top:-15px;height:128px;" alt="${"#{settings.coin.name}".replace(/"/g, '&quot;')} Logo" title="${"#{settings.coin.name}".replace(/"/g, '&quot;')} Logo" />`;
         }
@@ -344,6 +347,9 @@ html(lang='en')
               break;
             case "market_cap_panel":
               sReturn = getMarketCapPanel();
+              break;
+            case "usd_market_cap_panel":
+              sReturn = getUSDMarketCapPanel();
               break;
             case "logo_panel":
               sReturn = getLogoPanel();
@@ -402,12 +408,17 @@ html(lang='en')
               hashrateString = Number(json.hashrate).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
 
             $("#supply").text(supplyString);
-            splitValue = Number(parseFloat(json.lastPrice).toFixed(8) * parseInt(parseFloat(json.supply).toFixed(0))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-            splitParts = splitValue.split('.');
             showTopPanelData('supplypanel', 'supplyPanelLoading');
 
+            splitValue = Number(parseFloat(json.lastPrice).toFixed(8) * parseInt(parseFloat(json.supply).toFixed(0))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            splitParts = splitValue.split('.');
             $("#marketCap").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
             showTopPanelData('marketCapPanel', 'marketCapPanelLoading');
+
+            splitValue = Number(parseFloat(json.lastUSDPrice).toFixed(8) * parseInt(parseFloat(json.supply).toFixed(0))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            splitParts = splitValue.split('.');
+            $("#usdMarketCap").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+            showTopPanelData('usdMarketCapPanel', 'usdMarketCapPanelLoading');
 
             splitParts = diffString.split('.');
             $("#difficulty").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
