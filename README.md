@@ -130,7 +130,7 @@ Table of Contents
       - **getlasttxs:** Returns transactions greater than a specific number of coins, starting from a particular offset
       - **getcurrentprice:** Returns last known exchange price
       - **getbasicstats:** Returns basic statistics about the coin including: block count, circulating supply, USD price, default market price and # of masternodes *\*# of masternodes is only applicable to masternode coins*
-      - **getsummary:** Returns a summary of coin data including: difficulty, hybrid difficulty, circulating supply, hash rate, default market price, network connection count, block count, count of online masternodes and count of offline masternodes *\*masternode counts are only applicable to masternode coins*
+      - **getsummary:** Returns a summary of coin data including: difficulty, hybrid difficulty, circulating supply, hash rate, default market price, USD price, network connection count, block count, count of online masternodes and count of offline masternodes *\*masternode counts are only applicable to masternode coins*
       - **getnetworkpeers:** Returns the list of network peers that have connected to the explorer node in the last 24 hours
       - **getmasternodelist:** Returns the complete list of masternodes on the network *\*only applicable to masternode coins*
       - **getmasternoderewards:** Returns a list of masternode reward transactions for a specific address that arrived after a specific block height *\*only applicable to masternode coins*
@@ -173,6 +173,7 @@ Table of Contents
   - **Masternodes:** Displays a count of online and unreachable masternodes *\*only applicable to masternode coins*
   - **Coin Supply:** Displays the current circulating coin supply value
   - **Price:** Displays the current market price (value measured using default market pair)
+  - **USD Price:** Displays the current market price (value measured in USD)
   - **Market Cap:** Displays the current market cap value in (value measured using default market pair)
   - **Logo:** Display an image of your coin logo
 - Configurable network charts that can be independently displayed in the header of any page

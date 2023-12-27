@@ -308,6 +308,9 @@ html(lang='en')
         function getPricePanel() {
           return '<div class="card-header"><strong>Price <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-rocket"></span><label id="lastPrice">-</label></div></div>';
         }
+        function getUSDPricePanel() {
+          return '<div class="card-header"><strong>Price <span class="small fw-normal">(USD)</span></strong></div><div class="card-body"><div id="usdPricePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="usdpricepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-dollar-sign"></span><label id="lastUSDPrice">-</label></div></div>';
+        }
         function getMarketCapPanel() {
           return '<div class="card-header"><strong>Market Cap <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-line"></span><label id="marketCap"></label></div></div>';
         }
@@ -335,6 +338,9 @@ html(lang='en')
               break;
             case "price_panel":
               sReturn = getPricePanel();
+              break;
+            case "usd_price_panel":
+              sReturn = getUSDPricePanel();
               break;
             case "market_cap_panel":
               sReturn = getMarketCapPanel();
@@ -427,6 +433,11 @@ html(lang='en')
             splitParts = splitValue.split('.');
             $("#lastPrice").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
             showTopPanelData('pricepanel', 'pricePanelLoading');
+
+            splitValue = Number(json.lastUSDPrice).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+            splitParts = splitValue.split('.');
+            $("#lastUSDPrice").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
+            showTopPanelData('usdpricepanel', 'usdPricePanelLoading');
           }});
         }
         $(document).ready(function() {

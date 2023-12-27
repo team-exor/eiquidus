@@ -509,6 +509,7 @@ app.use('/ext/getsummary', function(req, res) {
                   supply: (stats == null || stats.supply == null ? 0 : stats.supply),
                   hashrate: hashrate,
                   lastPrice: (stats == null || stats.last_price == null ? 0 : stats.last_price),
+                  lastUSDPrice: (stats == null || stats.last_usd_price == null ? 0 : stats.last_usd_price),
                   connections: (connections ? connections : '-'),
                   blockcount: (blockcount ? blockcount : '-'),
                   masternodeCountOnline: (masternodestotal && mn_enabled != 0 ? mn_enabled : '-'),
@@ -857,6 +858,7 @@ var panelcount = (settings.shared_pages.page_header.panels.network_panel.enabled
   (settings.shared_pages.page_header.panels.masternodes_panel.enabled == true && settings.shared_pages.page_header.panels.masternodes_panel.display_order > 0 ? 1 : 0) +
   (settings.shared_pages.page_header.panels.coin_supply_panel.enabled == true && settings.shared_pages.page_header.panels.coin_supply_panel.display_order > 0 ? 1 : 0) +
   (settings.shared_pages.page_header.panels.price_panel.enabled == true && settings.shared_pages.page_header.panels.price_panel.display_order > 0 ? 1 : 0) +
+  (settings.shared_pages.page_header.panels.usd_price_panel.enabled == true && settings.shared_pages.page_header.panels.usd_price_panel.display_order > 0 ? 1 : 0) +
   (settings.shared_pages.page_header.panels.market_cap_panel.enabled == true && settings.shared_pages.page_header.panels.market_cap_panel.display_order > 0 ? 1 : 0) +
   (settings.shared_pages.page_header.panels.logo_panel.enabled == true && settings.shared_pages.page_header.panels.logo_panel.display_order > 0 ? 1 : 0) +
   (settings.shared_pages.page_header.panels.spacer_panel_1.enabled == true && settings.shared_pages.page_header.panels.spacer_panel_1.display_order > 0 ? 1 : 0) +
@@ -872,6 +874,7 @@ if (settings.shared_pages.page_header.panels.difficulty_panel.enabled == true &&
 if (settings.shared_pages.page_header.panels.masternodes_panel.enabled == true && settings.shared_pages.page_header.panels.masternodes_panel.display_order > 0) panel_order.push({name: 'masternodes_panel', val: settings.shared_pages.page_header.panels.masternodes_panel.display_order});
 if (settings.shared_pages.page_header.panels.coin_supply_panel.enabled == true && settings.shared_pages.page_header.panels.coin_supply_panel.display_order > 0) panel_order.push({name: 'coin_supply_panel', val: settings.shared_pages.page_header.panels.coin_supply_panel.display_order});
 if (settings.shared_pages.page_header.panels.price_panel.enabled == true && settings.shared_pages.page_header.panels.price_panel.display_order > 0) panel_order.push({name: 'price_panel', val: settings.shared_pages.page_header.panels.price_panel.display_order});
+if (settings.shared_pages.page_header.panels.usd_price_panel.enabled == true && settings.shared_pages.page_header.panels.usd_price_panel.display_order > 0) panel_order.push({name: 'usd_price_panel', val: settings.shared_pages.page_header.panels.usd_price_panel.display_order});
 if (settings.shared_pages.page_header.panels.market_cap_panel.enabled == true && settings.shared_pages.page_header.panels.market_cap_panel.display_order > 0) panel_order.push({name: 'market_cap_panel', val: settings.shared_pages.page_header.panels.market_cap_panel.display_order});
 if (settings.shared_pages.page_header.panels.logo_panel.enabled == true && settings.shared_pages.page_header.panels.logo_panel.display_order > 0) panel_order.push({name: 'logo_panel', val: settings.shared_pages.page_header.panels.logo_panel.display_order});
 if (settings.shared_pages.page_header.panels.spacer_panel_1.enabled == true && settings.shared_pages.page_header.panels.spacer_panel_1.display_order > 0) panel_order.push({name: 'spacer_panel_1', val: settings.shared_pages.page_header.panels.spacer_panel_1.display_order});
