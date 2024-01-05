@@ -1014,6 +1014,9 @@
     //                           The USD fiat currency is also built-in and automatically returned from the coingecko api so there is no need to specify USD here.
     //                           For more information about which currency values are supported, you can review the vs_currencies parameter of the /simple/price api from here: https://www.coingecko.com/api/documentation
     "coingecko_currency": "BTC",
+    // "coingecko_api_key": Supply a free or paid coingecko api key for fetching USD price and/or market price via the market_price = "COINGECKO" option
+    //                      NOTE: As of Feb 2024, the free "keyless" coingecko api will be deprecated and require an api key to continue use
+    "coingecko_api_key": "",
     // default_exchange: a collection of settings that pertain to the default exchange
     //                   When the "show_market_dropdown_menu" setting is disabled, the market header menu will navigate directly to the default exchange page
     //                   The default_exchange.trading_pair is used to determine the last market price when the market_price value is set to AVERAGE

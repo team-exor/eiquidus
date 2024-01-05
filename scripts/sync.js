@@ -1026,7 +1026,7 @@ function get_market_price(market_array) {
         console.log('Calculating market price.. Please wait..');
 
         // get the market price from coingecko api
-        coingecko.get_market_prices(coingecko_id, currency, function (err, last_price, last_usd_price) {
+        coingecko.get_market_prices(coingecko_id, currency, settings.markets_page.coingecko_api_key, function (err, last_price, last_usd_price) {
           // check for errors
           if (err == null) {
             // get current stats
@@ -1050,7 +1050,7 @@ function get_market_price(market_array) {
             });
           } else {
             // coingecko api returned an error
-            console.log(err);
+            console.log(`Error: ${err}`);
             exit(1);
           }
         });
@@ -1091,7 +1091,7 @@ function get_market_price(market_array) {
           const currency = lib.get_market_currency_code();
 
           // get the market price from coingecko api
-          coingecko.get_avg_market_prices(api_ids, currency, market_array, function (mkt_err, last_price, last_usd) {   
+          coingecko.get_avg_market_prices(api_ids, currency, market_array, settings.markets_page.coingecko_api_key, function (mkt_err, last_price, last_usd) {   
             // check for errors
             if (mkt_err == null) {
               // update the last usd price
@@ -1108,7 +1108,7 @@ function get_market_price(market_array) {
               });
             } else {
               // coingecko api returned an error
-              console.log(mkt_err);
+              console.log(`Error: ${mkt_err}`);
               exit(1);
             }
           });
@@ -1118,7 +1118,7 @@ function get_market_price(market_array) {
         }
       } else {
         // coingecko api returned an error
-        console.log(coin_err);
+        console.log(`Error: ${coin_err}`);
         exit(1);
       }
     });
@@ -1173,7 +1173,7 @@ function coingecko_coin_list_api(market_symbols, cb) {
     const coingecko = require('../lib/apis/coingecko');
 
     // get the list of coins from coingecko
-    coingecko.get_coin_data(function (err, coin_list) {
+    coingecko.get_coin_data(settings.markets_page.coingecko_api_key, function (err, coin_list) {
       // check if there was an error
       if (err == null) {
           // initialize the rate limiter to wait 2 seconds between requests to prevent abusing external apis
@@ -1211,7 +1211,7 @@ function find_coingecko_id(symbol, cb) {
       }
     } else {
       // failed to get the coingecko api list
-      console.log(err);
+      console.log(`Error: ${err}`);
       return cb('');
     }
   });
