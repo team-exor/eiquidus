@@ -1013,28 +1013,206 @@ function check_show_sync_message(blocks_to_sync) {
   return retVal;
 }
 
-function get_last_usd_price() {
-  console.log('Calculating market price.. Please wait..');
+function get_market_price(market_array) {
+  // check how the market price should be updated
+  if (settings.markets_page.market_price == 'COINGECKO') {
+    // find the coingecko id
+    find_coingecko_id(settings.coin.symbol, function(coingecko_id) {
+      // check if the coingecko_id was found
+      if (coingecko_id != null && coingecko_id != '') {
+        const coingecko = require('../lib/apis/coingecko');
+        const currency = lib.get_market_currency_code();
 
-  // get the last usd price for coinstats
-  db.get_last_usd_price(function(err) {
-    // check for errors
-    if (err == null) {
-      // update markets_last_updated value
-      db.update_last_updated_stats(settings.coin.name, { markets_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
-        // check if the script stopped prematurely
-        if (stopSync) {
-          console.log('Market sync was stopped prematurely');
-          exit(1);
-        } else {
-          console.log('Market sync complete');
-          exit(0);
+        console.log('Calculating market price.. Please wait..');
+
+        // get the market price from coingecko api
+        coingecko.get_market_prices(coingecko_id, currency, function (err, last_price, last_usd_price) {
+          // check for errors
+          if (err == null) {
+            // get current stats
+            Stats.findOne({coin: settings.coin.name}).then((stats) => {
+              // update market stat prices
+              Stats.updateOne({coin: settings.coin.name}, {
+                last_price: (last_price == null ? 0 : last_price),
+                last_usd_price: (last_usd_price == null ? 0 : last_usd_price)
+              }).then(() => {
+                // market prices updated successfully
+                finish_market_sync();
+              }).catch((err) => {
+                // error saving stats
+                console.log(err);
+                exit(1);
+              });
+            }).catch((err) => {
+              // error getting stats
+              console.log(err);
+              exit(1);
+            });
+          } else {
+            // coingecko api returned an error
+            console.log(err);
+            exit(1);
+          }
+        });
+      } else {
+        // coingecko_id is not set which should have already thrown an error, so just exit
+        exit(1);
+      }
+    });
+  } else {
+    console.log('Calculating market price.. Please wait..');
+
+    // get the list of coins from coingecko
+    coingecko_coin_list_api(market_array, function (coin_err, coin_list) {
+      // check for errors
+      if (coin_err == null) {
+        let api_ids = '';
+
+        // loop through all unique currencies in the market_array
+        for (let m = 0; m < market_array.length; m++) {
+          const index = coin_list.findIndex(p => p.symbol.toLowerCase() == market_array[m].currency.toLowerCase());
+
+          // check if the market currency is found in the coin list
+          if (index > -1) {
+            // add to the list of api_ids
+            api_ids += (api_ids == '' ? '' : ',') + coin_list[index].id;
+
+            // add the coingecko id back to the market_array
+            market_array[m].coingecko_id = coin_list[index].id;
+          } else {
+            // coin symbol not found in the api
+            console.log('Error: Cannot find symbol "' + market_array[m].currency + '" in the coingecko api');
+          }
         }
+
+        // check if any api_ids were found
+        if (api_ids != '') {
+          const coingecko = require('../lib/apis/coingecko');
+          const currency = lib.get_market_currency_code();
+
+          // get the market price from coingecko api
+          coingecko.get_avg_market_prices(api_ids, currency, market_array, function (mkt_err, last_price, last_usd) {   
+            // check for errors
+            if (mkt_err == null) {
+              // update the last usd price
+              Stats.updateOne({coin: settings.coin.name}, {
+                last_price: last_price,
+                last_usd_price: last_usd
+              }).then(() => {
+                // market price updated successfully
+                finish_market_sync();
+              }).catch((err) => {
+                // error saving stat data
+                console.log(err);
+                exit(1);
+              });
+            } else {
+              // coingecko api returned an error
+              console.log(mkt_err);
+              exit(1);
+            }
+          });
+        } else {
+          // no api_ids found so cannot continue to getting the usd price and error msgs were already thrown, so just exit
+          exit(1);
+        }
+      } else {
+        // coingecko api returned an error
+        console.log(coin_err);
+        exit(1);
+      }
+    });
+  }
+}
+
+function finish_market_sync() {
+  // update markets_last_updated value
+  db.update_last_updated_stats(settings.coin.name, { markets_last_updated: Math.floor(new Date() / 1000) }, function() {
+    // check if the script stopped prematurely
+    if (stopSync) {
+      console.log('Market sync was stopped prematurely');
+      exit(1);
+    } else {
+      console.log('Market sync complete');
+      exit(0);
+    }
+  });
+}
+
+function coingecko_coin_list_api(market_symbols, cb) {
+  let coin_array = [];
+  let call_coin_list_api = false;
+
+  // check if market_symbols is an array
+  if (!Array.isArray(market_symbols)) {
+    // add this symbol to an array
+    market_symbols = [{currency: market_symbols}];
+  }
+
+  // loop through all symbols
+  for (var symbol of market_symbols) {
+    // check if this symbol has a default coingecko id in the settings
+    const index = settings.default_coingecko_ids.findIndex(p => p.symbol.toLowerCase() == symbol.currency.toLowerCase());
+
+    // check if the coin symbol is found in settings
+    if (index > -1) {
+      // add this symbol and id to a new array
+      coin_array.push({
+        id: settings.default_coingecko_ids[index].id.toLowerCase(),
+        symbol: symbol.currency.toLowerCase()
       });
     } else {
-      // display error msg
-      console.log('Error: %s', err);
-      exit(1);      
+      // missing at least 1 symbol, so the coingecko api must be called
+      call_coin_list_api = true;
+      break;
+    }
+  }
+
+  // check if the coin list api needs to be called
+  if (call_coin_list_api) {
+    const coingecko = require('../lib/apis/coingecko');
+
+    // get the list of coins from coingecko
+    coingecko.get_coin_data(function (err, coin_list) {
+      // check if there was an error
+      if (err == null) {
+          // initialize the rate limiter to wait 2 seconds between requests to prevent abusing external apis
+          const rateLimitLib = require('../lib/ratelimit');
+          const rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
+
+          // automatically pause for 2 seconds in between requests
+          rateLimit.schedule(function() {
+            return cb(err, coin_list);
+          });
+      } else {
+        return cb(err, coin_list);
+      }
+    });
+  } else {
+    // return the custom array of known symbols and ids
+    return cb(null, coin_array);
+  }
+}
+
+function find_coingecko_id(symbol, cb) {
+  coingecko_coin_list_api(symbol, function (err, coin_list) {
+    // check for errors
+    if (err == null) {
+      // find the index of the first coin symbol match
+      const index = coin_list.findIndex(p => p.symbol.toLowerCase() == symbol.toLowerCase());
+
+      // check if the coin symbol is found in the api coin list
+      if (index > -1)
+        return cb(coin_list[index].id);
+      else {
+        // coin symbol not found in the api
+        console.log('Error: Cannot find symbol "' + symbol + '" in the coingecko api');
+        return cb('');
+      }
+    } else {
+      // failed to get the coingecko api list
+      console.log(err);
+      return cb('');
     }
   });
 }
@@ -1514,15 +1692,16 @@ if (lib.is_locked([database]) == false) {
           }
         });
       } else {
-        // check if market feature is enabled
-        if (settings.markets_page.enabled == true) {
+        // start market sync
+        // check if market feature is enabled or the market_price option is set to COINGECKO
+        if (settings.markets_page.enabled == true || settings.markets_page.market_price == 'COINGECKO') {
           var total_pairs = 0;
           var exchanges = Object.keys(settings.markets_page.exchanges);
 
           // loop through all exchanges to determine how many trading pairs must be updated
           exchanges.forEach(function(key, index, map) {
             // check if market is enabled via settings
-            if (settings.markets_page.exchanges[key].enabled == true) {
+            if (settings.markets_page.enabled == true && settings.markets_page.exchanges[key].enabled == true) {
               // check if market is installed/supported
               if (db.fs.existsSync('./lib/markets/' + key + '.js')) {
                 // add trading pairs to total
@@ -1539,6 +1718,8 @@ if (lib.is_locked([database]) == false) {
 
           // check if there are any trading pairs to update
           if (total_pairs > 0) {
+            let market_array = [];
+
             // initialize the rate limiter to wait 2 seconds between requests to prevent abusing external apis
             var rateLimitLib = require('../lib/ratelimit');
             var rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
@@ -1563,16 +1744,30 @@ if (lib.is_locked([database]) == false) {
                           // automatically pause for 2 seconds in between requests
                           rateLimit.schedule(function() {
                             // update market data
-                            db.update_markets_db(key, split_pair[0], split_pair[1], function(err) {
-                              if (!err)
+                            db.update_markets_db(key, split_pair[0], split_pair[1], function(err, last_price) {
+                              if (!err) {
                                 console.log('%s[%s]: Market data updated successfully', key, pair_key);
-                              else
+
+                                // only add to the market_array if market data is being averaged
+                                if (settings.markets_page.market_price == 'AVERAGE') {
+                                  // check if the currency already exists in the market array
+                                  const index = market_array.findIndex(item => item.currency.toUpperCase() == split_pair[1].toUpperCase());
+
+                                  if (index != -1) {
+                                    // update the last_price
+                                    market_array[index].last_price = (market_array[index].last_price + last_price) / 2;
+                                  } else {
+                                    // add new object to the array
+                                    market_array.push({currency: split_pair[1], last_price: last_price});
+                                  }
+                                }
+                              } else
                                 console.log('%s[%s] Error: %s', key, pair_key, err);
 
                               complete++;
 
                               if (complete == total_pairs || stopSync)
-                                get_last_usd_price();
+                                get_market_price(market_array);
                             });
                           });
                         } else {
@@ -1580,7 +1775,7 @@ if (lib.is_locked([database]) == false) {
                           complete++;
 
                           if (complete == total_pairs || stopSync)
-                            get_last_usd_price();
+                            get_market_price(market_array);
                         }
                       });
                     } else {
@@ -1589,7 +1784,7 @@ if (lib.is_locked([database]) == false) {
                       complete++;
 
                       if (complete == total_pairs || stopSync)
-                        get_last_usd_price();
+                        get_market_price(market_array);
                     }
                   });
                 } else {
@@ -1598,11 +1793,13 @@ if (lib.is_locked([database]) == false) {
                   complete++;
 
                   if (complete == total_pairs || stopSync)
-                    get_last_usd_price();
+                    get_market_price(market_array);
                 }
               }
             });
-          } else {
+          } else if (settings.markets_page.market_price == 'COINGECKO')
+            get_market_price([]);
+          else {
             // no market trading pairs are enabled
             console.log('Error: No market trading pairs are enabled in settings');
             exit(1);

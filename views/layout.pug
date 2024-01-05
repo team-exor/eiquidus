@@ -143,6 +143,7 @@ html(lang='en')
       - sideBarClasses.push('bg-primary');
       - sideBarClasses.push('navbar-dark');
     - var showNetworkPanel = false
+    - var market_currency = (settings.markets_page.market_price == 'COINGECKO' ? (settings.markets_page.coingecko_currency == null || settings.markets_page.coingecko_currency == '' ? '' : settings.markets_page.coingecko_currency) : (settings.markets_page.default_exchange.trading_pair != null && settings.markets_page.default_exchange.trading_pair.indexOf('/') > -1 ? settings.markets_page.default_exchange.trading_pair.split('/')[1] : '')).toUpperCase();
     if settings.panel1 == 'network_panel' || settings.panel2 == 'network_panel' || settings.panel3 == 'network_panel' || settings.panel4 == 'network_panel' || settings.panel5 == 'network_panel'
       - showNetworkPanel = true
     script.
@@ -306,13 +307,13 @@ html(lang='en')
           return `<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small fw-normal">(${"#{settings.coin.symbol}".replace(/"/g, '&quot;')})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-pie"></span><label id="supply"></label></div></div>`;
         }
         function getPricePanel() {
-          return '<div class="card-header"><strong>Price <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-rocket"></span><label id="lastPrice">-</label></div></div>';
+          return '<div class="card-header"><strong>Price <span class="small fw-normal">(#{market_currency})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-rocket"></span><label id="lastPrice">-</label></div></div>';
         }
         function getUSDPricePanel() {
           return '<div class="card-header"><strong>Price <span class="small fw-normal">(USD)</span></strong></div><div class="card-body"><div id="usdPricePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="usdpricepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-dollar-sign"></span><label id="lastUSDPrice">-</label></div></div>';
         }
         function getMarketCapPanel() {
-          return '<div class="card-header"><strong>Market Cap <span class="small fw-normal">(#{settings.markets_page.default_exchange.trading_pair.split('/')[1]})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-line"></span><label id="marketCap"></label></div></div>';
+          return '<div class="card-header"><strong>Market Cap <span class="small fw-normal">(#{market_currency})</span></strong></div><div class="card-body"><div id="marketCapPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="marketCapPanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-line"></span><label id="marketCap"></label></div></div>';
         }
         function getUSDMarketCapPanel() {
           return '<div class="card-header"><strong>Market Cap <span class="small fw-normal">(USD)</span></strong></div><div class="card-body"><div id="usdMarketCapPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="usdMarketCapPanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-line"></span><label id="usdMarketCap"></label></div></div>';
