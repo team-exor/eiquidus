@@ -27,7 +27,18 @@ block content
         return ('0' + dy).slice(-2) + " day" + (('0' + dy).slice(-2) == 1 ? "" : "s") + " " + ('0' + h).slice(-2) + "h " + ('0' + m).slice(-2) + "m " + ('0' + s).slice(-2) + "s";
     }
     $(document).ready(function() {
-      var useNewDashFormat = false;
+      var enabled_columns = {
+        rank: false,
+        network: false,
+        status : false,
+        addr: false,
+        version : false,
+        lastseen: false,
+        activetime: false,
+        lastpaid: false,
+        ip_address: false,
+        last_paid_block: false
+      };
       var labels = !{JSON.stringify(settings.labels)};
       var ctable = $('#masternodes-table').dataTable({
         autoWidth: true,
@@ -50,11 +61,42 @@ block content
           url: '/ext/getmasternodelist',
           dataSrc: function(json) {
             for (i = 0; i < json.length; i++) {
-              var addr = json[i]['addr'];
-              json[i]['address'] = "<a href='/address/" + json[i]['address'] + "'>" + json[i]['address'] + "</a>";
-              json[i]['lastseen'] = '<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-bs-toggle="tooltip" data-bs-placement="auto" title="' + format_unixtime(json[i]['lastseen'], true) + '"' : '') + '>' + format_unixtime(json[i]['lastseen']) + '</span>';
+              if (json[i]['rank'] != null && json[i]['rank'] > 0)
+                enabled_columns.rank = true;
 
-              if (typeof json[i]['lastpaid'] != 'undefined' && json[i]['lastpaid'] != '' && json[i]['lastpaid'] != '0')
+              if (json[i]['network'] != null && json[i]['network'] != '')
+                enabled_columns.network = true;
+
+              if (json[i]['ip_address'] != null && json[i]['ip_address'] != '')
+                enabled_columns.ip_address = true;
+
+              if (json[i]['version'] != null && json[i]['version'] > 0)
+                enabled_columns.version = true;
+
+              if (json[i]['lastseen'] != null && json[i]['lastseen'] > 0)
+                enabled_columns.lastseen = true;
+
+              if (json[i]['lastpaid'] != null && json[i]['lastpaid'] > 0)
+                enabled_columns.lastpaid = true;
+
+              if (json[i]['last_paid_block'] != null && json[i]['last_paid_block'] > 0)
+                enabled_columns.last_paid_block = true;
+
+              if (json[i]['activetime'] != null && json[i]['activetime'] > 0)
+                enabled_columns.activetime = true;
+
+              if (json[i]['status'] != null && json[i]['status'] != '')
+                enabled_columns.status = true;
+
+              if (json[i]['addr'] != null && json[i]['addr'] != '')
+                enabled_columns.addr = true;
+
+              var addr = json[i]['addr'];
+
+              if (json[i]['lastseen'] != null)
+                json[i]['lastseen'] = '<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-bs-toggle="tooltip" data-bs-placement="auto" title="' + format_unixtime(json[i]['lastseen'], true) + '"' : '') + '>' + format_unixtime(json[i]['lastseen']) + '</span>';
+
+              if (json[i]['lastpaid'] != null && json[i]['lastpaid'] != '' && json[i]['lastpaid'] != '0')
                 json[i]['lastpaid'] = '<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-bs-toggle="tooltip" data-bs-placement="auto" title="' + format_unixtime(json[i]['lastpaid'], true) + '"' : '') + '>' + format_unixtime(json[i]['lastpaid']) + '</span>';
               else
                 json[i]['lastpaid'] = '<em>N/A</em>';
@@ -62,6 +104,7 @@ block content
                 json[i]['activetime'] = secondsToHms(json[i]['activetime']);
               else
                 json[i]['activetime'] = '<em>N/A</em>';
+
               json[i]['addr'] = "<a href='/address/" + json[i]['addr'] + "'>" + json[i]['addr'] + ('#{settings.claim_address_page.enabled}' == 'true' && json[i]['claim_name'] != null && json[i]['claim_name'] != '' ? ' <span class="small fw-normal">(' + json[i]['claim_name'] + ')</span>' : '') + "</a>";
 
               if (labels[addr] != null && labels[addr].enabled == true) {
@@ -71,16 +114,14 @@ block content
                   json[i]['addr'] = '<div><label class="badge bg-default" style="margin-bottom:10px;">' + labels[addr].label + (labels[addr].url ? '<a href="' + labels[addr].url + '" target="_blank", alt="Visit site", title="Visit site" data-bs-toggle="tooltip" data-bs-placement="top"><span class="fa-solid fa-circle-question" style="margin-left:5px"></span></a>' : '') + '</label></div>' + json[i]['addr'];
               }
             }
- 
-            useNewDashFormat = json.length > 0 && json[0].ip_address != null && json[0].ip_address != '';
- 
+
             return json;
           }
         },
         columns: [
+          { name: 'ip_address', data: 'ip_address', className: "ipAddressCol" },
           { name: 'rank', data: 'rank', className: "rankCol" },
           { name: 'network', data: 'network', className: "networkCol" },
-          { name: 'ip_address', data: 'ip_address', className: "ipAddressCol" },
           { name: 'addr', data: 'addr', className: "addressCol" },
           { name: 'version', data: 'version', className: "versionCol" },
           { name: 'lastseen', data: 'lastseen', className: "lastSeenCol" },
@@ -91,9 +132,7 @@ block content
         ],
         rowCallback: function(row, data, index) {
           $("td.addressCol", row).addClass("breakWord");
-
-          if (useNewDashFormat)
-            $("td.ipAddressCol", row).addClass("breakWord");
+          $("td.ipAddressCol", row).addClass("breakWord");
 
           switch (data['status'].toUpperCase()) {
             case 'ENABLED':
@@ -103,6 +142,10 @@ block content
               $("td.statusCol", row).addClass('table-danger');
               break;
             case 'EXPIRED':
+            case 'WATCHDOG_EXPIRED':
+            case 'NEW_START_REQUIRED':
+            case 'UPDATE_REQUIRED':
+            case 'POSE_BANNED':
               $("td.statusCol", row).addClass('table-warning');
               break;
             default:
@@ -117,20 +160,23 @@ block content
         },
         fnInitComplete: function(settings, json) {
           setTimeout(function () {
-            // Hide/show columns based on which Dash masternode format is used
-            ctable.api().column('rank:name').visible(!useNewDashFormat, false);
-            ctable.api().column('network:name').visible(!useNewDashFormat, false);
-            ctable.api().column('version:name').visible(!useNewDashFormat, false);
-            ctable.api().column('lastseen:name').visible(!useNewDashFormat, false);
-            ctable.api().column('activetime:name').visible(!useNewDashFormat, false);
-            ctable.api().column('ip_address:name').visible(useNewDashFormat, false);
-            ctable.api().column('last_paid_block:name').visible(useNewDashFormat);
+            // Hide/show columns based on whether they have data or not
+            ctable.api().column('rank:name').visible(enabled_columns.rank, false);
+            ctable.api().column('network:name').visible(enabled_columns.network, false);
+            ctable.api().column('version:name').visible(enabled_columns.version, false);
+            ctable.api().column('lastseen:name').visible(enabled_columns.lastseen, false);
+            ctable.api().column('activetime:name').visible(enabled_columns.activetime, false);
+            ctable.api().column('ip_address:name').visible(enabled_columns.ip_address, false);
+            ctable.api().column('last_paid_block:name').visible(enabled_columns.last_paid_block, false);
+            ctable.api().column('status:name').visible(enabled_columns.status, false);
+            ctable.api().column('addr:name').visible(enabled_columns.addr, false);
+            ctable.api().column('lastpaid:name').visible(enabled_columns.lastpaid, false);
           }, 0);
         }
       });
 
       if ('#{settings.masternodes_page.page_header.show_last_updated}' == 'true') {
-        var lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
+        const lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
 
         if (lastUpdatedDate != 0) {
           $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
@@ -180,9 +226,9 @@ block content
           - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);
         thead
           tr(class=theadClasses)
+            th.text-center IP address
             th.text-center Pay rank
             th.text-center Network
-            th.text-center IP address
             th.text-center Wallet address
             th.text-center Protocol
             th.text-center Last seen

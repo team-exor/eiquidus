@@ -1658,7 +1658,7 @@ if (lib.is_locked([database]) == false) {
             lib.syncLoop((isObject ? objectKeys : body).length, function(loop) {
               var i = loop.iteration();
 
-              db.save_masternode((isObject ? body[objectKeys[i]] : body[i]), function(success) {
+              db.save_masternode((isObject ? body[objectKeys[i]] : body[i]), (isObject ? objectKeys[i] : null), function(success) {
                 if (success) {
                   // check if the script is stopping
                   if (stopSync) {
