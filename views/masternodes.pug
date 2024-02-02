@@ -171,6 +171,7 @@ block content
             ctable.api().column('status:name').visible(enabled_columns.status, false);
             ctable.api().column('addr:name').visible(enabled_columns.addr, false);
             ctable.api().column('lastpaid:name').visible(enabled_columns.lastpaid, false);
+            fixDataTableColumns();
           }, 0);
         }
       });
