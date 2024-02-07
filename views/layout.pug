@@ -148,6 +148,7 @@ html(lang='en')
       - showNetworkPanel = true
     script.
       const { OverlayScrollbars } = OverlayScrollbarsGlobal;
+      var isDocumentReady = false;
 
       /* special thanks to the stackoverflow community for the getParameterByName function: https://stackoverflow.com/a/901144/3038650 */
       function getParameterByName(name, url = window.location.href) {
@@ -260,8 +261,10 @@ html(lang='en')
           $('#search-header-span').tooltip('hide');
       });
       $(window).resize(function () {
-        fixDataTableColumns();
-        fixFooterHeightAndPosition();
+        if (isDocumentReady) {
+          fixDataTableColumns();
+          fixFooterHeightAndPosition();
+        }
       });
       $(document).ready(function() {
         if ('#{active}' != '')
