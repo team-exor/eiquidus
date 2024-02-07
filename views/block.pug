@@ -75,6 +75,8 @@ block content
           tr(class=theadClasses)
             th.text-center #{settings.locale.height}
             th.text-center #{settings.locale.difficulty}
+            if settings.block_page.multi_algorithm.show_algo == true
+              th.text-center='Algorithm'
             th.text-center #{settings.locale.confirmations}
             if settings.blockchain_specific.heavycoin.enabled == true
               th.text-center Vote
@@ -91,6 +93,8 @@ block content
             td.text-center=block.height
             td.text-center #{splitDifficulty[0]}.
               span.decimal #{splitDifficulty[1]}
+            if settings.block_page.multi_algorithm.show_algo == true
+              td.text-center=block[settings.block_page.multi_algorithm.key_name]
             if block.confirmations >= confirmations
               td.text-center.table-success=block.confirmations
             else if block.confirmations < (confirmations / 2)

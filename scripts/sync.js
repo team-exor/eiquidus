@@ -120,7 +120,7 @@ function update_tx_db(coin, start, end, txes, timeout, check_only, cb) {
                     // check if this tx should be added to the local database
                     if (tx_deleted || !tx) {
                       // save the transaction to local database
-                      db.save_tx(txid, block_height, function(err, tx_has_vout) {
+                      db.save_tx(txid, block_height, block, function(err, tx_has_vout) {
                         if (err)
                           console.log(err);
                         else
@@ -673,7 +673,7 @@ function check_add_tx(txid, blockhash, tx_count, cb) {
         // check if the block was found
         if (block) {
           // save the tx to the local database
-          db.save_tx(txid, block.height, function(save_tx_err, tx_has_vout) {
+          db.save_tx(txid, block.height, block, function(save_tx_err, tx_has_vout) {
             // check if there were any save errors
             if (save_tx_err)
               console.log(save_tx_err);

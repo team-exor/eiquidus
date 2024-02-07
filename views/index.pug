@@ -61,20 +61,30 @@ block content
           }
         },
         rowCallback: function(row, data, index) {
-          var blockindex = data[0]; //variables for better readability
-          var blockhash = data[1]; //variables for better readability
-          var txhash = data[2]; //variables for better readability
-          var outputs = data[3]; //variables for better readability
-          var amount = Number(data[4]).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}); //variables for better readability
+          // variables for better readability
+          var blockindex = data[0];
+          var blockhash = data[1];
+          var txhash = data[2];
+          var outputs = data[3];
+          var amount = Number(data[4]).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
           var amountParts = amount.split('.');
           var amount = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
           var timestamp = data[5];
+          var offset = 0;
+
           $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa-regular fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="#{settings.locale.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
           $("td:eq(1)", row).html('<a href="/block/' + blockhash + '">' + blockindex + '</a>');
           $("td:eq(2)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass("text-center breakWord d-none d-md-table-cell");
           $("td:eq(3)", row).html(outputs).addClass("text-center d-none d-sm-table-cell");
           $("td:eq(4)", row).html(amount);
-          $("td:eq(5)", row).html('<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-bs-toggle="tooltip" data-bs-placement="auto" title="' + format_unixtime(timestamp, true) + '"' : '') + '>' + format_unixtime(timestamp) + '</span>').addClass('text-center');
+
+          if (#{settings.block_page.multi_algorithm.show_algo} == true) {
+            var algo = (data.length > 6 && data[6].indexOf('algo:') == 0 ? data[6].substring('algo:'.length) : '');
+            $("td:eq(5)", row).html(algo);
+            offset = 1;
+          }
+
+          $("td:eq(" + (5 + offset) + ")", row).html('<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-bs-toggle="tooltip" data-bs-placement="auto" title="' + format_unixtime(timestamp, true) + '"' : '') + '>' + format_unixtime(timestamp) + '</span>').addClass('text-center');
         },
         fnDrawCallback: function(settings) {
           fixDataTableColumns();
@@ -169,5 +179,7 @@ block content
             th.text-center.d-none.d-sm-table-cell #{settings.locale.tx_recipients}
             th.text-center #{settings.locale.mkt_amount}
               span.small.fw-normal  (#{settings.coin.symbol})
+            if settings.block_page.multi_algorithm.show_algo == true
+              th.text-center="Algorithm"
             th.text-center #{settings.locale.timestamp}
         tbody.text-center

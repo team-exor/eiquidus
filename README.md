@@ -136,7 +136,7 @@ Table of Contents
       - **getmasternoderewardstotal:** Returns the total number of coins earned in masternode rewards for a specific address that arrived after a specific block height *\*only applicable to masternode coins*
   - **Claim Address:** Allows anyone to set custom display names for wallet addresses that they own using the **Sign Message** feature from their local wallet. Includes *bad word* filter support.
   - **Orphaned Blocks:** Displays a list of orphaned blocks with links to the next and previous "good" blocks
-  - **Block Info:** Displays block summary and list of transactions for a specific block height
+  - **Block Info:** Displays block summary and list of transactions for a specific block height along with optional hash algorithm for multi-algo coins
   - **Transaction Info:** Displays transaction summary, optional OP_RETURN value, list of input addresses and output addresses for a specific transaction
   - **Address Info:** Displays wallet address summary (balance, total sent, total received, QR code) and a list of latest transactions for a specific wallet address
 - Choose from 26 built-in themes with tweakable settings such as light and dark options to customize the look and feel of the explorer:

@@ -66,7 +66,7 @@ mongoose.connect(dbString).then(() => {
                           next_tx();
                         }, timeout);
                       } else {
-                        db.save_tx(txid, block_height, function(err, tx_has_vout) {
+                        db.save_tx(txid, block_height, block, function(err, tx_has_vout) {
                           if (err)
                             console.log(err);
                           else
