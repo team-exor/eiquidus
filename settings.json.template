@@ -918,7 +918,7 @@
     "show_market_select": true,
     // exchanges: Enable/disable api integration with any of the available built-in exchanges
     //            Enabled exchanges display a number of exchange-related metrics including market summary, 24 hour chart, most recent buy/sell orders and latest trade history
-    //            Supported exchanges: altmarkets, dex-trade, freiexchange/freixlite, nonkyc, poloniex, southxchange, xeggex, yobit
+    //            Supported exchanges: altmarkets, dex-trade, freiexchange/freixlite, nonkyc, poloniex, xeggex, yobit
     "exchanges": {
       // altmarkets: a collection of settings that pertain to the altmarkets exchange
       "altmarkets": {
@@ -969,17 +969,6 @@
       "poloniex": {
         // enabled: Enable/disable the poloniex exchange (true/false)
         //          If set to false, the poloniex page will be completely inaccessible and no market data will be downloaded for this exchange
-        "enabled": false,
-        // trading_pairs: An array of market trading pair symbols
-        //                You can add as many trading pairs as necessary
-        //                All entries must specify your coins symbol as it is displayed on the exchange, followed by a slash (/) and ending with the symbol of the market or asset that is being traded against
-        //                Ex: "LTC/BTC", "LTC/USDT", "LTC/ETH"
-        "trading_pairs": [ "LTC/BTC" ]
-      },
-      // southxchange: a collection of settings that pertain to the southxchange exchange
-      "southxchange": {
-        // enabled: Enable/disable the southxchange exchange (true/false)
-        //          If set to false, the southxchange page will be completely inaccessible and no market data will be downloaded for this exchange
         "enabled": false,
         // trading_pairs: An array of market trading pair symbols
         //                You can add as many trading pairs as necessary
