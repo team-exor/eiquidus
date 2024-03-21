@@ -118,6 +118,11 @@ block content
           ) {
             // clear out the captcha to allow the form to be submitted again
             grecaptcha.reset();
+          } else if (
+            '#{selected_captcha_name}' == 'hcaptcha'
+          ) {
+            // clear out the captcha to allow the form to be submitted again
+            hcaptcha.reset()
           }
 
           $('button.btn-success').attr('disabled', false);
