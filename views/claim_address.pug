@@ -47,6 +47,8 @@ block content
           ) {
             showClaimAlert('warning', 'The captcha validation has not been set', false);
           } else {
+            $('button.btn-success').attr('disabled', true);
+
             if ('#{selected_captcha_name}' == 'google_recaptcha2' && '#{settings.captcha.google_recaptcha2.captcha_type}' == 'invisible') {
               grecaptcha.execute();
             } else if ('#{selected_captcha_name}' == 'google_recaptcha3') {
@@ -117,6 +119,8 @@ block content
             // clear out the captcha to allow the form to be submitted again
             grecaptcha.reset();
           }
+
+          $('button.btn-success').attr('disabled', false);
         });
       }
       function onSubmit(token) {
@@ -124,6 +128,8 @@ block content
 
         // ensure the onSubmit event can fire again without needing to reload the page in the event that the server returns an error and the form must be submitted again
         grecaptcha.reset();
+
+        $('button.btn-success').attr('disabled', false);
       }
   .col-xs-12.col-md-12
     if settings.claim_address_page.page_header.show_img == true || settings.claim_address_page.page_header.show_title == true || settings.claim_address_page.page_header.show_description == true
