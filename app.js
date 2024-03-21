@@ -97,43 +97,135 @@ app.use('/', routes);
 
 // post method to claim an address using verifymessage functionality
 app.post('/claim', function(req, res) {
-  // check if the bad-words filter is enabled
-  if (settings.claim_address_page.enable_bad_word_filter == true) {
-    // initialize the bad-words filter
-    var bad_word_lib = require('bad-words');
-    var bad_word_filter = new bad_word_lib();
+  // validate captcha if applicable
+  validate_captcha(settings.claim_address_page.enable_captcha, req.body, function(captcha_error) {
+    // check if there was a problem with captcha
+    if (captcha_error) {
+      // show the captcha error
+      res.json({'status': 'failed', 'error': true, 'message': 'The captcha validation failed'});
+    } else {
+      // check if the bad-words filter is enabled
+      if (settings.claim_address_page.enable_bad_word_filter == true) {
+        // initialize the bad-words filter
+        var bad_word_lib = require('bad-words');
+        var bad_word_filter = new bad_word_lib();
 
-    // clean the message (Display name) of bad words
-    var message = (req.body.message == null || req.body.message == '' ? '' : bad_word_filter.clean(req.body.message));
-  } else {
-    // Do not use the bad word filter
-    var message = (req.body.message == null || req.body.message == '' ? '' : req.body.message);
-  }
+        // clean the message (Display name) of bad words
+        var message = (req.body.message == null || req.body.message == '' ? '' : bad_word_filter.clean(req.body.message));
+      } else {
+        // do not use the bad word filter
+        var message = (req.body.message == null || req.body.message == '' ? '' : req.body.message);
+      }
 
-  // check if the message was filtered
-  if (message == req.body.message) {
-    // call the verifymessage api
-    lib.verify_message(req.body.address, req.body.signature, req.body.message, function(body) {
-      if (body == false)
-        res.json({'status': 'failed', 'error': true, 'message': 'Invalid signature'});
-      else if (body == true) {
-        db.update_claim_name(req.body.address, req.body.message, function(val) {
-          // check if the update was successful
-          if (val == '')
-            res.json({'status': 'success'});
-          else if (val == 'no_address')
-            res.json({'status': 'failed', 'error': true, 'message': 'Wallet address ' + req.body.address + ' is not valid or does not have any transactions'});
-          else
+      // check if the message was filtered
+      if (message == req.body.message) {
+        // call the verifymessage api
+        lib.verify_message(req.body.address, req.body.signature, req.body.message, function(body) {
+          if (body == false)
+            res.json({'status': 'failed', 'error': true, 'message': 'Invalid signature'});
+          else if (body == true) {
+            db.update_claim_name(req.body.address, req.body.message, function(val) {
+              // check if the update was successful
+              if (val == '')
+                res.json({'status': 'success'});
+              else if (val == 'no_address')
+                res.json({'status': 'failed', 'error': true, 'message': 'Wallet address ' + req.body.address + ' is not valid or does not have any transactions'});
+              else
+                res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
+            });
+          } else
             res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
         });
-      } else
-        res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
-    });
-  } else {
-    // message was filtered which would change the signature
-    res.json({'status': 'failed', 'error': true, 'message': 'Display name contains bad words and cannot be saved: ' + message});
-  }
+      } else {
+        // message was filtered which would change the signature
+        res.json({'status': 'failed', 'error': true, 'message': 'Display name contains bad words and cannot be saved: ' + message});
+      }
+    }
+  });
 });
+
+function validate_captcha(captcha_enabled, data, cb) {
+  // check if captcha is enabled for the requested feature
+  if (captcha_enabled == true) {
+    // determine the captcha type
+    if (settings.captcha.google_recaptcha3.enabled == true) {
+      if (data.google_recaptcha3 != null) {
+        const request = require('postman-request');
+
+        request({uri: 'https://www.google.com/recaptcha/api/siteverify?secret=' + settings.captcha.google_recaptcha3.secret_key + '&response=' + data.google_recaptcha3, json: true}, function (error, response, body) {
+          if (error) {
+            // an error occurred while trying to validate the captcha
+            return cb(true);
+          } else if (body == null || body == '' || typeof body !== 'object') {
+            // return data is invalid
+            return cb(true);
+          } else if (body.score == null || body.score < settings.captcha.google_recaptcha3.pass_score) {
+            // captcha challenge failed
+            return cb(true);
+          } else {
+            // captcha challenge passed
+            return cb(false);
+          }
+        });
+      } else {
+        // a captcha response wasn't received
+        return cb(true);
+      }
+    } else if (settings.captcha.google_recaptcha2.enabled == true) {
+      if (data.google_recaptcha2 != null) {
+        const request = require('postman-request');
+
+        request({uri: 'https://www.google.com/recaptcha/api/siteverify?secret=' + settings.captcha.google_recaptcha2.secret_key + '&response=' + data.google_recaptcha2, json: true}, function (error, response, body) {
+          if (error) {
+            // an error occurred while trying to validate the captcha
+            return cb(true);
+          } else if (body == null || body == '' || typeof body !== 'object') {
+            // return data is invalid
+            return cb(true);
+          } else if (body.success == null || body.success == false) {
+            // captcha challenge failed
+            return cb(true);
+          } else {
+            // captcha challenge passed
+            return cb(false);
+          }
+        });
+      } else {
+        // a captcha response wasn't received
+        return cb(true);
+      }
+    } else if (settings.captcha.hcaptcha.enabled == true) {
+      if (data.hcaptcha != null) {
+        const request = require('postman-request');
+
+        request({uri: 'https://hcaptcha.com/siteverify?secret=' + settings.captcha.hcaptcha.secret_key + '&response=' + data.hcaptcha, json: true}, function (error, response, body) {
+          if (error) {
+            // an error occurred while trying to validate the captcha
+            return cb(true);
+          } else if (body == null || body == '' || typeof body !== 'object') {
+            // return data is invalid
+            return cb(true);
+          } else if (body.success == null || body.success == false) {
+            // captcha challenge failed
+            return cb(true);
+          } else {
+            // captcha challenge passed
+            return cb(false);
+          }
+        });
+      } else {
+        // a captcha response wasn't received
+        return cb(true);
+      }
+    } else {
+      // no captcha options are enabled
+      return cb(false);
+    }
+  } else {
+    // captcha is not enabled for this feature
+    return cb(false);
+  }
+}
 
 // extended apis
 app.use('/ext/getmoneysupply', function(req, res) {
@@ -859,6 +951,7 @@ app.set('markets_page', settings.markets_page);
 app.set('api_page', settings.api_page);
 app.set('claim_address_page', settings.claim_address_page);
 app.set('orphans_page', settings.orphans_page);
+app.set('captcha', settings.captcha);
 app.set('labels', settings.labels);
 app.set('default_coingecko_ids', settings.default_coingecko_ids);
 app.set('api_cmds', settings.api_cmds);

@@ -107,6 +107,21 @@ html(lang='en')
           - showNethashChart = true
         if settings.claim_address_page.show_difficulty_chart == true
           - showDifficultyChart = true
+        if settings.claim_address_page.enable_captcha == true
+          - var selected_captcha_object = null
+          - var selected_captcha_name = ''
+          each captcha, name in settings.captcha
+            if selected_captcha_object == null && captcha != null && captcha.enabled == true
+              - selected_captcha_object = captcha
+              - selected_captcha_name = name
+          if selected_captcha_object != null
+            case selected_captcha_name
+              when 'google_recaptcha3'
+                script(type='text/javascript', src='https://www.google.com/recaptcha/api.js?render=' + settings.captcha.google_recaptcha3.site_key, async, defer)
+              when 'google_recaptcha2'
+                script(type='text/javascript', src='https://www.google.com/recaptcha/api.js', async, defer)
+              when 'hcaptcha'
+                script(type='text/javascript', src='https://js.hcaptcha.com/1/api.js', async, defer)
       when 'orphans'
         if settings.orphans_page.show_panels == true
           - showPanels = true

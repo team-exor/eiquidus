@@ -1,27 +1,15 @@
 extends layout
 
 block content
+  - var selected_captcha_object = null
+  - var selected_captcha_name = ''
+  if settings.claim_address_page.enable_captcha == true
+    each captcha, name in settings.captcha
+      if selected_captcha_object == null && captcha != null && captcha.enabled == true
+        - selected_captcha_object = captcha
+        - selected_captcha_name = name
   script.
     $(document).ready(function () {
-        function generateAlertHTML(alertClass, allowDismiss, headerText, msgText) {
-          return '<div class="alert alert-' + alertClass + (allowDismiss ? ' alert-dismissible fade show' : '') + '" role="alert">' +
-            (allowDismiss ? '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' : '') + 
-            '<div' + (msgText == null || msgText == '' ? '' : ' class="cardSpacer"') + '>' +
-            '<span class="fa-solid ' + (alertClass == 'success' ? 'fa-circle-check' : (alertClass == 'danger' ? 'fa-circle-exclamation' : (alertClass == 'info' ? 'fa-circle-info' : 'fa-triangle-exclamation'))) + '" style="margin-right:5px"></span>' +
-            '<strong>' + headerText + '</strong>' +
-            '</div>' +
-            (msgText == null || msgText == '' ? '' : '<span>' + msgText + '</span>') +
-            '</div>';
-        }
-        function displayAsText(str) {
-          return str.replace(/</g, '&#60;').replace(/>/g, '&#62;');
-        }
-        function showClaimAlert(claimClass, warnMsg, removedClaim) {
-          if ($('#claimAlert').length == 0)
-            $('<div id="claimAlert"></div>').insertBefore('#claimForm');
-          $('#claimAlert').html(generateAlertHTML(claimClass, true, (claimClass == 'success' ? (removedClaim ? 'Address claim removed successfully' : 'Address claimed successfully') : (claimClass == 'danger' ? 'Failed to claim address' : 'Required field missing')), (claimClass == 'success' ? '<strong>' + $('input#address').val() + '</strong> will now be referred to as <strong>' + (removedClaim ? $('input#address').val() : displayAsText($('#message').val())) + '</strong> throughout the website' : warnMsg) + '.'));
-          fixFooterHeightAndPosition();
-        }
         $('#claimInstructions').on('show.bs.collapse', function () {
           $('#showClaimInstructions').html('<i class="fa-solid fa-angle-down" style="margin-right:5px;"></i><span>Hide claim instructions</span>');
         }).on('hide.bs.collapse', function () {
@@ -36,7 +24,8 @@ block content
           var address = $('input#address').val();
           var message = $('input#message').val();
           var signature = $('input#signature').val();
-          var url = '/claim';
+          var recaptcha2 = ($('#g-recaptcha-response').length > 0 ? $('#g-recaptcha-response').val() : '');
+          var hcaptcha = ($('textarea[name^="h-captcha-response"]').length > 0 ? $('textarea[name^="h-captcha-response"]').val() : '');
           
           if (address == null || address.trim().length == 0) {
             showClaimAlert('warning', 'Please enter the wallet address you wish to claim', false);
@@ -44,19 +33,35 @@ block content
           } else if (signature == null || signature.trim().length == 0) {
             showClaimAlert('warning', 'Please enter the signature value from your wallet software', false);
             $('input#signature').focus();
+          } else if (
+            (
+              '#{selected_captcha_name}' == 'google_recaptcha2' &&
+              '#{settings.captcha.google_recaptcha2.captcha_type}' == 'checkbox' &&
+              $('#g-recaptcha-response').length > 0 &&
+              recaptcha2 == ''
+            ) ||
+            (
+              $('textarea[name^="h-captcha-response"]').length > 0 &&
+              hcaptcha == ''
+            )
+          ) {
+            showClaimAlert('warning', 'The captcha validation has not been set', false);
           } else {
-            $.ajax({
-              type: 'post',
-              url: url,
-              data: {
-                'address': address,
-                'message': message,
-                'signature': signature
-              },
-              success: function (data) {
-                showClaimAlert((data.status == 'success' ? 'success' : 'danger'), data.message, (data.status == 'success' && message == ''));
-              }
-            });
+            if ('#{selected_captcha_name}' == 'google_recaptcha2' && '#{settings.captcha.google_recaptcha2.captcha_type}' == 'invisible') {
+              grecaptcha.execute();
+            } else if ('#{selected_captcha_name}' == 'google_recaptcha3') {
+              grecaptcha.ready(function() {
+                grecaptcha.execute('#{(selected_captcha_name != '' && settings.captcha[selected_captcha_name].site_key != null ? settings.captcha[selected_captcha_name].site_key : '')}', {action: 'submit'}).then(function(token) {
+                  submitForm(token);
+                });
+              });
+            } else if (recaptcha2 != '') {
+              submitForm(recaptcha2);
+            } else if (hcaptcha != '') {
+              submitForm(hcaptcha);
+            } else {
+              submitForm('');
+            }
           }
         });
         if ('!{hash}' != 'null' && '!{hash}' != '') {
@@ -66,6 +71,60 @@ block content
         if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.claim_address_page.page_header.show_img} == true)
           startRotateElement('img#header-img');
       });
+      function displayAsText(str) {
+        return str.replace(/</g, '&#60;').replace(/>/g, '&#62;');
+      }
+      function showClaimAlert(claimClass, warnMsg, removedClaim) {
+        if ($('#claimAlert').length == 0)
+          $('<div id="claimAlert"></div>').insertBefore('#claimForm');
+        $('#claimAlert').html(generateAlertHTML(claimClass, true, (claimClass == 'success' ? (removedClaim ? 'Address claim removed successfully' : 'Address claimed successfully') : (claimClass == 'danger' ? 'Failed to claim address' : 'Required field missing')), (claimClass == 'success' ? '<strong>' + $('input#address').val() + '</strong> will now be referred to as <strong>' + (removedClaim ? $('input#address').val() : displayAsText($('#message').val())) + '</strong> throughout the website' : warnMsg) + '.'));
+        fixFooterHeightAndPosition();
+      }
+      function generateAlertHTML(alertClass, allowDismiss, headerText, msgText) {
+        return '<div class="alert alert-' + alertClass + (allowDismiss ? ' alert-dismissible fade show' : '') + '" role="alert">' +
+          (allowDismiss ? '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' : '') + 
+          '<div' + (msgText == null || msgText == '' ? '' : ' class="cardSpacer"') + '>' +
+          '<span class="fa-solid ' + (alertClass == 'success' ? 'fa-circle-check' : (alertClass == 'danger' ? 'fa-circle-exclamation' : (alertClass == 'info' ? 'fa-circle-info' : 'fa-triangle-exclamation'))) + '" style="margin-right:5px"></span>' +
+          '<strong>' + headerText + '</strong>' +
+          '</div>' +
+          (msgText == null || msgText == '' ? '' : '<span>' + msgText + '</span>') +
+          '</div>';
+      }
+      function submitForm(captchaData) {
+        const url = '/claim';
+
+        let postData = {
+          'address': $('input#address').val(),
+          'message': $('input#message').val(),
+          'signature': $('input#signature').val()
+        };
+
+        if ('#{selected_captcha_name}' != '' && captchaData != '')
+          postData['#{selected_captcha_name}'] = captchaData;
+
+        $.ajax({
+          type: 'post',
+          url: url,
+          data: postData
+        })
+        .done(function(data) {
+          showClaimAlert((data.status == 'success' ? 'success' : 'danger'), data.message, (data.status == 'success' && message == ''));
+
+          if (
+            '#{selected_captcha_name}' == 'google_recaptcha2' &&
+            '#{settings.captcha.google_recaptcha2.captcha_type}' == 'checkbox'
+          ) {
+            // clear out the captcha to allow the form to be submitted again
+            grecaptcha.reset();
+          }
+        });
+      }
+      function onSubmit(token) {
+        submitForm(token);
+
+        // ensure the onSubmit event can fire again without needing to reload the page in the event that the server returns an error and the form must be submitted again
+        grecaptcha.reset();
+      }
   .col-xs-12.col-md-12
     if settings.claim_address_page.page_header.show_img == true || settings.claim_address_page.page_header.show_title == true || settings.claim_address_page.page_header.show_description == true
       #page-header-container(style='align-items:' + (settings.claim_address_page.page_header.show_img == true && settings.claim_address_page.page_header.show_title == true && settings.claim_address_page.page_header.show_description == true ? 'flex-start' : 'center'))
@@ -141,4 +200,19 @@ block content
             fieldset.entryField
               label.form-label.mt-3(for='signature') Signature
               input#signature.form-control.mb-3(type='text', placeholder='Signature', maxlength='100')
-          button.btn.btn-success(type='submit') Claim
+          if settings.claim_address_page.enable_captcha == true && selected_captcha_object != null
+            case selected_captcha_name
+              when 'google_recaptcha2'
+                if settings.captcha.google_recaptcha2.captcha_type == 'invisible'
+                  div#recaptcha.g-recaptcha(data-sitekey=settings.captcha[selected_captcha_name].site_key, data-callback='onSubmit' data-size='invisible')
+                else
+                  .form-group
+                    fieldset.entryField
+                      div(class='g-recaptcha mb-3', data-sitekey=settings.captcha[selected_captcha_name].site_key)
+              when 'hcaptcha'
+                .form-group
+                  fieldset.entryField
+                    div.h-captcha(data-sitekey=settings.captcha[selected_captcha_name].site_key)
+          .form-group
+            fieldset.entryField
+              button.btn.btn-success(type='submit') Claim
