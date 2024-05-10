@@ -258,7 +258,7 @@ html(lang='en')
           'footer-only': 'true'
         };
 
-        $.ajax({url: '/ext/getsummary', headers: summary_headers, success: function(json) {
+        $.ajax({url: '/ext/getsummary', headers: summary_headers, cache: false, success: function(json) {
           $("#lblConnections").text(json.connections + ' connections');
           $("#lblBlockcount").text(json.blockcount + ' blocks');
         }});
@@ -399,7 +399,7 @@ html(lang='en')
             Accept: 'application/json, text/javascript, */*; q=0.01'
           };
 
-          $.ajax({url: '/ext/getsummary', headers: summary_headers, success: function(json) {
+          $.ajax({url: '/ext/getsummary', headers: summary_headers, cache: false, success: function(json) {
             if (json.masternodeCountOnline == null)
               json.masternodeCountOnline = '-';
             if (json.masternodeCountOffline == null)
