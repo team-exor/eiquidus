@@ -1,8 +1,8 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 const argument = (process.argv[2] != null && process.argv[2] != '' && (process.argv[2] == 'explorer-only' || process.argv[2] == 'dependencies-only') ? process.argv[2] : '');
-
-var reloadWebserver = false;
+const settings = require('../lib/settings');
+let reloadWebserver = false;
 
 function exit() {
   console.log('Explorer update complete');
@@ -33,7 +33,7 @@ if (argument == '' || argument == 'explorer-only') {
     var commit = fs.readFileSync('./.git/refs/heads/master');
 
     // update to newest explorer source
-    console.log('Downloading newest explorer code.. Please wait..\n');
+    console.log(`${settings.localization.downloading_newest_explorer_code}.. ${settings.localization.please_wait}..\n`);
 
     try {
       console.log('Git response:');
@@ -71,7 +71,7 @@ if (argument == '' || argument == 'dependencies-only') {
 
   // check for outdated packages
   try {
-    console.log((argument == 'dependencies-only' ? '' : '\n') +'Checking for outdated packages.. Please wait..');
+    console.log(`${(argument == 'dependencies-only' ? '' : '\n')}${settings.localization.check_outdated_packages}.. ${settings.localization.please_wait}..`);
     execSync('npm outdated');
 
     // all packages are up-to-date
@@ -86,7 +86,7 @@ if (argument == '' || argument == 'dependencies-only') {
   // check if there were any outdated packages
   if (outdatedPkgs != null) {
     // update npm modules to latest versions according to package.json rules
-    console.log('Updating out-of-date explorer packages.. Please wait..\n');
+    console.log(`${settings.localization.updating_explorer_packages}.. ${settings.localization.please_wait}..\n`);
     execSync('npm update');
 
     // check for outdated packages (again)
@@ -108,7 +108,7 @@ if (argument == '' || argument == 'dependencies-only') {
 
 // check if the web server should be reloaded
 if (reloadWebserver == true) {
-  console.log('Checking if webserver is running.. Please wait..\n');
+  console.log(`${settings.localization.checking_webserver_running}.. ${settings.localization.please_wait}..\n`);
 
   const path = require('path');
   const lib = require('../lib/explorer');
@@ -136,7 +136,7 @@ if (reloadWebserver == true) {
   if (pidActive == true) {
     // compile css and initialize database
     init_database(function() {
-      console.log('\nReloading the explorer.. Please wait..\n');
+      console.log(`\n${settings.localization.reloading_explorer}.. ${settings.localization.please_wait}..\n`);
 
       // reload pm2 using the zero-downtime reload function
       execSync(`pm2 reload explorer`, {stdio : 'inherit'});
@@ -158,7 +158,7 @@ if (reloadWebserver == true) {
     if (pidActive == true) {
       // compile css and initialize database
       init_database(function() {
-        console.log('\nReloading the explorer.. Please wait..\n');
+        console.log(`\n${settings.localization.reloading_explorer}.. ${settings.localization.please_wait}..\n`);
 
         // reload forever using the restart function
         execSync(`forever restart explorer`, {stdio : 'inherit'});
@@ -171,7 +171,6 @@ if (reloadWebserver == true) {
       });
     } else {
       const request = require('postman-request');
-      const settings = require('../lib/settings');
 
       // try executing the restart explorer api
       request({uri: `http://localhost:${settings.webserver.port}/system/restartexplorer`, timeout: 1000}, function (error, response, summary) {
@@ -184,7 +183,7 @@ if (reloadWebserver == true) {
         } else {
           // compile css and initialize database
           init_database(function() {
-            console.log('\nReloading the explorer.. Please wait..\n');
+            console.log(`\n${settings.localization.reloading_explorer}.. ${settings.localization.please_wait}..\n`);
 
             // finish the script
             exit();

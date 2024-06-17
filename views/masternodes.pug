@@ -200,23 +200,23 @@ block content
             img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
         #page-title-container
           if settings.masternodes_page.page_header.show_title == true
-            h3#page-title #{settings.locale.mn_title.replace('{1}', settings.coin.name)}
+            h3#page-title #{settings.localization.mn_title.replace('{1}', settings.coin.name)}
           if settings.masternodes_page.page_header.show_last_updated == true
             if settings.masternodes_page.page_header.show_title != true && settings.masternodes_page.page_header.show_description != true
               #page-title-container
                 .sub-page-header
-                  span.fw-bold=settings.locale.last_updated + ':'
+                  span.fw-bold=settings.localization.last_updated + ':'
                   span.text-muted#lastUpdatedDate
             else
               .sub-page-header(style='margin-bottom:' + (settings.masternodes_page.page_header.show_description == true ? '5' : '0') + 'px')
-                span.fw-bold=settings.locale.last_updated + ':'
+                span.fw-bold=settings.localization.last_updated + ':'
                 span.text-muted#lastUpdatedDate
           if settings.masternodes_page.page_header.show_description == true
             if settings.masternodes_page.page_header.show_title != true && settings.masternodes_page.page_header.show_last_updated != true
               #page-title-container
-                .sub-page-header.text-muted=settings.locale.mn_description.replace('{1}', settings.coin.name)
+                .sub-page-header.text-muted=settings.localization.mn_description.replace('{1}', settings.coin.name)
             else
-              .sub-page-header.text-muted=settings.locale.mn_description.replace('{1}', settings.coin.name)
+              .sub-page-header.text-muted=settings.localization.mn_description.replace('{1}', settings.coin.name)
       .cardSpacer.clearfix
     .card.card-default.border-0.cardSpacer
       .card-header

@@ -25,6 +25,31 @@
   "unknown_recipient": "Unknown Recipient",
   "last_updated": "Last Updated",
   "initial_index_alert": "Blockchain data is currently being synchronized. You may browse the site during this time, but keep in mind that data may not yet be fully accurate and some functionality may not work until synchronization is complete.",
+  "please_wait": "Please wait",
+  "creating_initial_entry": "Creating initial {1} entry",
+  "entry_created_successfully": "Initial {1} entry for {2} created successfully",
+  "method_disabled": "This method is disabled",
+  "compiling_css": "Compiling CSS",
+  "installing_module": "Installing {1} module",
+  "restoring_backup": "Restoring backup",
+  "extracting_backup_files": "Extracting backup files",
+  "explorer_shutting_down": "Explorer shutting down",
+  "initializing_database": "Initializing database",
+  "downloading_newest_explorer_code": "Downloading newest explorer code",
+  "check_outdated_packages": "Checking for outdated packages",
+  "updating_explorer_packages": "Updating out-of-date explorer packages",
+  "checking_webserver_running": "Checking if webserver is running",
+  "reloading_explorer": "Reloading the explorer",
+  "email_sent_successfully": "Email sent successfully",
+  "check_console": "Check your console",
+  "process_aborted": "Process aborted",
+  "nothing_was_deleted": "Nothing was deleted",
+  "nothing_was_restored": "Nothing was restored",
+
+  // prompts
+  "are_you_sure": "Are you sure you want to do this? [y/n]",
+  "short_yes": "y",
+  "long_yes": "yes",
 
   // menu items
   "menu_explorer": "Explorer",
@@ -77,6 +102,7 @@
   "error_title": "{1} Block Explorer Error",
   "error_description": "The page you are looking for cannot be found",
   "error_description_alt": "An error occurred which prevented the page from loading correctly",
+  "error_not_found": "Not Found",
 
   // address view
   "a_title": "{1} Wallet Address Details",
@@ -196,5 +222,32 @@
   "heavy_estnext": "Est. Next",
   "heavy_changein": "Reward change in approximately",
   "heavy_key": "Key",
-  "heavy_lastxvotes": "Last 20 votes"
+  "heavy_lastxvotes": "Last 20 votes",
+
+  // sync
+  "script_launched": "Script launched with pid",
+  "stopping_sync_process": "Stopping sync process",
+  "finding_earliest_orphan": "Finding the earliest orphaned blockindex",
+  "calculating_market_price": "Calculating market price",
+  "syncing_blocks": "Syncing blocks",
+  "syncing_peers": "Syncing peers",
+  "syncing_masternodes": "Syncing masternodes",
+  "syncing_markets": "Syncing markets",
+  "checking_blocks": "Checking blocks",
+  "calculating_tx_count": "Calculating tx count",
+  "finding_last_blockindex": "Finding last blockindex",
+  "path_cannot_be_found": "'{1}' cannot be found",
+
+  // settings
+  "deprecated_setting": "Deprecated setting '{1}' has been mapped to the new location '{2}'. Be sure to make this change in settings.json as the old setting will be removed in a future release",
+  "unknown_setting": "Unknown setting '{1}' has been ignored",
+  "missing_setting": "Setting '{1}' is missing. Loading default value",
+  "continuing_using_defaults": "Continuing using defaults",
+  "missing_settings_file": "The {1} file is missing",
+  "error_processing_settings": "There was an error processing the {1} file",
+
+  // locale
+  "locale_lowercase_req": "Locale strings must start with a lowercase character",
+  "locale_unknown_string": "Unknown Locale String",
+  "locale_not_exists": "This setting doesn't exist or was removed"
 }

@@ -14,12 +14,12 @@ block content
             img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
         #page-title-container
           if settings.error_page.page_header.show_title == true
-            h3#page-title=settings.locale.error_title.replace('{1}', settings.coin.name)
+            h3#page-title=settings.localization.error_title.replace('{1}', settings.coin.name)
           if settings.error_page.page_header.show_description == true
             if settings.error_page.page_header.show_title != true
               #page-title-container
-                .sub-page-header.text-muted=(error.status == null ? settings.locale.error_description_alt : settings.locale.error_description)
+                .sub-page-header.text-muted=(error.status == null ? settings.localization.error_description_alt : settings.localization.error_description)
             else
-              .sub-page-header.text-muted=(error.status == null ? settings.locale.error_description_alt : settings.locale.error_description)
+              .sub-page-header.text-muted=(error.status == null ? settings.localization.error_description_alt : settings.localization.error_description)
       .cardSpacer.clearfix
     h2=(error.status == null ? '' : error.status + ' ') + message

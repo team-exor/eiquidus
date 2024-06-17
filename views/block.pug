@@ -36,7 +36,7 @@ block content
           button.btn-close(type='button', data-bs-dismiss='alert')
           .cardSpacer
             span.fa-solid.fa-triangle-exclamation(style='margin-right:5px')
-            strong=settings.locale.ex_warning
+            strong=settings.localization.ex_warning
           div="This is an orphaned block"
     if settings.block_page.page_header.show_img == true || settings.block_page.page_header.show_title == true || settings.block_page.page_header.show_description == true
       #page-header-container(style='align-items:' + (settings.block_page.page_header.show_img == true && settings.block_page.page_header.show_title == true && settings.block_page.page_header.show_description == true ? 'flex-start' : 'center'))
@@ -45,45 +45,45 @@ block content
             img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
         #page-title-container
           if settings.block_page.page_header.show_title == true
-            h3#page-title #{settings.locale.block_title.replace('{1}', settings.coin.name)}
+            h3#page-title #{settings.localization.block_title.replace('{1}', settings.coin.name)}
           if settings.block_page.page_header.show_description == true
             if settings.block_page.page_header.show_title != true
               #page-title-container
-                .sub-page-header.text-muted=settings.locale.block_description.replace('{1}', settings.coin.name).replace('{2}', block.height)
+                .sub-page-header.text-muted=settings.localization.block_description.replace('{1}', settings.coin.name).replace('{2}', block.height)
             else
-              .sub-page-header.text-muted=settings.locale.block_description.replace('{1}', settings.coin.name).replace('{2}', block.height)
+              .sub-page-header.text-muted=settings.localization.block_description.replace('{1}', settings.coin.name).replace('{2}', block.height)
       .cardSpacer.clearfix
     .card.card-default.border-0.cardSpacer
       .card-header
         div(style='display: flex;flex-wrap: wrap;')
           if block.previousblockhash != null
             a(href='/block/' + block.previousblockhash)
-              span.fa-solid.fa-chevron-left.block-last(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.block_previous, style='color: var(--bs-body-color);')
-            strong.d-none.d-md-block #{settings.locale.tx_block_hash}: #{block.hash}
-            strong.d-block.d-md-none #{settings.locale.ex_summary}
+              span.fa-solid.fa-chevron-left.block-last(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.localization.block_previous, style='color: var(--bs-body-color);')
+            strong.d-none.d-md-block #{settings.localization.tx_block_hash}: #{block.hash}
+            strong.d-block.d-md-none #{settings.localization.ex_summary}
           else
-            strong.d-none.d-md-block(style='margin-left:10px;') #{settings.locale.tx_block_hash}: #{block.hash}
-            strong.d-block.d-md-none(style='margin-left:10px;') #{settings.locale.ex_summary}
+            strong.d-none.d-md-block(style='margin-left:10px;') #{settings.localization.tx_block_hash}: #{block.hash}
+            strong.d-block.d-md-none(style='margin-left:10px;') #{settings.localization.ex_summary}
           if block.nextblockhash != null
             a(href='/block/' + block.nextblockhash)
-              span.fa-solid.fa-chevron-right.block-next(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.block_next, style='color: var(--bs-body-color);')
+              span.fa-solid.fa-chevron-right.block-next(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.localization.block_next, style='color: var(--bs-body-color);')
           if settings.api_page.public_apis.rpc.getblock.enabled == true
-            a.d-none.d-md-block(href='/api/getblock?hash=' + block.hash, style='margin-left:auto;', data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_raw_block_data)
+            a.d-none.d-md-block(href='/api/getblock?hash=' + block.hash, style='margin-left:auto;', data-bs-toggle='tooltip', data-bs-placement='top', title=settings.localization.view_raw_block_data)
               span.fa-solid.fa-circle-info(style='color: var(--bs-body-color);')
       table#block-summary.table.table-bordered.summary-table.bottom-border-0.single-row-table(style='border-top:0;margin-top:0 !important;')
         thead
           tr(class=theadClasses)
-            th.text-center #{settings.locale.height}
-            th.text-center #{settings.locale.difficulty}
+            th.text-center #{settings.localization.height}
+            th.text-center #{settings.localization.difficulty}
             if settings.block_page.multi_algorithm.show_algo == true
               th.text-center='Algorithm'
-            th.text-center #{settings.locale.confirmations}
+            th.text-center #{settings.localization.confirmations}
             if settings.blockchain_specific.heavycoin.enabled == true
               th.text-center Vote
-            th.text-center #{settings.locale.size} (kB)
-            th.text-center #{settings.locale.bits}
-            th.text-center #{settings.locale.nonce}
-            th.text-center #{settings.locale.timestamp}
+            th.text-center #{settings.localization.size} (kB)
+            th.text-center #{settings.localization.bits}
+            th.text-center #{settings.localization.nonce}
+            th.text-center #{settings.localization.timestamp}
         tbody
           - var difficulty = Number(block.difficulty).toLocaleString('en',{'minimumFractionDigits':4,'maximumFractionDigits':4,'useGrouping':true});
           - var splitDifficulty = difficulty.split('.');
@@ -111,25 +111,25 @@ block content
               span#timestampCol
     if block.hash == settings.block_page.genesis_block
       .alert.alert-info(role='alert', style='text-align:center;')
-        strong #{settings.locale.block_genesis}
+        strong #{settings.localization.block_genesis}
     else
       .card.card-default.border-0
         .card-header
-          strong #{settings.locale.ex_latest_transactions}
+          strong #{settings.localization.ex_latest_transactions}
         table.table.table-bordered.table-striped.table-hover.summary-table.mobile-border-right
           thead
             tr(class=theadClasses)
               th.text-center.d-table-cell.d-md-none
-              th.d-none.d-md-table-cell #{settings.locale.tx_hash}
-              th.text-center #{settings.locale.tx_recipients}
-              th.text-center #{settings.locale.mkt_amount}
+              th.d-none.d-md-table-cell #{settings.localization.tx_hash}
+              th.text-center #{settings.localization.tx_recipients}
+              th.text-center #{settings.localization.mkt_amount}
                 span.small.fw-normal  (#{settings.coin.symbol})
           tbody
             each txn in txs
               tr
                 td.text-center.d-table-cell.d-md-none
                   a(href='/tx/' + txn.txid)
-                    span.fa-regular.fa-eye(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_tx)
+                    span.fa-regular.fa-eye(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.localization.view_tx)
                 td.d-none.d-md-table-cell
                   a.breakWord(href='/tx/' + txn.txid) #{txn.txid}
                 td.text-center #{txn.vout.length}

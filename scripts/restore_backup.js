@@ -4,7 +4,9 @@ const lib = require('../lib/explorer');
 const archiveSuffix = '.bak';
 const oldArchiveSuffix = '.tar.gz';
 const restoreLockName = 'restore';
+const tarModule = 'tar';
 const defaultBackupPath = path.join(path.dirname(__dirname), 'backups');
+const settings = require('../lib/settings');
 var lockCreated = false;
 
 // exit function used to cleanup lock before finishing script
@@ -55,10 +57,10 @@ function check_module_directory_exists(dirName, cb) {
   if (!fs.existsSync(`./node_modules/${dirName}`)) {
     const { exec } = require('child_process');
 
-    console.log('Installing tar package.. Please wait..');
+    console.log(`${settings.localization.installing_module.replace('{1}', tarModule)}.. ${settings.localization.please_wait}..`);
 
     // install tar module
-    exec('npm install tar', (err, stdout, stderr) => {
+    exec(`npm install ${tarModule}`, (err, stdout, stderr) => {
       // always return true for now without checking results
       return cb(true);
     });
@@ -80,7 +82,7 @@ function drop_collection(mongoose, colName, cb) {
   });
 }
 
-function delete_database(mongoose, settings, cb) {
+function delete_database(mongoose, cb) {
   const dbString = `mongodb://${encodeURIComponent(settings.dbsettings.user)}:${encodeURIComponent(settings.dbsettings.password)}@${settings.dbsettings.address}:${settings.dbsettings.port}/${settings.dbsettings.database}`;
 
   console.log('Connecting to database..');
@@ -126,10 +128,10 @@ function delete_database(mongoose, settings, cb) {
   });
 }
 
-function restore_backup(mongoose, settings, backupPath, extractedPath, gZip) {
+function restore_backup(mongoose, backupPath, extractedPath, gZip) {
   const { exec } = require('child_process');
 
-  console.log('Restoring backup.. Please wait..');
+  console.log(`${settings.localization.restoring_backup}.. ${settings.localization.please_wait}..`);
 
   // restore mongo database from backup
   const restoreProcess = exec(`mongorestore --host="${settings.dbsettings.address}" --port="${settings.dbsettings.port}" --username="${settings.dbsettings.user}" --password="${settings.dbsettings.password}" --authenticationDatabase="${settings.dbsettings.database}" ${(gZip ? `--gzip --archive="${backupPath}"` : `"${extractedPath}"`)}`);
@@ -204,17 +206,14 @@ if (process.argv[2] != null && process.argv[2] != '') {
     console.log('You are about to delete the current eIquidus database and restore from backup.');
 
     // prompt for restoring explorer database
-    rl.question('Are you sure you want to do this? [y/n]: ', function (restoreAnswer) {
+    rl.question(`${settings.localization.are_you_sure}: `, function (restoreAnswer) {
       // stop prompting
       rl.close();
 
       // determine if the explorer database should be restored
-      switch (restoreAnswer) {
-        case 'y':
-        case 'Y':
-        case 'yes':
-        case 'YES':
-        case 'Yes':
+      switch ((restoreAnswer == null ? '' : restoreAnswer).toLowerCase()) {
+        case settings.localization.short_yes:
+        case settings.localization.long_yes:
           // check if the "restore backup" process is already running
           if (lib.is_locked([restoreLockName]) == false) {
             // create a new restore lock before checking the rest of the locks to minimize problems with running scripts at the same time
@@ -222,11 +221,9 @@ if (process.argv[2] != null && process.argv[2] != '') {
             // ensure the lock will be deleted on exit
             lockCreated = true;
             // check all other possible locks since restoring backups should not run at the same time that data is being changed
-            if (lib.is_locked(['backup', 'delete', 'index', 'markets', 'peers', 'masternodes']) == false) {
+            if (lib.is_locked(['backup', 'delete', 'index', 'markets', 'peers', 'masternodes', 'plugin']) == false) {
               // all tests passed. OK to run restore
-              console.log("Script launched with pid: " + process.pid);
-
-              const settings = require('../lib/settings');
+              console.log(`${settings.localization.script_launched }: ${process.pid}`);
 
               // check if this is a tar.gz (older explorer backup format)
               if (!backupPath.endsWith(oldArchiveSuffix)) {
@@ -234,19 +231,19 @@ if (process.argv[2] != null && process.argv[2] != '') {
 
                 // newer backup format (.bak)
                 // delete all collections from existing database
-                delete_database(mongoose, settings, function(retVal) {
+                delete_database(mongoose, function(retVal) {
                   if (retVal) {
                     // move on to the restore process
-                    restore_backup(mongoose, settings, backupPath, backupPath, true);
+                    restore_backup(mongoose, backupPath, backupPath, true);
                   }
                 });
               } else {
                 // older backup format (.tar.gz)
                 // check if the tar module is already installed
-                check_module_directory_exists('tar', function(retVal) {
-                  const tar = require('tar');
+                check_module_directory_exists(tarModule, function(retVal) {
+                  const tar = require(tarModule);
 
-                  console.log('Extracting backup files.. Please wait..');
+                  console.log(`${settings.localization.extracting_backup_files}.. ${settings.localization.please_wait}..`);
 
                   // extract the backup archive
                   tar.x({ file: backupPath, cwd: defaultBackupPath, gzip: true }, function() {
@@ -257,10 +254,10 @@ if (process.argv[2] != null && process.argv[2] != '') {
                       const mongoose = require('mongoose');
 
                       // delete all collections from existing database
-                      delete_database(mongoose, settings, function(retVal) {
+                      delete_database(mongoose, function(retVal) {
                         if (retVal) {
                           // move on to the restore process
-                          restore_backup(mongoose, settings, backupPath, extractedPath, false);
+                          restore_backup(mongoose, backupPath, extractedPath, false);
                         }
                       });
                     } else {
@@ -291,13 +288,13 @@ if (process.argv[2] != null && process.argv[2] != '') {
 
           break;
         default:
-          console.log('Process aborted. Nothing was restored.');
+          console.log(`${settings.localization.process_aborted}. ${settings.localization.nothing_was_restored}.`);
           exit(null, 2);
       }
     });
   } else {
     // backup does not exist
-    console.log(`${backupPath} cannot be found`);
+    console.log(settings.localization.path_cannot_be_found.replace('{1}', backupPath));
     exit(null, 2);
   }
 } else {

@@ -41,27 +41,27 @@ block content
               img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
           #page-title-container
             if settings.blockchain_specific.heavycoin.reward_page.page_header.show_title == true
-              h3#page-title #{settings.locale.heavy_title.replace('{1}', settings.coin.name)}
+              h3#page-title #{settings.localization.heavy_title.replace('{1}', settings.coin.name)}
             if settings.blockchain_specific.heavycoin.reward_page.page_header.show_last_updated == true
               if settings.blockchain_specific.heavycoin.reward_page.page_header.show_title != true && settings.blockchain_specific.heavycoin.reward_page.page_header.show_description != true
                 #page-title-container
                   .sub-page-header
-                    span.fw-bold=settings.locale.last_updated + ':'
+                    span.fw-bold=settings.localization.last_updated + ':'
                     span.text-muted#lastUpdatedDate
               else
                 .sub-page-header(style='margin-bottom:' + (settings.blockchain_specific.heavycoin.reward_page.page_header.show_description == true ? '5' : '0') + 'px')
-                  span.fw-bold=settings.locale.last_updated + ':'
+                  span.fw-bold=settings.localization.last_updated + ':'
                   span.text-muted#lastUpdatedDate
             if settings.blockchain_specific.heavycoin.reward_page.page_header.show_description == true
               if settings.blockchain_specific.heavycoin.reward_page.page_header.show_title != true && settings.blockchain_specific.heavycoin.reward_page.page_header.show_last_updated != true
                 #page-title-container
-                  .sub-page-header.text-muted=settings.locale.heavy_description.replace('{1}', settings.coin.name)
+                  .sub-page-header.text-muted=settings.localization.heavy_description.replace('{1}', settings.coin.name)
               else
-                .sub-page-header.text-muted=settings.locale.heavy_description.replace('{1}', settings.coin.name)
+                .sub-page-header.text-muted=settings.localization.heavy_description.replace('{1}', settings.coin.name)
         .cardSpacer.clearfix
       .card.card-default.border-0.card-address-reward
         .card-header(style='position:relative;')
-          strong #{settings.locale.heavy_reward_voting_info}
+          strong #{settings.localization.heavy_reward_voting_info}
             span.small.fw-normal  (#{settings.coin.symbol})
         table#reward-summary.table.table-bordered.table-striped.summary-table.single-row-table(style='border-top:0;border-bottom:0;margin-top:0 !important;')
           - var theadClasses = [];
@@ -69,14 +69,14 @@ block content
             - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);
           thead
             tr(class=theadClasses)
-              th.text-center #{settings.locale.ex_supply}
+              th.text-center #{settings.localization.ex_supply}
                 span.small.fw-normal  (#{settings.coin.symbol})
-              th.text-center #{settings.locale.heavy_cap}
+              th.text-center #{settings.localization.heavy_cap}
                 span.small.fw-normal  (#{settings.coin.symbol})
-              th.text-center #{settings.locale.heavy_phase}
-              th.text-center #{settings.locale.heavy_maxvote}
-              th.text-center #{settings.locale.heavy_reward}
-              th.text-center #{settings.locale.heavy_estnext}
+              th.text-center #{settings.localization.heavy_phase}
+              th.text-center #{settings.localization.heavy_maxvote}
+              th.text-center #{settings.localization.heavy_reward}
+              th.text-center #{settings.localization.heavy_estnext}
           tbody
             - var supplyValue = Number(heavy.supply).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
             - var splitSupply = supplyValue.split('.');
@@ -128,25 +128,25 @@ block content
                   }
                 };
                 new Chart(ctx, { type: 'doughnut', data: data, options: options });
-            h5 #{settings.locale.heavy_changein}
+            h5 #{settings.localization.heavy_changein}
             h5
               =heavy.nextin
           form
             table.table
               tbody
                 tr
-                  th #{settings.locale.heavy_key}
+                  th #{settings.localization.heavy_key}
                   td
                 tr
-                  th #{settings.locale.heavy_vote}
+                  th #{settings.localization.heavy_vote}
                   td
                     div(style="width:20px;height:20px;background-color:#428bca")
                 tr
-                  th #{settings.locale.heavy_current}
+                  th #{settings.localization.heavy_current}
                   td
                     div(style="width:20px;height:20px;background-color:#222")
                 tr
-                  th #{settings.locale.heavy_estnext}
+                  th #{settings.localization.heavy_estnext}
                   td
                     div(style="width:20px;height:20px;background-color:rgba(92,184,92,1.0)")
     .col-md-9
@@ -154,7 +154,7 @@ block content
         .card-body
           div.text-center
             .div
-              strong #{settings.locale.heavy_lastxvotes}
+              strong #{settings.localization.heavy_lastxvotes}
             .div
               canvas.d-inline(id="lastVotes", width="800", height="300", style="margin-left:-30px;margin-top:30px;max-width:800px;")
                 script.

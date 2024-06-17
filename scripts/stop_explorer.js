@@ -47,7 +47,7 @@ if (validate_port(settings.webserver.port) == true) {
       // send a kill signal to the process that is currently using the explorer's server port
       exec(killcmd, (err, stdout, stderr) => {
         // show shutdown msg
-        console.log('Explorer shutting down... Please wait...');
+        console.log(`${settings.localization.explorer_shutting_down}.. ${settings.localization.please_wait}..`);
         process.exit(0);
       });
     } else {

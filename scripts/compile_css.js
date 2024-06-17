@@ -6,6 +6,7 @@ const style_min_filename = 'style.min.css'
 const custom_filename = 'custom.scss';
 const custom_min_filename = 'custom.min.css'
 const theme_selector_template_text = `$theme-name: "replace";`;
+const settings = require('../lib/settings');
 let compile_theme_css = false;
 let compile_custom_css = false;
 let theme_name = '';
@@ -15,7 +16,6 @@ if (!fs.existsSync(`${css_path}${theme_selector_filename}`)) {
   // theme file doesn't exist, so it is necessary to compile the css
   compile_theme_css = true;
 } else {
-  const settings = require('../lib/settings');
   const last_theme = fs.readFileSync(`${css_path}${theme_selector_filename}`, 'utf-8');
 
   theme_name = settings.shared_pages.theme;
@@ -56,7 +56,7 @@ if (!fs.existsSync(`${css_path}${custom_min_filename}`)) {
 
 // check if it necessary to compile any css files
 if (compile_theme_css || compile_custom_css) {
-  console.log('Compiling CSS.. Please wait..');
+  console.log(`${settings.localization.compiling_css}.. ${settings.localization.please_wait}..`);
 
   const sass = require('sass');
 

@@ -1,3 +1,4 @@
+const settings = require('../lib/settings');
 const minNodeVersionMajor = '16';
 const minNodeVersionMinor = '20';
 const minNodeVersionRevision = '1';
@@ -54,7 +55,7 @@ function check_arguments_passed(cb) {
 
           // check if the cmd result contains an @ symbol
           if (splitResponse[1].indexOf('@') == -1) {
-            console.log('Installing pm2 module.. Please wait..');
+            console.log(`${settings.localization.installing_module.replace('{1}', 'pm2')}.. ${settings.localization.please_wait}..`);
 
             // install pm2
             exec(`npm install pm2@latest${(isWinOS ? ' -g' : '')}`, (err, stdout, stderr) => {
@@ -73,7 +74,7 @@ function check_arguments_passed(cb) {
 
           // check if the cmd result contains an @ symbol
           if (splitResponse[1].indexOf('@') == -1) {
-            console.log('Installing forever module.. Please wait..');
+            console.log(`${settings.localization.installing_module.replace('{1}', 'forever')}.. ${settings.localization.please_wait}..`);
             
             // install forever
             exec('npm install forever', (err, stdout, stderr) => {
@@ -133,7 +134,7 @@ check_arguments_passed(function(pidName, node_env) {
             }
           }
 
-          // Setting the NODE_ENV variable is more easily done from here seeing at the syntax changes slightly depending on operating system
+          // setting the NODE_ENV variable is more easily done from here seeing at the syntax changes slightly depending on operating system
           execSync(`${(process.platform == 'win32' ? 'set' : 'export')} NODE_ENV=${node_env} && pm2 ${startOrReload} ./bin/instance -i 0 -n explorer -p "./tmp/pm2.pid" --node-args="--stack-size=10000" --update-env`, {stdio : 'inherit'});
           break;
         case 'forever':

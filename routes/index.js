@@ -1,7 +1,6 @@
 var express = require('express'),
     router = express.Router(),
     settings = require('../lib/settings'),
-    locale = require('../lib/locale'),
     db = require('../lib/database'),
     lib = require('../lib/explorer');
 
@@ -100,7 +99,7 @@ function get_block_data_from_wallet(block, res, orphan) {
     var i = loop.iteration();
 
     lib.get_rawtransaction(block.tx[i], function(tx) {
-      if (tx && tx != 'There was an error. Check your console.') {
+      if (tx && tx != `${settings.localization.ex_error}: ${settings.localization.check_console}`) {
         lib.prepare_vin(tx, function(vin, tx_type_vin) {
           lib.prepare_vout(tx.vout, block.tx[i], vin, ((!settings.blockchain_specific.zksnarks.enabled || typeof tx.vjoinsplit === 'undefined' || tx.vjoinsplit == null) ? [] : tx.vjoinsplit), function(vout, nvin, tx_type_vout) {
             lib.calculate_total(vout, function(total) {
@@ -138,7 +137,7 @@ function get_theme_hash() {
 
 function route_get_block(res, blockhash) {
   lib.get_block(blockhash, function (block) {
-    if (block && block != 'There was an error. Check your console.') {
+    if (block && block != `${settings.localization.ex_error}: ${settings.localization.check_console}`) {
       if (blockhash == settings.block_page.genesis_block)
         send_block_data(res, block, null, 'Genesis Block', null);
       else if (block.confirmations == -1) {
@@ -159,7 +158,7 @@ function route_get_block(res, blockhash) {
         var height = blockhash;
 
         lib.get_blockhash(height, function(hash) {
-          if (hash && hash != 'There was an error. Check your console.')
+          if (hash && hash != `${settings.localization.ex_error}: ${settings.localization.check_console}`)
             res.redirect('/block/' + hash);
           else
             route_get_txlist(res, 'Block not found: ' + blockhash);
@@ -192,7 +191,7 @@ function route_get_tx(res, txid) {
                 lib.calculate_total(rvout, function(total) {
                   if (!rtx.confirmations > 0) {
                     lib.get_block(rtx.blockhash, function(block) {
-                      if (block && block != 'There was an error. Check your console.') {
+                      if (block && block != `${settings.localization.ex_error}: ${settings.localization.check_console}`) {
                         var utx = {
                           txid: rtx.txid,
                           vin: rvin,
@@ -219,7 +218,7 @@ function route_get_tx(res, txid) {
                     if (!rtx.blockheight && rtx.blockhash) {
                       // blockheight not found so look up the block
                       lib.get_block(rtx.blockhash, function(block) {
-                        if (block && block != 'There was an error. Check your console.') {
+                        if (block && block != `${settings.localization.ex_error}: ${settings.localization.check_console}`) {
                           // create the tx object before rendering
                           var utx = {
                             txid: rtx.txid,
@@ -339,8 +338,31 @@ router.get('/', function(req, res) {
 });
 
 router.get('/info', function(req, res) {
+  let pluginApisExt = [];
+
   // ensure api page is enabled
   if (settings.api_page.enabled == true) {
+    // loop through all plugins defined in the settings
+    settings.plugins.allowed_plugins.forEach(function (plugin) {
+      // check if this plugin is enabled
+      if (plugin.enabled) {
+        // check if this plugin has a public_apis section
+        if (plugin.public_apis != null) {
+          // check if there is an ext section
+          if (plugin.public_apis.ext != null) {
+            // loop through all ext apis for this plugin
+            Object.keys(plugin.public_apis.ext).forEach(function(key, index, map) {
+              // check if this api is enabled
+              if (plugin.public_apis.ext[key].enabled == true) {
+                // add this api into the list of ext apis for plugins
+                pluginApisExt.push(plugin.public_apis.ext[key]);
+              }
+            });
+          }
+        }
+      }
+    });
+
     // load the api page
     res.render(
       'info',
@@ -351,7 +373,8 @@ router.get('/info', function(req, res) {
         customHash: get_custom_hash(),
         styleHash: get_style_hash(),
         themeHash: get_theme_hash(),
-        page_title_prefix: settings.coin.name + ' Public API'
+        page_title_prefix: settings.coin.name + ' Public API',
+        pluginApisExt: pluginApisExt
       }
     );
   } else {
@@ -417,7 +440,7 @@ router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
               customHash: get_custom_hash(),
               styleHash: get_style_hash(),
               themeHash: get_theme_hash(),
-              page_title_prefix: locale.mkt_title.replace('{1}', marketdata.market_name + ' (' + marketdata.coin + '/' + marketdata.exchange + ')')
+              page_title_prefix: settings.localization.mkt_title.replace('{1}', marketdata.market_name + ' (' + marketdata.coin + '/' + marketdata.exchange + ')')
             }
           );
         });
@@ -622,7 +645,7 @@ router.get('/orphans', function(req, res) {
           customHash: get_custom_hash(),
           styleHash: get_style_hash(),
           themeHash: get_theme_hash(),
-          page_title_prefix: locale.orphan_title.replace('{1}', settings.coin.name)
+          page_title_prefix: settings.localization.orphan_title.replace('{1}', settings.coin.name)
         }
       );
     });
@@ -645,7 +668,7 @@ router.post('/search', function(req, res) {
             res.redirect('/tx/' + tx.txid);
           else {
             lib.get_block(query, function(block) {
-              if (block && block != 'There was an error. Check your console.')
+              if (block && block != `${settings.localization.ex_error}: ${settings.localization.check_console}`)
                 res.redirect('/block/' + query);
               else {
                 // check wallet for transaction
@@ -654,7 +677,7 @@ router.post('/search', function(req, res) {
                     res.redirect('/tx/' + tx.txid);
                   else {
                     // search found nothing so display the tx list page with an error msg
-                    route_get_txlist(res, locale.ex_search_error + query );
+                    route_get_txlist(res, settings.localization.ex_search_error + query );
                   }
                 });
               }
@@ -668,10 +691,10 @@ router.post('/search', function(req, res) {
           res.redirect('/address/' + address.a_id);
         else {
           lib.get_blockhash(query, function(hash) {
-            if (hash && hash != 'There was an error. Check your console.')
+            if (hash && hash != `${settings.localization.ex_error}: ${settings.localization.check_console}`)
               res.redirect('/block/' + hash);
             else
-              route_get_txlist(res, locale.ex_search_error + query);
+              route_get_txlist(res, settings.localization.ex_search_error + query);
           });
         }
       });

@@ -144,19 +144,19 @@ block content
             img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
         #page-title-container
           if settings.claim_address_page.page_header.show_title == true
-            h3#page-title #{settings.locale.claim_title.replace('{1}', settings.coin.name)}
+            h3#page-title #{settings.localization.claim_title.replace('{1}', settings.coin.name)}
           if settings.claim_address_page.page_header.show_description == true
             if settings.claim_address_page.page_header.show_title != true
               #page-title-container
-                .sub-page-header.text-muted=settings.locale.claim_description.replace('{1}', settings.coin.name)
+                .sub-page-header.text-muted=settings.localization.claim_description.replace('{1}', settings.coin.name)
             else
-              .sub-page-header.text-muted=settings.locale.claim_description.replace('{1}', settings.coin.name)
+              .sub-page-header.text-muted=settings.localization.claim_description.replace('{1}', settings.coin.name)
       .cardSpacer.clearfix
     .card.card-default.border-0.cardSpacer
       .card-header
         strong Claim Wallet Address
       .card-body
-        a#showClaimInstructions.badge.bg-primary(href='#claimInstructions', style='font-size:100%;margin-bottom:15px;', data-bs-toggle='collapse' role='button' aria-expanded='false' aria-controls='claimInstructions')
+        a#showClaimInstructions.instructions.badge.bg-primary(href='#claimInstructions', style='font-size:100%;margin-bottom:15px;', data-bs-toggle='collapse' role='button' aria-expanded='false' aria-controls='claimInstructions')
           i.fa-solid.fa-angle-up(style='margin-right:5px;')
           span Show claim instructions
         div#claimInstructions.collapse

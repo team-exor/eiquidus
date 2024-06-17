@@ -17,13 +17,13 @@ var stopSync = false;
 
 // prevent stopping of the sync script to be able to gracefully shut down
 process.on('SIGINT', () => {
-  console.log('Stopping sync process.. Please wait..');
+  console.log(`${settings.localization.stopping_sync_process}.. ${settings.localization.please_wait}..`);
   stopSync = true;
 });
 
 // prevent killing of the sync script to be able to gracefully shut down
 process.on('SIGTERM', () => {
-  console.log('Stopping sync process.. Please wait..');
+  console.log(`${settings.localization.stopping_sync_process}.. ${settings.localization.please_wait}..`);
   stopSync = true;
 });
 
@@ -513,7 +513,7 @@ function update_orphans(orphan_index, orphan_current, last_blockindex, timeout, 
 function get_earliest_orphan_block(orphan_index, orphan_current, last_blockindex, cb) {
   // check if it is necessary to search for orphan data
   if (orphan_index == null || orphan_index == 0) {
-    console.log('Finding the earliest orphaned blockindex.. Please wait..');
+    console.log(`${settings.localization.finding_earliest_orphan}.. ${settings.localization.please_wait}..`);
 
     Tx.aggregate([
       { $match: {
@@ -1023,7 +1023,7 @@ function get_market_price(market_array) {
         const coingecko = require('../lib/apis/coingecko');
         const currency = lib.get_market_currency_code();
 
-        console.log('Calculating market price.. Please wait..');
+        console.log(`${settings.localization.calculating_market_price}.. ${settings.localization.please_wait}..`);
 
         // get the market price from coingecko api
         coingecko.get_market_prices(coingecko_id, currency, settings.markets_page.coingecko_api_key, function (err, last_price, last_usd_price) {
@@ -1050,7 +1050,7 @@ function get_market_price(market_array) {
             });
           } else {
             // coingecko api returned an error
-            console.log(`Error: ${err}`);
+            console.log(`${settings.localization.ex_error}: ${err}`);
             exit(1);
           }
         });
@@ -1060,7 +1060,7 @@ function get_market_price(market_array) {
       }
     });
   } else {
-    console.log('Calculating market price.. Please wait..');
+    console.log(`${settings.localization.calculating_market_price}.. ${settings.localization.please_wait}..`);
 
     // get the list of coins from coingecko
     coingecko_coin_list_api(market_array, function (coin_err, coin_list) {
@@ -1350,10 +1350,24 @@ if (lib.is_locked([database]) == false) {
   // check the backup, restore and delete locks since those functions would be problematic when updating data
   if (lib.is_locked(['backup', 'restore', 'delete']) == false) {
     // all tests passed. OK to run sync
-    console.log("Script launched with pid: " + process.pid);
+    console.log(`${settings.localization.script_launched }: ${process.pid}`);
 
-    if (mode == 'update')
-      console.log(`Syncing ${(database == 'index' ? 'blocks' : database)}.. Please wait..`);
+    if (mode == 'update') {
+      switch (database) {
+        case 'index':
+          console.log(`${settings.localization.syncing_blocks}.. ${settings.localization.please_wait}..`);
+          break;
+        case 'peers':
+          console.log(`${settings.localization.syncing_peers}.. ${settings.localization.please_wait}..`);
+          break;
+        case 'masternodes':
+          console.log(`${settings.localization.syncing_masternodes}.. ${settings.localization.please_wait}..`);
+          break;
+        default: // markets
+          console.log(`${settings.localization.syncing_markets}.. ${settings.localization.please_wait}..`);
+          break;
+      }
+    }
 
     var dbString = 'mongodb://' + encodeURIComponent(settings.dbsettings.user);
     dbString = dbString + ':' + encodeURIComponent(settings.dbsettings.password);
@@ -1396,7 +1410,7 @@ if (lib.is_locked([database]) == false) {
               db.update_db(settings.coin.name, function(stats) {
                 // check if stats returned properly
                 if (stats !== false) {
-                  console.log('Checking blocks.. Please wait..');
+                  console.log(`${settings.localization.checking_blocks}.. ${settings.localization.please_wait}..`);
 
                   update_tx_db(settings.coin.name, block_start, stats.count, stats.txes, settings.sync.check_timeout, 1, function() {
                     // check if the script stopped prematurely
@@ -1466,7 +1480,7 @@ if (lib.is_locked([database]) == false) {
               db.update_db(settings.coin.name, function(stats) {
                 // check if stats returned properly
                 if (stats !== false) {
-                  console.log('Calculating tx count.. Please wait..');
+                  console.log(`${settings.localization.calculating_tx_count}.. ${settings.localization.please_wait}..`);
 
                   // Resetting the transaction counter requires a single lookup on the txes collection to find all txes that have a positive or zero total and 1 or more vout
                   Tx.find({'total': {$gte: 0}, 'vout': { $gte: { $size: 1 }}}).countDocuments().then((count) => {
@@ -1493,7 +1507,7 @@ if (lib.is_locked([database]) == false) {
               db.update_db(settings.coin.name, function(stats) {
                 // check if stats returned properly
                 if (stats !== false) {
-                  console.log('Finding last blockindex.. Please wait..');
+                  console.log(`${settings.localization.finding_last_blockindex}.. ${settings.localization.please_wait}..`);
 
                   // Resetting the last blockindex counter requires a single lookup on the txes collection to find the last indexed blockindex
                   Tx.find({}, {blockindex:1, _id:0}).sort({blockindex: -1}).limit(1).exec().then((tx) => {

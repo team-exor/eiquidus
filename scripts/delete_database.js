@@ -1,8 +1,9 @@
 const lib = require('../lib/explorer');
 const readline = require('readline');
 const deleteLockName = 'delete';
-var lockCreated = false;
-var preserveClaimAddressNames = false;
+const settings = require('../lib/settings');
+let lockCreated = false;
+let preserveClaimAddressNames = false;
 
 // exit function used to cleanup lock before finishing script
 function exit(mongoose, exitCode) {
@@ -84,17 +85,14 @@ function delete_prompt(cb) {
     }
 
     // prompt for deleting explorer database
-    rl.question('Are you sure you want to do this? [y/n]: ', function (deleteAnswer) {
+    rl.question(`${settings.localization.are_you_sure}: `, function (deleteAnswer) {
       // stop prompting
       rl.close();
 
       // determine if the explorer database should be deleted
-      switch (deleteAnswer) {
-        case 'y':
-        case 'Y':
-        case 'yes':
-        case 'YES':
-        case 'Yes':
+      switch ((deleteAnswer == null ? '' : deleteAnswer).toLowerCase()) {
+        case settings.localization.short_yes:
+        case settings.localization.long_yes:
           return cb(true);
           break;
         default:
@@ -152,7 +150,7 @@ if (lib.is_locked([deleteLockName]) == false) {
   // ensure the lock will be deleted on exit
   lockCreated = true;
 
-  var lock_list = ['backup', 'restore', 'markets', 'peers', 'masternodes'];
+  var lock_list = ['backup', 'restore', 'markets', 'peers', 'masternodes', 'plugin'];
 
   // do not check the index lock if this is called from the reindex process
   if (process.argv[2] == null || process.argv[2] != 'reindex') {
@@ -165,9 +163,8 @@ if (lib.is_locked([deleteLockName]) == false) {
 
     // suppress the pid message when doing a reindex
     if (process.argv[2] == null || process.argv[2] != 'reindex')
-      console.log("Script launched with pid: " + process.pid);
+      console.log(`${settings.localization.script_launched }: ${process.pid}`);
 
-    const settings = require('../lib/settings');
     const mongoose = require('mongoose');
     const dbString = `mongodb://${encodeURIComponent(settings.dbsettings.user)}:${encodeURIComponent(settings.dbsettings.password)}@${settings.dbsettings.address}:${settings.dbsettings.port}/${settings.dbsettings.database}`;
 
@@ -231,7 +228,7 @@ if (lib.is_locked([deleteLockName]) == false) {
             exit(mongoose, 1);
           });
         } else {
-          console.log('Process aborted. Nothing was deleted.');
+          console.log(`${settings.localization.process_aborted}. ${settings.localization.nothing_was_deleted}.`);
           exit(null, 2);
         }
       });

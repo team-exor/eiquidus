@@ -286,41 +286,41 @@ block content
               img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
           #page-title-container
             if settings.network_page.page_header.show_title == true
-              h3#page-title #{settings.locale.net_title.replace('{1}', settings.coin.name)}
+              h3#page-title #{settings.localization.net_title.replace('{1}', settings.coin.name)}
             if settings.network_page.page_header.show_last_updated == true
               if settings.network_page.page_header.show_title != true && settings.network_page.page_header.show_description != true
                 #page-title-container
                   .sub-page-header
-                    span.fw-bold=settings.locale.last_updated + ':'
+                    span.fw-bold=settings.localization.last_updated + ':'
                     span.text-muted#lastUpdatedDate
               else
                 .sub-page-header(style='margin-bottom:' + (settings.network_page.page_header.show_description == true ? '5' : '0') + 'px')
-                  span.fw-bold=settings.locale.last_updated + ':'
+                  span.fw-bold=settings.localization.last_updated + ':'
                   span.text-muted#lastUpdatedDate
             if settings.network_page.page_header.show_description == true
               if settings.network_page.page_header.show_title != true && settings.network_page.page_header.show_last_updated != true
                 #page-title-container
-                  .sub-page-header.text-muted=settings.locale.net_description.replace('{1}', settings.coin.name)
+                  .sub-page-header.text-muted=settings.localization.net_description.replace('{1}', settings.coin.name)
               else
-                .sub-page-header.text-muted=settings.locale.net_description.replace('{1}', settings.coin.name)
+                .sub-page-header.text-muted=settings.localization.net_description.replace('{1}', settings.coin.name)
         .cardSpacer.clearfix
       ul.nav.nav-tabs(role='tablist')
         li.nav-item(role='presentation')
-          a.nav-link.active(href='#connections', aria-controls='connections', role='tab', data-bs-toggle='tab') #{settings.locale.net_connections}
+          a.nav-link.active(href='#connections', aria-controls='connections', role='tab', data-bs-toggle='tab') #{settings.localization.net_connections}
         li.nav-item(role='presentation')
-          a.nav-link(href='#addnodes', aria-controls='addnodes', role='tab', data-bs-toggle='tab') #{settings.locale.net_addnodes}
+          a.nav-link(href='#addnodes', aria-controls='addnodes', role='tab', data-bs-toggle='tab') #{settings.localization.net_addnodes}
     .tab-content
       #connections.container.tab-pane.active(style='margin-top:0;border-top:0;')
         .card.card-default.border-0
           table#connections-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
             thead
               tr(class=theadClasses)
-                th.text-center #{settings.locale.net_address}
+                th.text-center #{settings.localization.net_address}
                 if settings.network_page.connections_table.port_filter != '-1'
                   th.text-center='Port'
-                th.text-center #{settings.locale.net_protocol}
-                th.text-center #{settings.locale.net_subversion}
-                th.text-center #{settings.locale.net_country}
+                th.text-center #{settings.localization.net_protocol}
+                th.text-center #{settings.localization.net_subversion}
+                th.text-center #{settings.localization.net_country}
             tbody.text-center
       #addnodes.container.tab-pane(style='margin-top:0;border-top:0;')
         .card.card-default.border-0

@@ -73,23 +73,23 @@ block content
                 img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
             #page-title-container
               if settings.richlist_page.page_header.show_title == true
-                h3#page-title #{settings.locale.rl_title.replace('{1}', settings.coin.name)}
+                h3#page-title #{settings.localization.rl_title.replace('{1}', settings.coin.name)}
               if settings.richlist_page.page_header.show_last_updated == true
                 if settings.richlist_page.page_header.show_title != true && settings.richlist_page.page_header.show_description != true
                   #page-title-container
                     .sub-page-header
-                      span.fw-bold=settings.locale.last_updated + ':'
+                      span.fw-bold=settings.localization.last_updated + ':'
                       span.text-muted#lastUpdatedDate
                 else
                   .sub-page-header(style='margin-bottom:' + (settings.richlist_page.page_header.show_description == true ? '5' : '0') + 'px')
-                    span.fw-bold=settings.locale.last_updated + ':'
+                    span.fw-bold=settings.localization.last_updated + ':'
                     span.text-muted#lastUpdatedDate
               if settings.richlist_page.page_header.show_description == true
                 if settings.richlist_page.page_header.show_title != true && settings.richlist_page.page_header.show_last_updated != true
                   #page-title-container
-                    .sub-page-header.text-muted=settings.locale.rl_description.replace('{1}', settings.coin.name)
+                    .sub-page-header.text-muted=settings.localization.rl_description.replace('{1}', settings.coin.name)
                 else
-                  .sub-page-header.text-muted=settings.locale.rl_description.replace('{1}', settings.coin.name)
+                  .sub-page-header.text-muted=settings.localization.rl_description.replace('{1}', settings.coin.name)
           .cardSpacer.clearfix
   .row(style='margin-left:0;margin-right:0;')
     if settings.richlist_page.show_current_balance == true || settings.richlist_page.show_received_coins == true
@@ -98,10 +98,10 @@ block content
           ul.nav.nav-tabs(role='tablist')
             if settings.richlist_page.show_current_balance == true
               li.nav-item(role='presentation')
-                a(class='nav-link' + (settings.richlist_page.show_current_balance == true ? ' active' : ''), href='#balance', aria-controls='balance', role='tab', data-bs-toggle='tab') #{settings.locale.rl_current_balance}
+                a(class='nav-link' + (settings.richlist_page.show_current_balance == true ? ' active' : ''), href='#balance', aria-controls='balance', role='tab', data-bs-toggle='tab') #{settings.localization.rl_current_balance}
             if settings.richlist_page.show_received_coins == true
               li.nav-item(role='presentation')
-                a(class='nav-link' + (!settings.richlist_page.show_current_balance ? ' active' : ''), href='#received', aria-controls='received', role='tab', data-bs-toggle='tab') #{settings.locale.rl_received_coins}
+                a(class='nav-link' + (!settings.richlist_page.show_current_balance ? ' active' : ''), href='#received', aria-controls='received', role='tab', data-bs-toggle='tab') #{settings.localization.rl_received_coins}
         .tab-content
           if settings.richlist_page.show_current_balance == true
             #balance(class='container tab-pane' + (settings.richlist_page.show_current_balance == true ? ' active' : ''), style='margin-top:0;')
@@ -111,8 +111,8 @@ block content
                     tr(class=theadClasses)
                       th.text-center
                         span.fa-solid.fa-flag-checkered
-                      th #{settings.locale.tx_address}
-                      th.text-center #{settings.locale.rl_balance}
+                      th #{settings.localization.tx_address}
+                      th.text-center #{settings.localization.rl_balance}
                         span.small.fw-normal  (#{settings.coin.symbol})
                       th.text-center %
                   tbody
@@ -144,8 +144,8 @@ block content
                     tr(class=theadClasses)
                       th.text-center
                         span.fa-solid.fa-flag-checkered
-                      th #{settings.locale.tx_address}
-                      th.text-center #{settings.locale.rl_received}
+                      th #{settings.localization.tx_address}
+                      th.text-center #{settings.localization.rl_received}
                         span.small.fw-normal  (#{settings.coin.symbol})
                   tbody
                     - var count = 0;
@@ -169,7 +169,7 @@ block content
         if settings.richlist_page.wealth_distribution.show_distribution_table == true
           #summary-panel.card.card-default.border-0(style='margin-top:' + (settings.richlist_page.show_current_balance == true || settings.richlist_page.show_received_coins == true ? '34' : '0') + 'px;')
             .card-header
-              strong #{settings.locale.rl_wealth}
+              strong #{settings.localization.rl_wealth}
             table.table.table-hover.table-bordered.summary-table.right-border-0(style='margin-bottom:0;')
               thead
                 tr(class=theadClasses)
@@ -181,7 +181,7 @@ block content
                 tr
                   td.fw-bold
                     div.float-start.wealth-dist-color-box(style=('background-color:' + settings.richlist_page.wealth_distribution.colors[0] + ';'))
-                    span #{settings.locale.rl_top25}
+                    span #{settings.localization.rl_top25}
                   - var total = Number(dista.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                   - var totalParts = total.split(".");
                   - var percent = parseFloat(dista.percent).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':false});
@@ -193,7 +193,7 @@ block content
                 tr
                   td.fw-bold
                     div.float-start.wealth-dist-color-box(style=('background-color:' + settings.richlist_page.wealth_distribution.colors[1] + ';'))
-                    span #{settings.locale.rl_top50}
+                    span #{settings.localization.rl_top50}
                   - var total = Number(distb.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                   - var totalParts = total.split(".");
                   - var percent = parseFloat(distb.percent).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':false});
@@ -205,7 +205,7 @@ block content
                 tr
                   td.fw-bold
                     div.float-start.wealth-dist-color-box(style=('background-color:' + settings.richlist_page.wealth_distribution.colors[2] + ';'))
-                    span #{settings.locale.rl_top75}
+                    span #{settings.localization.rl_top75}
                   - var total = Number(distc.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                   - var totalParts = total.split(".");
                   - var percent = parseFloat(distc.percent).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':false});
@@ -217,7 +217,7 @@ block content
                 tr
                   td.fw-bold
                     div.float-start.wealth-dist-color-box(style=('background-color:' + settings.richlist_page.wealth_distribution.colors[3] + ';'))
-                    span #{settings.locale.rl_top100}
+                    span #{settings.localization.rl_top100}
                   - var total = Number(distd.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                   - var totalParts = total.split(".");
                   - var percent = parseFloat(distd.percent).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':false});
@@ -228,7 +228,7 @@ block content
                     span.decimal #{percentParts[1]}
                 tr.text-end
                   td.fw-bold
-                    span #{settings.locale.total_top_100}
+                    span #{settings.localization.total_top_100}
                   - var total = Number(parseFloat(dista.total) + parseFloat(distb.total) + parseFloat(distc.total) + parseFloat(distd.total)).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                   - var totalParts = total.split(".");
                   - var percent = (parseFloat(dista.percent)+parseFloat(distb.percent)+parseFloat(distc.percent)+parseFloat(distd.percent)).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':false});
@@ -264,7 +264,7 @@ block content
                       span.decimal #{percentParts[1]}
                 tr.text-end
                   td.fw-bold
-                    span #{settings.locale.total}
+                    span #{settings.localization.total}
                   - var total = Number(parseFloat(dista.total) + parseFloat(distb.total) + parseFloat(distc.total) + parseFloat(distd.total) + parseFloat(diste.total) + (settings.richlist_page.burned_coins.include_burned_coins_in_distribution == true && burned != null && burned > 0 ? burned / 100000000 : 0)).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                   - var totalParts = total.split(".");
                   - var percent = (parseFloat(dista.percent) + parseFloat(distb.percent) + parseFloat(distc.percent) + parseFloat(distd.percent) + parseFloat(diste.percent) + parseFloat((settings.richlist_page.burned_coins.include_burned_coins_in_distribution == true && burned != null && burned > 0 ? ((burned / 100000000) / stats.supply) * 100 : 0))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':false});

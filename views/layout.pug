@@ -4,7 +4,7 @@ html(lang='en')
     meta(charset='UTF-8')
     meta(name='viewport' content='width=device-width, initial-scale=1')
     meta(http-equiv='Content-Language', content='en')
-    title=(page_title_prefix == null || page_title_prefix == '' ? settings.locale.error_title.replace('{1}', settings.coin.name) : page_title_prefix) + ' - ' + settings.shared_pages.page_title
+    title=(page_title_prefix == null || page_title_prefix == '' ? settings.localization.error_title.replace('{1}', settings.coin.name) : page_title_prefix) + ' - ' + settings.shared_pages.page_title
     if settings.shared_pages.favicons.favicon32 != ''
       link(rel='icon', href='/' + settings.shared_pages.favicons.favicon32, sizes='32x32')
     if settings.shared_pages.favicons.favicon128 != ''
@@ -137,12 +137,25 @@ html(lang='en')
         if settings.blockchain_specific.heavycoin.reward_page.show_difficulty_chart == true
           - showDifficultyChart = true
       default
-        if settings.error_page.show_panels == true
-          - showPanels = true
-        if settings.error_page.show_nethash_chart == true
-          - showNethashChart = true
-        if settings.error_page.show_difficulty_chart == true
-          - showDifficultyChart = true
+        - var found_plugin = false
+        each plugin in settings.plugins.allowed_plugins
+          if plugin != null && plugin.enabled == true && plugin.pages != null && plugin.pages.length > 0
+            each pg in plugin.pages
+              if pg.enabled == true && pg.page_id == active
+                - found_plugin = true
+                if pg.show_panels == true
+                  - showPanels = true
+                if pg.show_nethash_chart == true
+                  - showNethashChart = true
+                if pg.show_difficulty_chart == true
+                  - showDifficultyChart = true
+        if !found_plugin
+          if settings.error_page.show_panels == true
+            - showPanels = true
+          if settings.error_page.show_nethash_chart == true
+            - showNethashChart = true
+          if settings.error_page.show_difficulty_chart == true
+            - showDifficultyChart = true
     if active == 'markets' || active == 'richlist' || active == 'reward' || (settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true)))
       script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js')
     if active == 'markets'
@@ -311,18 +324,18 @@ html(lang='en')
           }
         }
         function getNetworkPanel() {
-          return '<div class="card-header"><strong>#{settings.locale.network} <span class="small fw-normal">' + getNetHashUnits() + '</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-gears"></span><label id="hashrate"></label></div></div>';
+          return '<div class="card-header"><strong>#{settings.localization.network} <span class="small fw-normal">' + getNetHashUnits() + '</span></strong></div><div class="card-body"><div id="hashratePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="hashratepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-gears"></span><label id="hashrate"></label></div></div>';
         }
         function getDifficultyPanel() {
           let difficultyType='<label id="difficulty"></label>';
           if ('#{settings.shared_pages.difficulty}' == 'Hybrid') difficultyType+='<br /><span class="fa-solid fa-sliders"></span><label id="difficultyHybrid"></label>';
-          return '<div class="card-header"><strong>#{settings.locale.difficulty}</strong></div><div class="card-body"><div id="difficultyPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="difficultypanel" class="header-panel" style="display:none;"><span class="fa-solid fa-sliders"></span>'+difficultyType+'</div></div>';
+          return '<div class="card-header"><strong>#{settings.localization.difficulty}</strong></div><div class="card-body"><div id="difficultyPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="difficultypanel" class="header-panel" style="display:none;"><span class="fa-solid fa-sliders"></span>'+difficultyType+'</div></div>';
         }
         function getMasternodesPanel() {
-          return '<div class="card-header"><strong>#{settings.locale.masternodecount}</strong></div><div class="card-body"><div id="masternodePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="masternodepanel" class="header-panel" style="display:none;"><span id="spnMasternodeCountOnline" class="fa-solid fa-circle-check" data-bs-toggle="tooltip" data-bs-placement="top"></span><label id="masternodeCountOnline" data-bs-toggle="tooltip" data-bs-placement="top"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline" data-bs-toggle="tooltip" data-bs-placement="top"></label><span id="spnMasternodeCountOffline" class="fa-solid fa-triangle-exclamation" data-bs-toggle="tooltip" data-bs-placement="top"></span></div></div>';
+          return '<div class="card-header"><strong>#{settings.localization.masternodecount}</strong></div><div class="card-body"><div id="masternodePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="masternodepanel" class="header-panel" style="display:none;"><span id="spnMasternodeCountOnline" class="fa-solid fa-circle-check" data-bs-toggle="tooltip" data-bs-placement="top"></span><label id="masternodeCountOnline" data-bs-toggle="tooltip" data-bs-placement="top"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline" data-bs-toggle="tooltip" data-bs-placement="top"></label><span id="spnMasternodeCountOffline" class="fa-solid fa-triangle-exclamation" data-bs-toggle="tooltip" data-bs-placement="top"></span></div></div>';
         }
         function getCoinSupplyPanel() {
-          return `<div class="card-header"><strong>#{settings.locale.ex_supply} <span class="small fw-normal">(${"#{settings.coin.symbol}".replace(/"/g, '&quot;')})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-pie"></span><label id="supply"></label></div></div>`;
+          return `<div class="card-header"><strong>#{settings.localization.ex_supply} <span class="small fw-normal">(${"#{settings.coin.symbol}".replace(/"/g, '&quot;')})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-pie"></span><label id="supply"></label></div></div>`;
         }
         function getPricePanel() {
           return '<div class="card-header"><strong>Price <span class="small fw-normal">(#{market_currency})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-rocket"></span><label id="lastPrice">-</label></div></div>';
@@ -1150,12 +1163,12 @@ html(lang='en')
                 li#home.nav-item
                   a.nav-link(href='/')
                     span.fa-solid.fa-cubes
-                    span.margin-left-5 #{settings.locale.menu_explorer}
+                    span.margin-left-5 #{settings.localization.menu_explorer}
                 if settings.blockchain_specific.heavycoin.enabled == true && settings.blockchain_specific.heavycoin.reward_page.enabled == true
                   li#reward.nav-item
                     a.nav-link(href='/reward')
                       span.fa-solid.fa-star
-                      span.margin-left-5 #{settings.locale.menu_reward}
+                      span.margin-left-5 #{settings.localization.menu_reward}
                 if settings.masternodes_page.enabled == true
                   li#masternodes.nav-item
                     a.nav-link(href='/masternodes')
@@ -1165,23 +1178,23 @@ html(lang='en')
                   li#movement.nav-item
                     a.nav-link(href='/movement')
                       span.fa-regular.fa-money-bill-1
-                      span.margin-left-5 #{settings.locale.menu_movement}
+                      span.margin-left-5 #{settings.localization.menu_movement}
                 if settings.network_page.enabled == true
                   li#network.nav-item
                     a.nav-link(href='/network')
                       span.fa-solid.fa-network-wired
-                      span.margin-left-5 #{settings.locale.menu_network}
+                      span.margin-left-5 #{settings.localization.menu_network}
                 if settings.richlist_page.enabled == true
                   li#richlist.nav-item
                     a.nav-link(href='/richlist')
                       span.fa-brands.fa-btc
-                      span.margin-left-5 #{settings.locale.menu_richlist}
+                      span.margin-left-5 #{settings.localization.menu_richlist}
                 if settings.markets_page.enabled == true
                   if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
                     li#markets.dropdown.nav-item
                       a.nav-link.dropdown-toggle(data-bs-toggle='dropdown', href='#')
                         span.fa-solid.fa-chart-line
-                        span.margin-left-5 #{settings.locale.menu_markets}
+                        span.margin-left-5 #{settings.localization.menu_markets}
                       div.navbar(class=dropdownClasses)
                         each mkt in settings.market_data
                           if mkt != null && mkt.id != null
@@ -1205,22 +1218,30 @@ html(lang='en')
                     li#markets.nav-item
                       a.nav-link(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
                         span.fa-solid.fa-chart-line
-                        span.margin-left-5 #{settings.locale.menu_markets}
+                        span.margin-left-5 #{settings.localization.menu_markets}
                 if settings.api_page.enabled == true
                   li#info.nav-item
                     a.nav-link(href='/info')
                       span.fa-solid.fa-circle-info
-                      span.margin-left-5 #{settings.locale.menu_api}
+                      span.margin-left-5 #{settings.localization.menu_api}
                 if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
                   li#claim-address.nav-item
                     a.nav-link(href='/claim')
                       span.fa-regular.fa-address-card
-                      span.margin-left-5 #{settings.locale.menu_claim_address}
+                      span.margin-left-5 #{settings.localization.menu_claim_address}
                 if settings.orphans_page.enabled == true
                   li#orphans.nav-item
                     a.nav-link(href='/orphans')
                       span.fa-regular.fa-rectangle-xmark
-                      span.margin-left-5 #{settings.locale.menu_orphans}
+                      span.margin-left-5 #{settings.localization.menu_orphans}
+                each plugin in settings.plugins.allowed_plugins
+                  if plugin != null && plugin.enabled == true && plugin.pages != null && plugin.pages.length > 0
+                    each pg in plugin.pages
+                      if pg.enabled == true && pg.show_header_menu == true
+                        li.nav-item(id=pg.page_id)
+                          a.nav-link(href='/' + pg.route_suffix)
+                            span(class=pg.menu_fontawesome_class)
+                            span.margin-left-5=pg.menu_title
             if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
               span#search-header-span(alt='Search', title='Search', data-bs-toggle='tooltip', data-bs-placement='left')
                 button#search-header-button(data-bs-toggle='collapse', data-bs-target='#search-navbar-collapse')
@@ -1230,8 +1251,8 @@ html(lang='en')
             div.navbar-nav.align-items-lg-center.search-box-custom(style='width:100%;')
               form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
                 div.input-group.input-group-md.search-for(style='width:100%;')
-                  input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message)
-                  button.btn.btn-success.btn-sm(type='submit') #{settings.locale.ex_search_button}
+                  input.form-control(type='text', name='search', placeholder=settings.localization.ex_search_message)
+                  button.btn.btn-success.btn-sm(type='submit') #{settings.localization.ex_search_button}
     else
       header#main-header-side.side-header.navbar(class=headerClasses)
         div#inner-header-side.navbar.navbar-expand-lg
@@ -1254,8 +1275,8 @@ html(lang='en')
             div.navbar-nav.align-items-lg-center.search-box-custom(style='width:100%;')
               form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
                 div.input-group.input-group-md.search-for(style='width:100%;')
-                  input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message)
-                  button.btn.btn-success.btn-sm(type='submit') #{settings.locale.ex_search_button}
+                  input.form-control(type='text', name='search', placeholder=settings.localization.ex_search_message)
+                  button.btn.btn-success.btn-sm(type='submit') #{settings.localization.ex_search_button}
     div#body-container(class=bodyContainerClasses)
       if settings.shared_pages.page_header.menu == 'side'
         div#side-nav-bar.navbar(class=sideBarClasses)
@@ -1264,41 +1285,41 @@ html(lang='en')
               li#sidebar-offcanvas-close.nav-item.text-end
                 a.nav-link.d-inline(href='#', alt='Close Menu', title='Close Menu', data-bs-toggle='tooltip', data-bs-placement='right')
                   span.fa-2xl.fa-regular.fa-rectangle-xmark(type='button', data-bs-dismiss='offcanvas' aria-label='Close')
-              li#home.nav-item(alt=settings.locale.menu_explorer, title=settings.locale.menu_explorer, data-bs-toggle='tooltip', data-bs-placement='right')
+              li#home.nav-item(alt=settings.localization.menu_explorer, title=settings.localization.menu_explorer, data-bs-toggle='tooltip', data-bs-placement='right')
                 a.nav-link(href='/')
                   span.nav-icon.fa-solid.fa-cubes
-                  span.margin-left-5 #{settings.locale.menu_explorer}
+                  span.margin-left-5 #{settings.localization.menu_explorer}
               if settings.blockchain_specific.heavycoin.enabled == true && settings.blockchain_specific.heavycoin.reward_page.enabled == true
-                li#reward.nav-item(alt=settings.locale.menu_reward, title=settings.locale.menu_reward, data-bs-toggle='tooltip', data-bs-placement='right')
+                li#reward.nav-item(alt=settings.localization.menu_reward, title=settings.localization.menu_reward, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/reward')
                     span.nav-icon.fa-solid.fa-star
-                    span.margin-left-5 #{settings.locale.menu_reward}
+                    span.margin-left-5 #{settings.localization.menu_reward}
               if settings.masternodes_page.enabled == true
                 li#masternodes.nav-item(alt="Masternodes", title="Masternodes", data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/masternodes')
                     span.nav-icon.fa-solid.fa-share-nodes
                     span.margin-left-5 Masternodes
               if settings.movement_page.enabled == true
-                li#movement.nav-item(alt=settings.locale.menu_movement, title=settings.locale.menu_movement, data-bs-toggle='tooltip', data-bs-placement='right')
+                li#movement.nav-item(alt=settings.localization.menu_movement, title=settings.localization.menu_movement, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/movement')
                     span.nav-icon.fa-regular.fa-money-bill-1
-                    span.margin-left-5 #{settings.locale.menu_movement}
+                    span.margin-left-5 #{settings.localization.menu_movement}
               if settings.network_page.enabled == true
-                li#network.nav-item(alt=settings.locale.menu_network, title=settings.locale.menu_network, data-bs-toggle='tooltip', data-bs-placement='right')
+                li#network.nav-item(alt=settings.localization.menu_network, title=settings.localization.menu_network, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/network')
                     span.nav-icon.fa-solid.fa-network-wired
-                    span.margin-left-5 #{settings.locale.menu_network}
+                    span.margin-left-5 #{settings.localization.menu_network}
               if settings.richlist_page.enabled == true
-                li#richlist.nav-item(alt=settings.locale.menu_richlist, title=settings.locale.menu_richlist, data-bs-toggle='tooltip', data-bs-placement='right')
+                li#richlist.nav-item(alt=settings.localization.menu_richlist, title=settings.localization.menu_richlist, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/richlist')
                     span.nav-icon.fa-brands.fa-btc
-                    span.margin-left-5 #{settings.locale.menu_richlist}
+                    span.margin-left-5 #{settings.localization.menu_richlist}
               if settings.markets_page.enabled == true
                 if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
-                  li#markets.dropend.nav-item.side-market-menu(alt=settings.locale.menu_markets, title=settings.locale.menu_markets, data-bs-toggle='tooltip', data-bs-placement='right')
+                  li#markets.dropend.nav-item.side-market-menu(alt=settings.localization.menu_markets, title=settings.localization.menu_markets, data-bs-toggle='tooltip', data-bs-placement='right')
                     a.nav-link.dropdown-toggle(href='#')
                       span.nav-icon.fa-solid.fa-chart-line
-                      span.margin-left-5 #{settings.locale.menu_markets}
+                      span.margin-left-5 #{settings.localization.menu_markets}
                     div#side-market-menu.navbar(class=dropdownClasses)
                       each mkt in settings.market_data
                         if mkt != null && mkt.id != null
@@ -1319,25 +1340,33 @@ html(lang='en')
                                 span #{mkt.name}
                                   span.small.fw-normal  (#{pair.pair})
                 else
-                  li#markets.nav-item(alt=settings.locale.menu_markets, title=settings.locale.menu_markets, data-bs-toggle='tooltip', data-bs-placement='right')
+                  li#markets.nav-item(alt=settings.localization.menu_markets, title=settings.localization.menu_markets, data-bs-toggle='tooltip', data-bs-placement='right')
                     a.nav-link(href='/markets/' + settings.markets_page.default_exchange.exchange_name + '/' + settings.markets_page.default_exchange.trading_pair)
                       span.nav-icon.fa-solid.fa-chart-line
-                      span.margin-left-5 #{settings.locale.menu_markets}
+                      span.margin-left-5 #{settings.localization.menu_markets}
               if settings.api_page.enabled == true
-                li#info.nav-item(alt=settings.locale.menu_api, title=settings.locale.menu_api, data-bs-toggle='tooltip', data-bs-placement='right')
+                li#info.nav-item(alt=settings.localization.menu_api, title=settings.localization.menu_api, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/info')
                     span.nav-icon.fa-solid.fa-circle-info
-                    span.margin-left-5 #{settings.locale.menu_api}
+                    span.margin-left-5 #{settings.localization.menu_api}
               if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
-                li#claim-address.nav-item(alt=settings.locale.menu_claim_address, title=settings.locale.menu_claim_address, data-bs-toggle='tooltip', data-bs-placement='right')
+                li#claim-address.nav-item(alt=settings.localization.menu_claim_address, title=settings.localization.menu_claim_address, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/claim')
                     span.nav-icon.fa-regular.fa-address-card
-                    span.margin-left-5 #{settings.locale.menu_claim_address}
+                    span.margin-left-5 #{settings.localization.menu_claim_address}
               if settings.orphans_page.enabled == true
-                li#orphans.nav-item(alt=settings.locale.menu_orphans, title=settings.locale.menu_orphans, data-bs-toggle='tooltip', data-bs-placement='right')
+                li#orphans.nav-item(alt=settings.localization.menu_orphans, title=settings.localization.menu_orphans, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/orphans')
                     span.nav-icon.fa-regular.fa-rectangle-xmark
-                    span.margin-left-5 #{settings.locale.menu_orphans}
+                    span.margin-left-5 #{settings.localization.menu_orphans}
+              each plugin in settings.plugins.allowed_plugins
+                if plugin != null && plugin.enabled == true && plugin.pages != null && plugin.pages.length > 0
+                  each pg in plugin.pages
+                    if pg.enabled == true && pg.show_header_menu == true
+                      li.nav-item(id=pg.page_id, alt=pg.menu_title, title=pg.menu_title, data-bs-toggle='tooltip', data-bs-placement='right')
+                        a.nav-link(href='/' + pg.route_suffix)
+                          span.nav-icon(class=pg.menu_fontawesome_class)
+                          span.margin-left-5=pg.menu_title
         div#side-offcanvas.offcanvas.offcanvas-start(tabindex='-1')
           div.offcanvas-body.navbar(class=sideBarClasses)
       div#main-container(class=mainContainerClasses)
@@ -1347,8 +1376,8 @@ html(lang='en')
               .alert.alert-warning
                 .cardSpacer
                   span.fa-solid.fa-triangle-exclamation(style='margin-right:5px;')
-                  strong #{settings.locale.ex_warning}
-                div #{settings.locale.initial_index_alert}
+                  strong #{settings.localization.ex_warning}
+                div #{settings.localization.initial_index_alert}
           if showPanels == true || (settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'below-header')
             .col-lg-12
               if showPanels == true
@@ -1377,8 +1406,8 @@ html(lang='en')
                 div#search-row.row.text-center
                   form.form-inline.col-12.d-flex.justify-content-center(method='post', action='/search')
                     #index-search.form-group.d-flex.justify-content-center
-                      input.form-control(type='text', name='search', placeholder=settings.locale.ex_search_message, style='min-width:80%;margin-right:5px;')
-                      button.btn.btn-success(type='submit') #{settings.locale.ex_search_button}
+                      input.form-control(type='text', name='search', placeholder=settings.localization.ex_search_message, style='min-width:80%;margin-right:5px;')
+                      button.btn.btn-success(type='submit') #{settings.localization.ex_search_button}
           if settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true))
             .container
               .row.align-items-start

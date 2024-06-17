@@ -3,9 +3,10 @@ const path = require('path');
 const lib = require('../lib/explorer');
 const archiveSuffix = '.bak';
 const backupLockName = 'backup';
-var backupPath = path.join(path.dirname(__dirname), 'backups');
-var backupFilename;
-var lockCreated = false;
+const settings = require('../lib/settings');
+let backupPath = path.join(path.dirname(__dirname), 'backups');
+let backupFilename;
+let lockCreated = false;
 
 // exit function used to cleanup lock before finishing script
 function exit(exitCode) {
@@ -60,12 +61,11 @@ if (!fs.existsSync(path.join(backupPath, `${backupFilename}${archiveSuffix}`))) 
     // ensure the lock will be deleted on exit
     lockCreated = true;
     // check all other possible locks since backups should not run at the same time that data is being changed
-    if (lib.is_locked(['restore', 'delete', 'index', 'markets', 'peers', 'masternodes']) == false) {
+    if (lib.is_locked(['restore', 'delete', 'index', 'markets', 'peers', 'masternodes', 'plugin']) == false) {
       // all tests passed. OK to run backup
-      console.log("Script launched with pid: " + process.pid);
+      console.log(`${settings.localization.script_launched }: ${process.pid}`);
 
       const { exec } = require('child_process');
-      const settings = require('../lib/settings');
       const randomDirectoryName = Math.random().toString(36).substring(2, 15) + Math.random().toString(23).substring(2, 5);
 
       // execute backup

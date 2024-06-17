@@ -47,7 +47,7 @@ block content
           var good_blockhash = data[2];
           var prev_blockhash = data[3];
           var next_blockhash = data[4];
-          $("td:eq(0)", row).html('<a href="/block/' + orphan_blockhash + '"><span class="fa-regular fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="#{settings.locale.view_orphan}"></span></a>').addClass('text-center d-table-cell d-md-none');
+          $("td:eq(0)", row).html('<a href="/block/' + orphan_blockhash + '"><span class="fa-regular fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="#{settings.localization.view_orphan}"></span></a>').addClass('text-center d-table-cell d-md-none');
           $("td:eq(1)", row).html('<a href="/block/' + orphan_blockhash + '">' + orphan_blockhash + '</a>').addClass('breakWord d-none d-md-table-cell');
           $("td:eq(2)", row).html('<a href="/block/' + good_blockhash + '">' + blockindex.toString() + '</a>').addClass('text-center');
           $("td:eq(3)", row).html('<a href="/block/' + prev_blockhash + '">' + (blockindex - 1).toString() + '</a>').addClass('text-center');
@@ -88,27 +88,27 @@ block content
             img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
         #page-title-container
           if settings.orphans_page.page_header.show_title == true
-            h3#page-title #{settings.locale.orphan_title.replace('{1}', settings.coin.name)}
+            h3#page-title #{settings.localization.orphan_title.replace('{1}', settings.coin.name)}
           if settings.orphans_page.page_header.show_last_updated == true
             if settings.orphans_page.page_header.show_title != true && settings.orphans_page.page_header.show_description != true
               #page-title-container
                 .sub-page-header
-                  span.fw-bold=settings.locale.last_updated + ':'
+                  span.fw-bold=settings.localization.last_updated + ':'
                   span.text-muted#lastUpdatedDate
             else
               .sub-page-header(style='margin-bottom:' + (settings.orphans_page.page_header.show_description == true ? '5' : '0') + 'px')
-                span.fw-bold=settings.locale.last_updated + ':'
+                span.fw-bold=settings.localization.last_updated + ':'
                 span.text-muted#lastUpdatedDate
           if settings.orphans_page.page_header.show_description == true
             if settings.orphans_page.page_header.show_title != true && settings.orphans_page.page_header.show_last_updated != true
               #page-title-container
-                .sub-page-header.text-muted=settings.locale.orphan_description
+                .sub-page-header.text-muted=settings.localization.orphan_description
             else
-              .sub-page-header.text-muted=settings.locale.orphan_description
+              .sub-page-header.text-muted=settings.localization.orphan_description
       .cardSpacer.clearfix
     .card.card-default.border-0.cardSpacer
       .card-header
-        strong=settings.locale.orphan_block_list
+        strong=settings.localization.orphan_block_list
       table#orphans-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
         - var theadClasses = [];
         if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
@@ -116,8 +116,8 @@ block content
         thead
           tr(class=theadClasses)
             th.d-table-cell.d-md-none
-            th.d-none.d-md-table-cell #{settings.locale.orphan_block_hash}
-            th.text-center #{settings.locale.orphan_actual_block}
-            th.text-center #{settings.locale.orphan_prev_block}
-            th.text-center #{settings.locale.orphan_next_block}
+            th.d-none.d-md-table-cell #{settings.localization.orphan_block_hash}
+            th.text-center #{settings.localization.orphan_actual_block}
+            th.text-center #{settings.localization.orphan_prev_block}
+            th.text-center #{settings.localization.orphan_next_block}
         tbody

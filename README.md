@@ -14,6 +14,8 @@ Written in node.js and mongodb, eIquidus is the most stable, secure, customizabl
 
 Exor accepts targeted donations in an effort to crowdfund various feature and improvement requests for the block explorer and other Exor-related projects. [Browse the list of unfunded tasks](https://exor.io/tasklist/hide-completed/hide-funded/show-unfunded/) and send Exor coins to the correct funding address to help meet the funding goal for tasks that you would like to see developed. Once the funding goal is met, Exor developers will begin work on the task asap and will remain a top priority until completed. If you are a software developer and would like to work on funded tasks in exchange for payment in EXOR, please get in touch with us using one of the [Developer Contact](#developer-contact) links below.
 
+**NEW:** Preliminary plugin support has been added. Help support the first plugin proposal for automatic snapshot creation. More info: [https://exor.io/task/181/b371d98f6217f2f533b3a0c9fedce7b200571c4f/](https://exor.io/task/181/b371d98f6217f2f533b3a0c9fedce7b200571c4f/)
+
 ### Premium Support
 
 All code in this project is open source and available free-of-charge under the BSD-3-Clause license. If you require assistance setting up an explorer for your coin, or are interested in hiring a developer to incorporate custom changes for your explorer, you may contact the developer using the [Developer Contact](#developer-contact) links below.
@@ -980,7 +982,7 @@ You can support us via one of the following options:
 
 ### License
 
-Copyright (c) 2019-2023, The Exor Community<br />
+Copyright (c) 2019-2024, The Exor Community<br />
 Copyright (c) 2017, The Chaincoin Community<br />
 Copyright (c) 2015, Iquidus Technology<br />
 Copyright (c) 2015, Luke Williams<br />

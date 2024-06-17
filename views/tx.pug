@@ -23,7 +23,7 @@ block content
           button.btn-close(type='button', data-bs-dismiss='alert')
           .cardSpacer
             span.fa-solid.fa-triangle-exclamation(style='margin-right:5px')
-            strong=settings.locale.ex_warning
+            strong=settings.localization.ex_warning
           div="This is an orphaned transaction"
     if settings.transaction_page.page_header.show_img == true || settings.transaction_page.page_header.show_title == true || settings.transaction_page.page_header.show_description == true
       #page-header-container(style='align-items:' + (settings.transaction_page.page_header.show_img == true && settings.transaction_page.page_header.show_title == true && settings.transaction_page.page_header.show_description == true ? 'flex-start' : 'center'))
@@ -32,35 +32,35 @@ block content
             img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
         #page-title-container
           if settings.transaction_page.page_header.show_title == true
-            h3#page-title #{settings.locale.tx_title.replace('{1}', settings.coin.name)}
+            h3#page-title #{settings.localization.tx_title.replace('{1}', settings.coin.name)}
           if settings.transaction_page.page_header.show_description == true
             if settings.transaction_page.page_header.show_title != true
               #page-title-container
-                .sub-page-header.text-muted=settings.locale.tx_description.replace('{1}', settings.coin.name).replace('{2}', tx.blockindex)
+                .sub-page-header.text-muted=settings.localization.tx_description.replace('{1}', settings.coin.name).replace('{2}', tx.blockindex)
             else
-              .sub-page-header.text-muted=settings.locale.tx_description.replace('{1}', settings.coin.name).replace('{2}', tx.blockindex)
+              .sub-page-header.text-muted=settings.localization.tx_description.replace('{1}', settings.coin.name).replace('{2}', tx.blockindex)
       .cardSpacer.clearfix
     .card.card-default.border-0.cardSpacer
       .card-header
-        strong=settings.locale.tx_hash + ': ' + tx.txid
+        strong=settings.localization.tx_hash + ': ' + tx.txid
         if settings.api_page.public_apis.rpc.getrawtransaction.enabled == true
           a.d-none.d-md-inline(href=`/api/getrawtransaction?txid=${tx.txid}&decrypt=1`, style='color: var(--bs-body-color);')
-            span.fa-solid.fa-circle-info.float-end(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_raw_tx_data)
+            span.fa-solid.fa-circle-info.float-end(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.localization.view_raw_tx_data)
       table#tx-table.table.table-bordered.table-striped.summary-table.mobile-border-right
         thead
           tr(class=theadClasses)
             th.text-center.d-table-cell.d-md-none
-            th.d-none.d-md-table-cell #{settings.locale.tx_block_hash}
+            th.d-none.d-md-table-cell #{settings.localization.tx_block_hash}
             if settings.transaction_page.show_op_return == true
               th='OP_RETURN'
-            th.text-center #{settings.locale.confirmations}
-            th.text-center #{settings.locale.timestamp}
+            th.text-center #{settings.localization.confirmations}
+            th.text-center #{settings.localization.timestamp}
         tbody
           - var confirms = (blockcount - tx.blockindex + 1);
           tr
             td.text-center.d-table-cell.d-md-none
               a(href='/block/' + tx.blockhash)
-                span.fa-regular.fa-eye(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.locale.view_block)
+                span.fa-regular.fa-eye(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.localization.view_block)
             td.d-none.d-md-table-cell
               a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
             if settings.transaction_page.show_op_return == true
@@ -75,28 +75,28 @@ block content
               span#timestampCol
     if tx.vout.length < 1
       .alert.alert-info.text-center(role='alert', style='margin-bottom:0;')
-        strong #{settings.locale.tx_nonstandard}
+        strong #{settings.localization.tx_nonstandard}
     else
       .row
         .col-md-6.cardSpacer
           .card.card-default.border-0
             .card-header
-              strong #{settings.locale.tx_contributors}
+              strong #{settings.localization.tx_contributors}
               span.fa-solid.fa-arrow-right.float-end.d-none.d-md-block
             table.table.table-bordered.table-striped.table-hover.summary-table.mobile-border-right
               thead
                 tr(class=theadClasses)
-                  th #{settings.locale.tx_address}
+                  th #{settings.localization.tx_address}
                   if (tx.vin.length > 0)
                     if tx.vin[0].addresses != 'coinbase'
-                      th.text-center #{settings.locale.mkt_amount}
+                      th.text-center #{settings.localization.mkt_amount}
                         span.small.fw-normal  (#{settings.coin.symbol})
               tbody
                 if tx.vin.length > 0
                   each address in tx.vin
                     if address.addresses == 'coinbase'
                       tr.table-info.text-center
-                        td #{settings.locale.new_coins}
+                        td #{settings.localization.new_coins}
                     else
                       - var ramount = Number(address.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                       - var ramountParts = ramount.split('.');
@@ -112,29 +112,29 @@ block content
                           else if address.addresses == 'hidden_address'
                             if settings.address_page.enable_hidden_address_view == true
                               a.breakWord(href='/address/hidden_address')
-                                =settings.locale.hidden_sender
+                                =settings.localization.hidden_sender
                             else
-                              =settings.locale.hidden_sender
+                              =settings.localization.hidden_sender
                           else
                             if settings.address_page.enable_unknown_address_view == true
                               a.breakWord(href='/address/unknown_address')
-                                =settings.locale.unknown_sender
+                                =settings.localization.unknown_sender
                             else
-                              =settings.locale.unknown_sender
+                              =settings.localization.unknown_sender
                         td.table-danger.text-center #{ramountParts[0]}.
                           span.decimal #{ramountParts[1]}
                 else
                   tr.table-info.text-center
-                    td.bottom-border-1 #{settings.locale.proof_of_stake}
+                    td.bottom-border-1 #{settings.localization.proof_of_stake}
         .col-md-6.cardSpacer
           .card.card-default.border-0
             .card-header
-              strong #{settings.locale.tx_recipients}
+              strong #{settings.localization.tx_recipients}
             table.table.table-bordered.table-striped.table-hover.summary-table.mobile-border-right
               thead
                 tr(class=theadClasses)
-                  th #{settings.locale.tx_address}
-                  th.text-center #{settings.locale.mkt_amount}
+                  th #{settings.localization.tx_address}
+                  th.text-center #{settings.localization.mkt_amount}
                     span.small.fw-normal  (#{settings.coin.symbol})
               tbody
                 each address in tx.vout
@@ -157,15 +157,15 @@ block content
                           if address.addresses == 'hidden_address'
                             if settings.address_page.enable_hidden_address_view == true
                               a.breakWord(href='/address/hidden_address')
-                                =settings.locale.hidden_recipient
+                                =settings.localization.hidden_recipient
                             else
-                              =settings.locale.hidden_recipient
+                              =settings.localization.hidden_recipient
                           else
                             if settings.address_page.enable_unknown_address_view == true
                               a.breakWord(href='/address/unknown_address')
-                                =settings.locale.unknown_recipient
+                                =settings.localization.unknown_recipient
                             else
-                              =settings.locale.unknown_recipient
+                              =settings.localization.unknown_recipient
                         td.table-success.text-center #{ramountParts[0]}.
                           span.decimal #{ramountParts[1]}
                       else
@@ -173,15 +173,15 @@ block content
                           if address.addresses == 'hidden_address'
                             if settings.address_page.enable_hidden_address_view == true
                               a.breakWord(href='/address/hidden_address')
-                                =settings.locale.hidden_recipient
+                                =settings.localization.hidden_recipient
                             else
-                              =settings.locale.hidden_recipient
+                              =settings.localization.hidden_recipient
                           else
                             if settings.address_page.enable_unknown_address_view == true
                               a.breakWord(href='/address/unknown_address')
-                                =settings.locale.unknown_recipient
+                                =settings.localization.unknown_recipient
                             else
-                              =settings.locale.unknown_recipient
+                              =settings.localization.unknown_recipient
                   else
                     - var ramount = Number(address.amount / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
                     - var ramountParts = ramount.split('.');

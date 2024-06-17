@@ -91,16 +91,16 @@ block content
             img#header-img(src=(settings.shared_pages.page_header.page_title_image == null || settings.shared_pages.page_header.page_title_image.image_path == null || settings.shared_pages.page_header.page_title_image.image_path == '' ? '/img/page-title-img.png' : settings.shared_pages.page_header.page_title_image.image_path))
         #page-title-container
           if settings.markets_page.page_header.show_title == true
-            h3#page-title !{settings.locale.mkt_title.replace('{1}', marketdata.market_name + ' <span class="small fw-normal">(' + marketdata.coin + '/' + marketdata.exchange + ')</span>')}
+            h3#page-title !{settings.localization.mkt_title.replace('{1}', marketdata.market_name + ' <span class="small fw-normal">(' + marketdata.coin + '/' + marketdata.exchange + ')</span>')}
           if settings.markets_page.page_header.show_last_updated == true
             if settings.markets_page.page_header.show_title != true && settings.markets_page.page_header.show_description != true && (settings.markets_page.page_header.show_exchange_url != true && marketdata.url != null && marketdata.url != '')
               #page-title-container
                 .sub-page-header
-                  span.fw-bold=settings.locale.last_updated + ':'
+                  span.fw-bold=settings.localization.last_updated + ':'
                   span.text-muted#lastUpdatedDate
             else
               .sub-page-header(style='margin-bottom:' + (settings.markets_page.page_header.show_description == true || (settings.markets_page.page_header.show_exchange_url == true && marketdata.url != null && marketdata.url != '') ? '5' : '0') + 'px')
-                span.fw-bold=settings.locale.last_updated + ':'
+                span.fw-bold=settings.localization.last_updated + ':'
                 span.text-muted#lastUpdatedDate
           if settings.markets_page.page_header.show_exchange_url == true && marketdata.url != null && marketdata.url != ''
             if settings.markets_page.page_header.show_title != true && settings.markets_page.page_header.show_last_updated != true && settings.markets_page.page_header.show_description != true
@@ -117,16 +117,16 @@ block content
           if settings.markets_page.page_header.show_description == true
             if settings.markets_page.page_header.show_title != true && settings.markets_page.page_header.show_last_updated != true && (settings.markets_page.page_header.show_exchange_url != true && marketdata.url != null && marketdata.url != '')
               #page-title-container
-                .sub-page-header.text-muted=settings.locale.mkt_description.replace('{1}', marketdata.coin + '/' + marketdata.exchange).replace('{2}', marketdata.market_name)
+                .sub-page-header.text-muted=settings.localization.mkt_description.replace('{1}', marketdata.coin + '/' + marketdata.exchange).replace('{2}', marketdata.market_name)
             else
-              .sub-page-header.text-muted=settings.locale.mkt_description.replace('{1}', marketdata.coin + '/' + marketdata.exchange).replace('{2}', marketdata.market_name)
+              .sub-page-header.text-muted=settings.localization.mkt_description.replace('{1}', marketdata.coin + '/' + marketdata.exchange).replace('{2}', marketdata.market_name)
       .cardSpacer.clearfix
     if settings.markets_page.show_market_select == true && settings.market_count > 1
       .row
         .col-md-12.cardSpacer
           .card.card-default.border-0
             .card-header
-              strong #{settings.locale.mkt_select}
+              strong #{settings.localization.mkt_select}
             .card-body
               ul.nav.nav-pills
                 each mkt in settings.market_data
@@ -288,45 +288,45 @@ block content
                   img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
                 strong #{marketdata.market_name}
                 span.small.fw-normal  (#{marketdata.coin}/#{marketdata.exchange})
-                strong  - #{settings.locale.mkt_hours}
+                strong  - #{settings.localization.mkt_hours}
                 if marketdata.data.chartdata == null || marketdata.data.chartdata == 'null' || marketdata.data.chartdata == '' || marketdata.data.chartdata == '[]'
-                  span.fa-solid.fa-chart-line.float-end.view-chart-disabled.market-toggle(style='cursor: pointer;color: var(--bs-body-color);', data-bs-toggle='tooltip', data-bs-placement='bottom', title=settings.locale.mkt_no_chart)
+                  span.fa-solid.fa-chart-line.float-end.view-chart-disabled.market-toggle(style='cursor: pointer;color: var(--bs-body-color);', data-bs-toggle='tooltip', data-bs-placement='bottom', title=settings.localization.mkt_no_chart)
               table#market-summary.table.table-bordered.bottom-border-0.summary-table.single-row-table(style='border-top:0;margin-top:0 !important;')
                 thead
                   tr(class=theadClasses)
                     if marketdata.data.summary != null
                       if marketdata.data.summary.high != null
-                        th.text-center #{settings.locale.mkt_high}
+                        th.text-center #{settings.localization.mkt_high}
                       if marketdata.data.summary.low != null
-                        th.text-center #{settings.locale.mkt_low}
+                        th.text-center #{settings.localization.mkt_low}
                       if marketdata.data.summary.volume != null
-                        th.text-center #{settings.locale.mkt_volume}
+                        th.text-center #{settings.localization.mkt_volume}
                           span.small.fw-normal  (#{marketdata.coin})
                       if marketdata.data.summary.volume_btc != null
-                        th.text-center #{settings.locale.mkt_volume}
+                        th.text-center #{settings.localization.mkt_volume}
                           span.small.fw-normal  (#{marketdata.exchange})
                       if marketdata.data.summary.bid != null
-                        th.text-center #{settings.locale.mkt_top_bid}
+                        th.text-center #{settings.localization.mkt_top_bid}
                       if marketdata.data.summary.ask != null
-                        th.text-center #{settings.locale.mkt_top_ask}
+                        th.text-center #{settings.localization.mkt_top_ask}
                       if marketdata.data.summary.last != null
-                        th.text-center #{settings.locale.mkt_last}
+                        th.text-center #{settings.localization.mkt_last}
                       if marketdata.data.summary.prev != null
-                        th.text-center #{settings.locale.mkt_yesterday}
+                        th.text-center #{settings.localization.mkt_yesterday}
                       if marketdata.data.summary.change != null || (marketdata.data.summary.last != null && marketdata.data.summary.prev != null)
-                        th.text-center #{settings.locale.mkt_change}
+                        th.text-center #{settings.localization.mkt_change}
                     else
-                      th.text-center #{settings.locale.mkt_high}
-                      th.text-center #{settings.locale.mkt_low}
-                      th.text-center #{settings.locale.mkt_volume}
+                      th.text-center #{settings.localization.mkt_high}
+                      th.text-center #{settings.localization.mkt_low}
+                      th.text-center #{settings.localization.mkt_volume}
                         span.small.fw-normal  (#{marketdata.coin})
-                      th.text-center #{settings.locale.mkt_volume}
+                      th.text-center #{settings.localization.mkt_volume}
                         span.small.fw-normal  (#{marketdata.exchange})
-                      th.text-center #{settings.locale.mkt_top_bid}
-                      th.text-center #{settings.locale.mkt_top_ask}
-                      th.text-center #{settings.locale.mkt_last}
-                      th.text-center #{settings.locale.mkt_yesterday}
-                      th.text-center #{settings.locale.mkt_change}
+                      th.text-center #{settings.localization.mkt_top_bid}
+                      th.text-center #{settings.localization.mkt_top_ask}
+                      th.text-center #{settings.localization.mkt_last}
+                      th.text-center #{settings.localization.mkt_yesterday}
+                      th.text-center #{settings.localization.mkt_change}
                 tbody
                   tr
                     if marketdata.data.summary != null
@@ -410,7 +410,7 @@ block content
                 .card-header
                   if marketdata.market_logo != null && marketdata.market_logo != ''
                     img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
-                  strong #{marketdata.market_name} - #{marketdata.coin}/#{marketdata.exchange} - #{settings.locale.mkt_hours}
+                  strong #{marketdata.market_name} - #{marketdata.coin}/#{marketdata.exchange} - #{settings.localization.mkt_hours}
                 .card-body
                   canvas#chart(style='height:300px;')
         .row
@@ -419,15 +419,15 @@ block content
               .card-header(style='border-bottom-width:1px;')
                 if marketdata.market_logo != null && marketdata.market_logo != ''
                   img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
-                strong(style='color:var(--bs-body-color)') #{settings.locale.mkt_buy_orders}
+                strong(style='color:var(--bs-body-color)') #{settings.localization.mkt_buy_orders}
               table#buy-orders.table.table-striped.table-bordered.table-hover.order-table.bottom-border-0
                 thead
                   tr(class=theadClasses)
-                    th.text-center #{settings.locale.mkt_price}
+                    th.text-center #{settings.localization.mkt_price}
                       span.small.fw-normal  (#{marketdata.exchange})
-                    th.text-center #{settings.locale.mkt_amount}
+                    th.text-center #{settings.localization.mkt_amount}
                       span.small.fw-normal  (#{marketdata.coin})
-                    th.text-center #{settings.locale.mkt_total}
+                    th.text-center #{settings.localization.mkt_total}
                       span.small.fw-normal  (#{marketdata.exchange})
                 tbody
                   if marketdata.data.buys != null
@@ -453,15 +453,15 @@ block content
               .card-header(style='border-bottom-width:1px;')
                 if marketdata.market_logo != null && marketdata.market_logo != ''
                   img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
-                strong(style='color:var(--bs-body-color)') #{settings.locale.mkt_sell_orders}
+                strong(style='color:var(--bs-body-color)') #{settings.localization.mkt_sell_orders}
               table#sell-orders.table.table-striped.table-bordered.table-hover.order-table.bottom-border-0
                 thead
                   tr(class=theadClasses)
-                    th.text-center #{settings.locale.mkt_price}
+                    th.text-center #{settings.localization.mkt_price}
                       span.small.fw-normal  (#{marketdata.exchange})
-                    th.text-center #{settings.locale.mkt_amount}
+                    th.text-center #{settings.localization.mkt_amount}
                       span.small.fw-normal  (#{marketdata.coin})
-                    th.text-center #{settings.locale.mkt_total}
+                    th.text-center #{settings.localization.mkt_total}
                       span.small.fw-normal  (#{marketdata.exchange})
                 tbody
                   if marketdata.data.sells != null
@@ -488,17 +488,17 @@ block content
               .card-header
                 if marketdata.market_logo != null && marketdata.market_logo != ''
                   img.align-top.market-logo(src='data:image/png;base64,' + marketdata.market_logo, title=marketdata.market_name + ' Logo', alt=marketdata.market_name + ' Logo')
-                strong #{settings.locale.mkt_trade_history}
+                strong #{settings.localization.mkt_trade_history}
               table#history-table.table.table-hover.table-bordered.table-striped.table-paging(cellspacing='0')
                 thead
                   tr(class=theadClasses)
-                    th.text-center #{settings.locale.mkt_price}
+                    th.text-center #{settings.localization.mkt_price}
                       span.small.fw-normal  (#{marketdata.exchange})
-                    th.text-center #{settings.locale.mkt_amount}
+                    th.text-center #{settings.localization.mkt_amount}
                       span.small.fw-normal  (#{marketdata.coin})
-                    th.text-center #{settings.locale.mkt_total}
+                    th.text-center #{settings.localization.mkt_total}
                       span.small.fw-normal  (#{marketdata.exchange})
-                    th.text-center #{settings.locale.mkt_time_stamp}
+                    th.text-center #{settings.localization.mkt_time_stamp}
                 tbody
                   if marketdata.data.history != null
                     each order in marketdata.data.history
@@ -537,5 +537,5 @@ block content
         button.btn-close(type='button', data-bs-dismiss='alert')
         .cardSpacer
           span.fa-solid.fa-circle-exclamation(style='margin-right:5px')
-          strong #{marketdata.market_name} #{settings.locale.ex_error}
+          strong #{marketdata.market_name} #{settings.localization.ex_error}
         div This market has no data to display.
