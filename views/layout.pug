@@ -4,6 +4,7 @@ html(lang='en')
     meta(charset='UTF-8')
     meta(name='viewport' content='width=device-width, initial-scale=1')
     meta(http-equiv='Content-Language', content='en')
+    meta(name='version', content=settings.explorer_version + (settings.revision == null || settings.revision == '' ? '' : `-${settings.revision}`))
     title=(page_title_prefix == null || page_title_prefix == '' ? settings.localization.error_title.replace('{1}', settings.coin.name) : page_title_prefix) + ' - ' + settings.shared_pages.page_title
     if settings.shared_pages.favicons.favicon32 != ''
       link(rel='icon', href='/' + settings.shared_pages.favicons.favicon32, sizes='32x32')
