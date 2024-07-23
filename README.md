@@ -92,7 +92,7 @@ Table of Contents
     - chartjs-adapter-luxon v1.3.1 ([https://github.com/chartjs/chartjs-adapter-luxon](https://github.com/chartjs/chartjs-adapter-luxon))
   - OverlayScrollbars v2.3.2
   - flag-icons v6.11.1 ([https://github.com/lipis/flag-icons](https://github.com/lipis/flag-icons))
-  - Intl.js (uses the v3.111.0 polyfill service to only download if using a browser that doesn't already support the ECMAScript Internationalization API)
+  - Intl.js (uses the v4.8.0 polyfill service to only download if using a browser that doesn't already support the ECMAScript Internationalization API)
 - Platform independent (tested to run on Windows, MacOS and Linux) **NOTE:** Most of the instructions in this guide were written for use with Linux and may need to be modified when using another OS
 - Mobile-friendly
 - Sass support
