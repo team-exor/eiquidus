@@ -190,42 +190,35 @@ app.post('/claim', function(req, res) {
       // show the captcha error
       res.json({'status': 'failed', 'error': true, 'message': 'The captcha validation failed'});
     } else {
-      // check if the bad-words filter is enabled
-      if (settings.claim_address_page.enable_bad_word_filter == true) {
-        // initialize the bad-words filter
-        var bad_word_lib = require('bad-words');
-        var bad_word_filter = new bad_word_lib();
-
-        // clean the message (Display name) of bad words
-        var message = (req.body.message == null || req.body.message == '' ? '' : bad_word_filter.clean(req.body.message));
-      } else {
-        // do not use the bad word filter
-        var message = (req.body.message == null || req.body.message == '' ? '' : req.body.message);
-      }
-
-      // check if the message was filtered
-      if (message == req.body.message) {
-        // call the verifymessage api
-        lib.verify_message(req.body.address, req.body.signature, req.body.message, function(body) {
-          if (body == false)
-            res.json({'status': 'failed', 'error': true, 'message': 'Invalid signature'});
-          else if (body == true) {
-            db.update_claim_name(req.body.address, req.body.message, function(val) {
-              // check if the update was successful
-              if (val == '')
-                res.json({'status': 'success'});
-              else if (val == 'no_address')
-                res.json({'status': 'failed', 'error': true, 'message': 'Wallet address ' + req.body.address + ' is not valid or does not have any transactions'});
-              else
-                res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
-            });
-          } else
-            res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
-        });
-      } else {
-        // message was filtered which would change the signature
-        res.json({'status': 'failed', 'error': true, 'message': 'Display name contains bad words and cannot be saved: ' + message});
-      }
+      // filter bad words if enabled
+      filter_bad_words((req.body.message == null || req.body.message == '' ? '' : req.body.message), function(claim_error, message) {
+        // check if there was an error or if the message was filtered
+        if (claim_error != null) {
+          // an error occurred with loading the bad-words filter
+          res.json({'status': 'failed', 'error': true, 'message': 'Error loading the bad-words filter: ' + claim_error});
+        } else if (message == req.body.message) {
+          // call the verifymessage api
+          lib.verify_message(req.body.address, req.body.signature, req.body.message, function(body) {
+            if (body == false)
+              res.json({'status': 'failed', 'error': true, 'message': 'Invalid signature'});
+            else if (body == true) {
+              db.update_claim_name(req.body.address, req.body.message, function(val) {
+                // check if the update was successful
+                if (val == '')
+                  res.json({'status': 'success'});
+                else if (val == 'no_address')
+                  res.json({'status': 'failed', 'error': true, 'message': 'Wallet address ' + req.body.address + ' is not valid or does not have any transactions'});
+                else
+                  res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
+              });
+            } else
+              res.json({'status': 'failed', 'error': true, 'message': 'Wallet address or signature is invalid'});
+          });
+        } else {
+          // message was filtered which would change the signature
+          res.json({'status': 'failed', 'error': true, 'message': 'Display name contains bad words and cannot be saved: ' + message});
+        }
+      });
     }
   });
 });
@@ -310,6 +303,27 @@ function validate_captcha(captcha_enabled, data, cb) {
   } else {
     // captcha is not enabled for this feature
     return cb(false);
+  }
+}
+
+function filter_bad_words(msg, cb) {
+  // check if the bad-words filter is enabled
+  if (settings.claim_address_page.enable_bad_word_filter == true) {
+    // import the bad-words dependency
+    import('bad-words').then(function(module) {
+      // load the bad-words filter
+      const bad_word_lib = module.Filter;
+      const bad_word_filter = new bad_word_lib();
+
+       // return the filtered msg
+      return cb(null, bad_word_filter.clean(msg));
+    })
+    .catch(function(err) {
+      return cb(err, null);
+    });
+  } else {
+    // return the msg without filtering for bad words
+    return cb(null, msg);
   }
 }
 
