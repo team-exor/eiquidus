@@ -1527,6 +1527,11 @@ div.navbar-expand-lg {
   margin-top: 80px;
 }
 
+#logo-panel {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
 @media screen and (min-width: 992px) {
   div#side-nav-bar {
     display: block;
@@ -1552,6 +1557,11 @@ div.navbar-expand-lg {
 
   #inner-header-side button#search-header-button {
     display: none;
+  }
+
+  #logo-panel {
+    margin-top: -15px;
+    margin-bottom: 0;
   }
 }
 
