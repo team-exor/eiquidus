@@ -1,6 +1,8 @@
 // Morph 5.1.3
 // Bootswatch
 
+@use "sass:color";
+
 $theme: "morph" !default;
 
 //
@@ -50,19 +52,19 @@ $body-color:                $gray-700 !default;
 
 // Links
 
-$link-color: darken($body-color, 20%) !default;
+$link-color: color.adjust($body-color, $lightness: -20%) !default;
 
 // Components
 
 $border-width:                0 !default;
-$border-color:                rgba(darken($body-bg, 50%), .1) !default;
+$border-color:                rgba(color.adjust($body-bg, $lightness: -50%), .1) !default;
 
 $border-radius-pill:          50rem !default;
 
-$box-shadow:                  5px 5px 10px rgba(darken($body-bg, 50%), .2), -5px -5px 10px rgba($white, .4) !default;
-$box-shadow-sm:               0 .125rem .25rem rgba(darken($body-bg, 50%), .2) !default;
-$box-shadow-lg:               8px 8px 40px rgba(darken($body-bg, 90%), .15) !default;
-$box-shadow-inset:            inset 2px 2px 8px rgba(darken($body-bg, 50%), .3), inset -3px -2px 5px rgba($white, .8) !default;
+$box-shadow:                  5px 5px 10px rgba(color.adjust($body-bg, $lightness: -50%), .2), -5px -5px 10px rgba($white, .4) !default;
+$box-shadow-sm:               0 .125rem .25rem rgba(color.adjust($body-bg, $lightness: -50%), .2) !default;
+$box-shadow-lg:               8px 8px 40px rgba(color.adjust($body-bg, $lightness: -90%), .15) !default;
+$box-shadow-inset:            inset 2px 2px 8px rgba(color.adjust($body-bg, $lightness: -50%), .3), inset -3px -2px 5px rgba($white, .8) !default;
 
 // Fonts
 
@@ -71,7 +73,7 @@ $font-family-sans-serif:      Nunito, -apple-system, BlinkMacSystemFont, "Segoe 
 
 $headings-color:              $link-color !default;
 
-$text-muted:                  lighten($body-color, 15%) !default;
+$text-muted:                  color.adjust($body-color, $lightness: 15%) !default;
 
 // Buttons + Forms
 
@@ -105,7 +107,7 @@ $form-switch-focus-color:         $form-switch-color !default;
 $form-select-indicator-color:       $body-color !default;
 $form-select-box-shadow:          $box-shadow-inset !default;
 
-$form-range-track-bg:             rgba(darken($body-bg, 50%), .15) !default;
+$form-range-track-bg:             rgba(color.adjust($body-bg, $lightness: -50%), .15) !default;
 $form-range-thumb-bg:                      $gray-100 !default;
 $form-range-thumb-active-bg:               $form-range-thumb-bg !default;
 $form-range-thumb-disabled-bg:             $gray-200 !default;
@@ -154,7 +156,7 @@ $pagination-padding-y-lg:           1.5rem !default;
 $pagination-color:                  $gray-700 !default;
 $pagination-bg:                     $body-bg !default;
 
-$pagination-active-color:           darken($pagination-color, 20%) !default;
+$pagination-active-color:           color.adjust($pagination-color, $lightness: -20%) !default;
 $pagination-active-bg:              transparent !default;
 
 $pagination-disabled-color:         $text-muted !default;
@@ -166,7 +168,7 @@ $pagination-disabled-bg:            $pagination-bg !default;
 $card-spacer-y:                     1.5rem !default;
 $card-spacer-x:                     1.5rem !default;
 $card-cap-bg:                       transparent !default;
-$card-bg:                           lighten($body-bg, 3%) !default;
+$card-bg:                           color.adjust($body-bg, $lightness: 3%) !default;
 
 // Tooltips
 

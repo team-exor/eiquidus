@@ -1,5 +1,7 @@
 // Exor 3.0.2 (Based on bootstrap 5.1.3)
 
+@use "sass:color";
+
 $theme: "exor" !default;
 
 //
@@ -114,12 +116,12 @@ $pagination-bg:                     $success !default;
 $pagination-border-width:           0 !default;
 $pagination-border-color:           transparent !default;
 $pagination-hover-color:            $white !default;
-$pagination-hover-bg:               lighten($success, 10%) !default;
+$pagination-hover-bg:               color.adjust($success, $lightness: 10%) !default;
 $pagination-hover-border-color:     transparent !default;
 $pagination-active-bg:              $pagination-hover-bg !default;
 $pagination-active-border-color:    transparent !default;
 $pagination-disabled-color:         $white !default;
-$pagination-disabled-bg:            darken($success, 15%) !default;
+$pagination-disabled-bg:            color.adjust($success, $lightness: -15%) !default;
 $pagination-disabled-border-color:  transparent !default;
 
 // Cards

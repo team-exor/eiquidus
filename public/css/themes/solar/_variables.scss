@@ -1,6 +1,8 @@
 // Solar 5.1.3
 // Bootswatch
 
+@use "sass:color";
+
 $theme: "solar" !default;
 
 //
@@ -67,7 +69,7 @@ $table-accent-bg:             rgba($white, .05) !default;
 $table-hover-bg:              rgba($white, .075) !default;
 $table-border-color:          $component-active-bg !default;
 $table-dark-bg:               $gray-500 !default;
-$table-dark-border-color:     darken($gray-500, 3%) !default;
+$table-dark-border-color:     color.adjust($gray-500, $lightness: -3%) !default;
 $table-dark-color:            $body-bg !default;
 
 $table-bg-scale:              0 !default;
@@ -143,7 +145,7 @@ $popover-header-bg:                 $gray-800 !default;
 
 // Toasts
 
-$toast-background-color:            lighten($body-bg, 5%) !default;
+$toast-background-color:            color.adjust($body-bg, $lightness: 5%) !default;
 $toast-border-color:                rgba(0, 0, 0, .2) !default;
 $toast-header-color:                $body-color !default;
 $toast-header-background-color:     $toast-background-color !default;
