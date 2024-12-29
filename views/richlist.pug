@@ -1,7 +1,6 @@
 extends layout
 
 block content
-  include ./includes/common.pug
   script.
     $(document).ready(function() {
       if ('#{settings.richlist_page.page_header.show_last_updated}' == 'true') {

@@ -86,10 +86,13 @@ Table of Contents
   - DataTables v1.13.6
   - Font Awesome v6.4.2
   - Luxon v3.4.3
-  - Chart.js v4.4.0
-    - chartjs-plugin-crosshair v2.0.0 ([https://github.com/abelheinsbroek/chartjs-plugin-crosshair](https://github.com/abelheinsbroek/chartjs-plugin-crosshair))
+  - Chart.js v4.4.7
+    - chartjs-plugin-crosshair v2.0.5
+      - Forked version with working sync feature: ([https://github.com/joeuhren/chartjs-plugin-crosshair](https://github.com/joeuhren/chartjs-plugin-crosshair))
+      - Original version: ([https://github.com/abelheinsbroek/chartjs-plugin-crosshair](https://github.com/abelheinsbroek/chartjs-plugin-crosshair))
     - chartjs-chart-financial v0.1.1 ([https://github.com/chartjs/chartjs-chart-financial](https://github.com/chartjs/chartjs-chart-financial))
     - chartjs-adapter-luxon v1.3.1 ([https://github.com/chartjs/chartjs-adapter-luxon](https://github.com/chartjs/chartjs-adapter-luxon))
+    - chartjs-plugin-annotation v3.1.0 ([https://github.com/chartjs/chartjs-plugin-annotation](https://github.com/chartjs/chartjs-plugin-annotation))
   - OverlayScrollbars v2.3.2
   - flag-icons v6.11.1 ([https://github.com/lipis/flag-icons](https://github.com/lipis/flag-icons))
   - Intl.js (uses the v4.8.0 polyfill service to only download if using a browser that doesn't already support the ECMAScript Internationalization API)
@@ -179,8 +182,8 @@ Table of Contents
   - **USD Market Cap:** Displays the current market cap value (value measured in USD)
   - **Logo:** Display an image of your coin logo
 - Configurable network charts that can be independently displayed in the header of any page
-  - **Hashrate chart:** Line graph listing of the estimated network hashes per second over the last number of blocks *\*Requires a full sync before network data will start being collected*
-  - **Difficulty chart:** Line graph listing of the block difficulty over the last number of blocks *\*Requires a full sync before network data will start being collected*
+  - **Hashrate chart:** Line graph listing of the estimated network hashes per second over the last number of blocks or hours *\*Requires a full sync before network data will start being collected*
+  - **Difficulty chart:** Line graph listing of the block difficulty over the last number of blocks or hours *\*Requires a full sync before network data will start being collected*
 - Add as many custom social links to the explorer footer as desired. Useful for linking to github, twitter, coinmarketcap or any other social media or external links as necessary. 
 - Custom rpc/api command support which increases blockchain compatibility. Supported cmds:
   - **getnetworkhashps:** Returns the estimated network hashes per second

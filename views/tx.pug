@@ -1,7 +1,6 @@
 extends layout
 
 block content
-  include ./includes/common.pug
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
     - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);

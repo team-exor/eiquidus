@@ -1,0 +1,6 @@
+div#nethashChartParent(class=chartColumnClass, style='display:none;margin:10px 0;')
+  .card.card-default.border-0
+    .card-header
+      strong Network Hashrate
+    .card-body(style=(settings.shared_pages.page_header.network_charts.nethash_chart.stretch_to_fit == true ? 'padding:0!important;' : ''))
+      canvas#nethashChart(style='min-height:'+settings.shared_pages.page_header.network_charts.nethash_chart.chart_height+'px;max-height:'+settings.shared_pages.page_header.network_charts.nethash_chart.chart_height+'px;background-color:'+settings.shared_pages.page_header.network_charts.nethash_chart.bgcolor+';')

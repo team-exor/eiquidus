@@ -1,7 +1,6 @@
 extends layout
 
 block content
-  include ./includes/common.pug
   script.
     var setting_maxTxCount = parseInt("#{settings.api_page.public_apis.ext.getlasttxs.max_items_per_query}");
     var setting_txPerPage = parseInt("#{settings.index_page.transaction_table.items_per_page}");

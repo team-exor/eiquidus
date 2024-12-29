@@ -1,7 +1,6 @@
 extends layout
 
 block content
-  include ./includes/common.pug
   script.
     var setting_txPerPage = parseInt("#{settings.orphans_page.orphans_table.items_per_page}");
     var lengthMenuOpts = !{JSON.stringify(settings.orphans_page.orphans_table.page_length_options)};

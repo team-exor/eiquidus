@@ -157,12 +157,25 @@ html(lang='en')
             - showNethashChart = true
           if settings.error_page.show_difficulty_chart == true
             - showDifficultyChart = true
-    if active == 'markets' || active == 'richlist' || active == 'reward' || (settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true)))
-      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js')
+    if settings.network_history.enabled == true
+      if !(showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true)
+        - showNethashChart = false
+      if !(showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true)
+        - showDifficultyChart = false
+    else
+      - showNethashChart = false
+      - showDifficultyChart = false
+    if active == 'home' || active == 'address' || active == 'block' || active == 'markets' || active == 'masternodes' || active == 'movement' || active == 'network' || active == 'orphans' || active == 'reward' || active == 'richlist' || active == 'tx'
+      include ./includes/common.pug
+    if active == 'markets' || active == 'richlist' || active == 'reward' || showNethashChart == true || showDifficultyChart == true
+      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js')
     if active == 'markets'
       script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.1.1/dist/chartjs-chart-financial.min.js')
-    if active == 'markets' || (settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true)))
-      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chartjs-plugin-crosshair@2.0.0')
+    if active == 'markets' || showNethashChart == true || showDifficultyChart == true
+      script(type='text/javascript', src='https://cdn.jsdelivr.net/gh/joeuhren/chartjs-plugin-crosshair@v2.0.5/build/chartjs-plugin-crosshair.min.js')
+      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1')
+    if showNethashChart == true || showDifficultyChart == true
+      script(type='text/javascript', src='https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js')
     - var sideBarClasses = [];
     if settings.shared_pages.page_header.bgcolor != null && settings.shared_pages.page_header.bgcolor != ''
       - sideBarClasses.push('bg-' + settings.shared_pages.page_header.bgcolor);
@@ -497,8 +510,9 @@ html(lang='en')
 
           update_stats();
         });
-    if settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true))
+    if showNethashChart == true || showDifficultyChart == true
       script.
+        const maxSavedRecords = #{settings.network_history.max_saved_records};
         const countDecimals = function(value) {
           const text = value.toString();
 
@@ -521,6 +535,223 @@ html(lang='en')
             }
           });
         }
+        function roundToNearestMinute(timestamp) {
+          return Math.floor(timestamp * 1000 / (60 * 1000)) * (60 * 1000);
+        }
+        function formatNetworkChartValue(val, roundDecimals, lbl, returnNum) {
+          let max = 20;
+
+          if (roundDecimals != -1)
+            max = roundDecimals;
+          else {
+            const decimalCount = countDecimals(val || 0);
+
+            if (decimalCount < max)
+              max = decimalCount;
+          }
+
+          if (returnNum)
+            return (val || 0);
+          else
+            return Number((val || 0)).toLocaleString('en',{'minimumFractionDigits':0,'maximumFractionDigits':max,'useGrouping':true}) + (lbl == 'Hashrate' ? ' ' + getNetHashUnits() : '');
+        }
+        function populateHourChartData(result) {
+          const roundedDataMap = new Map();
+
+          result.forEach((entry) => {
+            const roundedTimestamp = roundToNearestMinute(entry.timestamp);
+
+            if (roundedTimestamp != 0 && !roundedDataMap.has(roundedTimestamp))
+              roundedDataMap.set(roundedTimestamp, { ...entry, tick: roundedTimestamp });
+          });
+
+          let normalizedData = Array.from(roundedDataMap.values()).sort((a, b) => a.tick - b.tick);
+          let lastKnownValue = { blockindex: 0, difficulty_pow: 0, difficulty_pos: 0, nethash: 0 };
+          let maxTimestamp = new Date().getTime();
+          let hourData = [];
+
+          if (normalizedData.length > 0)
+            maxTimestamp = normalizedData[normalizedData.length - 1].tick;
+
+          const minTimestamp = maxTimestamp - ((#{settings.network_history.max_hours} * 60 * 60 * 1000) - (60 * 1000)); // x hours before maxTimestamp minus 1 minute to encompass the full timeframe
+
+          if (normalizedData.length > 0 && normalizedData[0].tick > minTimestamp) {
+            // use the first real data point values but set blockindex to 0
+            lastKnownValue = { ...normalizedData[0], blockindex: 0 };
+
+            // backfill from minTimestamp up to the first real data point
+            for (let ts = minTimestamp; ts < normalizedData[0].tick; ts += 60 * 1000)
+              hourData.push({ ...lastKnownValue, tick: ts });
+          }
+
+          let currentTimestamp = Math.max(minTimestamp, normalizedData[0]?.tick || minTimestamp);
+
+          for (let i = 0; i < normalizedData.length; i++) {
+            const dataPoint = normalizedData[i];
+
+            // fill any gap between currentTimestamp and the current dataPoint.tick
+            while (currentTimestamp < dataPoint.tick) {
+              hourData.push({ ...lastKnownValue, tick: currentTimestamp, blockindex: 0 });
+              currentTimestamp += 60 * 1000; // move to the next minute
+            }
+
+            // add the real data point to hourData
+            lastKnownValue = dataPoint;
+            hourData.push({ ...dataPoint, tick: dataPoint.tick });
+
+            // move currentTimestamp to the next minute after the current data point
+            currentTimestamp = dataPoint.tick + 60 * 1000;
+          }
+
+          // fill remaining range up to maxTimestamp with last known values
+          while (currentTimestamp < maxTimestamp) {
+            hourData.push({ ...lastKnownValue, tick: currentTimestamp, blockindex: 0 });
+            currentTimestamp += 60 * 1000;
+          }
+
+          xScale = {
+            type: 'time',
+            time: {
+              unit: 'minute',
+              stepSize: 60,
+              displayFormats: {
+                minute: '#{settings.shared_pages.date_time.display_format}'
+              }
+            },
+            min: minTimestamp,  // Set x-axis to start at the first data point
+            max: maxTimestamp,  // Set x-axis to end at the last data point
+            ticks: {
+              maxTicksLimit: #{settings.network_history.max_hours},
+              callback: function(value) {
+                return format_unixtime(Math.floor(value / 1000));
+              }
+            }
+          };
+
+          return {
+            hourData: hourData,
+            minTimestamp: minTimestamp,
+            maxTimestamp: maxTimestamp,
+            xScale: xScale
+          };
+        }
+        function populatePluginDataTitle(chartData, chartTitleSettings, roundDecimals, netHashOnly, difficultyOnly) {
+          let showPOW = false;
+          let showPOS = false;
+          let highestNethash = 0;
+          let lowestNethash = -1;
+          let highestPowDifficulty = 0;
+          let lowestPowDifficulty = -1;
+          let highestPosDifficulty = 0;
+          let lowestPosDifficulty = -1;
+          let highestBlock = 0;
+          let lowestBlock = -1;
+          let pluginTitle = {};
+          const currentNethash = formatNetworkChartValue((chartData.length > 0 && chartData[0].nethash != null ? chartData[chartData.length - 1].nethash : 0), roundDecimals, 'Hashrate', true);
+          const currentPowDifficulty = formatNetworkChartValue((chartData.length > 0 && chartData[0].difficulty_pow != null ? chartData[chartData.length - 1].difficulty_pow : 0), roundDecimals, 'Difficulty', true);
+          const currentPosDifficulty = formatNetworkChartValue((chartData.length > 0 && chartData[0].difficulty_pos != null ? chartData[chartData.length - 1].difficulty_pos : 0), roundDecimals, 'Difficulty', true);
+
+          for (let i = 0; i < chartData.length; i++) {
+            if (chartData[i].difficulty_pow != null && chartData[i].difficulty_pow != 0)
+              showPOW = true;
+            if (chartData[i].difficulty_pos != null && chartData[i].difficulty_pos != 0)
+              showPOS = true;
+            if (chartData[i].nethash != null && chartData[i].nethash > highestNethash)
+              highestNethash = formatNetworkChartValue(chartData[i].nethash, roundDecimals, 'Hashrate', true);
+            if (chartData[i].nethash != null && (lowestNethash == -1 || chartData[i].nethash < lowestNethash))
+              lowestNethash = formatNetworkChartValue(chartData[i].nethash, roundDecimals, 'Hashrate', true);
+            if (chartData[i].difficulty_pow != null && chartData[i].difficulty_pow > highestPowDifficulty)
+              highestPowDifficulty = formatNetworkChartValue(chartData[i].difficulty_pow, roundDecimals, 'Difficulty', true);
+            if (chartData[i].difficulty_pow != null && (lowestPowDifficulty == -1 || chartData[i].difficulty_pow < lowestPowDifficulty))
+              lowestPowDifficulty = formatNetworkChartValue(chartData[i].difficulty_pow, roundDecimals, 'Difficulty', true);
+            if (chartData[i].difficulty_pos != null && chartData[i].difficulty_pos > highestPosDifficulty)
+              highestPosDifficulty = formatNetworkChartValue(chartData[i].difficulty_pos, roundDecimals, 'Difficulty', true);
+            if (chartData[i].difficulty_pos != null && (lowestPosDifficulty == -1 || chartData[i].difficulty_pos < lowestPosDifficulty))
+              lowestPosDifficulty = formatNetworkChartValue(chartData[i].difficulty_pos, roundDecimals, 'Difficulty', true);
+            if (chartData[i].blockindex > highestBlock)
+              highestBlock = chartData[i].blockindex;
+            if (chartData[i].blockindex > 0 && (lowestBlock == -1 || chartData[i].blockindex < lowestBlock))
+              lowestBlock = chartData[i].blockindex;
+          }
+
+          if (chartTitleSettings.enabled == true) {
+            let chart_title = chartTitleSettings.title_text.replace(/\n/g, '\\n')
+              .replace(/{coin_name}/g, '#{settings.coin.name}')
+              .replace(/{max_saved_records}/g, maxSavedRecords)
+              .replace(/{max_hours}/g, '#{settings.network_history.max_hours}')
+              .replace(/{highest_block}/g, highestBlock)
+              .replace(/{lowest_block}/g, lowestBlock);
+
+            if (netHashOnly || (!netHashOnly && !difficultyOnly)) {
+              chart_title = chart_title
+                .replace(/{current_nethash}/g, formatNetworkChartValue(currentNethash, roundDecimals, 'Hashrate', false))
+                .replace(/{highest_nethash}/g, formatNetworkChartValue(highestNethash, roundDecimals, 'Hashrate', false))
+                .replace(/{lowest_nethash}/g, formatNetworkChartValue(lowestNethash, roundDecimals, 'Hashrate', false));
+            }
+
+            if (difficultyOnly || (!netHashOnly && !difficultyOnly)) {
+              chart_title = chart_title
+                .replace(/{current_pow_difficulty}/g, formatNetworkChartValue(currentPowDifficulty, roundDecimals, 'Difficulty', false))
+                .replace(/{highest_pow_difficulty}/g, formatNetworkChartValue(highestPowDifficulty, roundDecimals, 'Difficulty', false))
+                .replace(/{lowest_pow_difficulty}/g, formatNetworkChartValue(lowestPowDifficulty, roundDecimals, 'Difficulty', false))
+                .replace(/{current_pos_difficulty}/g, formatNetworkChartValue(currentPosDifficulty, roundDecimals, 'Difficulty', false))
+                .replace(/{highest_pos_difficulty}/g, formatNetworkChartValue(highestPosDifficulty, roundDecimals, 'Difficulty', false))
+                .replace(/{lowest_pos_difficulty}/g, formatNetworkChartValue(lowestPosDifficulty, roundDecimals, 'Difficulty', false))
+            }
+
+            pluginTitle = {
+              display: true,
+              text: chart_title.split('\\n'),
+              position: 'top',
+              align: chartTitleSettings.alignment.replace('left', 'start').replace('right', 'end'),
+              color: chartTitleSettings.color,
+              font: {
+                family: chartTitleSettings.font.family,
+                size: chartTitleSettings.font.size,
+                weight: chartTitleSettings.font.weight
+              },
+              padding: {
+                top: 10,
+                bottom: 10
+              }
+            };
+          } else {
+            pluginTitle = {
+              display: false
+            };
+          }
+
+          return {
+            showPOW: showPOW,
+            showPOS: showPOS,
+            pluginTitle: pluginTitle
+          };
+        }
+        function populateBlockIndexAnnotations(hourData, blockLineSettings) {
+          let blockIndexAnnotations = null;
+
+          if (blockLineSettings.enabled && maxSavedRecords == 0) {
+            blockIndexAnnotations = {
+              annotations: (
+                hourData
+                  .filter(d => d.blockindex)
+                  .map(d => ({
+                    type: 'line',
+                    mode: 'vertical',
+                    scaleID: 'x',
+                    value: d.tick,
+                    borderColor: blockLineSettings.block_line_color,
+                    borderWidth: 1,
+                    label: {
+                      enabled: false
+                    }
+                  }))
+              )
+            };
+          }
+
+          return blockIndexAnnotations;
+        }
         $(document).ready(function() {
           const setting_reload_chart_seconds = #{settings.shared_pages.page_header.network_charts.reload_chart_seconds};
 
@@ -532,27 +763,101 @@ html(lang='en')
 
           update_network_charts();
         });
-    if settings.network_history.enabled == true && showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true
+    if showNethashChart == true
       script.
         let nethashChart;
 
         function populateNethashChart(result) {
           const ctxNethash = document.getElementById('nethashChart').getContext('2d');
+          let timeData = {};
+
+          if (maxSavedRecords == 0)
+            timeData = populateHourChartData(result);
+
+          const extraData = populatePluginDataTitle((maxSavedRecords == 0 ? timeData.hourData : result), !{JSON.stringify(settings.shared_pages.page_header.network_charts.nethash_chart.chart_title)}, #{settings.shared_pages.page_header.network_charts.nethash_chart.round_decimals}, true, false);
+
+          const netHashDataSet = [
+            {
+              label: 'Hashrate',
+              data: (maxSavedRecords == 0 ?
+                timeData.hourData.map(a => ({
+                  x: a.tick,
+                  y: a.nethash,
+                  blockindex: a.blockindex
+                })) :
+                result.map(function(a) {return a.nethash;})
+              ),
+              backgroundColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.fill_color}'],
+              borderColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.line_color}'],
+              fill: 'start'
+            }
+          ];
+
+          const pluginData = {
+            title: extraData.pluginTitle,
+            legend: {
+              display: #{settings.shared_pages.page_header.network_charts.nethash_chart.legend.enabled},
+              position: '#{settings.shared_pages.page_header.network_charts.nethash_chart.legend.position}'
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              displayColors: true,
+              callbacks: {
+                title: function(context) {
+                  if (maxSavedRecords == 0)
+                    return format_unixtime(Math.floor(context[0].parsed.x / 1000));
+                  else
+                    return 'Block ' + context[0].label + ' Hashrate';
+                },
+                label: function(context) {
+                  if (maxSavedRecords == 0)
+                    return formatNetworkChartValue(context.raw.y, #{settings.shared_pages.page_header.network_charts.nethash_chart.round_decimals}, context.dataset.label, false);
+                  else
+                    return formatNetworkChartValue(context.raw, #{settings.shared_pages.page_header.network_charts.nethash_chart.round_decimals}, context.dataset.label, false);
+                },
+                afterLabel: function(context) {
+                  if (maxSavedRecords == 0) {
+                    const tooltipItems = context.chart.tooltip.dataPoints;
+                    const isLastVisibleItem = tooltipItems[tooltipItems.length - 1] === context;
+
+                    // only display blockindex if this is the last visible tooltip item
+                    if (isLastVisibleItem) {
+                      const blockindex = context.raw.blockindex;
+
+                      if (blockindex && blockindex !== 0)
+                        return `Block: ${blockindex}`;
+                    }
+                  }
+
+                  return '';
+                }
+              }
+            },
+            crosshair: {
+              line: {
+                color: '#{settings.shared_pages.page_header.network_charts.nethash_chart.crosshair_color}',
+                width: 1
+              },
+              sync: {
+                enabled: #{settings.shared_pages.page_header.network_charts.sync_charts},
+                group: 1,
+                suppressTooltips: false,
+                axis: 'x'
+              },
+              zoom: {
+                enabled: false
+              }
+            },
+            annotation: populateBlockIndexAnnotations(timeData.hourData, !{JSON.stringify(settings.shared_pages.page_header.network_charts.nethash_chart.block_line)})
+          };
 
           if (nethashChart == null) {
             nethashChart = new Chart(ctxNethash, {
               type: 'line',
               data: {
-                labels: result.map(function(a) {return a.blockindex;}),
-                datasets: [
-                  {
-                    label: 'Hashrate',
-                    data: result.map(function(a) {return a.nethash;}),
-                    backgroundColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.fill_color}'],
-                    borderColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.line_color}'],
-                    fill: 'start'
-                  }
-                ]
+                labels: (maxSavedRecords == 0 ? timeData.hourData.map(function(a) {return a.tick;}) : result.map(function(a) {return a.blockindex;})),
+                datasets: netHashDataSet
               },
               options: {
                 maintainAspectRatio: false,
@@ -568,78 +873,49 @@ html(lang='en')
                   y: {
                     title: {
                       display: true,
-                      text: 'Network ' + getNetHashUnits(),
+                      text: 'Hashrate ' + getNetHashUnits(),
                       font: {
                         weight: 'bold'
                       }
                     }
                   }
                 },
-                plugins: {
-                  legend: {
-                    display: true,
-                    position: 'bottom'
-                  },
-                  title: {
-                    display: false
-                  },
-                  tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    displayColors: true,
-                    callbacks: {
-                      title: function(context) {
-                        return 'Block ' + context[0].label + ' Hashrate';
-                      },
-                      label: function(context) {
-                        const val = #{settings.shared_pages.page_header.network_charts.nethash_chart.round_decimals};
-                        let max = 20;
-
-                        if (val != -1)
-                          max = val;
-                        else {
-                          const decimalCount = countDecimals(context.raw || 0);
-
-                          if (decimalCount < max)
-                            max = decimalCount;
-                        }
-
-                        return Number((context.raw || 0)).toLocaleString('en',{'minimumFractionDigits':0,'maximumFractionDigits':max,'useGrouping':true}) + ' ' + getNetHashUnits();
-                      }
-                    }
-                  },
-                  crosshair: {
-                    line: {
-                      color: '#{settings.shared_pages.page_header.network_charts.nethash_chart.crosshair_color}',
-                      width: 1
-                    },
-                    sync: {
-                      enabled: false
-                    },
-                    zoom: {
-                      enabled: false
-                    }
-                  }
-                }
+                plugins: pluginData
               }
             });
+
+            if (maxSavedRecords == 0)
+              nethashChart.options.scales.x = timeData.xScale;
+
             $('#nethashChartParent').fadeIn();
           } else {
-            nethashChart.data.labels = result.map(function(a) {return a.blockindex;});
-            nethashChart.data.datasets[0].data = result.map(function(a) {return a.nethash;});
-            nethashChart.update();
+            nethashChart.data.labels = (maxSavedRecords == 0 ? timeData.hourData.map(function(a) {return a.tick;}) : result.map(function(a) {return a.blockindex;}));
+            nethashChart.data.datasets = netHashDataSet;
+            nethashChart.options.plugins = pluginData;
+
+            if (maxSavedRecords == 0) {
+              nethashChart.options.scales.x.min = timeData.minTimestamp;
+              nethashChart.options.scales.x.max = timeData.maxTimestamp;
+            }
+
+            nethashChart.update('none');
           }
         }
-    if settings.network_history.enabled == true && showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true
+    if showDifficultyChart == true
       script.
         let difficultyChart;
 
         function populateDifficultyChart(result) {
           const ctxDifficulty = document.getElementById('difficultyChart').getContext('2d');
-
+          let timeData = {};
           let diffDataSets = [];
           let showPOW = false;
           let showPOS = false;
+
+          if (maxSavedRecords == 0)
+            timeData = populateHourChartData(result);
+
+          const extraData = populatePluginDataTitle((maxSavedRecords == 0 ? timeData.hourData : result), !{JSON.stringify(settings.shared_pages.page_header.network_charts.difficulty_chart.chart_title)}, #{settings.shared_pages.page_header.network_charts.difficulty_chart.round_decimals}, false, true);
 
           for (let i = 0; i < result.length; i++) {
             if (result[i].difficulty_pow != 0)
@@ -651,7 +927,14 @@ html(lang='en')
           if (showPOS) {
             diffDataSets.push({
               label: 'POS Difficulty',
-              data: result.map(function(a) {return a.difficulty_pos;}),
+              data: (maxSavedRecords == 0 ?
+                timeData.hourData.map(a => ({
+                  x: a.tick,
+                  y: a.difficulty_pos,
+                  blockindex: a.blockindex
+                })) :
+                result.map(function(a) {return a.difficulty_pos;})
+              ),
               backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pos_fill_color}'],
               borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pos_line_color}'],
               fill: 'start'
@@ -661,18 +944,84 @@ html(lang='en')
           if (showPOW || !showPOS) {
             diffDataSets.push({
               label: 'POW Difficulty',
-              data: result.map(function(a) {return a.difficulty_pow;}),
+              data: (maxSavedRecords == 0 ?
+                timeData.hourData.map(a => ({
+                  x: a.tick,
+                  y: a.difficulty_pow,
+                  blockindex: a.blockindex
+                })) :
+                result.map(function(a) {return a.difficulty_pow;})
+              ),
               backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pow_fill_color}'],
               borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pow_line_color}'],
               fill: 'start'
             });
           }
 
+          const pluginData = {
+            title: extraData.pluginTitle,
+            legend: {
+              display: #{settings.shared_pages.page_header.network_charts.difficulty_chart.legend.enabled},
+              position: '#{settings.shared_pages.page_header.network_charts.difficulty_chart.legend.position}'
+            },
+            tooltip: {
+              mode: 'index',
+              intersect: false,
+              displayColors: true,
+              callbacks: {
+                title: function(context) {
+                  if (maxSavedRecords == 0)
+                    return format_unixtime(Math.floor(context[0].parsed.x / 1000));
+                  else
+                    return 'Block ' + context[0].label + ' Difficulty';
+                },
+                label: function(context) {
+                  if (maxSavedRecords == 0)
+                    return formatNetworkChartValue(context.raw.y, #{settings.shared_pages.page_header.network_charts.difficulty_chart.round_decimals}, context.dataset.label, false);
+                  else
+                    return formatNetworkChartValue(context.raw, #{settings.shared_pages.page_header.network_charts.difficulty_chart.round_decimals}, context.dataset.label, false);
+                },
+                afterLabel: function(context) {
+                  if (maxSavedRecords == 0) {
+                    const tooltipItems = context.chart.tooltip.dataPoints;
+                    const isLastVisibleItem = tooltipItems[tooltipItems.length - 1] === context;
+
+                    // only display blockindex if this is the last visible tooltip item
+                    if (isLastVisibleItem) {
+                      const blockindex = context.raw.blockindex;
+
+                      if (blockindex && blockindex !== 0)
+                        return `Block: ${blockindex}`;
+                    }
+                  }
+
+                  return '';
+                }
+              }
+            },
+            crosshair: {
+              line: {
+                color: '#{settings.shared_pages.page_header.network_charts.difficulty_chart.crosshair_color}',
+                width: 1
+              },
+              sync: {
+                enabled: #{settings.shared_pages.page_header.network_charts.sync_charts},
+                group: 1,
+                suppressTooltips: false,
+                axis: 'x'
+              },
+              zoom: {
+                enabled: false
+              }
+            },
+            annotation: populateBlockIndexAnnotations(timeData.hourData, !{JSON.stringify(settings.shared_pages.page_header.network_charts.difficulty_chart.block_line)})
+          };
+
           if (difficultyChart == null) {
             difficultyChart = new Chart(ctxDifficulty, {
               type: 'line',
               data: {
-                labels: result.map(function(a) {return a.blockindex;}),
+                labels: (maxSavedRecords == 0 ? timeData.hourData.map(function(a) {return a.tick;}) : result.map(function(a) {return a.blockindex;})),
                 datasets: diffDataSets
               },
               options: {
@@ -696,82 +1045,28 @@ html(lang='en')
                     }
                   }
                 },
-                plugins: {
-                  legend: {
-                    display: true,
-                    position: 'bottom'
-                  },
-                  title: {
-                    display: false
-                  },
-                  tooltip: {
-                    mode: 'index',
-                    intersect: false,
-                    displayColors: true,
-                    callbacks: {
-                      title: function(context) {
-                        return 'Block ' + context[0].label + ' Difficulty';
-                      },
-                      label: function(context) {
-                        const val = #{settings.shared_pages.page_header.network_charts.difficulty_chart.round_decimals};
-                        let max = 20;
-
-                        if (val != -1)
-                          max = val;
-                        else {
-                          const decimalCount = countDecimals(context.raw || 0);
-
-                          if (decimalCount < max)
-                            max = decimalCount;
-                        }
-
-                        return Number((context.raw || 0)).toLocaleString('en',{'minimumFractionDigits':0,'maximumFractionDigits':max,'useGrouping':true});
-                      }
-                    }
-                  },
-                  crosshair: {
-                    line: {
-                      color: '#{settings.shared_pages.page_header.network_charts.difficulty_chart.crosshair_color}',
-                      width: 1
-                    },
-                    sync: {
-                      enabled: false
-                    },
-                    zoom: {
-                      enabled: false
-                    }
-                  }
-                }
+                plugins: pluginData
               }
             });
+
+            if (maxSavedRecords == 0)
+              difficultyChart.options.scales.x = timeData.xScale;
+
             $('#difficultyChartParent').fadeIn();
           } else {
-            difficultyChart.data.labels = result.map(function(a) {return a.blockindex;});
+            difficultyChart.data.labels = (maxSavedRecords == 0 ? timeData.hourData.map(function(a) {return a.tick;}) : result.map(function(a) {return a.blockindex;}));
+            difficultyChart.data.datasets = diffDataSets;
+            difficultyChart.options.plugins = pluginData;
 
-            if (difficultyChart.data.datasets.length != diffDataSets.length)
-              difficultyChart.data.datasets = diffDataSets;
-            else if (
-              (
-                difficultyChart.data.datasets[0].label.indexOf('POW') > -1 &&
-                diffDataSets[0].label.indexOf('POW') > -1
-              )
-              ||
-              (
-                difficultyChart.data.datasets[0].label.indexOf('POS') > -1 &&
-                diffDataSets[0].label.indexOf('POS') > -1
-              )
-            ) {
-              difficultyChart.data.datasets[0].data = diffDataSets[0].data;
+            if (maxSavedRecords == 0) {
+              difficultyChart.options.scales.x.min = timeData.minTimestamp;
+              difficultyChart.options.scales.x.max = timeData.maxTimestamp;
+            }
 
-              if (difficultyChart.data.datasets.length == 2)
-                difficultyChart.data.datasets[1].data = diffDataSets[1].data;
-            } else
-              difficultyChart.data.datasets = diffDataSets;
-
-            difficultyChart.update();
+            difficultyChart.update('none');
           }
         }
-    if (showPanels == true && showNetworkPanel == true) || (settings.network_history.enabled == true && showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true)
+    if (showPanels == true && showNetworkPanel == true) || showNethashChart == true || showDifficultyChart == true
       script.
         function getNetHashUnits() {
           let networkSuffix = '';
@@ -1409,26 +1704,22 @@ html(lang='en')
                     #index-search.form-group.d-flex.justify-content-center
                       input.form-control(type='text', name='search', placeholder=settings.localization.ex_search_message, style='min-width:80%;margin-right:5px;')
                       button.btn.btn-success(type='submit') #{settings.localization.ex_search_button}
-          if settings.network_history.enabled == true && ((showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true) || (showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true))
-            .container
+          if showNethashChart == true || showDifficultyChart == true
+            - var chartColumnClass = 'col-lg-12';
+            .container(style='padding-left:0;padding-right:0;')
               .row.align-items-start
-                - var chartColumnClass = 'col-lg-12';
-                if showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true && showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true
+                if showNethashChart == true && showDifficultyChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.full_row == false && settings.shared_pages.page_header.network_charts.difficulty_chart.full_row == false
                   - chartColumnClass = 'col-lg-6';
-                if showNethashChart == true && settings.shared_pages.page_header.network_charts.nethash_chart.enabled == true && settings.shared_pages.show_hashrate == true
-                  div#nethashChartParent(class=chartColumnClass, style='display:none;margin:10px 0;')
-                    .card.card-default.border-0
-                      .card-header
-                        strong Network Hashrate
-                      .card-body
-                        canvas#nethashChart(style='max-height:300px;background-color:'+settings.shared_pages.page_header.network_charts.nethash_chart.bgcolor+';')
-                if showDifficultyChart == true && settings.shared_pages.page_header.network_charts.difficulty_chart.enabled == true
-                  div#difficultyChartParent(class=chartColumnClass, style='display:none;margin:10px 0;')
-                    .card.card-default.border-0
-                      .card-header
-                        strong Network Difficulty
-                      .card-body
-                        canvas#difficultyChart(style='max-height:300px;background-color:'+settings.shared_pages.page_header.network_charts.difficulty_chart.bgcolor+';')
+                  include ./includes/nethash_chart.pug
+                  include ./includes/difficulty_chart.pug
+                else if showNethashChart == true
+                  include ./includes/nethash_chart.pug
+                else if showDifficultyChart == true
+                  include ./includes/difficulty_chart.pug
+            if showNethashChart == true && showDifficultyChart == true && (settings.shared_pages.page_header.network_charts.nethash_chart.full_row == true || settings.shared_pages.page_header.network_charts.difficulty_chart.full_row == true)
+              .container(style='padding-left:0;padding-right:0;')
+                .row.align-items-start
+                  include ./includes/difficulty_chart.pug
           block content
     div#footer-container(class=footerClasses, role='navigation')
       .col-4.navbar-nav

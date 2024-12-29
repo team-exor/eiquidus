@@ -87,8 +87,10 @@
     // enabled: Enable/disable the saving of additional network history data (true/false)
     //          If set to false, historical data such as network hashrate and difficulty values will not be saved or available for network charts
     "enabled": true,
-    // max_saved_records: The maximum # of blocks to save historical data for
-    "max_saved_records": 120
+    // max_saved_records: The maximum # of blocks to save historical data for. Set this value to 0 if using the max_hours option
+    "max_saved_records": 120,
+    // max_hours: The maximum # of hours to save historical data for. The max_saved_records value will supercede this value so be sure to set max_saved_records to 0 if wanting to display data for a certain number of hours
+    "max_hours": 24
   },
 
   /* Shared page settings */
@@ -345,6 +347,51 @@
           //          If set to false, the network hashrate chart will be completely inaccessible
           //          NOTE: The `shared_pages.show_hashrate` option must be set to true or else the network hashrate chart will be completely inaccessible
           "enabled": true,
+          // chart_title: A collection of settings that pertain to the chart title
+          "chart_title": {
+            // enabled: Enable/disable the chart title (true/false)
+            //          If set to false, the chart title will be completely absent from the chart
+            "enabled": false,
+            // title_text: The text to display in the chart title
+            //             NOTE: You can add a "/n" character for a carriage return
+            //             The following keywords can be used in the chart title:
+            //             {coin_name}: Display the name of the coin from the `coin.name` setting
+            //             {max_saved_records}: Display the number of records the chart is showing data for from the `network_history.max_saved_records` setting
+            //             {max_hours}: Display the number of hours the chart is showing data for from the `network_history.max_hours` setting
+            //             {current_nethash}: Display the most recent nethash value from the network chart data
+            //             {highest_nethash}: Display the highest nethash value from the network chart data
+            //             {lowest_nethash}: Display the lowest nethash value from the network chart data
+            //             {highest_block}: Display the highest block height value from the network chart data
+            //             {lowest_block}: Display the lowest block height value from the network chart data
+            "title_text": "{coin_name} Network Hashrate History for the last {max_hours} hours\nHigh: {highest_nethash}\nCurrent: {current_nethash}\nLow: {lowest_nethash}\nBlock: {highest_block}",
+            // alignment: Determine how to align the chart title text horizontally
+            //            Valid options are left, center and right
+            "alignment": "center",
+            // color: Change the chart title text color
+            //        Set this to any valid html color
+            //        Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+            "color": "#666666",
+            // font: A collection of settings that pertain to the chart title font
+            "font": {
+              // family: The font to use for the chart title
+              //         Valid options are: Arial, Verdana, Times New Roman, Georgia, Courier New, Tahoma
+              "family": "Arial",
+              // size: Determine the size of the font text in pixels
+              "size": 20,
+              // weight: Determine the thickness of the font text
+              //         Valid options are: normal, bold, bolder, lighter, 100, 200, 300, 400, 500, 600, 700, 800, 900
+              "weight": "bold"
+            }
+          },
+          // legend: A collection of settings that pertain to the chart legend
+          "legend": {
+            // enabled: Enable/disable the chart legend (true/false)
+            //          If set to false, the legend will be completely absent from the chart
+            "enabled": true,
+            // position: Determine where to position the chart legend
+            //           Valid options are top, left, bottom and right
+            "position": "bottom"
+          },
           // bgcolor: Change the background color of the network hashrate chart
           //          Set this to any valid html color
           //          Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
@@ -361,15 +408,85 @@
           //             Set this to any valid html color
           //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
           "crosshair_color": "#000000",
+          // block_line: A collection of settings that pertain to the vertical block line on the network hashrate chart
+          "block_line": {
+            // enabled: Enable/disable the vertical block line (true/false)
+            //          If set to false, the vertical block line will be completely hidden from the chart
+            //          NOTE: The `network_history.max_saved_records` option must also be set to 0 or else the vertical block line will be completely hidden from the chart
+            "enabled": true,
+            // block_line_color: Change the line color of the block data for the network hashrate chart
+            //                   Set this to any valid html color
+            //                   Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+            "block_line_color": "rgba(0, 128, 0, 0.2)"
+          },
           // round_decimals: Set how many decimal places the hash rates are rounded to (Max 20)
           //                 NOTE: Set to a value of -1 to output the raw value without rounding
-          "round_decimals": 3
+          "round_decimals": 3,
+          // chart_height: Height of chart in px
+          "chart_height": 300,
+          // full_row: Determine whether the chart will appear in its own row or can have another chart beside it in the same row
+          //           If set to true, the chart will take up the full width of the page
+          //           If set to false, and another chart is configured to display, the 2nd chart will appear beside this chart, both taking up 50% of the width of the screen
+          //           NOTE: On smaller screens such as mobile phones and some tablets, each chart will take up it's own row regardless of what the full_row setting is set to due to limited screen real estate
+          "full_row": false,
+          // stretch_to_fit: Determine if the chart should be fit inside the surrounding chart box with or without padding
+          //                 If set to true, the chart will take up the full available space inside the chart box
+          //                 If set to false, there will be some padding on all 4 sides of the chart box
+          "stretch_to_fit": false
         },
         // difficulty_chart: A collection of settings that pertain to the network difficulty chart
         "difficulty_chart": {
           // enabled: Enable/disable the network difficulty chart (true/false)
           //          If set to false, the network difficulty chart will be completely inaccessible
           "enabled": true,
+          // chart_title: A collection of settings that pertain to the chart title
+          "chart_title": {
+            // enabled: Enable/disable the chart title (true/false)
+            //          If set to false, the chart title will be completely absent from the chart
+            "enabled": false,
+            // title_text: The text to display in the chart title
+            //             NOTE: You can add a "/n" character for a carriage return
+            //             The following keywords can be used in the chart title:
+            //             {coin_name}: Display the name of the coin from the `coin.name` setting
+            //             {max_saved_records}: Display the number of records the chart is showing data for from the `network_history.max_saved_records` setting
+            //             {max_hours}: Display the number of hours the chart is showing data for from the `network_history.max_hours` setting
+            //             {current_pow_difficulty}: Display the most recent POW difficulty value from the network chart data
+            //             {highest_pow_difficulty}: Display the highest POW difficulty value from the network chart data
+            //             {lowest_pow_difficulty}: Display the lowest POW difficulty value from the network chart data
+            //             {current_pos_difficulty}: Display the most recent POS difficulty value from the network chart data
+            //             {highest_pos_difficulty}: Display the highest POS difficulty value from the network chart data
+            //             {lowest_pos_difficulty}: Display the lowest POS difficulty value from the network chart data
+            //             {highest_block}: Display the highest block height value from the network chart data
+            //             {lowest_block}: Display the lowest block height value from the network chart data
+            "title_text": "{coin_name} Difficulty Rate History for the last {max_hours} hours\nHigh: {highest_pos_difficulty}\nCurrent: {current_pos_difficulty}\nLow: {lowest_pos_difficulty}\nBlock: {highest_block}",
+            // alignment: Determine how to align the chart title text horizontally
+            //            Valid options are left, center and right
+            "alignment": "center",
+            // color: Change the chart title text color
+            //        Set this to any valid html color
+            //        Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+            "color": "#666666",
+            // font: A collection of settings that pertain to the chart title font
+            "font": {
+              // family: The font to use for the chart title
+              //         Valid options are: Arial, Verdana, Times New Roman, Georgia, Courier New, Tahoma
+              "family": "Arial",
+              // size: Determine the size of the font text in pixels
+              "size": 20,
+              // weight: Determine the thickness of the font text
+              //         Valid options are: normal, bold, bolder, lighter, 100, 200, 300, 400, 500, 600, 700, 800, 900
+              "weight": "bold"
+            }
+          },
+          // legend: A collection of settings that pertain to the chart legend
+          "legend": {
+            // enabled: Enable/disable the chart legend (true/false)
+            //          If set to false, the legend will be completely absent from the chart
+            "enabled": true,
+            // position: Determine where to position the chart legend
+            //           Valid options are top, left, bottom and right
+            "position": "bottom"
+          },
           // bgcolor: Change the background color of the network difficulty chart
           //          Set this to any valid html color
           //          Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
@@ -394,13 +511,39 @@
           //             Set this to any valid html color
           //             Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
           "crosshair_color": "#000000",
+          // block_line: A collection of settings that pertain to the vertical block line on the network difficulty chart
+          "block_line": {
+            // enabled: Enable/disable the vertical block line (true/false)
+            //          If set to false, the vertical block line will be completely hidden from the chart
+            //          NOTE: The `network_history.max_saved_records` option must also be set to 0 or else the vertical block line will be completely hidden from the chart
+            "enabled": true,
+            // block_line_color: Change the line color of the block data for the network difficulty chart
+            //                   Set this to any valid html color
+            //                   Ex: "#ffffff" or "rgba(255, 255, 255, 1)" or "white"
+            "block_line_color": "rgba(0, 128, 0, 0.2)"
+          },
           // round_decimals: Set how many decimal places the difficulty values are rounded to (Max 20)
           //                 NOTE: Set to a value of -1 to output the raw value without rounding
-          "round_decimals": 3
+          "round_decimals": 3,
+          // chart_height: Height of chart in px
+          "chart_height": 300,
+          // full_row: Determine whether the chart will appear in its own row or can have another chart beside it in the same row
+          //           If set to true, the chart will take up the full width of the page
+          //           If set to false, and another chart is configured to display, the 2nd chart will appear beside this chart, both taking up 50% of the width of the screen
+          //           NOTE: On smaller screens such as mobile phones and some tablets, each chart will take up it's own row regardless of what the full_row setting is set to due to limited screen real estate
+          "full_row": false,
+          // stretch_to_fit: Determine if the chart should be fit inside the surrounding chart box with or without padding
+          //                 If set to true, the chart will take up the full available space inside the chart box
+          //                 If set to false, there will be some padding on all 4 sides of the chart box
+          "stretch_to_fit": false
         },
         // reload_chart_seconds: The time in seconds to automatically reload the network chart data from the server
         //                       Set to 0 to disable automatic reloading of chart data
-        "reload_chart_seconds": 60
+        "reload_chart_seconds": 60,
+        // sync_charts: Determine if multiple network charts should be synced while cycling through different data points
+        //              If set to true, all network charts will be synced so that when clicking on or moving the mouse cursor over a particular chart, all other network charts will also have their crosshairs set to the same data point for easy comparison
+        //              If set to false, only the chart that is currently being manipulated will display a crosshair for the data point being viewed
+        "sync_charts": true
       }
     },
     // page_footer: A collection of settings that pertain to the page footer that is displayed at the bottom of all pages
