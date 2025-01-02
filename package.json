@@ -27,7 +27,8 @@
     "create-backup": "node ./scripts/create_backup.js",
     "restore-backup": "node ./scripts/restore_backup.js",
     "delete-database": "node ./scripts/delete_database.js",
-    "update-explorer": "node ./scripts/update_explorer.js"
+    "update-explorer": "node ./scripts/update_explorer.js",
+    "benchmark": "node ./scripts/benchmark.js"
   },
   "dependencies": {
     "async": "^3.2.4",

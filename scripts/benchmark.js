@@ -1,147 +1,147 @@
-var mongoose = require('mongoose'),
-    db = require('../lib/database'),
-    Tx = require('../models/tx'),
-    Address = require('../models/address'),
-    settings = require('../lib/settings'),
-    lib = require('../lib/explorer'),
-    Stats = require('../models/stats'),
-    async = require('async');
+const mongoose = require('mongoose');
+const blkSync = require('../lib/block_sync');
+const settings = require('../lib/settings');
 
-var COUNT = 5000; // number of blocks to index
+let dbString = `mongodb://${settings.benchmark.address}:${settings.benchmark.port}/admin`
+
+// prevent stopping of the sync script to be able to gracefully shut down
+process.on('SIGINT', () => {
+  console.log(`${settings.localization.stopping_sync_process}.. ${settings.localization.please_wait}..`);
+  blkSync.setStopSync(true);
+});
+
+// prevent killing of the sync script to be able to gracefully shut down
+process.on('SIGTERM', () => {
+  console.log(`${settings.localization.stopping_sync_process}.. ${settings.localization.please_wait}..`);
+  blkSync.setStopSync(true);
+});
 
 function exit(exitCode) {
   mongoose.disconnect();
   process.exit(exitCode);
 }
 
-var dbString = 'mongodb://' + encodeURIComponent(settings.dbsettings.user);
-dbString = dbString + ':' + encodeURIComponent(settings.dbsettings.password);
-dbString = dbString + '@' + settings.dbsettings.address;
-dbString = dbString + ':' + settings.dbsettings.port;
-dbString = dbString + "/IQUIDUS-BENCHMARK";
+function check_user_exists(exists, cb) {
+  // check if the user exists
+  if (exists) {
+    // user already exists
+    return cb();
+  } else {
+    // user does not exist so create it now
+    mongoose.connection.client.db(settings.benchmark.database).command({
+      createUser: settings.benchmark.user,
+      pwd: settings.benchmark.password,
+      roles: [
+        {
+          role: 'readWrite',
+          db: settings.benchmark.database
+        }
+      ]
+    })
+    .then(() => {
+      console.log('User created successfully');  
+      return cb();
+    })
+    .catch((error) => {
+      console.error('Error creating new user:', error);
+      exit(2);
+    });
+  }
+}
+
+function check_create_user(cb) {
+  // check if the benchmark database should be checked for the correct user
+  if (settings.benchmark.auto_add_user) {
+    // connect to the admin database without a username/password
+    mongoose.connect(dbString).then(() => {
+      // determine if the user already exists in the target database
+      mongoose.connection.db
+        .command({
+          usersInfo: {
+            user: settings.benchmark.user,
+            db: settings.benchmark.database
+          }
+        })
+        .then((userInfo) => {
+          // check if the user already exists
+          check_user_exists(userInfo.users.length > 0, function() {
+            // disconnect the current database connection
+            mongoose.disconnect().then(() => {
+              // finished checking the benchmark database user
+              return cb();
+            })
+            .catch((err) => {
+              console.error('Error disconnecting from database:', err);
+              exit(2);
+            });
+          });
+        })
+        .catch((err) => {
+          console.error('Error checking if user exists:', err);
+          exit(2);
+        });
+    })
+    .catch((err) => {
+      console.log('Error: Unable to connect to database: %s', dbString);
+      exit(999);
+    });
+  } else
+    return cb();
+}
+
+console.log(`${settings.localization.script_launched}: ${process.pid}`);
 
 mongoose.set('strictQuery', true);
 
-mongoose.connect(dbString).then(() => {
-  Tx.deleteMany({}).then(() => {
-    Address.deleteMany({}).then(() => {
-      var s_timer = new Date().getTime();
+// ensure the benchmark database user exists
+check_create_user(function() {
+  // update db string to connect to benchmark database
+  dbString = 'mongodb://' + encodeURIComponent(settings.benchmark.user);
+  dbString = dbString + ':' + encodeURIComponent(settings.benchmark.password);
+  dbString = dbString + '@' + settings.benchmark.address;
+  dbString = dbString + ':' + settings.benchmark.port;
+  dbString = dbString + '/' + settings.benchmark.database;
 
-      // updates tx, address & richlist db's
-      function update_tx_db(coin, start, end, txes, timeout, check_only, cb) {
-        var complete = false;
-        var blocks_to_scan = [];
-        var task_limit_blocks = settings.sync.block_parallel_tasks;
-        var task_limit_txs = 1;
+  // connect to the benchmark database
+  mongoose.connect(dbString).then(() => {
+    const Tx = require('../models/tx');
 
-        // fix for invalid block height (skip genesis block as it should not have valid txs)
-        if (typeof start === 'undefined' || start < 1)
-          start = 1;
+    // delete all previous transaction records from the benchmark database
+    Tx.deleteMany({}).then(() => {
+      const Address = require('../models/address');
 
-        if (task_limit_blocks < 1)
-          task_limit_blocks = 1;
+      // delete all previous address records from the benchmark database
+      Address.deleteMany({}).then(() => {
+        // get starting timestamp
+        const s_timer = new Date().getTime();
 
-        for (i = start; i < (end + 1); i++)
-          blocks_to_scan.push(i);
+        // start the block sync
+        blkSync.update_tx_db(settings.coin.name, 1, settings.benchmark.block_to_sync, 0, settings.sync.update_timeout, false, function() {
+          // get ending timestamp
+          const e_timer = new Date().getTime();
 
-        async.eachLimit(blocks_to_scan, task_limit_blocks, function(block_height, next_block) {
-          if (!check_only && block_height % settings.sync.save_stats_after_sync_blocks === 0) {
-            Stats.updateOne({coin: coin}, {
-              last: block_height - 1,
-              txes: txes
-            }).then(() => {});
-          } else if (check_only) {
-            console.log('Checking block ' + block_height + '...');
-          }
+          // get count of transactions
+          Tx.countDocuments({}).then((txcount) => {
+            // get count of addresses
+            Address.countDocuments({}).then((acount) => {
+              // check if the script stopped prematurely
+              if (blkSync.getStopSync())
+                console.log('Block sync was stopped prematurely');
 
-          lib.get_blockhash(block_height, function(blockhash) {
-            if (blockhash) {
-              lib.get_block(blockhash, function(block) {
-                if (block) {
-                  async.eachLimit(block.tx, task_limit_txs, function(txid, next_tx) {
-                    Tx.findOne({txid: txid}).then((tx) => {
-                      if (tx) {
-                        setTimeout( function() {
-                          tx = null;
-                          next_tx();
-                        }, timeout);
-                      } else {
-                        db.save_tx(txid, block_height, block, function(err, tx_has_vout) {
-                          if (err)
-                            console.log(err);
-                          else
-                            console.log('%s: %s', block_height, txid);
-
-                          if (tx_has_vout)
-                            txes++;
-
-                          setTimeout( function() {
-                            tx = null;
-                            next_tx();
-                          }, timeout);
-                        });
-                      }
-                    }).catch((err) => {
-                      console.log(err);
-
-                      setTimeout( function() {
-                        tx = null;
-                        next_tx();
-                      }, timeout);
-                    });
-                  }, function() {
-                    setTimeout( function() {
-                      blockhash = null;
-                      block = null;
-                      next_block();
-                    }, timeout);
-                  });
-                } else {
-                  console.log('Block not found: %s', blockhash);
-
-                  setTimeout( function() {
-                    next_block();
-                  }, timeout);
-                }
+              // output final benchmark stats
+              console.log({
+                tx_count: txcount,
+                address_count: acount,
+                seconds: (e_timer - s_timer) / 1000,
               });
-            } else {
-              setTimeout( function() {
-                next_block();
-              }, timeout);
-            }
-          });
-        }, function() {
-          Stats.updateOne({coin: coin}, {
-            last: end,
-            txes: txes
-          }).then(() => {
-            return cb();
-          }).catch((err) => {
-            console.log(err);
-            return cb();
-          });
-        });
-      }
-
-      update_tx_db(settings.coin.name, 1, COUNT, 0, settings.sync.update_timeout, false, function() {
-        var e_timer = new Date().getTime();
-
-        Tx.countDocuments({}).then((txcount) => {
-          Address.countDocuments({}).then((acount) => {
-            var stats = {
-              tx_count: txcount,
-              address_count: acount,
-              seconds: (e_timer - s_timer)/1000,
-            };
-
-            console.log(stats);
-            exit(0);
+              exit(0);
+            });
           });
         });
       });
     });
+  }).catch((err) => {
+    console.log('Error: Unable to connect to database: %s', dbString);
+    exit(999);
   });
-}).catch((err) => {
-  console.log('Error: Unable to connect to database: %s', dbString);
-  exit(999);
 });

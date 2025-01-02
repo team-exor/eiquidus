@@ -71,6 +71,7 @@ Table of Contents
   - [Backup Database Script](#backup-database-script)
   - [Restore Database Script](#restore-database-script)
   - [Delete Database Script](#delete-database-script)
+  - [Benchmark Script](#benchmark-script)
 - [Known Issues](#known-issues)
 - [Donations / Support Us](#donations--support-us)
 - [Special Thanks](#special-thanks)
@@ -98,6 +99,7 @@ Table of Contents
   - Intl.js (uses the v4.8.0 polyfill service to only download if using a browser that doesn't already support the ECMAScript Internationalization API)
 - Platform independent (tested to run on Windows, MacOS and Linux) **NOTE:** Most of the instructions in this guide were written for use with Linux and may need to be modified when using another OS
 - Mobile-friendly
+- Multi-threaded block sync
 - Sass support
 - Pages/features:
   - **Home/Explorer:** Displays latest blockchain transactions
@@ -923,6 +925,14 @@ Wipe the eIquidus mongo database clean to start again from scratch. :warning: **
 Delete the mongo database with the following command:
 
 `npm run delete-database`
+
+#### Benchmark Script
+
+This script is more of a debugging tool for developers which allows you to sync a certain amount of blocks (5000 blocks by default) to a separate mongodb database and output the total tx and address records synced along with the total time it took to complete. There is a `benchmark` section in the settings.json file that can be used to configure various benchmarking options.
+
+The benchmark script can be started with the following command:
+
+`npm run benchmark`
 
 ### Known Issues
 

@@ -1479,10 +1479,8 @@
 
   // sync: a collection of settings that pertain to the data synchronization process
   "sync": {
-    // block_parallel_tasks: Use multiple threads to do blockchain syncing which greatly improves the initial sync speed, but there is a drawback.
-    //                       If you sync using more than 1 parallel task, then historical balance data for wallet addresses can possibly be saved out-of-order and there is currently no workaround for this.
-    //                       Therefore, it is recommended to keep this setting to 1 parallel task for now until a proper solution can be procured for the historical balance issue.
-    "block_parallel_tasks": 1,
+    // block_parallel_tasks: Use multiple threads to do blockchain syncing which greatly improves the initial sync speed
+    "block_parallel_tasks": 8,
     // update_timeout: The amount of time to wait (in milliseconds) before moving to the next block or transaction during blockchain sync or reindex (/path/to/node scripts/sync.js update or /path/to/node scripts/sync.js reindex)
     "update_timeout": 10,
     // check_timeout: The amount of time to wait (in milliseconds) before moving to the next block or transaction during a check sync (/path/to/node scripts/sync.js check)
@@ -1814,5 +1812,26 @@
         "enabled": false
       }
     ]
+  },
+
+  // benchmark: a collection of settings that allow the benchmark to connect to MongoDB
+  "benchmark": {
+    // user: The MongoDB username used only for the benchmark script
+    "user": "eiquidus",
+    // password: The MongoDB password used only for the benchmark script
+    "password": "Nd^p2d77ceBX!L",
+    // database: The MongoDB database name used only for the benchmark script
+    "database": "explorer-benchmark",
+    // address: The MongoDB hostname. This should always be 'localhost' if connecting to a local instance, otherwise specify the ip address of a remote instance
+    "address": "localhost",
+    // port: The port # that MongoDB is configured to listen for requests on (default: 27017)
+    "port": 27017,
+    // block_to_sync: The total # of blocks that should be indexed for benchmarking
+    "block_to_sync": 5000,
+    // auto_add_user: Determine if the benchmark script should check if the MongoDB user already exists and automatically add it to MongoDB
+    //                If set to true, the MongoDB user information above will automatically be added to the correct benchmark database if it doesn't already exist
+    //                If set to false, the benchmark script will assume you have already created the MongoDB user in the correct database as indicated above
+    //                NOTE: If you have MongoDB authentication enabled you must set this value to false and create the user and database manually. Enabling this option while MongoDB authentication is enabled will prevent the benchmark script from running properly.
+    "auto_add_user": true
   }
 }
