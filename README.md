@@ -936,30 +936,6 @@ The benchmark script can be started with the following command:
 
 ### Known Issues
 
-**exceeding stack size**
-
-```
-RangeError: Maximum call stack size exceeded
-```
-
-Nodes default stack size may be too small to index addresses with many tx's. If you experience the above error while running sync.js the stack size needs to be increased.
-
-To determine the default setting run:
-
-```
-node --v8-options | grep -B0 -A1 stack-size
-```
-
-To run a sync with a larger stack size launch with:
-
-```
-node --stack-size=[SIZE] scripts/sync.js index update
-```
-
-Where [SIZE] is an integer higher than the default.
-
-*note: SIZE will depend on which blockchain you are using, you may need to play around a bit to find an optimal setting*
-
 **Error: bind EACCES ...**
 
 This error can appear when you try to run the explorer on a port number lower than 1024. There are a couple solutions to this problem which are explained in more detail in the [Run Express Webserver on Port 80](#run-express-webserver-on-port-80) section.

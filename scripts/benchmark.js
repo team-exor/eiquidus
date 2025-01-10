@@ -1,18 +1,25 @@
 const mongoose = require('mongoose');
+const Address = require('../models/address');
+const Tx = require('../models/tx');
 const blkSync = require('../lib/block_sync');
 const settings = require('../lib/settings');
+const resumeSync = process.argv[2] == '1';
 
 let dbString = `mongodb://${settings.benchmark.address}:${settings.benchmark.port}/admin`
 
 // prevent stopping of the sync script to be able to gracefully shut down
 process.on('SIGINT', () => {
-  console.log(`${settings.localization.stopping_sync_process}.. ${settings.localization.please_wait}..`);
+  if (!blkSync.getStackSizeErrorId())
+    console.log(`${settings.localization.stopping_sync_process}.. ${settings.localization.please_wait}..`);
+
   blkSync.setStopSync(true);
 });
 
 // prevent killing of the sync script to be able to gracefully shut down
 process.on('SIGTERM', () => {
-  console.log(`${settings.localization.stopping_sync_process}.. ${settings.localization.please_wait}..`);
+  if (!blkSync.getStackSizeErrorId())
+    console.log(`${settings.localization.stopping_sync_process}.. ${settings.localization.please_wait}..`);
+
   blkSync.setStopSync(true);
 });
 
@@ -89,6 +96,74 @@ function check_create_user(cb) {
     return cb();
 }
 
+function initialize_data_startup(cb) {
+  console.log(`${settings.localization.initializing_database}.. ${settings.localization.please_wait}..`);
+
+  const db = require('../lib/database');
+
+  // check if stats collection is initialized
+  db.check_stats(settings.coin.name, function(stats_exists) {
+    let skip = true;
+
+    // determine if stats collection already exists
+    if (stats_exists == false) {
+      console.log(`${settings.localization.creating_initial_entry.replace('{1}', 'stats')}.. ${settings.localization.please_wait}..`);
+      skip = false;
+    }
+
+    // initialize the stats collection
+    db.create_stats(settings.coin.name, skip, function() {
+      // get the stats object from the database
+      db.get_stats(settings.coin.name, function(stats) {
+        // finished initializing startup data
+        console.log('Database initialization complete');
+        return cb(stats);
+      });
+    });
+  });
+}
+
+function delete_txes(cb) {
+  // check if the benchmark sync is being resumed
+  if (resumeSync) {
+    // do not delete the list of txes for a resume sync
+    return cb();
+  } else {
+    // delete all previous transaction records from the benchmark database
+    Tx.deleteMany({}).then(() => {
+      return cb();
+    });
+  }
+}
+
+function delete_addresses(cb) {
+  // check if the benchmark sync is being resumed
+  if (resumeSync) {
+    // do not delete the list of addresses for a resume sync
+    return cb();
+  } else {
+    // delete all previous address records from the benchmark database
+    Address.deleteMany({}).then(() => {
+      return cb();
+    });
+  }
+}
+
+function delete_stats(cb) {
+  // check if the benchmark sync is being resumed
+  if (resumeSync) {
+    // do not delete the database stats for a resume sync
+    return cb();
+  } else {
+    const Stats = require('../models/stats');
+
+    // delete all previous stat records from the benchmark database
+    Stats.deleteMany({}).then(() => {
+      return cb();
+    });
+  }
+}
+
 console.log(`${settings.localization.script_launched}: ${process.pid}`);
 
 mongoose.set('strictQuery', true);
@@ -104,37 +179,49 @@ check_create_user(function() {
 
   // connect to the benchmark database
   mongoose.connect(dbString).then(() => {
-    const Tx = require('../models/tx');
-
     // delete all previous transaction records from the benchmark database
-    Tx.deleteMany({}).then(() => {
-      const Address = require('../models/address');
-
+    delete_txes(function() {
       // delete all previous address records from the benchmark database
-      Address.deleteMany({}).then(() => {
-        // get starting timestamp
-        const s_timer = new Date().getTime();
+      delete_addresses(function() {
+        // delete all previous stat records from the benchmark database
+        delete_stats(function() {
+          // initialize the benchmark database
+          initialize_data_startup(function(stats) {
+            // get the last synced block index value
+            const last = (stats.last ? stats.last : 0);
 
-        // start the block sync
-        blkSync.update_tx_db(settings.coin.name, 1, settings.benchmark.block_to_sync, 0, settings.sync.update_timeout, false, function() {
-          // get ending timestamp
-          const e_timer = new Date().getTime();
+            // get starting timestamp
+            const s_timer = new Date().getTime();
 
-          // get count of transactions
-          Tx.countDocuments({}).then((txcount) => {
-            // get count of addresses
-            Address.countDocuments({}).then((acount) => {
-              // check if the script stopped prematurely
-              if (blkSync.getStopSync())
-                console.log('Block sync was stopped prematurely');
+            // start the block sync
+            blkSync.update_tx_db(settings.coin.name, last, settings.benchmark.block_to_sync, stats.txes, settings.sync.update_timeout, false, function() {
+              // get ending timestamp
+              const e_timer = new Date().getTime();
 
-              // output final benchmark stats
-              console.log({
-                tx_count: txcount,
-                address_count: acount,
-                seconds: (e_timer - s_timer) / 1000,
+              // get count of transactions
+              Tx.countDocuments({}).then((txcount) => {
+                // get count of addresses
+                Address.countDocuments({}).then((acount) => {
+                  // check if the script stopped prematurely
+                  if (blkSync.getStopSync())
+                    console.log('Block sync was stopped prematurely');
+
+                  // output final benchmark stats
+                  console.log({
+                    tx_count: txcount,
+                    address_count: acount,
+                    seconds: (e_timer - s_timer) / 1000,
+                  });
+
+                  // check if the sync needed to be resumed
+                  if (resumeSync) {
+                    // output a warning msg
+                    console.log(`\n${settings.localization.ex_warning}: The sync ran out of memory during processing and therefore the run time was affected. It is recommended to re-run the benchmark again using a larger stack size such as 25000 or higher with the cmd "node --stack-size=25000 scripts/benchmark.js" to help ensure an accurate benchmark time.`);
+                  }
+
+                  exit(0);
+                });
               });
-              exit(0);
             });
           });
         });

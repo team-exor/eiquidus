@@ -18,14 +18,18 @@ var stopSync = false;
 
 // prevent stopping of the sync script to be able to gracefully shut down
 process.on('SIGINT', () => {
-  console.log(`${settings.localization.stopping_sync_process}.. ${settings.localization.please_wait}..`);
+  if (!blkSync.getStackSizeErrorId())
+    console.log(`${settings.localization.stopping_sync_process}.. ${settings.localization.please_wait}..`);
+
   blkSync.setStopSync(true);
   stopSync = true;
 });
 
 // prevent killing of the sync script to be able to gracefully shut down
 process.on('SIGTERM', () => {
-  console.log(`${settings.localization.stopping_sync_process}.. ${settings.localization.please_wait}..`);
+  if (!blkSync.getStackSizeErrorId())
+    console.log(`${settings.localization.stopping_sync_process}.. ${settings.localization.please_wait}..`);
+
   blkSync.setStopSync(true);
   stopSync = true;
 });
@@ -202,6 +206,12 @@ function update_orphans(orphan_index, orphan_current, last_blockindex, timeout, 
                               tx_count = updated_tx_count2;
 
                               setTimeout(function() {
+                                // check if there was a memory error
+                                if (blkSync.getStackSizeErrorId() != null) {
+                                  // stop the loop
+                                  tx_loop.break(true);
+                                }
+
                                 // move to the next tx record
                                 tx_loop.next();
                               }, timeout);
@@ -209,6 +219,12 @@ function update_orphans(orphan_index, orphan_current, last_blockindex, timeout, 
                           });
                         }, function() {
                           setTimeout(function() {
+                            // check if there was a memory error
+                            if (blkSync.getStackSizeErrorId() != null) {
+                              // stop the loop
+                              block_loop.break(true);
+                            }
+
                             // move to the next block record
                             block_loop.next();
                           }, timeout);
@@ -216,49 +232,57 @@ function update_orphans(orphan_index, orphan_current, last_blockindex, timeout, 
                       });
                     });
                   }, function() {
-                    // get the most recent stats
-                    Stats.findOne({coin: settings.coin.name}).then((stats) => {
-                      // add missing txes for the current block
-                      blkSync.update_tx_db(settings.coin.name, current_block, current_block, (stats.txes + tx_count), timeout, 2, function(updated_tx_count) {
-                        // update the stats collection by removing the orphaned txes in this block from the tx count
-                        // and setting the orphan_index and orphan_current values in case the sync is interrupted before finishing
-                        Stats.updateOne({coin: settings.coin.name}, {
-                          orphan_index: current_block,
-                          orphan_current: (unresolved_forks.length == 0 ? 0 : unresolved_forks[0])
-                        }).then(() => {
-                          // clear the saved block hash data
-                          correct_block_data = null;
+                    // check if there was a memory error
+                    if (!blkSync.getStackSizeErrorId()) {
+                      // get the most recent stats
+                      Stats.findOne({coin: settings.coin.name}).then((stats) => {
+                        // add missing txes for the current block
+                        blkSync.update_tx_db(settings.coin.name, current_block, current_block, (stats.txes + tx_count), timeout, 2, function(updated_tx_count) {
+                          // update the stats collection by removing the orphaned txes in this block from the tx count
+                          // and setting the orphan_index and orphan_current values in case the sync is interrupted before finishing
+                          Stats.updateOne({coin: settings.coin.name}, {
+                            orphan_index: current_block,
+                            orphan_current: (unresolved_forks.length == 0 ? 0 : unresolved_forks[0])
+                          }).then(() => {
+                            // clear the saved block hash data
+                            correct_block_data = null;
 
-                          // move to the next block
-                          current_block++;
+                            // move to the next block
+                            current_block++;
 
-                          setTimeout(function() {
-                            // process next block
-                            next(null);
-                          }, timeout);
-                        }).catch((err) => {
-                          console.log(err);
+                            setTimeout(function() {
+                              // process next block
+                              next(null);
+                            }, timeout);
+                          }).catch((err) => {
+                            console.log(err);
 
-                          // clear the saved block hash data
-                          correct_block_data = null;
+                            // clear the saved block hash data
+                            correct_block_data = null;
 
-                          // move to the next block
-                          current_block++;
+                            // move to the next block
+                            current_block++;
 
-                          setTimeout(function() {
-                            // process next block
-                            next(null);
-                          }, timeout);
+                            setTimeout(function() {
+                              // process next block
+                              next(null);
+                            }, timeout);
+                          });
                         });
-                      });
-                    }).catch((err) => {
-                      console.log(err);
+                      }).catch((err) => {
+                        console.log(err);
 
+                        setTimeout(function() {
+                          // process next block
+                          next(null);
+                        }, timeout);
+                      });
+                    } else {
                       setTimeout(function() {
-                        // process next block
-                        next(null);
+                        // stop the loop
+                        next('StackSizeError');
                       }, timeout);
-                    });
+                    }
                   });
                 });
               } else {
@@ -283,11 +307,17 @@ function update_orphans(orphan_index, orphan_current, last_blockindex, timeout, 
       function(err) {
         // check if there is a msg to display
         if (err != '' && err != 'stop') {
-          // display the msg
-          console.log(err);
+          // check if this is the StackSizeError error
+          if (err == 'StackSizeError') {
+            // reload the sync process
+            blkSync.respawnSync();
+          } else {
+            // display the msg
+            console.log(err);
 
-          // stop fixing orphaned block data
-          return cb();
+            // stop fixing orphaned block data
+            return cb();
+          }
         } else {
           // check if the script is stopping
           if (!stopSync)
@@ -514,9 +544,14 @@ function check_add_tx(txid, blockhash, tx_count, cb) {
           // save the tx to the local database
           blkSync.save_tx(txid, block.height, block, function(save_tx_err, tx_has_vout) {
             // check if there were any save errors
-            if (save_tx_err)
-              console.log(save_tx_err);
-            else
+            if (save_tx_err) {
+              // check the error code
+              if (save_tx_err.code == 'StackSizeError') {
+                // ensure the process halts after stopping all sync threads
+                blkSync.setStackSizeErrorId(txid);
+              } else
+                console.log(save_tx_err);
+            } else
               console.log('%s: %s', block.height, txid);
 
             // check if the tx was saved correctly
