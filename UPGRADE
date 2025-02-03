@@ -1,5 +1,131 @@
 NOTE: As of v1.100.0-bae4d50, it is no longer necessary to manually restart the explorer after updating, as long as you are using the built-in update script `npm run update-explorer`. All other manual updates such as `git pull` will still require a restart to the explorer after updating.
 
+1.103.0 [February 02, 2025]
+-Removed defunct exchange stex
+-The default exchange has been changed to freiexchange
+-Fixed an error in the peer sync when node has no port
+-Added support for 3 top panel spacers
+-Expired TLS/SSL certificates are now automatically updated as they are renewed from certbot
+-Moved the database initialize call out of the instance code into the prestart script so that it is now only called once when you start the explorer even if you are running multiple cpus/threads
+-The database connection function now uses the default connection string in the event a connection string is not supplied
+-Fixed pm2 + forever detection for npm 9.7.2+
+-The initialize_data_startup() function is now being called in the update_explorer script to ensure that new changes to the database structure are automaticaly run after the explorer code is updated
+-All pages that auto-update data now also update the last updated date
+-Updated the mongodb dependency to v6.x
+-Minimum supported node.js version has changed to v16.20.1
+-Added support for the Xeggex exchange
+-Reindex now deletes data using the delete-database.js script which is much faster and more complete than the previous manual delete code used before
+-The delete-database.js script now accepts a parameter that suppresses the delete prompt when being called from the resync process
+-Reindex and normal block sync now reuse the same block sync code
+-Removed the readline-sync dependency
+-The ip address type masternode column has been renamed from Protocol to Network to prevent confusion with the other Protocol column used for the wallet protocol version number
+-Moved claim address data into its own collection to make it easier to work with and preserve that data if necessary in the future without being cluttered into the address collection
+-The index.js code has been refactored (reduced from 895 to 701 lines of code) which also cuts down the file size from 39KB to 26KB in size while still retaining the same functionality as before
+-Footer icon images can no longer be highlighted
+-Added ECMAScript Internationalization API support for older browsers
+-The delete-database script now checks the claimaddresses collection for data and if at least 1 record exists, it will ask an additional question to see if you want to preserve that data or delete everything
+-The prompt for deleting the database now happens after the locks have been properly checked
+-jqPlot has been completely removed and replaced with chart.js on all remaining charts and graphs (richlist pie chart and market candlestick chart)
+-chart.js was updated to v4.4.0 and later to v4.4.7
+-chartjs-plugin-crosshair has been updated to v2.0.0
+-Added 2 new small libraries to enable the chart.js candlestick chart: chartjs-chart-financial v0.1.1 and chartjs-adapter-luxon v1.3.1
+-Removed defunct markets (bleutrade, crex24, txbit, unnamed)
+-Improved the smoothness of opening and closing the claim address instructions
+-jQuery has been updated to v3.7.1
+-Luxon has been updated to v3.4.3
+-Datatables has been updated to v1.13.6
+-Font Awesome has been updated to v6.4.2 and all icons in the project have been updated to use the newest v6.x codes
+-OverlayScrollbars has been updated to v2.3.2
+-flag-icons (previously called flag-icon-css) has been updated to v6.11.1
+-Updated the main style.scss file with better color support for the new datatable loading animation color
+-Exor theme has been updated to v3.0.2 with a small fix to support the new datatable loading animation color
+-Fixed some unreadable text for the sketchy theme on the markets page
+-All external market apis have been normalized with a similar coding format, improved error handling with new wait times in between api calls to prevent abuse issues with sending too many requests too quickly
+-All general market code has been reviewed and improved where necessary to help prevent sync issues
+-Inactive markets are now removed from the markets collection on startup of the explorer to help prevent bloating the database
+-The yobit api url has been changed to the new url
+-The poloniex market has been updated to use the newest api
+-The southxchange exchange trading link has been changed to the new url
+-Fixed a bug with the freiexchange pair volume value when paired with LTC
+-Added a default value of zero for many of the fields for each market in the event that the data returned for a particular field is not numeric
+-The side menu toggle button is now an anchor tag instead of a div and no longer moves the search box when opening/closing the menu
+-Added a fix for opening/closing the side menu when the browser window is zoomed in or out which didn't always work properly in all browsers earlier
+-Javascript in the layout.pug has been moved around in an attempt to only load code into the client based on certain settings such as the type of menu (side or top) in order to slim down the loading of pages by not including unnecessary code
+-Fixed a bug on the richlist page where the last updated date and logo spinning animation would fail to load if the distribution chart was disabled in the settings
+-The /ext/getsummary api has been modified to only return the connection and block counts when necessary
+-The getmasternodecount rpc api will no longer fetch data unless it is enabled in settings
+-Added a crowdfunding section to the README
+-Updated the README by splitting off the contact info into its own "Developer Contact" section and added a link to the "Premium Support" section
+-Updated the README with new recommended versions for Node.js and MongoDB
+-Updated the README with MongoDB install instructions for ubunutu 22.04 for the newest 7.x series of MongoDB
+-Updated the README with some new options in the "Donations / Support Us" section
+-Added an optional USD price panel
+-Added an optional USD market cap panel
+-Added USD price to the getsummary API
+-Updated the mongoose dependency to v8.x along with some code updates to support new breaking changes
+-Added a new default market sync option for averaging the prices across multiple supported exchanges
+-Added a market sync option for fetching the market price directly from the coingecko api instead of calculating it via supported exchanges known to the explorer
+-Added a new root setting option for default_coingecko_ids which allows presetting symbols to their associated internal coingecko id to help prevent matching to the wrong currency with same symbol via coingecko api calls
+-Fixed an issue where the explorer would fail to start with an enabled exchange that had no defined trading pairs
+-Added a coingecko api key option since the free "keyless" coingecko api will be deprecated in the near future (as of Feb 2024 or later)
+-Updated the README to change the sample crontab from 2 to 5 minute intervals for the market sync since the coingecko api will soon force free users to the keyed api which only allows making 1 api call every 5 minutes without running out of credits for the month
+-Updated the README with new urls to the Exor crowfunding / task list page
+-Removed defunct exchange bittrex
+-Fixed a bug that could sometimes render the sidebar in a funny position when the page loads
+-Added support for a couple masternode list and count formats that do not have a separate fieldname for each value
+-Masternode grid columns are now shown or hidden based on whether there is any data
+-Fixed the spacing of masternode page columns after the table is loaded
+-Fixed an issue that could crash the explorer when trying to use a masternode count value that is a single number (A single number masternode count is not valid or usable since it cannot differentiate the number of good and bad nodes, but the explorer will no longer crash when given this data)
+-Added support for saving and displaying the algorithm used to mine a particular block for coins that support this feature and have the algorithm data stored in the raw block data
+-Fixed a javascript error when resizing the browser window before the page finishes loading
+-Added support for the Nonkyc exchange
+-Added OHLCV chart support for the xeggex market
+-Removed defunct exchange SouthXchange
+-Updated the README with an updated yobit url
+-Fixed a bug where the market sync could crash when calculating the USD price if the base pair of the markets_page.default_exchange.trading_pair value was not found in coingecko's vs_currencies list from https://api.coingecko.com/api/v3/simple/supported_vs_currencies (for example, using USDT as the default base pair)
+-Added multiple captcha options for form submission on the claim address form (Supported captchas include Google reCaptcha v3 (score-based), Google reCaptcha v2 (checkbox and invisible) and hCaptcha ("Always Challenge" mode))
+-Removed the ability to claim an address that has 0 transactions
+-The "Claim" button is now disabled after submitting to help prevent double submissions on the claim address page
+-Fixed the hCaptcha submission form so that it now clears itself after submitting the claim address form
+-CSS is now only compiled when necessary on startup when new changes are detected
+-Fixed a bug which could cache the top panel summary data when using the browser Back button and prevent it from updating properly until after reloading the page
+-Added plugin support which allows extending the normal functionality of the explorer with new database collections, menus, pages and apis + open up a new url for data to be sent from the plugin to the explorer
+-Locale strings are now loaded and shared out via the settings so there is generally no more need to explicitly include the locale.js file
+-The locale object has been updated to `localization` within the explorer
+-A number of new locale strings have been added and their values replaced with the locale string within the explorer
+-Added plugin support verbiage and a link to the generic-snapshots crowdfunding task to the README
+-Added the explorer version # to the header of all pages in a hidden element to make it easier to determine which commit a particular explorer is updated to even when the version # is removed from the powered by text in the footer
+-Updated the polyfill script to v4.8.0
+-Updated the bad-words dependency to v4.0.0 and resolved all breaking changes for the new version
+-Improved logo panel spacing on small screens
+-Fixed deprecation warnings for all applicable css themes
+-The chartjs-plugin-crosshair chart plugin has been updated to v2.0.5 via a forked version that has a working sync feature which is now available as a new setting option for use with the network charts
+-Added a new max_hours setting to display chart data for a certain number of hours instead of a fixed set of records which can help reveal holes in the sync process for the explorer and/or blockchain
+-Added a number of new network chart settings to control display of the chart title, legend, a new vertical block line option, chart height, an option to force 2 charts to appear on their own row or beside each other, and an option to force a chart to take up all available space in the chart box without extra padding
+-Added a new dependency chartjs-plugin-annotation v3.1.0 to display block lines in new hourly charts
+-Fixed a missing document ready check on resizing the browser screen which caused some glitchy elements to not fix themselves as they should
+-The block_parallel_tasks feature has been improved and fixed so that it is now safe to cancel (Ctrl+C) or kill (kill cmd not kill -9) the task and resume the sync later without missing transactions
+-Updated the default block_parallel_tasks value to 8 threads which seems to be the sweet spot for any type of cpu
+-Numerous improvements to the benchamark script to utilize new benchmark settings, auto-add credentials to the benchmark database, reuse the same sync code as the regular block sync instead of using a copy of the code and other small improvements
+-Added a new cmd to run the benchmark script `npm run benchmark`
+-Updated the README to include the new benchmark script instrutions + include multi-threaded sync as a feature
+-The "Maximum call stack size exceeded" error is now handled internally by the block sync script in a way which will capture the error and re-launch the sync using a larger stack size and have the sync resume from where it left off
+-Added a new option for sync.elastic_stack_size which is used to determine how much memory should be used to increase the stack size for the block sync after encountering the "Maximum call stack size exceeded" error
+-Fixed an issue with the block sync when using more than 1 thread that could sometimes cause the flattened txes value in the coinstats database to be written incorrectly (Use `npm run reindex-txcount` to fix this issue without needing to reindex the entire database)
+-Updated the benchmark script so that it can also benefit from being able to capture the "Maximum call stack size exceeded" error even though the timing will be off so it outputs a new warning in that scenario which instructs to run the benchmark again with a higher stack size to properly capture the benchmark time
+-Removed the "Maximum call stack size exceeded" error notes from the "Known Issues" section of the README
+-A number of functions have been rewritten to be more optimized and faster: calculate_total, is_unique, convert_to_satoshi, get_input_addresses, processVoutAddresses, prepare_vout, prepare_vin
+-Txes are now written to database via bulk writes which helps improve the sync speed and also controls memory usage with batching to write data once a certain threshold is reached
+-update_address function changed to update_addresses since it now bulk writes the addresses in batches to improve sync speed and also controls memory usage with batching to write data once a certain threshold is reached
+-The syncLoop function has been completely removed from the project and replaced with async library loops or even normal "for" loops in some cases which greatly improves sync speeds over large batches of data
+-Fixed an issue with the flattened count of txes that is saved to the coinstats collection which could save incorrectly when using more than 1 thread
+-Fixed an issue with the block sync which caused an unwanted delay when syncing less blocks than the amount of threads used to sync the data
+-Fixed an issue with vout data processing that could sometimes populate data out of order
+-Added a new sync.batch_size setting used to determine how many records (txes, addresses, addresstxes) should be saved in a single database transaction
+-Added a new wait_for_bulk_database_save setting used to increase the block sync speed at the cost of not returning any error msgs for data that failed to save
+-get_input_addresses function no longer returns in the exports section of the explorer.js file since it is only referenced in that file
+-Updated explorerspec tests to use the newest function changes for any tests that needed to be updated
+
 1.102.0 [June 14, 2023]
 -Added better support for NODE_ENV
 -Added a new setting to redirect http to https
