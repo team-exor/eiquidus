@@ -967,6 +967,7 @@ You can support us via one of the following options:
 - **[Alan Rudolf (aka suprnurd)](https://github.com/suprnurd):** for the custom changes found in the [Ciquidus explorer](https://github.com/suprnurd/ciquidus)
 - **[Tim Garrity (aka uaktags)](https://github.com/uaktags):** for his many contributions to the Iquidus explorer and custom features from the [uaktags explorer](https://github.com/uaktags/explorer)
 - **[TheHolyRoger](https://github.com/TheHolyRoger):** for his continued work and contributions to the Iquidus explorer
+- **[Karzo](https://github.com/KarzoGitHub):** for helping with the bulkwrite block sync code changes
 - All the rest of the Iquidus contributors who helped shape the Iquidus explorer in some way
 
 ### License

@@ -501,35 +501,35 @@ app.use('/ext/gettx/:txid', function(req, res) {
           if (rtx && rtx.txid) {
             lib.prepare_vin(rtx, function(vin, tx_type_vin) {
               lib.prepare_vout(rtx.vout, rtx.txid, vin, ((typeof rtx.vjoinsplit === 'undefined' || rtx.vjoinsplit == null) ? [] : rtx.vjoinsplit), function(rvout, rvin, tx_type_vout) {
-                lib.calculate_total(rvout, function(total) {
-                  if (!rtx.confirmations > 0) {
-                    var utx = {
-                      txid: rtx.txid,
-                      vin: rvin,
-                      vout: rvout,
-                      total: total.toFixed(8),
-                      timestamp: rtx.time,
-                      blockhash: '-',
-                      blockindex: -1
-                    };
+                const total = lib.calculate_total(rvout);
 
-                    res.send({ active: 'tx', tx: utx, confirmations: rtx.confirmations, blockcount:-1});
-                  } else {
-                    var utx = {
-                      txid: rtx.txid,
-                      vin: rvin,
-                      vout: rvout,
-                      total: total.toFixed(8),
-                      timestamp: rtx.time,
-                      blockhash: rtx.blockhash,
-                      blockindex: rtx.blockheight
-                    };
+                if (!rtx.confirmations > 0) {
+                  var utx = {
+                    txid: rtx.txid,
+                    vin: rvin,
+                    vout: rvout,
+                    total: total.toFixed(8),
+                    timestamp: rtx.time,
+                    blockhash: '-',
+                    blockindex: -1
+                  };
 
-                    lib.get_blockcount(function(blockcount) {
-                      res.send({ active: 'tx', tx: utx, confirmations: rtx.confirmations, blockcount: (blockcount ? blockcount : 0)});
-                    });
-                  }
-                });
+                  res.send({ active: 'tx', tx: utx, confirmations: rtx.confirmations, blockcount:-1});
+                } else {
+                  var utx = {
+                    txid: rtx.txid,
+                    vin: rvin,
+                    vout: rvout,
+                    total: total.toFixed(8),
+                    timestamp: rtx.time,
+                    blockhash: rtx.blockhash,
+                    blockindex: rtx.blockheight
+                  };
+
+                  lib.get_blockcount(function(blockcount) {
+                    res.send({ active: 'tx', tx: utx, confirmations: rtx.confirmations, blockcount: (blockcount ? blockcount : 0)});
+                  });
+                }
               });
             });
           } else

@@ -4,21 +4,18 @@ describe('explorer', function() {
 
   describe('convert_to_satoshi', function() {
     it('should be able to convert round numbers', function() {
-      lib.convert_to_satoshi(500, function(amount_sat) {
-        expect(amount_sat).toEqual(50000000000);
-      });
+      const amount_sat = lib.convert_to_satoshi(500);
+      expect(amount_sat).toEqual(50000000000);
     });
 
     it('should be able to convert decimals above 1', function() {
-      lib.convert_to_satoshi(500.12564, function(amount_sat) {
-        expect(amount_sat).toEqual(50012564000);
-      });
+      const amount_sat = lib.convert_to_satoshi(500.12564);
+      expect(amount_sat).toEqual(50012564000);
     });
 
     it('should be able to convert decimals below 1', function() {
-      lib.convert_to_satoshi(0.0005, function(amount_sat) {
-        expect(amount_sat).toEqual(50000);
-      });
+      const amount_sat = lib.convert_to_satoshi(0.0005);
+      expect(amount_sat).toEqual(50000);
     });
   });
 
@@ -38,31 +35,23 @@ describe('explorer', function() {
     ];
 
     it('should return index of matching string object', function() {
-      lib.is_unique(arrayStrMap, arrayStrMap[2].addresses, 'addresses', function(unique, index) {
-        expect(index).toEqual(2);
-        expect(unique).toEqual(false);
-      });
+      const index = lib.is_unique(arrayStrMap, arrayStrMap[2].addresses, 'addresses');
+      expect(index).toEqual(2);
     });
 
     it('should return index of matching array object', function() {
-      lib.is_unique(arrayArrMap, arrayArrMap[2].addresses, 'addresses', function(unique, index) {
-        expect(index).toEqual(2);
-        expect(unique).toEqual(false);
-      });
+      const index = lib.is_unique(arrayArrMap, arrayArrMap[2].addresses, 'addresses');
+      expect(index).toEqual(2);
     });
 
-    it('should return true if no matching string object', function() {
-      lib.is_unique(arrayStrMap, 'unique', 'addresses', function(unique, index) {
-        expect(index).toEqual(null);
-        expect(unique).toEqual(true);
-      });
+    it('should return index of -1 if no matching string object', function() {
+      const index = lib.is_unique(arrayStrMap, 'unique', 'addresses');
+      expect(index).toEqual(-1);
     });
 
-    it('should return true if no matching array object', function() {
-      lib.is_unique(arrayArrMap, ['unique'], 'addresses', function(unique, index) {
-        expect(index).toEqual(null);
-        expect(unique).toEqual(true);
-      });
+    it('should return index of -1 if no matching array object', function() {
+      const index = lib.is_unique(arrayArrMap, ['unique'], 'addresses');
+      expect(index).toEqual(-1);
     });
   });
 
@@ -104,10 +93,9 @@ describe('explorer', function() {
 
     it('should calculate correct total', function(done) {
       lib.prepare_vout(data.txA().vout, data.txA().txid, data.txA().vin, ((typeof data.txA().vjoinsplit === 'undefined' || data.txA().vjoinsplit == null) ? [] : data.txA().vjoinsplit), function(prepared) {
-        lib.calculate_total(prepared, function(total) {
-          expect(total).toEqual(19499989908960);
-          done();
-        });
+        const total = lib.calculate_total(prepared)
+        expect(total).toEqual(19499989908960);
+        done();
       });
     });
 
