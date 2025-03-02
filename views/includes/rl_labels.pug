@@ -1,15 +1,8 @@
 if address.a_id == null
   - address.a_id = address.addresses;
 if settings.labels[address.a_id] != null && settings.labels[address.a_id].enabled == true
-  if settings.labels[address.a_id].type
-    label(class='badge bg-' + settings.labels[address.a_id].type + ' float-end d-none d-' + (active == 'richlist' ? 'md' : (active == 'tx' ? 'lg' : 'sm')) + '-block', style='margin-left:15px;margin-bottom:0;')
-      =settings.labels[address.a_id].label
-      if settings.labels[address.a_id].url
-        a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-bs-toggle='tooltip', data-bs-placement='top')
-          span.fa-solid.fa-circle-question(style='margin-left:5px;')
-  else
-    label.badge.bg-default.float-end.d-none(class='d-' + (active == 'richlist' ? 'md' : (active == 'tx' ? 'lg' : 'sm')) + '-block', style='margin-left:15px;margin-bottom:0;')
-      =settings.labels[address.a_id].label
-      if settings.labels[address.a_id].url
-        a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-bs-toggle='tooltip', data-bs-placement='top')
-          span.fa-solid.fa-circle-question(style='margin-left:5px;')
+  label(class='badge bg-' + (settings.labels[address.a_id].type == null || settings.labels[address.a_id].type == '' ? 'default' : settings.labels[address.a_id].type) + ' float-end d-none d-' + (active == 'richlist' ? 'md' : (active == 'tx' ? 'lg' : 'sm')) + '-block', style='margin-left:15px;margin-bottom:0;')
+    =settings.labels[address.a_id].label
+    if settings.labels[address.a_id].url
+      a(href=settings.labels[address.a_id].url, target='_blank', alt='Visit site', title='Visit site', data-bs-toggle='tooltip', data-bs-placement='top')
+        span.fa-solid.fa-circle-question(style='margin-left:5px;')

@@ -76,6 +76,8 @@ block content
             th.text-center #{settings.localization.difficulty}
             if settings.block_page.multi_algorithm.show_algo == true
               th.text-center='Algorithm'
+            if settings.block_page.show_extracted_by == true
+              th.text-center='Extracted By'
             th.text-center #{settings.localization.confirmations}
             if settings.blockchain_specific.heavycoin.enabled == true
               th.text-center Vote
@@ -94,6 +96,12 @@ block content
               span.decimal #{splitDifficulty[1]}
             if settings.block_page.multi_algorithm.show_algo == true
               td.text-center=block[settings.block_page.multi_algorithm.key_name]
+            if settings.block_page.show_extracted_by == true
+              td.text-center
+                each address in extracted_by_addresses
+                  div(style='overflow: auto;')
+                    a(href=`/address/${address.a_id}`)=(address.claimname == '' ? address.a_id : address.claimname)
+                    include ./includes/rl_labels.pug
             if block.confirmations >= confirmations
               td.text-center.table-success=block.confirmations
             else if block.confirmations < (confirmations / 2)

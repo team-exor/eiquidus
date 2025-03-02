@@ -6,6 +6,25 @@ const lib = require('../lib/explorer');
 const async = require('async');
 
 function send_block_data(res, block, txs, title_text, orphan) {
+  let extracted_by_addresses = [];
+
+  // check if the extracted by addresses should be found
+  if (settings.block_page.show_extracted_by == true && txs != null && txs.length > 0) {
+    // find the block reward tx
+    const block_reward_tx = txs.find(tx => tx.vin != null && (tx.vin.length === 0 || (tx.vin.length === 1 && tx.vin[0].addresses === 'coinbase' && tx.vin[0].amount != 0)));
+
+    // get a list of all the block reward addresses
+    extracted_by_addresses = (block_reward_tx ? block_reward_tx.vout.map(v => v.addresses) : []);
+
+    // add claim name data to the array
+    db.get_extracted_by_claim_names(extracted_by_addresses, function(updated_extracted_by_addresses) {
+      finalize_send_block_data(res, block, txs, title_text, orphan, updated_extracted_by_addresses);
+    });
+  } else
+    finalize_send_block_data(res, block, txs, title_text, orphan, extracted_by_addresses);
+}
+
+function finalize_send_block_data(res, block, txs, title_text, orphan, extracted_by_addresses) {
   res.render(
     'block',
     {
@@ -14,6 +33,7 @@ function send_block_data(res, block, txs, title_text, orphan) {
       orphan: orphan,
       confirmations: settings.shared_pages.confirmations,
       txs: txs,
+      extracted_by_addresses: extracted_by_addresses,
       showSync: db.check_show_sync_message(),
       customHash: get_custom_hash(),
       styleHash: get_style_hash(),
@@ -24,6 +44,35 @@ function send_block_data(res, block, txs, title_text, orphan) {
 }
 
 function send_tx_data(res, tx, blockcount, orphan) {
+  let extracted_by_addresses = [];
+
+  // check if the extracted by addresses should be found
+  if (
+    settings.transaction_page.show_extracted_by == true &&
+    tx != null &&
+    tx.vout != null &&
+    (
+      tx.vin == null ||
+      tx.vin.length === 0 ||
+      (
+        tx.vin.length === 1 &&
+        tx.vin[0].addresses === 'coinbase' &&
+        tx.vin[0].amount != 0
+      )
+    )
+  ) {
+    // get a list of all the block reward addresses
+    extracted_by_addresses = tx.vout.map(v => v.addresses);
+
+    // add claim name data to the array
+    db.get_extracted_by_claim_names(extracted_by_addresses, function(updated_extracted_by_addresses) {
+      finalize_send_tx_data(res, tx, blockcount, orphan, updated_extracted_by_addresses);
+    });
+  } else
+    finalize_send_tx_data(res, tx, blockcount, orphan, extracted_by_addresses);
+}
+
+function finalize_send_tx_data(res, tx, blockcount, orphan, extracted_by_addresses) {
   res.render(
     'tx',
     {
@@ -32,6 +81,7 @@ function send_tx_data(res, tx, blockcount, orphan) {
       orphan: orphan,
       confirmations: settings.shared_pages.confirmations,
       blockcount: blockcount,
+      extracted_by_addresses: extracted_by_addresses,
       showSync: db.check_show_sync_message(),
       customHash: get_custom_hash(),
       styleHash: get_style_hash(),
@@ -108,6 +158,11 @@ function get_block_data_from_wallet(block, res, orphan) {
               vout: vout,
               total: total.toFixed(8)
             });
+
+            if (settings.block_page.show_extracted_by == true) {
+              // add the vin object to the tx data
+              ntxs[ntxs.length - 1].vin = (vin == null || vin.length == 0 ? [] : nvin);
+            }
 
             loop();
           });

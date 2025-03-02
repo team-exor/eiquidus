@@ -50,6 +50,8 @@ block content
           tr(class=theadClasses)
             th.text-center.d-table-cell.d-md-none
             th.d-none.d-md-table-cell #{settings.localization.tx_block_hash}
+            if settings.transaction_page.show_extracted_by == true && extracted_by_addresses != null && extracted_by_addresses.length > 0
+              th.text-center='Extracted By'
             if settings.transaction_page.show_op_return == true
               th='OP_RETURN'
             th.text-center #{settings.localization.confirmations}
@@ -62,6 +64,12 @@ block content
                 span.fa-regular.fa-eye(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.localization.view_block)
             td.d-none.d-md-table-cell
               a.breakWord(href='/block/' + tx.blockhash) #{tx.blockhash}
+            if settings.transaction_page.show_extracted_by == true && extracted_by_addresses != null && extracted_by_addresses.length > 0
+              td.text-center
+                each address in extracted_by_addresses
+                  div(style='overflow: auto;')
+                    a(href=`/address/${address.a_id}`)=(address.claimname == '' ? address.a_id : address.claimname)
+                    include ./includes/rl_labels.pug
             if settings.transaction_page.show_op_return == true
               td.breakWord #{tx.op_return}
             if confirms >= confirmations

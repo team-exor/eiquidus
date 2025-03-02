@@ -61,26 +61,53 @@ block content
         },
         rowCallback: function(row, data, index) {
           // variables for better readability
-          var blockindex = data[0];
-          var blockhash = data[1];
-          var txhash = data[2];
-          var outputs = data[3];
-          var amount = Number(data[4]).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-          var amountParts = amount.split('.');
-          var amount = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
-          var timestamp = data[5];
-          var offset = 0;
+          const blockindex = data[0];
+          const blockhash = data[1];
+          const txhash = data[2];
+          const outputs = data[3];
+          const amount = Number(data[4]).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+          const amountParts = amount.split('.');
+          const updatedAmount = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
+          const timestamp = data[5];
+          let offset = 0;
 
           $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa-regular fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="#{settings.localization.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
           $("td:eq(1)", row).html('<a href="/block/' + blockhash + '">' + blockindex + '</a>');
           $("td:eq(2)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass("text-center breakWord d-none d-md-table-cell");
           $("td:eq(3)", row).html(outputs).addClass("text-center d-none d-sm-table-cell");
-          $("td:eq(4)", row).html(amount);
+          $("td:eq(4)", row).html(updatedAmount);
 
           if (#{settings.block_page.multi_algorithm.show_algo} == true) {
-            var algo = (data.length > 6 && data[6].indexOf('algo:') == 0 ? data[6].substring('algo:'.length) : '');
+            const algo = (data.length > 6 && data[6].indexOf('algo:') == 0 ? data[6].substring('algo:'.length) : '');
             $("td:eq(5)", row).html(algo);
-            offset = 1;
+            offset += 1;
+          }
+
+          if (#{settings.index_page.show_extracted_by} == true) {
+            const extracted_by = JSON.parse(data.length > 6 && data[6 + offset].indexOf('extracted_by:') == 0 ? data[6 + offset].substring('extracted_by:'.length) : '');
+            const labels = !{JSON.stringify(settings.labels)};
+            const active = '#{active}';
+
+            let extracted_contents = '';
+
+            for (i = 0; i < extracted_by.length; i++) {
+              extracted_contents += '<div style="overflow: auto;">';
+              extracted_contents += `<a href='/address/${extracted_by[i].a_id}'>${(extracted_by[i].claimname == '' ? extracted_by[i].a_id : extracted_by[i].claimname)}</a>`;
+
+              if (labels[extracted_by[i].a_id] != null && labels[extracted_by[i].a_id].enabled == true) {
+                extracted_contents += `<label class="badge bg-${(labels[extracted_by[i].a_id].type == null || labels[extracted_by[i].a_id].type == '' ? 'default' : labels[extracted_by[i].a_id].type)} float-end d-none d-${active == 'richlist' ? 'md' : (active == 'tx' ? 'lg' : 'sm')}-block" style="margin-left:15px;margin-bottom:0;">${labels[extracted_by[i].a_id].label}`;
+
+                if (labels[extracted_by[i].a_id].url)
+                  extracted_contents += `<a href="${labels[extracted_by[i].a_id].url}" target="_blank" alt="Visit site" title="Visit site" data-bs-toggle="tooltip" data-bs-placement="top"><span class="fa-solid fa-circle-question" style="margin-left:5px;" /></a>`;
+
+                extracted_contents += `</label>`;
+              }
+
+              extracted_contents += '</div>';
+            }
+
+            $("td:eq(" + (5 + offset) + ")", row).html(extracted_contents).addClass("text-center");
+            offset += 1;
           }
 
           $("td:eq(" + (5 + offset) + ")", row).html('<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-bs-toggle="tooltip" data-bs-placement="auto" title="' + format_unixtime(timestamp, true) + '"' : '') + '>' + format_unixtime(timestamp) + '</span>').addClass('text-center');
@@ -180,5 +207,7 @@ block content
               span.small.fw-normal  (#{settings.coin.symbol})
             if settings.block_page.multi_algorithm.show_algo == true
               th.text-center="Algorithm"
+            if settings.index_page.show_extracted_by == true
+              th.text-center="Extracted By"
             th.text-center #{settings.localization.timestamp}
         tbody.text-center
