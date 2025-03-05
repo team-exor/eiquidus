@@ -873,33 +873,51 @@ cd /path/to/explorer && /path/to/node ./scripts/update_explorer.js "dependencies
 
 #### Backup Database Script
 
-Make a complete backup of an eIquidus mongo database and save to compressed file. A built-in locking mechanism prevents data from being updated or changed while a backup is in process. Backups can be safely created while the explorer is actively running and/or while the explorer is turned off. The following backup scenarios are supported:
+Make a complete backup of an eIquidus mongo database or single collection and save to compressed file. A built-in locking mechanism prevents data from being updated or changed while a backup is in process. Backups can be safely created while the explorer is actively running and/or while the explorer is turned off.
+
+Parameters:
+1. Backup path or filename (optional)
+2. Collection name (optional) **NOTE:** This parameter is useful for backing up a single database collection such as the `claimaddresses` or plugin-related collections that can later be restored into an existing database without affecting any other database collections.
+
+The following backup scenarios are supported:
 
 **Backup Database (No filename specified)**
 
-`npm run create-backup`: Backs up to the explorer/backups directory by default with the current date as the filename in the format  yyyy-MMM-dd.bak
+`npm run create-backup`: Backs up to the explorer/backups directory by default with the current date as the filename in the format yyyy-MMM-dd.bak
 
 **Backup Database (Partial filename specified)**
 
-`npm run create-backup test`: Backs up the the explorer/backups directory by default with the filename test.bak
+`npm run create-backup test`: Backs up the explorer/backups directory by default with the filename test.bak
 
 **Backup Database (Full filename specified)**
 
-`npm run create-backup today.bak`: Backs up the the explorer/backups directory by default with the filename today.bak
+`npm run create-backup today.bak`: Backs up the explorer/backups directory by default with the filename today.bak
 
 **Backup Database (Full path with partial filename specified)**
 
-`npm run create-backup /usr/local/bin/abc`: Backs up the the /usr/local/bin directory with the filename abc.bak
+`npm run create-backup /usr/local/bin/abc`: Backs up the /usr/local/bin directory with the filename abc.bak
 
 **Backup Database (Full path and filename specified)**
 
-`npm run create-backup ~/new.bak`: Backs up the the users home directory with the filename new.bak
+`npm run create-backup ~/new.bak`: Backs up the users home directory with the filename new.bak
+
+**Backup Database (Filename and collection both specified)**
+
+`npm run create-backup test claimaddresses`: Backs up only the `claimaddresses` collection to the explorer/backups directory by default with the filename test.bak
+
+**Backup Database (No filename specified, and backup a single collection only)**
+
+`npm run create-backup "" masternodes`: Backs up only the `masternodes` collection to the explorer/backups directory by default with the current date as the filename in the format yyyy-MMM-dd.bak 
 
 #### Restore Database Script
 
-Restore a previously saved eIquidus mongo database backup. :warning: **WARNING:** This will completely overwrite your existing eIquidus mongo database, so be sure to make a full backup before proceeding. A built-in locking mechanism prevents data from being updated or changed while a backup is being restored. Backups can be safely restored while the explorer is actively running and/or while the explorer is turned off.
+Restore a previously saved eIquidus mongo database backup. :warning: **WARNING:** Unless a single collection name is specified, this will completely overwrite your existing eIquidus mongo database, so be sure to make a full backup before proceeding. A built-in locking mechanism prevents data from being updated or changed while a backup is being restored. Backups can be safely restored while the explorer is actively running and/or while the explorer is turned off.
 
 **NOTE:** Older v1.x eIquidus database backups were compressed into tar.gz files. These older tar.gz backups can still be restored, but you must specifically add the .tar.gz suffix. Example: `npm run restore-backup /path/to/old_backup.tar.gz`
+
+Parameters:
+1. Backup path or filename (optional)
+2. Collection name (optional) **NOTE:** This parameter is useful for restoring a single database collection such as the `claimaddresses` or plugin-related collections without affecting any other database collections. This option can be used with a single collection backup or full database backup and will restore only the specified collection.
 
 The following restore scenarios are supported:
 
@@ -918,6 +936,10 @@ The following restore scenarios are supported:
 **Restore Database (Full path and filename specified)**
 
 `npm run restore-backup ~/archive.bak`: Restores the ~/archive.bak file
+
+**Restore Database (Filename and collection both specified)**
+
+`npm run restore-backup test claimaddresses`: Restores only the `claimaddresses` collection from the explorer/scripts/backups/test.bak file
 
 #### Delete Database Script
 

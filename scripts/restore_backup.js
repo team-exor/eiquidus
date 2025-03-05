@@ -7,7 +7,8 @@ const restoreLockName = 'restore';
 const tarModule = 'tar';
 const defaultBackupPath = path.join(path.dirname(__dirname), 'backups');
 const settings = require('../lib/settings');
-var lockCreated = false;
+let singleCollection = '';
+let lockCreated = false;
 
 // exit function used to cleanup lock before finishing script
 function exit(mongoose, exitCode) {
@@ -83,19 +84,13 @@ function drop_collection(mongoose, colName, cb) {
 }
 
 function delete_database(mongoose, cb) {
-  const dbString = `mongodb://${encodeURIComponent(settings.dbsettings.user)}:${encodeURIComponent(settings.dbsettings.password)}@${settings.dbsettings.address}:${settings.dbsettings.port}/${settings.dbsettings.database}`;
-
-  console.log('Connecting to database..');
-
-  mongoose.set('strictQuery', true);
-
-  // connect to mongo database
-  mongoose.connect(dbString).then(() => {
+  // check if a single collection is being restored
+  if (singleCollection != null && singleCollection == '') {
     // get the list of collections
     mongoose.connection.db.listCollections().toArray().then((collections) => {
       // check if there are any collections
       if (collections.length > 0) {
-        var counter = 0;
+        let counter = 0;
 
         // loop through all collections
         collections.forEach((collection) => {
@@ -122,10 +117,10 @@ function delete_database(mongoose, cb) {
       console.log(err);
       return cb(true);
     });
-  }).catch((err) => {
-    console.log('Error: Unable to connect to database: %s', err);
-    exit(mongoose, 999);
-  });
+  } else {
+    // do not delete any collections since mongorestore will drop the collection automatically
+    return cb(true);
+  }
 }
 
 function restore_backup(mongoose, backupPath, extractedPath, gZip) {
@@ -134,7 +129,7 @@ function restore_backup(mongoose, backupPath, extractedPath, gZip) {
   console.log(`${settings.localization.restoring_backup}.. ${settings.localization.please_wait}..`);
 
   // restore mongo database from backup
-  const restoreProcess = exec(`mongorestore --host="${settings.dbsettings.address}" --port="${settings.dbsettings.port}" --username="${settings.dbsettings.user}" --password="${settings.dbsettings.password}" --authenticationDatabase="${settings.dbsettings.database}" ${(gZip ? `--gzip --archive="${backupPath}"` : `"${extractedPath}"`)}`);
+  const restoreProcess = exec(`mongorestore --host="${settings.dbsettings.address}" --port="${settings.dbsettings.port}" --username="${settings.dbsettings.user}" --password="${settings.dbsettings.password}" --authenticationDatabase="${settings.dbsettings.database}" ${(gZip ? `--gzip --archive="${backupPath}"` : `"${extractedPath}"`)}${singleCollection == null || singleCollection == '' ? '' : ` --drop --db explorerdb --collection ${singleCollection}`}`);
 
   restoreProcess.stdout.on('data', (data) => {
     console.log(data);
@@ -173,9 +168,73 @@ function restore_backup(mongoose, backupPath, extractedPath, gZip) {
   });
 }
 
+function delete_prompt(cb) {
+  const readline = require('readline');
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  // check if a single collection is being restored
+  if (singleCollection != null && singleCollection != '')
+    console.log(`You are about to delete and restore the "${singleCollection}" collection from backup.`);
+  else
+    console.log('You are about to delete the current eIquidus database and restore from backup.');
+
+  // prompt for restoring explorer database
+  rl.question(`${settings.localization.are_you_sure}: `, function (restoreAnswer) {
+    // stop prompting
+    rl.close();
+
+    // return the answer
+    return cb(restoreAnswer);
+  });
+}
+
+// verify that the collection exists
+function verify_collection_exists(mongoose, cb) {
+  const dbString = `mongodb://${encodeURIComponent(settings.dbsettings.user)}:${encodeURIComponent(settings.dbsettings.password)}@${settings.dbsettings.address}:${settings.dbsettings.port}/${settings.dbsettings.database}`;
+
+  console.log('Connecting to database..');
+
+  mongoose.set('strictQuery', true);
+
+  // connect to mongo database
+  mongoose.connect(dbString).then(() => {
+    // check if the restore will be for a single collection
+    if (singleCollection != null && singleCollection != '') {
+      // lookup the collection in the list of collections
+      mongoose.connection.db.listCollections({ name: singleCollection }).toArray().then((collections) => {
+        // check if the collection exists
+        if (collections.length > 0) {
+          // collection exists
+          return cb(false);
+        } else {
+          // collection not found
+          return cb(true);
+        }
+      }).catch((err) => {
+        console.log(err);
+        return cb(true);
+      });
+    } else
+      return cb(false);
+  }).catch((err) => {
+    console.log('Error: Unable to connect to database: %s', err);
+    exit(999);
+    return cb(true);
+  });
+}
+
 // check if a backup filename was passed into the script
 if (process.argv[2] != null && process.argv[2] != '') {
-  var backupPath = process.argv[2];
+  let backupPath = process.argv[2];
+
+  // check if a collection name was passed into the script
+  if (process.argv[3] != null && process.argv[3] != '') {
+    // save the collection name to a variable for later use
+    singleCollection = process.argv[3];
+  }
 
   // check if the backup filename already has a path
   if (!fs.existsSync(`${backupPath}`)) {
@@ -197,99 +256,100 @@ if (process.argv[2] != null && process.argv[2] != '') {
 
   // check for the backup file (last time)
   if (fs.existsSync(`${backupPath}`)) {
-    const readline = require('readline');
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
+    const mongoose = require('mongoose');
 
-    console.log('You are about to delete the current eIquidus database and restore from backup.');
+    // check if the collection name exists
+    verify_collection_exists(mongoose, function(collection_error) {
+      // check if there was an error finding the collection by name
+      if (!collection_error) {
+        // prompt for deleting and restoring the database
+        delete_prompt(function(restoreAnswer) {
+          // determine if the explorer database should be restored
+          switch ((restoreAnswer == null ? '' : restoreAnswer).toLowerCase()) {
+            case settings.localization.short_yes:
+            case settings.localization.long_yes:
+              // check if the "restore backup" process is already running
+              if (lib.is_locked([restoreLockName]) == false) {
+                // create a new restore lock before checking the rest of the locks to minimize problems with running scripts at the same time
+                lib.create_lock(restoreLockName);
 
-    // prompt for restoring explorer database
-    rl.question(`${settings.localization.are_you_sure}: `, function (restoreAnswer) {
-      // stop prompting
-      rl.close();
+                // ensure the lock will be deleted on exit
+                lockCreated = true;
 
-      // determine if the explorer database should be restored
-      switch ((restoreAnswer == null ? '' : restoreAnswer).toLowerCase()) {
-        case settings.localization.short_yes:
-        case settings.localization.long_yes:
-          // check if the "restore backup" process is already running
-          if (lib.is_locked([restoreLockName]) == false) {
-            // create a new restore lock before checking the rest of the locks to minimize problems with running scripts at the same time
-            lib.create_lock(restoreLockName);
-            // ensure the lock will be deleted on exit
-            lockCreated = true;
-            // check all other possible locks since restoring backups should not run at the same time that data is being changed
-            if (lib.is_locked(['backup', 'delete', 'index', 'markets', 'peers', 'masternodes', 'plugin']) == false) {
-              // all tests passed. OK to run restore
-              console.log(`${settings.localization.script_launched }: ${process.pid}`);
+                // check all other possible locks since restoring backups should not run at the same time that data is being changed
+                if (lib.is_locked(['backup', 'delete', 'index', 'markets', 'peers', 'masternodes', 'plugin']) == false) {
+                  // all tests passed. OK to run restore
+                  console.log(`${settings.localization.script_launched }: ${process.pid}`);
 
-              // check if this is a tar.gz (older explorer backup format)
-              if (!backupPath.endsWith(oldArchiveSuffix)) {
-                const mongoose = require('mongoose');
+                  // check if this is a tar.gz (older explorer backup format)
+                  if (!backupPath.endsWith(oldArchiveSuffix)) {
+                    const mongoose = require('mongoose');
 
-                // newer backup format (.bak)
-                // delete all collections from existing database
-                delete_database(mongoose, function(retVal) {
-                  if (retVal) {
-                    // move on to the restore process
-                    restore_backup(mongoose, backupPath, backupPath, true);
-                  }
-                });
-              } else {
-                // older backup format (.tar.gz)
-                // check if the tar module is already installed
-                check_module_directory_exists(tarModule, function(retVal) {
-                  const tar = require(tarModule);
+                    // newer backup format (.bak)
+                    // delete all collections from existing database
+                    delete_database(mongoose, function(retVal) {
+                      if (retVal) {
+                        // move on to the restore process
+                        restore_backup(mongoose, backupPath, backupPath, true);
+                      }
+                    });
+                  } else {
+                    // older backup format (.tar.gz)
+                    // check if the tar module is already installed
+                    check_module_directory_exists(tarModule, function(retVal) {
+                      const tar = require(tarModule);
 
-                  console.log(`${settings.localization.extracting_backup_files}.. ${settings.localization.please_wait}..`);
+                      console.log(`${settings.localization.extracting_backup_files}.. ${settings.localization.please_wait}..`);
 
-                  // extract the backup archive
-                  tar.x({ file: backupPath, cwd: defaultBackupPath, gzip: true }, function() {
-                    var extractedPath = path.join(defaultBackupPath, path.basename(backupPath).replace(oldArchiveSuffix, ''));
+                      // extract the backup archive
+                      tar.x({ file: backupPath, cwd: defaultBackupPath, gzip: true }, function() {
+                        var extractedPath = path.join(defaultBackupPath, path.basename(backupPath).replace(oldArchiveSuffix, ''));
 
-                    // check if this is a valid backup archive now that the files have been extracted
-                    if (fs.existsSync(`${path.join(extractedPath, settings.dbsettings.database)}`)) {
-                      const mongoose = require('mongoose');
-
-                      // delete all collections from existing database
-                      delete_database(mongoose, function(retVal) {
-                        if (retVal) {
-                          // move on to the restore process
-                          restore_backup(mongoose, backupPath, extractedPath, false);
+                        // check if this is a valid backup archive now that the files have been extracted
+                        if (fs.existsSync(`${path.join(extractedPath, settings.dbsettings.database)}`)) {
+                          // delete all collections from existing database
+                          delete_database(mongoose, function(retVal) {
+                            if (retVal) {
+                              // move on to the restore process
+                              restore_backup(mongoose, backupPath, extractedPath, false);
+                            }
+                          });
+                        } else {
+                          // backup file is not a valid mongo database backup
+                          // try to remove the backup directory
+                          try {
+                            fs.rmSync(extractedPath, { recursive: true });
+                          } catch {
+                            // do nothing
+                          } finally {
+                            console.log(`${path.basename(backupPath)} is not a valid backup file`);
+                            exit(mongoose, 1);
+                          }
                         }
                       });
-                    } else {
-                      // backup file is not a valid mongo database backup
-                      // try to remove the backup directory
-                      try {
-                        fs.rmSync(extractedPath, { recursive: true });
-                      } catch {
-                        // do nothing
-                      } finally {
-                        console.log(`${path.basename(backupPath)} is not a valid backup file`);
-                        exit(null, 1);
-                      }
-                    }
-                  });
-                });
+                    });
+                  }
+                } else {
+                  // another script process is currently running
+                  console.log("Restore aborted");
+                  exit(mongoose, 2);
+                }
+              } else {
+                // restore process is already running
+                console.log("Restore aborted");
+                exit(mongoose, 2);
               }
-            } else {
-              // another script process is currently running
-              console.log("Restore aborted");
-              exit(null, 2);
-            }
-          } else {
-            // restore process is already running
-            console.log("Restore aborted");
-            exit(null, 2);
-          }
 
-          break;
-        default:
-          console.log(`${settings.localization.process_aborted}. ${settings.localization.nothing_was_restored}.`);
-          exit(null, 2);
+              break;
+            default:
+              console.log(`${settings.localization.process_aborted}. ${settings.localization.nothing_was_restored}.`);
+              exit(mongoose, 2);
+          }
+        });
+      } else {
+        // the collection does not exist
+        console.log(`Collection "${singleCollection}" does not exist`);
+        exit(mongoose, 2);
       }
     });
   } else {
