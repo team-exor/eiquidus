@@ -4,7 +4,6 @@ var express = require('express'),
     favicon = require('serve-favicon'),
     logger = require('morgan'),
     cookieParser = require('cookie-parser'),
-    bodyParser = require('body-parser'),
     settings = require('./lib/settings'),
     routes = require('./routes/index'),
     lib = require('./lib/explorer'),
@@ -167,8 +166,8 @@ if (default_favicon != '')
   app.use(favicon(path.join('./public', default_favicon)));
 
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
