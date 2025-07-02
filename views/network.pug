@@ -23,213 +23,143 @@ block content
         url: '/ext/getnetworkpeers/internal',
         dataType: 'json'
       }).done(function(peers) {
-        var setting_txPerPage = parseInt("#{settings.network_page.connections_table.items_per_page}");
-        var setting_con_port_filter = "#{settings.network_page.connections_table.port_filter}";
-        var setting_con_hide_protocols = !{JSON.stringify(settings.network_page.connections_table.hide_protocols)};
-        var connectionRows = JSON.parse(JSON.stringify(peers));
+        const connection_table_enabled = #{settings.network_page.connections_table.enabled};
 
-        if (setting_con_port_filter == null || setting_con_port_filter == '')
-          setting_con_port_filter = '-1';
+        if (connection_table_enabled) {
+          const setting_con_txPerPage = parseInt("#{settings.network_page.connections_table.items_per_page}");
+          const setting_con_port_filter = "#{settings.network_page.connections_table.port_filter}";
+          const column_width = (setting_con_port_filter == '-1' ? '25%' : '20%');
+          let columns = [];
 
-        setting_con_hide_protocols.forEach(function (protocol) {
-          connectionRows = connectionRows.filter(v => v.protocol != protocol);
-        });
+          columns.push({ data: 'address', width: column_width });
 
-        if (parseInt(setting_con_port_filter) > 0)
-          connectionRows = connectionRows.filter(v => v.port == setting_con_port_filter);
-        else if (setting_con_port_filter == '-1') {
-          // remove port key
-          connectionRows.forEach(function(obj) {
-            delete obj.port
+          if (setting_con_port_filter != '' && setting_con_port_filter != '-1')
+            columns.push({ data: 'port', width: column_width });
+
+          columns.push({ data: 'protocol', width: column_width });
+          columns.push({ data: 'version', width: column_width });
+          columns.push({ data: 'country', width: column_width });
+
+          $('#connections-table').dataTable({
+            autoWidth: true,
+            searching: false,
+            ordering: true,
+            order: [],
+            responsive: true,
+            lengthChange: true,
+            processing: true,
+            iDisplayLength: setting_con_txPerPage,
+            lengthMenu: generateLengthMenu(setting_con_txPerPage, !{JSON.stringify(settings.network_page.connections_table.page_length_options)}),
+            scrollX: true,
+            language: {
+              paginate: {
+                previous: '<',
+                next: '>'
+              }
+            },
+            data: peers.connection_peers,
+            rowCallback: function (row, data, index) {
+              const flagBlock = (data['country_code'].length > 1 ? '<span class="margin-left-5 fi fi-'+data['country_code'].toLowerCase()+'"></span>' : '');
+              let colIndex = 1;
+
+              $("td:eq(0)", row).html(data['address']).addClass('breakWord');
+
+              if (setting_con_port_filter != '' && setting_con_port_filter != '-1') {
+                $("td:eq(1)", row).html(data['port'] || '');
+                colIndex = 2;
+              }
+
+              $(`td:eq(${colIndex})`, row).html(data['protocol']);
+              $(`td:eq(${colIndex + 1})`, row).html(data['version']);
+              $(`td:eq(${colIndex + 2})`, row).html(data['country'] + flagBlock);
+            },
+            fnDrawCallback: function(settings) {
+              fixDataTableColumns();
+              fixFooterHeightAndPosition();
+            },
+            columns: columns
           });
-
-          // remove duplicate rows by ip address
-          connectionRows = connectionRows.filter((v, i, a) => a.findIndex(t => (t.address === v.address)) === i);
         }
 
-        var columns = [];
+        const addnode_table_enabled = #{settings.network_page.addnodes_table.enabled};
 
-        if (setting_con_port_filter == '-1') {
-          columns = [
-            { data: 'address', width: '25%' },
-            { data: 'protocol', width: '25%' },
-            { data: 'version', width:'25%' },
-            { data: 'country', width: '25%'}
-          ];
-        } else {
-          columns = [
-            { data: 'address', width: '20%' },
-            { data: 'port', width: '20%' },
-            { data: 'protocol', width: '20%' },
-            { data: 'version', width:'20%' },
-            { data: 'country', width: '20%'}
-          ];
-        }
+        if (addnode_table_enabled) {
+          const setting_add_txPerPage = parseInt("#{settings.network_page.addnodes_table.items_per_page}");
+          const setting_add_port_filter = "#{settings.network_page.addnodes_table.port_filter}";
 
-        $('#connections-table').dataTable({
-          autoWidth: true,
-          searching: false,
-          ordering: true,
-          order: [],
-          responsive: true,
-          lengthChange: true,
-          processing: true,
-          iDisplayLength: setting_txPerPage,
-          lengthMenu: generateLengthMenu(setting_txPerPage, !{JSON.stringify(settings.network_page.connections_table.page_length_options)}),
-          scrollX: true,
-          language: {
-            paginate: {
-              previous: '<',
-              next: '>'
-            }
-          },
-          data: connectionRows,
-          rowCallback: function (row, data, index) {
-            var colIndex = 1;
-            var flagBlock = '';
-
-            if (data['country_code'].length > 1) {
-              flagBlock = '<span class="margin-left-5 fi fi-'+data['country_code'].toLowerCase()+'"></span>';
-            }
-
-            $("td:eq(0)", row).html(data['address']).addClass('breakWord');
-
-            if (setting_con_port_filter != '-1') {
-              $("td:eq(1)", row).html(data['port']);
-              colIndex = 2;
-            }
-
-            $(`td:eq(${colIndex})`, row).html(data['protocol']);
-            $(`td:eq(${colIndex + 1})`, row).html(data['version']);
-            $(`td:eq(${colIndex + 2})`, row).html(data['country'] + flagBlock);
-          },
-          fnDrawCallback: function(settings) {
-            fixDataTableColumns();
-            fixFooterHeightAndPosition();
-          },
-          columns: columns
-        });
-
-        setting_txPerPage = parseInt("#{settings.network_page.addnodes_table.items_per_page}");
-
-        var addNodeRows = [];
-        var setting_add_port_filter = "#{settings.network_page.addnodes_table.port_filter}";
-        var setting_add_hide_protocols = !{JSON.stringify(settings.network_page.addnodes_table.hide_protocols)};
-        var addNodePeers = JSON.parse(JSON.stringify(peers));
-
-        if (setting_add_port_filter == null || setting_add_port_filter == '')
-          setting_add_port_filter = '-1';
-
-        setting_add_hide_protocols.forEach(function (protocol) {
-          addNodePeers = addNodePeers.filter(v => v.protocol != protocol);
-        });
-
-        if (parseInt(setting_add_port_filter) > 0)
-          addNodePeers = addNodePeers.filter(v => v.port == setting_add_port_filter);
-        else if (setting_add_port_filter == '-1') {
-          // remove port key
-          addNodePeers.forEach(function(obj) {
-            delete obj.port
+          $('#addnodes-table').dataTable({
+            autoWidth: true,
+            searching: false,
+            ordering: false,
+            responsive: true,
+            lengthChange: true,
+            processing: true,
+            iDisplayLength: setting_add_txPerPage,
+            lengthMenu: generateLengthMenu(setting_add_txPerPage, !{JSON.stringify(settings.network_page.addnodes_table.page_length_options)}),
+            scrollX: true,
+            language: {
+              paginate: {
+                previous: '<',
+                next: '>'
+              }
+            },
+            data: peers.addnode_peers,
+            rowCallback: function(row, data, index) {
+              const nodes = 'addnode=' + (data['address'] != null && data['address'].indexOf(':') > -1 ? '[' + data['address'] + ']' : data['address']) + (data['port'] == null || data['port'] == '' || setting_add_port_filter == '' || setting_add_port_filter == '-1' ? '' : ':' + data['port']);
+              $("td:eq(0)", row).css('white-space', 'nowrap').html(`<button class="btn btn-sm btn-copy" type="button"><i class="fa-regular fa-copy"></i></button>&nbsp;<span>${nodes}</span>`);
+            },
+            fnDrawCallback: function(settings) {
+              fixDataTableColumns();
+              fixFooterHeightAndPosition();
+            },
+            columns: [
+              {data: null, width: '100%'}
+            ],
+            columnDefs: [
+              {targets: '_all', className: 'text-start'}
+            ]
           });
-
-          // remove duplicate rows by ip address
-          addNodePeers = addNodePeers.filter((v, i, a) => a.findIndex(t => (t.address === v.address)) === i);
         }
 
-        for (var i = 0; i < addNodePeers.length; i++)
-          addNodeRows.push({'nodes': 'addnode=' + (addNodePeers[i]['address'] != null && addNodePeers[i]['address'].indexOf(':') > -1 ? '[' + addNodePeers[i]['address'] + ']' : addNodePeers[i]['address']) + (addNodePeers[i]['port'] == null ? '' : ':' + addNodePeers[i]['port'])});
+        const onetry_table_enabled = #{settings.network_page.onetry_table.enabled};
 
-        $('#addnodes-table').dataTable({
-          autoWidth: true,
-          searching: false,
-          ordering: false,
-          responsive: true,
-          lengthChange: true,
-          processing: true,
-          iDisplayLength: setting_txPerPage,
-          lengthMenu: generateLengthMenu(setting_txPerPage, !{JSON.stringify(settings.network_page.addnodes_table.page_length_options)}),
-          scrollX: true,
-          language: {
-            paginate: {
-              previous: '<',
-              next: '>'
-            }
-          },
-          data: addNodeRows,
-          rowCallback: function(row, data, index) {
-            $("td:eq(0)", row).css('white-space', 'nowrap').html(`<button class="btn btn-sm btn-copy" type="button"><i class="fa-regular fa-copy"></i></button>&nbsp;<span>${data.nodes}</span>`);
-          },
-          fnDrawCallback: function(settings) {
-            fixDataTableColumns();
-            fixFooterHeightAndPosition();
-          },
-          columns: [
-            {data: 'nodes', width: '100%'}
-          ],
-          columnDefs: [
-            {targets: '_all', className: 'text-start'}
-          ]
-        });
+        if (onetry_table_enabled) {
+          const setting_one_txPerPage = parseInt("#{settings.network_page.onetry_table.items_per_page}");
+          const setting_one_port_filter = "#{settings.network_page.onetry_table.port_filter}";
 
-        setting_txPerPage = parseInt("#{settings.network_page.onetry_table.items_per_page}");
-
-        var oneTryRows = [];
-        var setting_one_port_filter = "#{settings.network_page.onetry_table.port_filter}";
-        var setting_one_hide_protocols = !{JSON.stringify(settings.network_page.onetry_table.hide_protocols)};
-
-        if (setting_one_port_filter == null || setting_one_port_filter == '')
-          setting_one_port_filter = '-1';
-
-        setting_one_hide_protocols.forEach(function (protocol) {
-          peers = peers.filter(v => v.protocol != protocol);
-        });
-
-        if (parseInt(setting_one_port_filter) > 0)
-          peers = peers.filter(v => v.port == setting_one_port_filter);
-        else if (setting_one_port_filter == '-1') {
-          // remove port key
-          peers.forEach(function(obj) {
-            delete obj.port
+          $('#onetry-table').dataTable({
+            autoWidth: true,
+            searching: false,
+            ordering: false,
+            responsive: true,
+            lengthChange: true,
+            processing: true,
+            iDisplayLength: setting_one_txPerPage,
+            lengthMenu: generateLengthMenu(setting_one_txPerPage, !{JSON.stringify(settings.network_page.onetry_table.page_length_options)}),
+            scrollX: true,
+            language: {
+              paginate: {
+                previous: '<',
+                next: '>'
+              }
+            },
+            data: peers.onetry_peers,
+            rowCallback: function(row, data, index) {
+              const nodes = 'addnode ' + (data['address'] != null && data['address'].indexOf(':') > -1 ? '[' + data['address'] + ']' : data['address']) + (data['port'] == null || data['port'] == '' || setting_one_port_filter == '' || setting_one_port_filter == '-1' ? '' : ':' + data['port']) + ' onetry';
+              $("td:eq(0)", row).css('white-space', 'nowrap').html(`<button class="btn btn-sm btn-copy" type="button"><i class="fa-regular fa-copy"></i></button>&nbsp;<span>${nodes}</span>`);
+            },
+            fnDrawCallback: function(settings) {
+              fixDataTableColumns();
+              fixFooterHeightAndPosition();
+            },
+            columns: [
+              {data: null, width: '100%'}
+            ],
+            columnDefs: [
+              {targets: '_all', className: 'text-start'}
+            ]
           });
-
-          // remove duplicate rows by ip address
-          peers = peers.filter((v, i, a) => a.findIndex(t => (t.address === v.address)) === i);
         }
-
-        for (var i=0; i < peers.length; i++)
-          oneTryRows.push({'nodes': 'addnode ' + (peers[i]['address'] != null && peers[i]['address'].indexOf(':') > -1 ? '[' + peers[i]['address'] + ']' : peers[i]['address']) + (peers[i]['port'] == null ? '' : ':' + peers[i]['port']) + ' onetry'});
-
-        $('#onetry-table').dataTable({
-          autoWidth: true,
-          searching: false,
-          ordering: false,
-          responsive: true,
-          lengthChange: true,
-          processing: true,
-          iDisplayLength: setting_txPerPage,
-          lengthMenu: generateLengthMenu(setting_txPerPage, !{JSON.stringify(settings.network_page.onetry_table.page_length_options)}),
-          scrollX: true,
-          language: {
-            paginate: {
-              previous: '<',
-              next: '>'
-            }
-          },
-          data: oneTryRows,
-          rowCallback: function(row, data, index) {
-            $("td:eq(0)", row).css('white-space', 'nowrap').html(`<button class="btn btn-sm btn-copy" type="button"><i class="fa-regular fa-copy"></i></button>&nbsp;<span>${data.nodes}</span>`);
-          },
-          fnDrawCallback: function(settings) {
-            fixDataTableColumns();
-            fixFooterHeightAndPosition();
-          },
-          columns: [
-            {data: 'nodes', width: '100%'}
-          ],
-          columnDefs: [
-            {targets: '_all', className: 'text-start'}
-          ]
-        });
       });
 
       $('a[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -238,7 +168,7 @@ block content
       });
 
       if ('#{settings.network_page.page_header.show_last_updated}' == 'true') {
-        var lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
+        const lastUpdatedDate = #{(last_updated == null || last_updated == '0' ? 0 : last_updated)};
 
         if (lastUpdatedDate != 0) {
           $('span#lastUpdatedDate').html(' ' + format_unixtime(lastUpdatedDate));
@@ -254,10 +184,11 @@ block content
         startRotateElement('img#header-img');
 
       $('#addnodes').on('click', 'button.btn-copy', function (event) {
-        var btn = $(this);
+        const btn = $(this);
 
         if (btn.html().indexOf('fa-copy') > -1) {
-          var tmp = $('<input>');
+          const tmp = $('<input>');
+
           $('body').append(tmp);
           tmp.val(btn.parent().find('span').html()).select();
           document.execCommand('copy');
@@ -304,39 +235,45 @@ block content
                 .sub-page-header.text-muted=settings.localization.net_description.replace('{1}', settings.coin.name)
         .cardSpacer.clearfix
       ul.nav.nav-tabs(role='tablist')
-        li.nav-item(role='presentation')
-          a.nav-link.active(href='#connections', aria-controls='connections', role='tab', data-bs-toggle='tab') #{settings.localization.net_connections}
-        li.nav-item(role='presentation')
-          a.nav-link(href='#addnodes', aria-controls='addnodes', role='tab', data-bs-toggle='tab') #{settings.localization.net_addnodes}
+        if settings.network_page.connections_table.enabled
+          li.nav-item(role='presentation')
+            a.nav-link.active(href='#connections', aria-controls='connections', role='tab', data-bs-toggle='tab') #{settings.localization.net_connections}
+        if settings.network_page.addnodes_table.enabled || settings.network_page.onetry_table.enabled
+          li.nav-item(role='presentation')
+            a.nav-link(class=(settings.network_page.connections_table.enabled ? '' : 'active'), href='#addnodes', aria-controls='addnodes', role='tab', data-bs-toggle='tab') #{settings.localization.net_addnodes}
     .tab-content
-      #connections.container.tab-pane.active(style='margin-top:0;border-top:0;')
-        .card.card-default.border-0
-          table#connections-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
-            thead
-              tr(class=theadClasses)
-                th.text-center #{settings.localization.net_address}
-                if settings.network_page.connections_table.port_filter != '-1'
-                  th.text-center='Port'
-                th.text-center #{settings.localization.net_protocol}
-                th.text-center #{settings.localization.net_subversion}
-                th.text-center #{settings.localization.net_country}
-            tbody.text-center
-      #addnodes.container.tab-pane(style='margin-top:0;border-top:0;')
-        .card.card-default.border-0
-          .card-body.border-top-0
-            p If you have trouble syncing your wallet, add these lines to your coin daemon .conf file and restart the wallet.
-            p
-              em Typically you can access the config file through QT-wallet menu, Tools > Open Wallet Configuration File
-          table#addnodes-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
-            thead
-              tr(class=theadClasses)
-                th AddNode Config Lines
-            tbody
-          .card-body.border-top-0
-            p="Alternatively you can try one of these lines in the coin wallet debug window, or add them with" + " "
-              em coindaemon-cli
-          table#onetry-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
-            thead
-              tr(class=theadClasses)
-                th OneTry Node Lines
-            tbody
+      if settings.network_page.connections_table.enabled
+        #connections.container.tab-pane.active(style='margin-top:0;border-top:0;')
+          .card.card-default.border-0
+            table#connections-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
+              thead
+                tr(class=theadClasses)
+                  th.text-center #{settings.localization.net_address}
+                  if settings.network_page.connections_table.port_filter != '' && settings.network_page.connections_table.port_filter != '-1'
+                    th.text-center='Port'
+                  th.text-center #{settings.localization.net_protocol}
+                  th.text-center #{settings.localization.net_subversion}
+                  th.text-center #{settings.localization.net_country}
+              tbody.text-center
+      if settings.network_page.addnodes_table.enabled || settings.network_page.onetry_table.enabled
+        #addnodes.container.tab-pane(class=(settings.network_page.connections_table.enabled ? '' : 'active'), style='margin-top:0;border-top:0;')
+          .card.card-default.border-0
+            if settings.network_page.addnodes_table.enabled
+              .card-body.border-top-0
+                p If you have trouble syncing your wallet, add these lines to your coin daemon .conf file and restart the wallet.
+                p
+                  em Typically you can access the config file through QT-wallet menu, Tools > Open Wallet Configuration File
+              table#addnodes-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
+                thead
+                  tr(class=theadClasses)
+                    th AddNode Config Lines
+                tbody
+            if settings.network_page.onetry_table.enabled
+              .card-body.border-top-0
+                p If you have trouble syncing your wallet, run these lines in the coin wallet debug window, or add them with 
+                  em coindaemon-cli
+              table#onetry-table.table.table-bordered.table-striped.table-paging.table-hover.mobile-border-right
+                thead
+                  tr(class=theadClasses)
+                    th OneTry Node Lines
+                tbody

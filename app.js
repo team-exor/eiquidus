@@ -818,29 +818,28 @@ app.use('/ext/getsummary', function(req, res) {
 app.use('/ext/getnetworkpeers', function(req, res) {
   // check if the getnetworkpeers api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
   if ((settings.api_page.enabled == true && settings.api_page.public_apis.ext.getnetworkpeers.enabled == true) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
+    // split url suffix by forward slash and remove blank entries
+    const split = req.url.split('/').filter(function(v) { return v; });
+    let internal = false;
+
+    // check if this is an internal request
+    if (split.length > 0 && split[0] == 'internal')
+      internal = true;
+
     // get list of peers
-    db.get_peers(function(peers) {
-      // loop through peers list and remove the mongo _id and __v keys
-      for (i = 0; i < peers.length; i++) {
-        delete peers[i]['_doc']['_id'];
-        delete peers[i]['_doc']['__v'];
-      }
-
-      // sort ip6 addresses to the bottom
-      peers.sort(function(a, b) {
-        var address1 = a.address.indexOf(':') > -1;
-        var address2 = b.address.indexOf(':') > -1;
-
-        if (address1 < address2)
-          return -1;
-        else if (address1 > address2)
-          return 1;
-        else
-          return 0;
-      });
-
+    db.get_peers(!internal, function(connection_peers, addnode_peers, onetry_peers) {
       // return peer data
-      res.json(peers);
+      if (internal)
+        res.json({'connection_peers': connection_peers, 'addnode_peers': addnode_peers, 'onetry_peers': onetry_peers});
+      else {
+        // remove ipv6 and table_type fields before outputting the api data
+        connection_peers.forEach(function (peer) {
+          delete peer.ipv6;
+          delete peer.table_type;
+        });
+
+        res.json(connection_peers);
+      }
     });
   } else
     res.end(settings.localization.method_disabled);

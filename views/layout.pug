@@ -1476,7 +1476,7 @@ html(lang='en')
                     a.nav-link(href='/movement')
                       span.fa-regular.fa-money-bill-1
                       span.margin-left-5 #{settings.localization.menu_movement}
-                if settings.network_page.enabled == true
+                if settings.network_page.enabled == true && (settings.network_page.connections_table.enabled == true || settings.network_page.addnodes_table.enabled == true || settings.network_page.onetry_table.enabled == true)
                   li#network.nav-item
                     a.nav-link(href='/network')
                       span.fa-solid.fa-network-wired
@@ -1601,7 +1601,7 @@ html(lang='en')
                   a.nav-link(href='/movement')
                     span.nav-icon.fa-regular.fa-money-bill-1
                     span.margin-left-5 #{settings.localization.menu_movement}
-              if settings.network_page.enabled == true
+              if settings.network_page.enabled == true && (settings.network_page.connections_table.enabled == true || settings.network_page.addnodes_table.enabled == true || settings.network_page.onetry_table.enabled == true)
                 li#network.nav-item(alt=settings.localization.menu_network, title=settings.localization.menu_network, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/network')
                     span.nav-icon.fa-solid.fa-network-wired
