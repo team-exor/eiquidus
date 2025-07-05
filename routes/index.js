@@ -576,7 +576,14 @@ router.get('/movement', function(req, res) {
 
 router.get('/network', function(req, res) {
   // ensure network page is enabled
-  if (settings.network_page.enabled == true) {
+  if (
+    settings.network_page.enabled == true &&
+    (
+      settings.network_page.connections_table.enabled == true ||
+      settings.network_page.addnodes_table.enabled == true ||
+      settings.network_page.onetry_table.enabled == true
+    )
+  ) {
     // lookup the last updated date if necessary
     get_last_updated_date(settings.network_page.page_header.show_last_updated, 'network_last_updated', function(last_updated_date) {
       res.render(

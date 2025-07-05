@@ -6,6 +6,7 @@ const Tx = require('../models/tx');
 const Address = require('../models/address');
 const AddressTx = require('../models/addresstx');
 const Orphans = require('../models/orphans');
+const Peers = require('../models/peers');
 const Richlist = require('../models/richlist');
 const Stats = require('../models/stats');
 const settings = require('../lib/settings');
@@ -896,6 +897,143 @@ function block_sync(reindex, stats) {
   });
 }
 
+function process_peer_object(peerList, peer) {
+  const table_types = [
+    {
+      table_type: 'C',
+      enabled: settings.network_page.connections_table.enabled,
+      port_filter: settings.network_page.connections_table.port_filter,
+      hide_protocols: settings.network_page.connections_table.hide_protocols
+    },
+    {
+      table_type: 'A',
+      enabled: settings.network_page.addnodes_table.enabled,
+      port_filter: settings.network_page.addnodes_table.port_filter,
+      hide_protocols: settings.network_page.addnodes_table.hide_protocols
+    },
+    {
+      table_type: 'O',
+      enabled: settings.network_page.onetry_table.enabled,
+      port_filter: settings.network_page.onetry_table.port_filter,
+      hide_protocols: settings.network_page.onetry_table.hide_protocols
+    }
+  ];
+  let newPeers = [];
+
+  // loop through the table types
+  table_types.forEach(function (table_type) {
+    // check if this table type is enabled
+    if (table_type.enabled) {
+      const normalized_port_filter = (parseInt(table_type.port_filter) || -1);
+      let add_peer = true;
+
+      // filter out this peer in the following scenarios:
+      // 1) if the peers port is not included in the port_filter setting
+      // 2) if the port column/field should be hidden based on the port_filter
+      //    setting and the peer has connected more than once on different ports
+      // 3) if the peers protocol is included in the hide_protocols setting
+      if (
+        (
+          normalized_port_filter > 0 &&
+          normalized_port_filter != (parseInt(peer.port) || -1)
+        ) ||
+        (
+          normalized_port_filter == -1 &&
+          peerList.some(item => item.address == peer.address && item.table_type == table_type.table_type)
+        ) ||
+        table_type.hide_protocols.indexOf(parseInt(peer.protocol) || -1) > -1
+      )
+        add_peer = false;
+
+      // check if the peer should be added to the array
+      if (add_peer) {
+        // add peer to the array
+        newPeers.push({...peer});
+
+        // set the correct table type
+        newPeers[newPeers.length - 1].table_type = table_type.table_type;
+      }
+    }
+  });
+
+  return newPeers;
+}
+
+function bulkUpsertPeers(peerList, cb) {
+  const batch_size = settings.sync.batch_size;
+  let index = 0;
+
+  // check if there are any peers
+  if (!Array.isArray(peerList) || peerList.length === 0) {
+    // finish without doing anything because there are no peers
+    return cb();
+  }
+
+  function processNextBatch() {
+    // check if all records were saved
+    if (index >= peerList.length) {
+      // all records were saved
+      return cb();
+    }
+
+    // get the next batch of peers
+    const batch = peerList.slice(index, index + batch_size);
+
+    // build bulkWrite operations to updateOne per document
+    const operations = batch.map(doc => ({
+      updateOne: {
+        filter: {
+          address:    doc.address,
+          port:       doc.port,
+          protocol:   doc.protocol,
+          table_type: doc.table_type,
+          ipv6:       doc.ipv6
+        },
+        update: {
+          // overwrite all fields from `doc`
+          $set: doc,
+          // reset createdAt to now (server time) on both insert and update
+          $currentDate: { createdAt: true }
+        },
+        upsert: true     // insert if no match
+      }
+    }));
+
+    // increment the index by the batch size
+    index += batch_size;
+
+    try {
+      // asynchronously write data to the peers collection
+      Peers.bulkWrite(
+        operations,
+        {
+          ordered: false,
+          writeConcern: {
+            w: settings.sync.wait_for_bulk_database_save ? 1 : 0
+          }
+        }
+      )
+      .then((result) => {
+        // process the next batch of records
+        processNextBatch();
+      }).catch((err) => {
+        console.log(err);
+
+        // process the next batch of records
+        processNextBatch();
+      });
+    } catch(err) {
+      console.log(err);
+
+      // process the next batch of records
+      processNextBatch();
+    }
+  }
+
+  // start processing records
+  processNextBatch();
+}
+
 // check options
 if (process.argv[2] == null || process.argv[2] == 'index' || process.argv[2] == 'update') {
   mode = null;
@@ -1150,80 +1288,99 @@ if (lib.is_locked([database]) == false) {
           }
         });
       } else if (database == 'peers') {
+        // get peer data from the getpeerinfo wallet cmd
         lib.get_peerinfo(function(body) {
+          // check if data was returned
           if (body != null) {
+            let peerList = [];
+
+            // start an async loop to process the peer data
             async.timesSeries(body.length, function(i, loop) {
               let address = body[i].addr;
               let port = null;
 
+              // check if the port number is included in the peer address data
               if (occurrences(address, ':') == 1 || occurrences(address, ']:') == 1) {
                 // separate the port # from the IP address
                 address = address.substring(0, address.lastIndexOf(':')).replace('[', '').replace(']', '');
                 port = body[i].addr.substring(body[i].addr.lastIndexOf(':') + 1);
               }
 
+              // check if this an IPv6 address
               if (address.indexOf(']') > -1) {
                 // remove [] characters from IPv6 addresses
                 address = address.replace('[', '').replace(']', '');
               }
 
+              // try to find this peer in the local database from the last peer sync
               db.find_peer(address, port, function(peer) {
+                // check if the peer was found in the local database
                 if (peer) {
-                  if (peer['port'] != null && (isNaN(peer['port']) || peer['port'].length < 2)) {
-                    db.drop_peers(function() {
-                      console.log('Removing peers due to missing port information. Re-run this script to add peers again.');
-                      exit(1);
-                    });
-                  }
-
-                  // peer already exists and should be refreshed
-                  // drop peer
-                  db.drop_peer(address, port, function() {
-                    // re-add the peer to refresh the data and extend the expiry date
-                    db.create_peer({
-                      address: address,
-                      port: port,
-                      protocol: peer.protocol,
-                      version: peer.version,
-                      country: peer.country,
-                      country_code: peer.country_code
-                    }, function() {
-                      console.log('Updated peer %s%s [%s/%s]', address, (port == null || port == '' ? '' : ':' + port.toString()), (i + 1).toString(), body.length.toString());
-
-                      // check if the script is stopping
-                      if (stopSync) {
-                        // stop the loop
-                        loop({});
-                      } else {
-                        // move to next peer
-                        loop();
-                      }
-                    });
+                  // process the existing peer to refresh the data
+                  const newPeers = process_peer_object(peerList, {
+                    address: address,
+                    port: port,
+                    protocol: peer.protocol,
+                    version: peer.version,
+                    country: peer.country,
+                    country_code: peer.country_code,
+                    ipv6: (address && address.length > 15)
                   });
-                } else {
-                  const rateLimitLib = require('../lib/ratelimit');
-                  const rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
 
-                  rateLimit.schedule(function() {
-                    lib.get_geo_location(address, function(error, geo) {
-                      // check if an error was returned
-                      if (error) {
-                        console.log(error);
-                        exit(1);
-                      } else if (geo == null || typeof geo != 'object') {
-                        console.log('Error: geolocation api did not return a valid object');
-                        exit(1);
-                      } else {
-                        // add peer to collection
-                        db.create_peer({
-                          address: address,
-                          port: port,
-                          protocol: body[i].version,
-                          version: body[i].subver.replace('/', '').replace('/', ''),
-                          country: geo.country_name,
-                          country_code: geo.country_code
-                        }, function() {
-                          console.log('Added new peer %s%s [%s/%s]', address, (port == null || port == '' ? '' : ':' + port.toString()), (i + 1).toString(), body.length.toString());
+                  // check if any peers should be saved
+                  if (newPeers != null && newPeers.length > 0) {
+                    // add peers to peer array
+                    peerList = peerList.concat(newPeers);
+                    console.log('Update existing peer %s%s [%s/%s]', address, (port == null || port == '' ? '' : ':' + port.toString()), (i + 1).toString(), body.length.toString());
+                  } else
+                    console.log('Skip peer %s%s [%s/%s]', address, (port == null || port == '' ? '' : ':' + port.toString()), (i + 1).toString(), body.length.toString());
+
+                  // check if the script is stopping
+                  if (stopSync) {
+                    // stop the loop
+                    loop({});
+                  } else {
+                    // move to next peer
+                    loop();
+                  }
+                } else {
+                  // this peer does not exist in the local database from last peer sync
+                  // process the peer object
+                  const newPeers = process_peer_object(peerList, {
+                    address: address,
+                    port: port,
+                    protocol: body[i].version,
+                    version: body[i].subver.replace('/', '').replace('/', ''),
+                    ipv6: (address && address.length > 15)
+                  });
+                  
+                  // check if any peers should be saved
+                  if (newPeers != null && newPeers.length > 0) {
+                    // set up the rate limit library to limit how fast external api calls are made
+                    const rateLimitLib = require('../lib/ratelimit');
+                    const rateLimit = new rateLimitLib.RateLimit(1, settings.sync.rate_limit.peer_sync_rate_limit, false);
+
+                    // wait before running the external geo location api call below
+                    rateLimit.schedule(function() {
+                      // call an external geo location api to determine which country the current peer is from
+                      lib.get_geo_location(address, function(error, geo) {
+                        // check if an error was returned
+                        if (error) {
+                          console.log(error);
+                          exit(1);
+                        } else if (geo == null || typeof geo != 'object') {
+                          console.log(`Error: geolocation api returned unexpected results for ip address ${address}`);
+                          exit(1);
+                        } else {
+                          // add the geolocation data to the new peer record(s)
+                          newPeers.forEach(function (newPeer) {
+                            newPeer.country = geo.country_name;
+                            newPeer.country_code = geo.country_code;
+                          });
+                          
+                          // add peers to peer array
+                          peerList = peerList.concat(newPeers);
+                          console.log('Add new peer %s%s [%s/%s]', address, (port == null || port == '' ? '' : ':' + port.toString()), (i + 1).toString(), body.length.toString());
 
                           // check if the script is stopping
                           if (stopSync) {
@@ -1233,23 +1390,37 @@ if (lib.is_locked([database]) == false) {
                             // move to next peer
                             loop();
                           }
-                        });
-                      }
+                        }
+                      });
                     });
-                  });
+                  } else {
+                    console.log('Skip peer %s%s [%s/%s]', address, (port == null || port == '' ? '' : ':' + port.toString()), (i + 1).toString(), body.length.toString());
+
+                    // check if the script is stopping
+                    if (stopSync) {
+                      // stop the loop
+                      loop({});
+                    } else {
+                      // move to next peer
+                      loop();
+                    }
+                  }
                 }
               });
             }, function() {
-              // update network_last_updated value
-              db.update_last_updated_stats(settings.coin.name, { network_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
-                // check if the script stopped prematurely
-                if (stopSync) {
-                  console.log('Peer sync was stopped prematurely');
-                  exit(1);
-                } else {
-                  console.log('Peer sync complete');
-                  exit(0);
-                }
+              // save the sorted list of peers to the local database
+              bulkUpsertPeers(peerList, function() {
+                // update network_last_updated value
+                db.update_last_updated_stats(settings.coin.name, { network_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
+                  // check if the script stopped prematurely
+                  if (stopSync) {
+                    console.log('Peer sync was stopped prematurely');
+                    exit(1);
+                  } else {
+                    console.log('Peer sync complete');
+                    exit(0);
+                  }
+                });
               });
             });
           } else {

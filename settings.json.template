@@ -932,6 +932,9 @@
     // connections_table: a collection of settings that pertain to the connections table on the network page
     //                    Table data is populated via the /ext/getnetworkpeers api
     "connections_table": {
+      // enabled: Enable/disable the connections table (true/false)
+      //          If set to false, the connections table will be completely inaccessible
+      "enabled": true,
       // page_length_options: An array of page length options that determine how many items/records to display in the table at any given time
       "page_length_options": [ 10, 25, 50, 75, 100 ],
       // items_per_page: The default amount of items/records to display in the table at any given time
@@ -948,6 +951,9 @@
     // addnodes_table: a collection of settings that pertain to the add nodes table on the network page
     //                 Table data is populated via the /ext/getnetworkpeers api
     "addnodes_table": {
+      // enabled: Enable/disable the addnodes table (true/false)
+      //          If set to false, the addnodes table will be completely inaccessible
+      "enabled": true,
       // page_length_options: An array of page length options that determine how many items/records to display in the table at any given time
       "page_length_options": [ 10, 25, 50, 75, 100 ],
       // items_per_page: The default amount of items/records to display in the table at any given time
@@ -964,6 +970,9 @@
     // onetry_table: a collection of settings that pertain to the one try table on the network page
     //               Table data is populated via the /ext/getnetworkpeers api
     "onetry_table": {
+      // enabled: Enable/disable the onetry table (true/false)
+      //          If set to false, the onetry table will be completely inaccessible
+      "enabled": true,
       // page_length_options: An array of page length options that determine how many items/records to display in the table at any given time
       "page_length_options": [ 10, 25, 50, 75, 100 ],
       // items_per_page: The default amount of items/records to display in the table at any given time
@@ -1550,7 +1559,12 @@
     //                              If set to true, bulk transactions to the database will wait for save confirmation which results in a slower save time but also returns information about which records failed to save
     //                              If set to false, bulk transactions to the database will not wait for save confirmation which results in a faster save time but will not return any error message for records that failed to save
     //                              NOTE: If you want to sync data as fast as possible and are sure that your blockchain doesn't contain any problematic or unsupported data types then you can set this value to "false" to maximize the speed of the block sync
-    "wait_for_bulk_database_save": true
+    "wait_for_bulk_database_save": true,
+    // rate_limit: a collection of settings that pertain to the amount of time to wait between requests
+    "rate_limit": {
+      // peer_sync_rate_limit: The amount of time to wait (in milliseconds) between geolocation api requests when syncing peer data
+      "peer_sync_rate_limit": 2000
+    }
   },
 
   // captcha: a collection of settings that pertain to the captcha security used by different elements of the explorer
