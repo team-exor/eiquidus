@@ -4,6 +4,16 @@ const settings = require('../lib/settings');
 const db = require('../lib/database');
 const lib = require('../lib/explorer');
 const async = require('async');
+const rateLimit = require('express-rate-limit'); // Add rate limiting
+
+// Apply rate limiting to all routes
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later."
+});
+
+router.use(limiter);
 
 function send_block_data(res, block, txs, title_text, orphan) {
   let extracted_by_addresses = [];
@@ -718,7 +728,15 @@ router.get('/orphans', function(req, res) {
 
 router.post('/search', function(req, res) {
   if (settings.shared_pages.page_header.search.enabled == true) {
-    var query = req.body.search.trim();
+    var query = req.body.search;
+
+    // Ensure the query is a string before trimming
+    if (typeof query === 'string') {
+      query = query.trim();
+    } else {
+      // If not a string, set query to an empty string to prevent further processing
+      query = '';
+    }
 
     if (query.length == 64) {
       if (query == settings.transaction_page.genesis_tx)
