@@ -1034,6 +1034,78 @@ function bulkUpsertPeers(peerList, cb) {
   processNextBatch();
 }
 
+function removeDuplicatePeers(cb) {
+  // remove duplicate peers from the connections table_type
+  removeDuplicatePeersByType('C', settings.network_page.connections_table.enabled, settings.network_page.connections_table.port_filter, function() {
+    // remove duplicate peers from the addnodes table_type
+    removeDuplicatePeersByType('A', settings.network_page.addnodes_table.enabled, settings.network_page.addnodes_table.port_filter, function() {
+      // remove duplicate peers from the onetry table_type
+      removeDuplicatePeersByType('O', settings.network_page.onetry_table.enabled, settings.network_page.onetry_table.port_filter, function() {
+        return cb();
+      });
+    });
+  });
+}
+
+function removeDuplicatePeersByType(table_type, enabled, port_filter, cb) {
+  const normalized_port_filter = (parseInt(port_filter) || -1);
+
+  // check if this table_type is enabled and the port filter is set to -1 which indicates that duplicates should be removed
+  if (enabled && normalized_port_filter == -1) {
+    // find duplicate groups for this table_type
+    Peers.aggregate([
+      { $match: { table_type: table_type } },
+      { $sort: { createdAt: -1 } },
+      {
+        $group: {
+          _id: {
+            address: "$address",
+            protocol: "$protocol",
+            table_type: "$table_type"
+          },
+          ids: { $push: "$_id" },
+          count: { $sum: 1 }
+        }
+      },
+      { $match: { count: { $gt: 1 } } }
+    ]).then((groups) => {
+      if (!groups || !groups.length)
+        return cb();
+
+      // build delete ops: keep first id, delete the rest
+      let ops = [];
+
+      for (let i = 0; i < groups.length; i++) {
+        const ids = groups[i].ids || [];
+        const toDelete = ids.slice(1);
+
+        for (var j = 0; j < toDelete.length; j++)
+          ops.push({ deleteOne: { filter: { _id: toDelete[j] } } });
+      }
+
+      if (!ops.length)
+        return cb();
+
+      try {
+        // do one bulkWrite for this type
+        Peers.bulkWrite(ops, { ordered: false }).then((result) => {
+          return cb();
+        }).catch((err) => {
+          console.log(err);
+          return cb();
+        });
+      } catch(err) {
+        console.log(err);
+        return cb();
+      }
+    }).catch((err) => {
+      console.log(err);
+      return cb();
+    });
+  } else
+    return cb();
+}
+
 // check options
 if (process.argv[2] == null || process.argv[2] == 'index' || process.argv[2] == 'update') {
   mode = null;
@@ -1410,16 +1482,19 @@ if (lib.is_locked([database]) == false) {
             }, function() {
               // save the sorted list of peers to the local database
               bulkUpsertPeers(peerList, function() {
-                // update network_last_updated value
-                db.update_last_updated_stats(settings.coin.name, { network_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
-                  // check if the script stopped prematurely
-                  if (stopSync) {
-                    console.log('Peer sync was stopped prematurely');
-                    exit(1);
-                  } else {
-                    console.log('Peer sync complete');
-                    exit(0);
-                  }
+                // remove duplicates if necessary
+                removeDuplicatePeers(function() {
+                  // update network_last_updated value
+                  db.update_last_updated_stats(settings.coin.name, { network_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
+                    // check if the script stopped prematurely
+                    if (stopSync) {
+                      console.log('Peer sync was stopped prematurely');
+                      exit(1);
+                    } else {
+                      console.log('Peer sync complete');
+                      exit(0);
+                    }
+                  });
                 });
               });
             });
