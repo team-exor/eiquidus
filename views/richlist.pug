@@ -272,5 +272,12 @@ block content
                     span.decimal.breakWord #{totalParts[1]}
                   td.fw-bold.text-center #{percentParts[0]}.
                     span.decimal #{percentParts[1]}
+                if settings.richlist_page.wealth_distribution.show_address_count == true
+                  tr.text-end
+                    td.fw-bold
+                      span Total Wallet Addresses
+                    td.text-center.breakWord(colspan='2')
+                      - var address_count = Number(stats.address_count).toLocaleString('en',{'minimumFractionDigits':0,'maximumFractionDigits':0,'useGrouping':true});
+                      span #{address_count}
         if settings.richlist_page.wealth_distribution.show_distribution_chart == true
           canvas#pieChart(style="margin-top:10px;max-height:305px;")

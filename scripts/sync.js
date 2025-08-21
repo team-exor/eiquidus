@@ -872,18 +872,20 @@ function block_sync(reindex, stats) {
           } else {
             db.update_richlist('received', function() {
               db.update_richlist('balance', function() {
-                // update richlist_last_updated value
-                db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {                              
-                  db.get_stats(settings.coin.name, function(nstats) {
-                    // check for and update heavycoin data if applicable
-                    update_heavy(settings.coin.name, count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
-                      // check for and update network history data if applicable
-                      update_network_history(nstats.last, settings.network_history.enabled, function(network_hist) {
-                        // always check for and remove the sync msg if exists
-                        db.remove_sync_message();
+                update_address_count(function() {
+                  // update richlist_last_updated value
+                  db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {                              
+                    db.get_stats(settings.coin.name, function(nstats) {
+                      // check for and update heavycoin data if applicable
+                      update_heavy(settings.coin.name, count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
+                        // check for and update network history data if applicable
+                        update_network_history(nstats.last, settings.network_history.enabled, function(network_hist) {
+                          // always check for and remove the sync msg if exists
+                          db.remove_sync_message();
 
-                        console.log(`${(reindex ? 'Reindex' : 'Block sync')} complete (block: %s)`, nstats.last);
-                        exit(0);
+                          console.log(`${(reindex ? 'Reindex' : 'Block sync')} complete (block: %s)`, nstats.last);
+                          exit(0);
+                        });
                       });
                     });
                   });
@@ -1106,6 +1108,29 @@ function removeDuplicatePeersByType(table_type, enabled, port_filter, cb) {
     return cb();
 }
 
+function update_address_count(cb) {
+  // check if the address count should be found
+  if (settings.richlist_page.wealth_distribution.show_address_count) {
+    // get the count of all addresses used in transactions
+    Address.find({}).countDocuments().then((count) => {
+      console.log(`Found ${count} addresses`);
+
+      Stats.updateOne({coin: settings.coin.name}, {
+        address_count: count
+      }).then(() => {
+        return cb();
+      }).catch((err) => {
+        console.log(err);
+        return cb();
+      });
+    }).catch((err) => {
+      console.log(err);
+      return cb();
+    });
+  } else
+    return cb();
+}
+
 // check options
 if (process.argv[2] == null || process.argv[2] == 'index' || process.argv[2] == 'update') {
   mode = null;
@@ -1271,10 +1296,12 @@ if (lib.is_locked([database]) == false) {
                           console.log('Richlist updated received');
 
                           db.update_richlist('balance', function() {
-                            // update richlist_last_updated value
-                            db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
-                              console.log('Richlist update complete');
-                              exit(0);
+                            update_address_count(function() {
+                              // update richlist_last_updated value
+                              db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
+                                console.log('Richlist update complete');
+                                exit(0);
+                              });
                             });
                           });
                         });

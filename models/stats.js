@@ -18,7 +18,8 @@ var StatsSchema = new Schema({
   markets_last_updated: { type: Number, default: 0 },
   orphan_index: { type: Number, default: 0 },
   orphan_current: { type: Number, default: 0 },
-  newer_claim_address: { type: Boolean, default: false }
+  newer_claim_address: { type: Boolean, default: false },
+  address_count: { type: Number, default: 0 }
 });
 
 module.exports = mongoose.model('coinstats', StatsSchema);
