@@ -116,6 +116,7 @@ Table of Contents
     - [Poloniex](https://poloniex.com)
     - [Xeggex](https://xeggex.com)
     - [Yobit](https://yobit.net) *\*no chart support due to a lack of OHLCV api data*
+    - [NestEx](https://trade.nestex.one) *\*no chart support due to a lack of OHLCV api data*
   - **API:** A listing of available public API's that can be used to retrieve information from the network without the need for a local wallet. The following public API's are supported:
     - **RPC API calls** (Return data from coind)
       - **getdifficulty:** Returns the current difficulty
