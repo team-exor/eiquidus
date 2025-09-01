@@ -11,6 +11,7 @@ const Richlist = require('../models/richlist');
 const Stats = require('../models/stats');
 const settings = require('../lib/settings');
 const async = require('async');
+const path = require('path'); // Added for path sanitization
 let mode = 'update';
 let database = 'index';
 let block_start = 1;

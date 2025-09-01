@@ -14,6 +14,22 @@ var apiAccessList = [];
 var viewPaths = [path.join(__dirname, 'views')]
 var pluginRoutes = [];
 const { exec } = require('child_process');
+const helmet = require('helmet');
+const csurf = require('csurf');
+const rateLimit = require('express-rate-limit');
+
+// Use helmet to secure Express apps by setting various HTTP headers
+app.use(helmet());
+
+// Use csurf for CSRF protection
+app.use(csurf({ cookie: true }));
+
+// Apply rate limiting to all requests
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
 
 // pass wallet rpc connection info to nodeapi
 nodeapi.setWalletDetails(settings.wallet);
