@@ -977,10 +977,14 @@ The eIquidus block explorer is brought to you by the tireless efforts of the [Ex
 
 You can support us via one of the following options:
 
-1. [Buy and hodl EXOR](https://freixlite.com/market/EXOR/LTC). Buying and trading our EXOR coin helps stimulate the market price which allows us to hire more developers and continue to release high quality products in the future.
+1. Buy and hodl EXOR. Buying and trading our EXOR coin helps stimulate the market price which allows us to hire more developers and continue to release high quality products in the future. We are listed on the following exchanges:
+    - [FreiXLite](https://freixlite.com/market/EXOR/LTC)
+    - [Dexomy](https://dexomy.com/exchange/dashboard?coin_pair=EXOR_USDT)
 2. Participate in our [crowdfunding program](https://exor.io/tasklist/hide-completed/hide-funded/show-unfunded/) by either sending some cryptocurrency to help fund the tasks you are most eager to see brought to life or [submit a new custom task request](https://exor.io/add-new-task/) detailing a feature or improvement you would like to see developed for any Exor-related project.
 3. Consider a small donation by sending us some cryptocurrency:
     - **BTC:** [15zQAQFB9KR35nPWEJEKvmytUF6fg2zvdP](https://www.blockchain.com/btc/address/15zQAQFB9KR35nPWEJEKvmytUF6fg2zvdP)
+    - **ETH:** [0x1E4163EE9721bCA934D9e40C792360A901a59E02](https://etherscan.io/address/0x1E4163EE9721bCA934D9e40C792360A901a59E02) **NOTE:** Can be used for USDT or any other token on the ETH network
+    - **BNB:** [0x1E4163EE9721bCA934D9e40C792360A901a59E02](https://bscscan.com/address/0x1E4163EE9721bCA934D9e40C792360A901a59E02) **NOTE:** Can be used for USDT or any other token on the BNB network
     - **EXOR:** [EYYW8Nvz5aJz33M3JNHXG2FEHWUsntozrd](https://explorer.exor.io/address/EYYW8Nvz5aJz33M3JNHXG2FEHWUsntozrd)
 4. Are you a software developer? Consider taking advantage of our [crowdfunding program](https://exor.io/tasklist/hide-completed/) and get paid in EXOR to help make the block explorer and other Exor-related projects even better by submitting code improvements for open bounty tasks.
 
