@@ -65,7 +65,7 @@ block content
           const blockhash = data[1];
           const txhash = data[2];
           const outputs = data[3];
-          const amount = Number(data[4]).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
+          const amount = data[4];
           const amountParts = amount.split('.');
           const updatedAmount = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
           const timestamp = data[5];

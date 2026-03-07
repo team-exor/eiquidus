@@ -1,7 +1,6 @@
 extends layout
 
 block content
-  - var block_difficulty = parseFloat(block.difficulty).toFixed(4);
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''
     - theadClasses.push('table-' + settings.shared_pages.table_header_bgcolor);
@@ -86,10 +85,8 @@ block content
             th.text-center #{settings.localization.nonce}
             th.text-center #{settings.localization.timestamp}
         tbody
-          - var difficulty = Number(block.difficulty).toLocaleString('en',{'minimumFractionDigits':4,'maximumFractionDigits':4,'useGrouping':true});
-          - var splitDifficulty = difficulty.split('.');
-          - var block_size = Number(block.size/1024).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':2,'useGrouping':true});
-          - var splitBlockSize = block_size.split('.');
+          - var splitDifficulty = block.difficulty.split('.');
+          - var splitBlockSize = block.size.split('.');
           tr
             td.text-center=block.height
             td.text-center #{splitDifficulty[0]}.
@@ -134,19 +131,12 @@ block content
           tbody
             each txn in txs
               tr
+                - var totalParts = txn.totalFixed.split('.');
                 td.text-center.d-table-cell.d-md-none
                   a(href='/tx/' + txn.txid)
                     span.fa-regular.fa-eye(data-bs-toggle='tooltip', data-bs-placement='top', title=settings.localization.view_tx)
                 td.d-none.d-md-table-cell
                   a.breakWord(href='/tx/' + txn.txid) #{txn.txid}
                 td.text-center #{txn.vout.length}
-                if txn.vout.length > 0
-                  - var total = Number(txn.total / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-                  - var totalParts = total.split('.');
-                  td.text-center #{totalParts[0]}.
-                    span.decimal #{totalParts[1]}
-                else
-                  - var total = Number(txn.total).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-                  - var totalParts = total.split('.');
-                  td.text-center #{totalParts[0]}.
-                    span.decimal #{totalParts[1]}
+                td.text-center #{totalParts[0]}.
+                  span.decimal #{totalParts[1]}

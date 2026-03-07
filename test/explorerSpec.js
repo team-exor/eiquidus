@@ -1,33 +1,34 @@
 describe('explorer', function() {
-  var lib = require('../lib/explorer');
-  var data = require('./testData.js');
+  const lib = require('../lib/explorer');
+  const data = require('./testData.js');
+  const Decimal = require('decimal.js');
 
   describe('convert_to_satoshi', function() {
     it('should be able to convert round numbers', function() {
-      const amount_sat = lib.convert_to_satoshi(500);
-      expect(amount_sat).toEqual(50000000000);
+      const amount_sat = lib.convert_to_satoshi(new Decimal('500'));
+      expect(amount_sat.toString()).toEqual('50000000000');
     });
 
     it('should be able to convert decimals above 1', function() {
-      const amount_sat = lib.convert_to_satoshi(500.12564);
-      expect(amount_sat).toEqual(50012564000);
+      const amount_sat = lib.convert_to_satoshi(new Decimal('500.12564'));
+      expect(amount_sat.toString()).toEqual('50012564000');
     });
 
     it('should be able to convert decimals below 1', function() {
-      const amount_sat = lib.convert_to_satoshi(0.0005);
-      expect(amount_sat).toEqual(50000);
+      const amount_sat = lib.convert_to_satoshi(new Decimal('0.0005'));
+      expect(amount_sat.toString()).toEqual('50000');
     });
   });
 
   describe('is_unique', function() {
-    var arrayStrMap = [
+    const arrayStrMap = [
       {'addresses' : 'XsF8k8s5CoS3XATqW2FkuTsznbJJzFAC2U'},
       {'addresses' : 'XsF8k8s5C14FbhqW2FkuATsznFACAfVhUn'},
       {'addresses' : 'XsF8k8s5CoAF5gTqW2FkuTsznbJJzhkj5A'},
       {'addresses' : 'XfuW2K9QiGMSsq5eXgtimEQvTvz9dzBCzb'}
     ];
 
-    var arrayArrMap = [
+    const arrayArrMap = [
       {'addresses' : ['XsF8k8s5CoS3XATqW2FkuTsznbJJzFAC2U']},
       {'addresses' : ['XsF8k8s5C14FbhqW2FkuATsznFACAfVhUn']},
       {'addresses' : ['XsF8k8s5CoAF5gTqW2FkuTsznbJJzhkj5A']},
@@ -56,7 +57,7 @@ describe('explorer', function() {
   });
 
   describe('prepare_vout', function() {
-    var originalTimeout;
+    let originalTimeout;
 
     beforeEach(function() {
       originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
@@ -72,7 +73,7 @@ describe('explorer', function() {
 
     it('should maintain order', function(done) {
       lib.prepare_vout(data.txA().vout, data.txA().txid, data.txA().vin, ((typeof data.txA().vjoinsplit === 'undefined' || data.txA().vjoinsplit == null) ? [] : data.txA().vjoinsplit), function(prepared) {
-        expect(prepared[1].amount).toEqual(17499989908960);
+        expect(prepared[1].amount.toString()).toEqual('17499989908960');
         expect(prepared[1].addresses).toEqual('ENpRvyLpLFEyrMZthAGABhxZi3N4Byk3Ab');
         done();
       });
@@ -84,7 +85,7 @@ describe('explorer', function() {
   });
 
   describe('calculate_total', function() {
-    var originalTimeout;
+    let originalTimeout;
 
     beforeEach(function() {
       originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
@@ -94,7 +95,7 @@ describe('explorer', function() {
     it('should calculate correct total', function(done) {
       lib.prepare_vout(data.txA().vout, data.txA().txid, data.txA().vin, ((typeof data.txA().vjoinsplit === 'undefined' || data.txA().vjoinsplit == null) ? [] : data.txA().vjoinsplit), function(prepared) {
         const total = lib.calculate_total(prepared)
-        expect(total).toEqual(19499989908960);
+        expect(total.toString()).toEqual('19499989908960');
         done();
       });
     });
@@ -105,7 +106,7 @@ describe('explorer', function() {
   });
 
   describe('prepare_vin', function() {
-    var originalTimeout;
+    let originalTimeout;
 
     beforeEach(function() {
       originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
@@ -121,7 +122,7 @@ describe('explorer', function() {
 
     it('should get correct input addresses', function(done) {
       lib.prepare_vin(data.txB(), function(prepared) {
-        expect(prepared[0].amount).toEqual(27499989920000);
+        expect(prepared[0].amount.toString()).toEqual('27499989920000');
         expect(prepared[0].addresses).toEqual('coinbase');
         done();
       });

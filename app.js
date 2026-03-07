@@ -14,6 +14,7 @@ var apiAccessList = [];
 var viewPaths = [path.join(__dirname, 'views')]
 var pluginRoutes = [];
 const { exec } = require('child_process');
+const Decimal = require('decimal.js');
 
 // pass wallet rpc connection info to nodeapi
 nodeapi.setWalletDetails(settings.wallet);
@@ -440,39 +441,40 @@ app.use('/ext/getaddress/:hash', function(req, res) {
     db.get_address(req.params.hash, false, function(address) {
       db.get_address_txs_ajax(req.params.hash, 0, settings.api_page.public_apis.ext.getaddresstxs.max_items_per_query, function(txs, count) {
         if (address) {
-          var last_txs = [];
+          let last_txs = [];
 
           for (i = 0; i < txs.length; i++) {
             if (typeof txs[i].txid !== "undefined") {
-              var out = 0,
-                  vin = 0,
-                  tx_type = 'vout',
-                  row = {};
+              let out = new Decimal('0');
+              let vin = new Decimal('0');
+              let tx_type = 'vout';
+              let row = {};
 
               txs[i].vout.forEach(function (r) {
                 if (r.addresses == req.params.hash)
-                  out += r.amount;
+                  out = out.add(new Decimal(r.amount.toString()).toString());
               });
 
               txs[i].vin.forEach(function (s) {
                 if (s.addresses == req.params.hash)
-                  vin += s.amount;
+                  vin = vin.add(new Decimal(s.amount.toString()).toString());
               });
 
-              if (vin > out)
+              if (vin.gt(out))
                 tx_type = 'vin';
 
               row['addresses'] = txs[i].txid;
               row['type'] = tx_type;
+
               last_txs.push(row);
             }
           }
 
-          var a_ext = {
+          const a_ext = {
             address: address.a_id,
-            sent: (address.sent / 100000000),
-            received: (address.received / 100000000),
-            balance: (address.balance / 100000000).toString().replace(/(^-+)/mg, ''),
+            sent: new Decimal(address.sent.toString()).div(100000000).toString(),
+            received: new Decimal(address.received.toString()).div(100000000).toString(),
+            balance: new Decimal(address.balance.toString()).div(100000000).toString().replace(/(^-+)/mg, ''),
             last_txs: last_txs
           };
 
@@ -546,7 +548,7 @@ app.use('/ext/getbalance/:hash', function(req, res) {
     db.get_address(req.params.hash, false, function(address) {
       if (address) {
         res.setHeader('content-type', 'text/plain');
-        res.end((address.balance / 100000000).toString().replace(/(^-+)/mg, ''));
+        res.end(new Decimal(address.balance.toString()).div(100000000).toString().replace(/(^-+)/mg, ''));
       } else
         res.send({ error: 'address not found.', hash: req.params.hash });
     });
@@ -574,7 +576,7 @@ app.use('/ext/getcurrentprice', function(req, res) {
     db.get_stats(settings.coin.name, function (stats) {
       const currency = lib.get_market_currency_code();
 
-      eval('var p_ext = { "last_price_' + currency.toLowerCase() + '": stats.last_price, "last_price_usd": stats.last_usd_price, }');
+      eval('var p_ext = { "last_price_' + currency.toLowerCase() + '": new Decimal(stats.last_price.toString()).toFixed(), "last_price_usd": new Decimal(stats.last_usd_price.toString()).toFixed(), }');
       res.send(p_ext);
     });
   } else
@@ -592,12 +594,12 @@ app.use('/ext/getbasicstats', function(req, res) {
       if (settings.api_page.public_apis.rpc.getmasternodecount.enabled == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') {
         // masternode count api is available
         lib.get_masternodecount(function(masternodestotal) {
-          eval('var p_ext = { "block_count": (stats.count ? stats.count : 0), "money_supply": (stats.supply ? stats.supply : 0), "last_price_' + currency.toLowerCase() + '": stats.last_price, "last_price_usd": stats.last_usd_price, "masternode_count": masternodestotal.total }');
+          eval('var p_ext = { "block_count": (stats.count ? stats.count : 0), "money_supply": new Decimal(stats.supply == null ? "0" : stats.supply.toString()).toFixed(), "last_price_' + currency.toLowerCase() + '": new Decimal(stats.last_price.toString()).toFixed(), "last_price_usd": new Decimal(stats.last_usd_price.toString()).toFixed(), "masternode_count": (masternodestotal == null ? 0 : masternodestotal.total) }');
           res.send(p_ext);
         });
       } else {
         // masternode count api is not available
-        eval('var p_ext = { "block_count": (stats.count ? stats.count : 0), "money_supply": (stats.supply ? stats.supply : 0), "last_price_' + currency.toLowerCase() + '": stats.last_price, "last_price_usd": stats.last_usd_price }');
+        eval('var p_ext = { "block_count": (stats.count ? stats.count : 0), "money_supply": new Decimal(stats.supply == null ? "0" : stats.supply.toString()).toFixed(), "last_price_' + currency.toLowerCase() + '": new Decimal(stats.last_price.toString()).toFixed(), "last_price_usd": new Decimal(stats.last_usd_price.toString()).toFixed() }');
         res.send(p_ext);
       }
     });
@@ -661,12 +663,15 @@ app.use('/ext/getlasttxs/:min', function(req, res) {
 app.use('/ext/getaddresstxs/:address/:start/:length', function(req, res) {
   // check if the getaddresstxs api is enabled or else check the headers to see if it matches an internal ajax request from the explorer itself (TODO: come up with a more secure method of whitelisting ajax calls from the explorer)
   if ((settings.api_page.enabled == true && settings.api_page.public_apis.ext.getaddresstxs.enabled == true) || (req.headers['x-requested-with'] != null && req.headers['x-requested-with'].toLowerCase() == 'xmlhttprequest' && req.headers.referer != null && req.headers.accept.indexOf('text/javascript') > -1 && req.headers.accept.indexOf('application/json') > -1)) {
-    var internal = false;
+    let internal = false;
+
     // split url suffix by forward slash and remove blank entries
-    var split = req.url.split('/').filter(function(v) { return v; });
+    const split = req.url.split('/').filter(function(v) { return v; });
+
     // check if this is an internal request
     if (split.length > 0 && split[0] == 'internal')
       internal = true;
+
     // fix parameters
     if (typeof req.params.length === 'undefined' || isNaN(req.params.length) || req.params.length > settings.api_page.public_apis.ext.getaddresstxs.max_items_per_query)
       req.params.length = settings.api_page.public_apis.ext.getaddresstxs.max_items_per_query;
@@ -678,40 +683,67 @@ app.use('/ext/getaddresstxs/:address/:start/:length', function(req, res) {
       req.params.min  = (req.params.min * 100000000);
 
     db.get_address_txs_ajax(req.params.address, req.params.start, req.params.length, function(txs, count) {
-      var data = [];
+      let data = [];
 
       for (i = 0; i < txs.length; i++) {
         if (typeof txs[i].txid !== "undefined") {
-          var out = 0;
-          var vin = 0;
+          const balance = new Decimal(txs[i].balance.toString());
+          let out = new Decimal('0');
+          let vin = new Decimal('0');
 
           txs[i].vout.forEach(function(r) {
             if (r.addresses == req.params.address)
-              out += r.amount;
+              out = out.add(new Decimal(r.amount.toString()));
           });
 
           txs[i].vin.forEach(function(s) {
             if (s.addresses == req.params.address)
-              vin += s.amount;
+              vin = vin.add(new Decimal(s.amount.toString()));
           });
 
           if (internal) {
-            var row = [];
+            let row = [];
+            let updown = '';
+            let amount = new Decimal('0');
+            let amountString = '';
+            let rowclass = 'table-info';
+
+            if (out.gt(0) && vin.gt(0)) {
+              amount = out.sub(vin);
+
+              if (amount.lt(0)) {
+                amountString = lib.format_decimal_string(amount.mul(-1).div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 });
+                updown = '-';
+              } else if (amount.gt(0)) {
+                amountString = lib.format_decimal_string(amount.div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 });
+                updown = '+';
+              } else
+                amountString = lib.format_decimal_string(amount.div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 });
+            } else if (out.gt(0)) {
+              amountString = lib.format_decimal_string(out.div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 });
+              updown = '+';
+              rowclass = 'table-success';
+            } else {
+              amountString = lib.format_decimal_string(vin.div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 });
+              updown = '-';
+              rowclass = 'table-danger';
+            }
 
             row.push(txs[i].timestamp);
             row.push(txs[i].txid);
-            row.push(Number(out / 100000000));
-            row.push(Number(vin / 100000000));
-            row.push(Number(txs[i].balance / 100000000));
+            row.push(lib.format_decimal_string(balance.div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 }));
+            row.push(amountString);
+            row.push(updown);
+            row.push(rowclass);
 
             data.push(row);
           } else {
             data.push({
               timestamp: txs[i].timestamp,
               txid: txs[i].txid,
-              sent: Number(out / 100000000),
-              received: Number(vin / 100000000),
-              balance: Number(txs[i].balance / 100000000)
+              sent: out.div(100000000).toString(),
+              received: vin.div(100000000).toString(),
+              balance: balance.div(100000000).toString()
             });
           }
         }
@@ -767,13 +799,14 @@ app.use('/ext/getsummary', function(req, res) {
 
                 if (difficulty && difficulty['proof-of-work']) {
                   if (settings.shared_pages.difficulty == 'Hybrid') {
-                    difficultyHybrid = 'POS: ' + difficulty['proof-of-stake'];
-                    difficulty = 'POW: ' + difficulty['proof-of-work'];
+                    difficultyHybrid = 'POS: ' + (isInternal ? lib.format_decimal_string(new Decimal(difficulty['proof-of-stake'].toString()), { minFractionDigits: 2, maxFractionDigits: 8 }) : new Decimal(difficulty['proof-of-stake'].toString()).toString());
+                    difficulty = 'POW: ' + (isInternal ? lib.format_decimal_string(new Decimal(difficulty['proof-of-work'].toString()), { minFractionDigits: 2, maxFractionDigits: 8 }) : new Decimal(difficulty['proof-of-work'].toString()).toString());
                   } else if (settings.shared_pages.difficulty == 'POW')
-                    difficulty = difficulty['proof-of-work'];
+                    difficulty = (isInternal ? lib.format_decimal_string(new Decimal(difficulty['proof-of-work'].toString()), { minFractionDigits: 2, maxFractionDigits: 8 }) : new Decimal(difficulty['proof-of-work'].toString()).toString());
                   else
-                    difficulty = difficulty['proof-of-stake'];
-                }
+                    difficulty = (isInternal ? lib.format_decimal_string(new Decimal(difficulty['proof-of-stake'].toString()), { minFractionDigits: 2, maxFractionDigits: 8 }) : new Decimal(difficulty['proof-of-stake'].toString()).toString());
+                } else
+                  difficulty = (isInternal ? lib.format_decimal_string(new Decimal(difficulty.toString()), { minFractionDigits: 2, maxFractionDigits: 8 }) : new Decimal(difficulty.toString()).toString());
 
                 if (hashrate == `${settings.localization.ex_error}: ${settings.localization.check_console}`)
                   hashrate = 0;
@@ -793,18 +826,29 @@ app.use('/ext/getsummary', function(req, res) {
                   }
                 }
 
-                res.send({
-                  difficulty: (difficulty ? difficulty : '-'),
+                let send_data = {
+                  difficulty: (difficulty == null || difficulty == '' ? '-' : difficulty),
                   difficultyHybrid: difficultyHybrid,
-                  supply: (stats == null || stats.supply == null ? 0 : stats.supply),
-                  hashrate: hashrate,
-                  lastPrice: (stats == null || stats.last_price == null ? 0 : stats.last_price),
-                  lastUSDPrice: (stats == null || stats.last_usd_price == null ? 0 : stats.last_usd_price),
+                  supply: new Decimal(stats == null || stats.supply == null ? '0' : stats.supply.toString()).toFixed(),
+                  hashrate: new Decimal(hashrate.toString()).toFixed(),
+                  lastPrice: new Decimal(stats == null || stats.last_price == null ? '0' : stats.last_price.toString()).toFixed(),
+                  lastUSDPrice: new Decimal(stats == null || stats.last_usd_price == null ? '0' : stats.last_usd_price.toString()).toFixed(),
                   connections: (connections ? connections : '-'),
                   blockcount: (blockcount ? blockcount : '-'),
                   masternodeCountOnline: (masternodestotal && mn_enabled != 0 ? mn_enabled : '-'),
                   masternodeCountOffline: (masternodestotal && mn_total != 0 ? Math.floor(mn_total - mn_enabled) : '-')
-                });
+                };
+
+                if (isInternal) {
+                  send_data.marketcap = lib.format_decimal_string(new Decimal(new Decimal(send_data.lastPrice.toString()).toFixed(8)).mul(send_data.supply), { minFractionDigits: 2, maxFractionDigits: 8 });
+                  send_data.usdMarketcap = lib.format_decimal_string(new Decimal(new Decimal(send_data.lastUSDPrice.toString()).toFixed(8)).mul(send_data.supply), { minFractionDigits: 2, maxFractionDigits: 8 });
+                  send_data.lastPrice = lib.format_decimal_string(new Decimal(send_data.lastPrice.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+                  send_data.lastUSDPrice = lib.format_decimal_string(new Decimal(send_data.lastUSDPrice.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+                  send_data.supply = lib.format_decimal_string(new Decimal(new Decimal(send_data.supply.toString()).toFixed(0)), { minFractionDigits: 0, maxFractionDigits: 0 });
+                  send_data.hashrate = lib.format_decimal_string(new Decimal(hashrate.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+                }
+
+                res.send(send_data);
               });
             });
           });
@@ -877,8 +921,8 @@ app.use('/ext/getmasternoderewards/:hash/:since', function(req, res) {
           delete rewards[i]['_id'];
           delete rewards[i]['__v'];
           // convert amounts from satoshis
-          rewards[i]['total'] = rewards[i]['total'] / 100000000;
-          rewards[i]['vout']['amount'] = rewards[i]['vout']['amount'] / 100000000;
+          rewards[i]['total'] = new Decimal(rewards[i]['total'].toString()).div(100000000).toString();
+          rewards[i]['vout']['amount'] = new Decimal(rewards[i]['vout']['amount'].toString()).div(100000000).toString();
         }
 
         // return list of masternode rewards
@@ -897,7 +941,8 @@ app.use('/ext/getmasternoderewardstotal/:hash/:since', function(req, res) {
     db.get_masternode_rewards_totals(req.params.hash, req.params.since, function(total_rewards) {
       if (total_rewards != null) {
         // return the total of masternode rewards
-        res.json(total_rewards);
+        res.setHeader('content-type', 'text/plain');
+        res.end(total_rewards.toFixed(8));
       } else
         res.send({error: "failed to retrieve masternode rewards", hash: req.params.hash, since: req.params.since});
     });

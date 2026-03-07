@@ -442,32 +442,20 @@ html(lang='en')
             $("#spnMasternodeCountOffline").prop("alt", mnOfflineText).prop("title", mnOfflineText).attr("data-bs-original-title", mnOfflineText);
             showTopPanelData('masternodepanel', 'masternodePanelLoading');
 
-            let supplyString = json.supply;
-            let diffString = json.difficulty;
-            let hashrateString = json.hashrate;
             let splitValue, splitParts;
 
-            if (!isNaN(json.difficulty))
-              diffString = Number(json.difficulty).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-            if (!isNaN(json.supply))
-              supplyString = parseInt(parseFloat(json.supply).toFixed(0)).toLocaleString('en');
-            if (!isNaN(json.hashrate))
-              hashrateString = Number(json.hashrate).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-
-            $("#supply").text(supplyString);
+            $("#supply").text(json.supply);
             showTopPanelData('supplypanel', 'supplyPanelLoading');
 
-            splitValue = Number(parseFloat(json.lastPrice).toFixed(8) * parseInt(parseFloat(json.supply).toFixed(0))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-            splitParts = splitValue.split('.');
+            splitParts = json.marketcap.split('.');
             $("#marketCap").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
             showTopPanelData('marketCapPanel', 'marketCapPanelLoading');
 
-            splitValue = Number(parseFloat(json.lastUSDPrice).toFixed(8) * parseInt(parseFloat(json.supply).toFixed(0))).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-            splitParts = splitValue.split('.');
+            splitParts = json.usdMarketcap.split('.');
             $("#usdMarketCap").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
             showTopPanelData('usdMarketCapPanel', 'usdMarketCapPanelLoading');
 
-            splitParts = diffString.split('.');
+            splitParts = json.difficulty.split('.');
             $("#difficulty").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
 
             if (json.difficultyHybrid == null || json.difficultyHybrid == '')
@@ -479,21 +467,19 @@ html(lang='en')
 
             showTopPanelData('difficultypanel', 'difficultyPanelLoading');
 
-            if (hashrateString == null || hashrateString == '' || hashrateString == '-')
+            if (json.hashrate == null || json.hashrate == '' || json.hashrate == '-')
               $("#hashrate").html('-');
             else {
-              splitParts = hashrateString.split('.');
+              splitParts = json.hashrate.split('.');
               $("#hashrate").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
             }
             showTopPanelData('hashratepanel', 'hashratePanelLoading');
 
-            splitValue = Number(json.lastPrice).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-            splitParts = splitValue.split('.');
+            splitParts = json.lastPrice.split('.');
             $("#lastPrice").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
             showTopPanelData('pricepanel', 'pricePanelLoading');
 
-            splitValue = Number(json.lastUSDPrice).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-            splitParts = splitValue.split('.');
+            splitParts = json.lastUSDPrice.split('.');
             $("#lastUSDPrice").html(splitParts[0] + '.<span class="decimal">' + splitParts[1] + '</span>');
             showTopPanelData('usdpricepanel', 'usdPricePanelLoading');
           }});
@@ -514,16 +500,6 @@ html(lang='en')
     if showNethashChart == true || showDifficultyChart == true
       script.
         const maxSavedRecords = #{settings.network_history.max_saved_records};
-        const countDecimals = function(value) {
-          const text = value.toString();
-
-          if (text.indexOf('e-') > -1) {
-            return parseInt(text.split('e-'), 10);
-          } else if (Math.floor(value) !== value)
-            return value.toString().split(".")[1].length || 0;
-          else
-            return 0;
-        }
         function update_network_charts() {
           $.ajax({
             url: '/ext/getnetworkchartdata',
@@ -538,23 +514,6 @@ html(lang='en')
         }
         function roundToNearestMinute(timestamp) {
           return Math.floor(timestamp * 1000 / (60 * 1000)) * (60 * 1000);
-        }
-        function formatNetworkChartValue(val, roundDecimals, lbl, returnNum) {
-          let max = 20;
-
-          if (roundDecimals != -1)
-            max = roundDecimals;
-          else {
-            const decimalCount = countDecimals(val || 0);
-
-            if (decimalCount < max)
-              max = decimalCount;
-          }
-
-          if (returnNum)
-            return (val || 0);
-          else
-            return Number((val || 0)).toLocaleString('en',{'minimumFractionDigits':0,'maximumFractionDigits':max,'useGrouping':true}) + (lbl == 'Hashrate' ? ' ' + getNetHashUnits() : '');
         }
         function populateHourChartData(result) {
           const roundedDataMap = new Map();
@@ -619,8 +578,8 @@ html(lang='en')
                 minute: '#{settings.shared_pages.date_time.display_format}'
               }
             },
-            min: minTimestamp,  // Set x-axis to start at the first data point
-            max: maxTimestamp,  // Set x-axis to end at the last data point
+            min: minTimestamp,  // set x-axis to start at the first data point
+            max: maxTimestamp,  // set x-axis to end at the last data point
             ticks: {
               maxTicksLimit: #{settings.network_history.max_hours},
               callback: function(value) {
@@ -640,35 +599,53 @@ html(lang='en')
           let showPOW = false;
           let showPOS = false;
           let highestNethash = 0;
+          let highestNethashFixed = '-';
           let lowestNethash = -1;
+          let lowestNethashFixed = '-';
           let highestPowDifficulty = 0;
+          let highestPowDifficultyFixed = '-';
           let lowestPowDifficulty = -1;
+          let lowestPowDifficultyFixed = '-;'
           let highestPosDifficulty = 0;
+          let highestPosDifficultyFixed = '-';
           let lowestPosDifficulty = -1;
+          let lowestPosDifficultyFixed = '-';
           let highestBlock = 0;
           let lowestBlock = -1;
           let pluginTitle = {};
-          const currentNethash = formatNetworkChartValue((chartData.length > 0 && chartData[0].nethash != null ? chartData[chartData.length - 1].nethash : 0), roundDecimals, 'Hashrate', true);
-          const currentPowDifficulty = formatNetworkChartValue((chartData.length > 0 && chartData[0].difficulty_pow != null ? chartData[chartData.length - 1].difficulty_pow : 0), roundDecimals, 'Difficulty', true);
-          const currentPosDifficulty = formatNetworkChartValue((chartData.length > 0 && chartData[0].difficulty_pos != null ? chartData[chartData.length - 1].difficulty_pos : 0), roundDecimals, 'Difficulty', true);
+          const currentNethashFixed = (chartData.length > 0 && chartData[0].nethash != null ? chartData[chartData.length - 1].nethashFixed : '-');
+          const currentPowDifficultyFixed = (chartData.length > 0 && chartData[0].difficulty_pow != null ? chartData[chartData.length - 1].difficultyPowFixed : '-');
+          const currentPosDifficultyFixed = (chartData.length > 0 && chartData[0].difficulty_pos != null ? chartData[chartData.length - 1].difficultyPosFixed : '-');
 
           for (let i = 0; i < chartData.length; i++) {
             if (chartData[i].difficulty_pow != null && chartData[i].difficulty_pow != 0)
               showPOW = true;
             if (chartData[i].difficulty_pos != null && chartData[i].difficulty_pos != 0)
               showPOS = true;
-            if (chartData[i].nethash != null && chartData[i].nethash > highestNethash)
-              highestNethash = formatNetworkChartValue(chartData[i].nethash, roundDecimals, 'Hashrate', true);
-            if (chartData[i].nethash != null && (lowestNethash == -1 || chartData[i].nethash < lowestNethash))
-              lowestNethash = formatNetworkChartValue(chartData[i].nethash, roundDecimals, 'Hashrate', true);
-            if (chartData[i].difficulty_pow != null && chartData[i].difficulty_pow > highestPowDifficulty)
-              highestPowDifficulty = formatNetworkChartValue(chartData[i].difficulty_pow, roundDecimals, 'Difficulty', true);
-            if (chartData[i].difficulty_pow != null && (lowestPowDifficulty == -1 || chartData[i].difficulty_pow < lowestPowDifficulty))
-              lowestPowDifficulty = formatNetworkChartValue(chartData[i].difficulty_pow, roundDecimals, 'Difficulty', true);
-            if (chartData[i].difficulty_pos != null && chartData[i].difficulty_pos > highestPosDifficulty)
-              highestPosDifficulty = formatNetworkChartValue(chartData[i].difficulty_pos, roundDecimals, 'Difficulty', true);
-            if (chartData[i].difficulty_pos != null && (lowestPosDifficulty == -1 || chartData[i].difficulty_pos < lowestPosDifficulty))
-              lowestPosDifficulty = formatNetworkChartValue(chartData[i].difficulty_pos, roundDecimals, 'Difficulty', true);
+            if (chartData[i].nethash != null && chartData[i].nethash > highestNethash) {
+              highestNethash = chartData[i].nethash;
+              highestNethashFixed = chartData[i].nethashFixed;
+            }
+            if (chartData[i].nethash != null && (lowestNethash == -1 || chartData[i].nethash < lowestNethash)) {
+              lowestNethash = chartData[i].nethash;
+              lowestNethashFixed = chartData[i].nethashFixed;
+            }
+            if (chartData[i].difficulty_pow != null && chartData[i].difficulty_pow > highestPowDifficulty) {
+              highestPowDifficulty = chartData[i].difficulty_pow;
+              highestPowDifficultyFixed = chartData[i].difficultyPowFixed;
+            }
+            if (chartData[i].difficulty_pow != null && (lowestPowDifficulty == -1 || chartData[i].difficulty_pow < lowestPowDifficulty)) {
+              lowestPowDifficulty = chartData[i].difficulty_pow;
+              lowestPowDifficultyFixed = chartData[i].difficultyPowFixed;
+            }
+            if (chartData[i].difficulty_pos != null && chartData[i].difficulty_pos > highestPosDifficulty) {
+              highestPosDifficulty = chartData[i].difficulty_pos;
+              highestPosDifficultyFixed = chartData[i].difficultyPosFixed;
+            }
+            if (chartData[i].difficulty_pos != null && (lowestPosDifficulty == -1 || chartData[i].difficulty_pos < lowestPosDifficulty)) {
+              lowestPosDifficulty = chartData[i].difficulty_pos;
+              lowestPosDifficultyFixed = chartData[i].difficultyPosFixed;
+            }
             if (chartData[i].blockindex > highestBlock)
               highestBlock = chartData[i].blockindex;
             if (chartData[i].blockindex > 0 && (lowestBlock == -1 || chartData[i].blockindex < lowestBlock))
@@ -685,19 +662,19 @@ html(lang='en')
 
             if (netHashOnly || (!netHashOnly && !difficultyOnly)) {
               chart_title = chart_title
-                .replace(/{current_nethash}/g, formatNetworkChartValue(currentNethash, roundDecimals, 'Hashrate', false))
-                .replace(/{highest_nethash}/g, formatNetworkChartValue(highestNethash, roundDecimals, 'Hashrate', false))
-                .replace(/{lowest_nethash}/g, formatNetworkChartValue(lowestNethash, roundDecimals, 'Hashrate', false));
+                .replace(/{current_nethash}/g, currentNethashFixed)
+                .replace(/{highest_nethash}/g, highestNethashFixed)
+                .replace(/{lowest_nethash}/g, lowestNethashFixed);
             }
 
             if (difficultyOnly || (!netHashOnly && !difficultyOnly)) {
               chart_title = chart_title
-                .replace(/{current_pow_difficulty}/g, formatNetworkChartValue(currentPowDifficulty, roundDecimals, 'Difficulty', false))
-                .replace(/{highest_pow_difficulty}/g, formatNetworkChartValue(highestPowDifficulty, roundDecimals, 'Difficulty', false))
-                .replace(/{lowest_pow_difficulty}/g, formatNetworkChartValue(lowestPowDifficulty, roundDecimals, 'Difficulty', false))
-                .replace(/{current_pos_difficulty}/g, formatNetworkChartValue(currentPosDifficulty, roundDecimals, 'Difficulty', false))
-                .replace(/{highest_pos_difficulty}/g, formatNetworkChartValue(highestPosDifficulty, roundDecimals, 'Difficulty', false))
-                .replace(/{lowest_pos_difficulty}/g, formatNetworkChartValue(lowestPosDifficulty, roundDecimals, 'Difficulty', false))
+                .replace(/{current_pow_difficulty}/g, currentPowDifficultyFixed)
+                .replace(/{highest_pow_difficulty}/g, highestPowDifficultyFixed)
+                .replace(/{lowest_pow_difficulty}/g, lowestPowDifficultyFixed)
+                .replace(/{current_pos_difficulty}/g, currentPosDifficultyFixed)
+                .replace(/{highest_pos_difficulty}/g, highestPosDifficultyFixed)
+                .replace(/{lowest_pos_difficulty}/g, lowestPosDifficultyFixed);
             }
 
             pluginTitle = {
@@ -784,10 +761,16 @@ html(lang='en')
                 timeData.hourData.map(a => ({
                   x: a.tick,
                   y: a.nethash,
-                  blockindex: a.blockindex
+                  blockindex: a.blockindex,
+                  formatted: a.nethashFixed
                 })) :
-                result.map(function(a) {return a.nethash;})
+                result.map(a => ({
+                  x: a.blockindex,
+                  y: a.nethash,
+                  formatted: a.nethashFixed
+                }))
               ),
+              parsing: { xAxisKey: 'x', yAxisKey: 'y' },
               backgroundColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.fill_color}'],
               borderColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.line_color}'],
               fill: 'start'
@@ -812,10 +795,7 @@ html(lang='en')
                     return 'Block ' + context[0].label + ' Hashrate';
                 },
                 label: function(context) {
-                  if (maxSavedRecords == 0)
-                    return formatNetworkChartValue(context.raw.y, #{settings.shared_pages.page_header.network_charts.nethash_chart.round_decimals}, context.dataset.label, false);
-                  else
-                    return formatNetworkChartValue(context.raw, #{settings.shared_pages.page_header.network_charts.nethash_chart.round_decimals}, context.dataset.label, false);
+                  return context.raw.formatted;
                 },
                 afterLabel: function(context) {
                   if (maxSavedRecords == 0) {
@@ -854,10 +834,11 @@ html(lang='en')
           };
 
           if (nethashChart == null) {
+            const xSet = new Set((result || []).map(r => r.blockindex));
+
             nethashChart = new Chart(ctxNethash, {
               type: 'line',
               data: {
-                labels: (maxSavedRecords == 0 ? timeData.hourData.map(function(a) {return a.tick;}) : result.map(function(a) {return a.blockindex;})),
                 datasets: netHashDataSet
               },
               options: {
@@ -871,6 +852,25 @@ html(lang='en')
                   }
                 },
                 scales: {
+                  x: (maxSavedRecords == 0 ?
+                    timeData.xScale :
+                    {
+                      type: 'linear',
+                      bounds: 'data',
+                      offset: false,
+                      min: (result != null && result.length > 0 ? result[0].blockindex : 0),
+                      max: (result != null && result.length > 0 ? result[result.length - 1].blockindex : 0),
+                      title: { display: false },
+                      ticks: {
+                        precision: 0,
+                        format: { useGrouping: false },
+                        autoSkip: false
+                      },
+                      afterBuildTicks(scale) {
+                        scale.ticks = scale.ticks.filter(t => xSet.has(t.value));
+                      }
+                    }
+                  ),
                   y: {
                     title: {
                       display: true,
@@ -885,19 +885,12 @@ html(lang='en')
               }
             });
 
-            if (maxSavedRecords == 0)
-              nethashChart.options.scales.x = timeData.xScale;
-
             $('#nethashChartParent').fadeIn();
           } else {
-            nethashChart.data.labels = (maxSavedRecords == 0 ? timeData.hourData.map(function(a) {return a.tick;}) : result.map(function(a) {return a.blockindex;}));
             nethashChart.data.datasets = netHashDataSet;
             nethashChart.options.plugins = pluginData;
-
-            if (maxSavedRecords == 0) {
-              nethashChart.options.scales.x.min = timeData.minTimestamp;
-              nethashChart.options.scales.x.max = timeData.maxTimestamp;
-            }
+            nethashChart.options.scales.x.min = (maxSavedRecords == 0 ? timeData.minTimestamp : (result != null && result.length > 0 ? result[0].blockindex : 0));
+            nethashChart.options.scales.x.max = (maxSavedRecords == 0 ? timeData.maxTimestamp : (result != null && result.length > 0 ? result[result.length - 1].blockindex : 0));
 
             nethashChart.update('none');
           }
@@ -932,10 +925,16 @@ html(lang='en')
                 timeData.hourData.map(a => ({
                   x: a.tick,
                   y: a.difficulty_pos,
-                  blockindex: a.blockindex
+                  blockindex: a.blockindex,
+                  formatted: a.difficultyPosFixed
                 })) :
-                result.map(function(a) {return a.difficulty_pos;})
+                result.map(a => ({
+                  x: a.blockindex,
+                  y: a.difficulty_pos,
+                  formatted: a.difficultyPosFixed
+                }))
               ),
+              parsing: { xAxisKey: 'x', yAxisKey: 'y' },
               backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pos_fill_color}'],
               borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pos_line_color}'],
               fill: 'start'
@@ -949,10 +948,16 @@ html(lang='en')
                 timeData.hourData.map(a => ({
                   x: a.tick,
                   y: a.difficulty_pow,
-                  blockindex: a.blockindex
+                  blockindex: a.blockindex,
+                  formatted: a.difficultyPowFixed
                 })) :
-                result.map(function(a) {return a.difficulty_pow;})
+                result.map(a => ({
+                  x: a.blockindex,
+                  y: a.difficulty_pow,
+                  formatted: a.difficultyPowFixed
+                }))
               ),
+              parsing: { xAxisKey: 'x', yAxisKey: 'y' },
               backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pow_fill_color}'],
               borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pow_line_color}'],
               fill: 'start'
@@ -977,10 +982,7 @@ html(lang='en')
                     return 'Block ' + context[0].label + ' Difficulty';
                 },
                 label: function(context) {
-                  if (maxSavedRecords == 0)
-                    return formatNetworkChartValue(context.raw.y, #{settings.shared_pages.page_header.network_charts.difficulty_chart.round_decimals}, context.dataset.label, false);
-                  else
-                    return formatNetworkChartValue(context.raw, #{settings.shared_pages.page_header.network_charts.difficulty_chart.round_decimals}, context.dataset.label, false);
+                  return context.raw.formatted;
                 },
                 afterLabel: function(context) {
                   if (maxSavedRecords == 0) {
@@ -1019,10 +1021,11 @@ html(lang='en')
           };
 
           if (difficultyChart == null) {
+            const xSet = new Set((result || []).map(r => r.blockindex));
+
             difficultyChart = new Chart(ctxDifficulty, {
               type: 'line',
               data: {
-                labels: (maxSavedRecords == 0 ? timeData.hourData.map(function(a) {return a.tick;}) : result.map(function(a) {return a.blockindex;})),
                 datasets: diffDataSets
               },
               options: {
@@ -1036,6 +1039,25 @@ html(lang='en')
                   }
                 },
                 scales: {
+                  x: (maxSavedRecords == 0 ?
+                    timeData.xScale :
+                    {
+                      type: 'linear',
+                      bounds: 'data',
+                      offset: false,
+                      min: (result != null && result.length > 0 ? result[0].blockindex : 0),
+                      max: (result != null && result.length > 0 ? result[result.length - 1].blockindex : 0),
+                      title: { display: false },
+                      ticks: {
+                        precision: 0,
+                        format: { useGrouping: false },
+                        autoSkip: false
+                      },
+                      afterBuildTicks(scale) {
+                        scale.ticks = scale.ticks.filter(t => xSet.has(t.value));
+                      }
+                    }
+                  ),
                   y: {
                     title: {
                       display: true,
@@ -1050,19 +1072,12 @@ html(lang='en')
               }
             });
 
-            if (maxSavedRecords == 0)
-              difficultyChart.options.scales.x = timeData.xScale;
-
             $('#difficultyChartParent').fadeIn();
           } else {
-            difficultyChart.data.labels = (maxSavedRecords == 0 ? timeData.hourData.map(function(a) {return a.tick;}) : result.map(function(a) {return a.blockindex;}));
             difficultyChart.data.datasets = diffDataSets;
             difficultyChart.options.plugins = pluginData;
-
-            if (maxSavedRecords == 0) {
-              difficultyChart.options.scales.x.min = timeData.minTimestamp;
-              difficultyChart.options.scales.x.max = timeData.maxTimestamp;
-            }
+            difficultyChart.options.scales.x.min = (maxSavedRecords == 0 ? timeData.minTimestamp : (result != null && result.length > 0 ? result[0].blockindex : 0));
+            difficultyChart.options.scales.x.max = (maxSavedRecords == 0 ? timeData.maxTimestamp : (result != null && result.length > 0 ? result[result.length - 1].blockindex : 0));
 
             difficultyChart.update('none');
           }
@@ -1237,7 +1252,7 @@ html(lang='en')
                 // programatically call the resize event
                 $(window).trigger('resize');
               }
-            }, 1, "tmrWaitActivateSideMenu");
+            }, 1);
           }
         }
         function resetSideBarWidth() {
@@ -1321,7 +1336,7 @@ html(lang='en')
         });
     if settings.shared_pages.page_header.menu == 'side' && settings.markets_page.enabled == true && settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
       script.
-        /* Add a click event for the whole document when markets are enabled to emulate the autoClose feature which doesn't work when controlling bootstrap dropdowns via javascript - More info: https://github.com/twbs/bootstrap/issues/37042 */
+        /* add a click event for the whole document when markets are enabled to emulate the autoClose feature which doesn't work when controlling bootstrap dropdowns via javascript - More info: https://github.com/twbs/bootstrap/issues/37042 */
         $(document).on('click', function(e) {
           if (sideMarketVisible)
             bootstrap.Dropdown.getOrCreateInstance($('li.side-market-menu > a.dropdown-toggle')).hide();

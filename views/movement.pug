@@ -59,15 +59,19 @@ block content
           }
         },
         rowCallback: function(row, data, index) {
-          var blockindex = data[0]; //variables for better readability
-          var blockhash = data[1]; //variables for better readability
-          var txhash = data[2]; //variables for better readability
-          var outputs = data[3]; //variables for better readability
-          var amount = data[4]; //variables for better readability
-          var amountParts = Number(amount).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}).split('.');
+          // variables for better readability
+          var blockindex = data[0];
+          var blockhash = data[1];
+          var txhash = data[2];
+          var outputs = data[3];
+          var amountString = data[4];
+          var timestamp = data[5];
+
+          var amount = Number(amountString.replace(/,/g, ''));
+          var amountParts = amountString.split('.');
           var amountStr = amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>';
-          var timestamp = data[5]; //variables for better readability
           var total = "<label class='badge bg-" + (amount > '#{settings.movement_page.movement_table.high_warning_flag}' ? 'danger' : (amount > '#{settings.movement_page.movement_table.low_warning_flag}' ? 'warning' : 'success')) + "' style='margin-bottom:0;'>" + amountStr + "</label>";
+
           $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa-regular fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="#{settings.localization.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
           $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-md-table-cell');
           $("td:eq(2)", row).html(total).addClass('text-center');

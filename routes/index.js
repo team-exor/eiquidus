@@ -4,6 +4,7 @@ const settings = require('../lib/settings');
 const db = require('../lib/database');
 const lib = require('../lib/explorer');
 const async = require('async');
+const Decimal = require('decimal.js');
 
 function send_block_data(res, block, txs, title_text, orphan) {
   let extracted_by_addresses = [];
@@ -25,6 +26,19 @@ function send_block_data(res, block, txs, title_text, orphan) {
 }
 
 function finalize_send_block_data(res, block, txs, title_text, orphan, extracted_by_addresses) {
+  if (block) {
+    block.difficulty = lib.format_decimal_string(new Decimal(block.difficulty.toString()), { minFractionDigits: 4, maxFractionDigits: 4 });
+    block.size = lib.format_decimal_string(new Decimal(block.size.toString()).div('1024'), { minFractionDigits: 2, maxFractionDigits: 2 });
+  }
+
+  txs.forEach(function (tx) {
+    // add a fixed value for display
+    if (tx.vout.length > 0)
+      tx['totalFixed'] = lib.format_decimal_string(new Decimal(tx.total.toString()).div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 });
+    else
+      tx['totalFixed'] = lib.format_decimal_string(new Decimal(tx.total.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+  });
+
   res.render(
     'block',
     {
@@ -73,6 +87,16 @@ function send_tx_data(res, tx, blockcount, orphan) {
 }
 
 function finalize_send_tx_data(res, tx, blockcount, orphan, extracted_by_addresses) {
+  tx.vin.forEach(function (vin) {
+    // add a fixed value for display
+    vin['amountFixed'] = lib.format_decimal_string(new Decimal(vin.amount.toString()).div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 });
+  });
+
+  tx.vout.forEach(function (vout) {
+    // add a fixed value for display
+    vout['amountFixed'] = lib.format_decimal_string(new Decimal(vout.amount.toString()).div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 });
+  });
+
   res.render(
     'tx',
     {
@@ -92,11 +116,20 @@ function finalize_send_tx_data(res, tx, blockcount, orphan, extracted_by_address
 }
 
 function send_address_data(res, address, claim_name) {
+  const received = new Decimal(address.received.toString());
+  const sent = new Decimal(address.sent.toString());
+  const balanceString = lib.format_decimal_string(received.minus(sent).div('100000000'), { minFractionDigits: 2, maxFractionDigits: 8 });
+  const receivedString = lib.format_decimal_string(received.div('100000000'), { minFractionDigits: 2, maxFractionDigits: 8 });
+  const sentString = lib.format_decimal_string(sent.div('100000000'), { minFractionDigits: 2, maxFractionDigits: 8 });
+
   res.render(
     'address',
     {
       active: 'address',
       address: address,
+      balance: balanceString,
+      received: receivedString,
+      sent: sentString,
       claim_name: claim_name,
       showSync: db.check_show_sync_message(),
       customHash: get_custom_hash(),
@@ -209,9 +242,7 @@ function route_get_block(res, blockhash) {
       }
     } else {
       if (!isNaN(blockhash)) {
-        var height = blockhash;
-
-        lib.get_blockhash(height, function(hash) {
+        lib.get_blockhash(blockhash, function(hash) {
           if (hash && hash != `${settings.localization.ex_error}: ${settings.localization.check_console}`)
             res.redirect('/block/' + hash);
           else
@@ -265,7 +296,7 @@ function route_get_tx(res, txid) {
                         send_tx_data(res, utx, (block.height - 1), true);
                     } else {
                       // cannot load tx
-                      route_get_txlist(res, null);
+                      route_get_txlist(res, 'Transaction not found: ' + txid);
                     }
                   });
                 } else {
@@ -295,7 +326,7 @@ function route_get_tx(res, txid) {
                         });
                       } else {
                         // cannot load tx
-                        route_get_txlist(res, null);
+                        route_get_txlist(res, 'Transaction not found: ' + txid);
                       }
                     });
                   } else {
@@ -323,7 +354,7 @@ function route_get_tx(res, txid) {
               });
             });
           } else
-            route_get_txlist(res, null);
+            route_get_txlist(res, 'Transaction not found: ' + txid);
         });
       }
     });
@@ -363,10 +394,10 @@ function route_get_address(res, hash) {
         } else
           send_address_data(res, address, null);
       } else
-        route_get_txlist(res, hash + ' not found');
+        route_get_txlist(res, 'Address not found: ' + hash);
     });
   } else
-    route_get_txlist(res, hash + ' not found');
+    route_get_txlist(res, 'Address not found: ' + hash);
 }
 
 function route_get_claim_form(res, hash) {
@@ -440,18 +471,22 @@ router.get('/info', function(req, res) {
 router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
   // ensure markets page is enabled
   if (settings.markets_page.enabled == true) {
-    var market_id = req.params['market'];
-    var coin_symbol = req.params['coin_symbol'];
-    var pair_symbol = req.params['pair_symbol'];
+    const market_id = req.params['market'];
+    const coin_symbol = req.params['coin_symbol'];
+    const pair_symbol = req.params['pair_symbol'];
 
     // check if the market and trading pair exists and market is enabled in settings.json
-    if (settings.markets_page.exchanges[market_id] != null && settings.markets_page.exchanges[market_id].enabled == true && settings.markets_page.exchanges[market_id].trading_pairs.findIndex(p => p.toLowerCase() == coin_symbol.toLowerCase() + '/' + pair_symbol.toLowerCase()) > -1) {
+    if (
+      settings.markets_page.exchanges[market_id] != null &&
+      settings.markets_page.exchanges[market_id].enabled == true &&
+      settings.markets_page.exchanges[market_id].trading_pairs.findIndex(p => p.toLowerCase() == coin_symbol.toLowerCase() + '/' + pair_symbol.toLowerCase()) > -1
+    ) {
       // lookup market data
       db.get_market(market_id, coin_symbol, pair_symbol, function(data) {
         // load market data
-        var market_data = require('../lib/markets/' + market_id);
-        var isAlt = false;
-        var url = '';
+        const market_data = require('../lib/markets/' + market_id);
+        let isAlt = false;
+        let url = '';
 
         // build the external exchange url link and determine if using the alt name + logo
         if (market_data.market_url_template != null && market_data.market_url_template != '') {
@@ -470,9 +505,9 @@ router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
           }
         }
 
-        var market_name = (isAlt ? (market_data.market_name_alt == null ? '' : market_data.market_name_alt) : (market_data.market_name == null ? '' : market_data.market_name));
-        var market_logo = (isAlt ? (market_data.market_logo_alt == null ? '' : market_data.market_logo_alt) : (market_data.market_logo == null ? '' : market_data.market_logo));
-        var marketdata = {
+        const market_name = (isAlt ? (market_data.market_name_alt == null ? '' : market_data.market_name_alt) : (market_data.market_name == null ? '' : market_data.market_name));
+        const market_logo = (isAlt ? (market_data.market_logo_alt == null ? '' : market_data.market_logo_alt) : (market_data.market_logo == null ? '' : market_data.market_logo));
+        const marketdata = {
           market_name: market_name,
           market_logo: market_logo,
           coin: coin_symbol,
@@ -483,6 +518,103 @@ router.get('/markets/:market/:coin_symbol/:pair_symbol', function(req, res) {
 
         // lookup the last updated date if necessary
         get_last_updated_date(settings.markets_page.page_header.show_last_updated, 'markets_last_updated', function(last_updated_date) {
+          if (marketdata.data != null) {
+            // check and fix data for display
+            if (marketdata.data.summary != null) {
+              if (marketdata.data.summary.high != null)
+                marketdata.data.summary.high = lib.format_decimal_string(new Decimal(marketdata.data.summary.high.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+              if (marketdata.data.summary.low != null)
+                marketdata.data.summary.low = lib.format_decimal_string(new Decimal(marketdata.data.summary.low.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+              if (marketdata.data.summary.volume != null)
+                marketdata.data.summary.volume = lib.format_decimal_string(new Decimal(marketdata.data.summary.volume.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+              if (marketdata.data.summary.volume_btc != null)
+                marketdata.data.summary.volume_btc = lib.format_decimal_string(new Decimal(marketdata.data.summary.volume_btc.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+              if (marketdata.data.summary.bid != null)
+                marketdata.data.summary.bid = lib.format_decimal_string(new Decimal(marketdata.data.summary.bid.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+              if (marketdata.data.summary.ask != null)
+                marketdata.data.summary.ask = lib.format_decimal_string(new Decimal(marketdata.data.summary.ask.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+              if (marketdata.data.summary.last != null)
+                marketdata.data.summary.last = lib.format_decimal_string(new Decimal(marketdata.data.summary.last.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+              if (marketdata.data.summary.prev != null)
+                marketdata.data.summary.prev = lib.format_decimal_string(new Decimal(marketdata.data.summary.prev.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+              if (
+                marketdata.data.summary.change != null ||
+                (
+                  marketdata.data.summary.last != null &&
+                  marketdata.data.summary.prev != null
+                )
+              ) {
+                if (marketdata.data.summary.change != null) {
+                  if (marketdata.data.summary.change == '' || marketdata.data.summary.change == '-')
+                    marketdata.data.summary.change = '0.00';
+                  else
+                    marketdata.data.summary.change = lib.format_decimal_string(new Decimal(marketdata.data.summary.change.toString()), { minFractionDigits: 2, maxFractionDigits: 2 });
+
+                  marketdata.data.summary.change_num = new Decimal(marketdata.data.summary.change.toString()).toNumber();
+                } else if (marketdata.data.summary.last != 0) {
+                  marketdata.data.summary.change = lib.format_decimal_string(new Decimal('100').minus(new Decimal(marketdata.data.summary.prev.toString()).div(marketdata.data.summary.last.toString()).times('100')), { minFractionDigits: 2, maxFractionDigits: 2 });
+                  marketdata.data.summary.change_num = new Decimal('100').minus(new Decimal(marketdata.data.summary.prev.toString()).div(marketdata.data.summary.last.toString()).times('100')).toNumber();
+                } else {
+                  marketdata.data.summary.change = lib.format_decimal_string(new Decimal('0'), { minFractionDigits: 2, maxFractionDigits: 2 });
+                  marketdata.data.summary.change_num = 0;
+                }
+              }
+            }
+
+            if (marketdata.data.buys != null) {
+              marketdata.data.buys.forEach(function (buy) {
+                if (buy.total != null)
+                  buy.total = lib.format_decimal_string(new Decimal(buy.total.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+                else
+                  buy.total = lib.format_decimal_string(new Decimal(new Decimal(buy.price.toString()).toFixed(8)).mul(new Decimal(buy.quantity.toString()).toFixed(8)), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+                if (buy.price != null)
+                  buy.price = lib.format_decimal_string(new Decimal(buy.price.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+                if (buy.quantity != null)
+                  buy.quantity = lib.format_decimal_string(new Decimal(buy.quantity.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+              });
+            }
+
+            if (marketdata.data.sells != null) {
+              marketdata.data.sells.forEach(function (sell) {
+                if (sell.total != null)
+                  sell.total = lib.format_decimal_string(new Decimal(sell.total.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+                else
+                  sell.total = lib.format_decimal_string(new Decimal(new Decimal(sell.price.toString()).toFixed(8)).mul(new Decimal(sell.quantity.toString()).toFixed(8)), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+                if (sell.price != null)
+                  sell.price = lib.format_decimal_string(new Decimal(sell.price.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+                if (sell.quantity != null)
+                  sell.quantity = lib.format_decimal_string(new Decimal(sell.quantity.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+              });
+            }
+
+            if (marketdata.data.history != null) {
+              marketdata.data.history.forEach(function (order) {
+                if (order.total != null)
+                  order.total = lib.format_decimal_string(new Decimal(order.total.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+                else
+                  order.total = lib.format_decimal_string(new Decimal(new Decimal(order.price.toString()).toFixed(8)).mul(new Decimal(order.quantity.toString()).toFixed(8)), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+                if (order.price != null)
+                  order.price = lib.format_decimal_string(new Decimal(order.price.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+
+                if (order.quantity != null)
+                  order.quantity = lib.format_decimal_string(new Decimal(order.quantity.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+              });
+            }
+          }
+
           res.render(
             './market',
             {
@@ -516,19 +648,77 @@ router.get('/richlist', function(req, res) {
       db.get_richlist(settings.coin.name, function(richlist) {
         if (richlist) {
           db.get_distribution(richlist, stats, function(distribution) {
+            // fix balance data for display
+            richlist.balance.forEach((balance) => {
+              balance.balanceFixed = lib.format_decimal_string(new Decimal(balance.balance.toString()).div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 });
+              balance.percentFixed = lib.format_decimal_string(new Decimal(balance.balance.toString()).div(100000000).div(stats.supply).mul(100), { minFractionDigits: 2, maxFractionDigits: 2 });
+            });
+
+            // fix received data for display
+            richlist.received.forEach((received) => {
+              received.receivedFixed = lib.format_decimal_string(new Decimal(received.received.toString()).div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 });
+            });
+
+            // fix 1-25 data for display
+            distribution.t_1_25.totalFixed = lib.format_decimal_string(new Decimal(distribution.t_1_25.total.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+            distribution.t_1_25.percentFixed = lib.format_decimal_string(new Decimal(distribution.t_1_25.percent.toString()), { minFractionDigits: 2, maxFractionDigits: 2 });
+
+            // fix 26-50 data for display
+            distribution.t_26_50.totalFixed = lib.format_decimal_string(new Decimal(distribution.t_26_50.total.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+            distribution.t_26_50.percentFixed = lib.format_decimal_string(new Decimal(distribution.t_26_50.percent.toString()), { minFractionDigits: 2, maxFractionDigits: 2 });
+
+            // fix 51-75 data for display
+            distribution.t_51_75.totalFixed = lib.format_decimal_string(new Decimal(distribution.t_51_75.total.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+            distribution.t_51_75.percentFixed = lib.format_decimal_string(new Decimal(distribution.t_51_75.percent.toString()), { minFractionDigits: 2, maxFractionDigits: 2 });
+
+            // fix 76-100 data for display
+            distribution.t_76_100.totalFixed = lib.format_decimal_string(new Decimal(distribution.t_76_100.total.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+            distribution.t_76_100.percentFixed = lib.format_decimal_string(new Decimal(distribution.t_76_100.percent.toString()), { minFractionDigits: 2, maxFractionDigits: 2 });
+
+            // fix 101+ data for display
+            distribution.t_101plus.totalFixed = lib.format_decimal_string(new Decimal(distribution.t_101plus.total.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+            distribution.t_101plus.percentFixed = lib.format_decimal_string(new Decimal(distribution.t_101plus.percent.toString()), { minFractionDigits: 2, maxFractionDigits: 2 });
+
+            let burned = null;
+
+            // fix burned data for display
+            if (richlist.burned != null && richlist.burned.length > 0) {
+              burned = {
+                total: new Decimal(richlist.burned[0].toString()).div(100000000),
+                percent: new Decimal(richlist.burned[0].toString()).div(100000000).div(stats.supply).mul(100),
+                totalFixed: lib.format_decimal_string(new Decimal(richlist.burned[0].toString()).div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 }),
+                percentFixed: lib.format_decimal_string(new Decimal(richlist.burned[0].toString()).div(100000000).div(stats.supply).mul(100), { minFractionDigits: 2, maxFractionDigits: 2 })
+              };
+            }
+
+            // add fixed 1-100 data for display
+            distribution.t_1_100total = {
+              totalFixed: lib.format_decimal_string(new Decimal(distribution.t_1_25.total.toString()).add(new Decimal(distribution.t_26_50.total.toString())).add(new Decimal(distribution.t_51_75.total.toString())).add(new Decimal(distribution.t_76_100.total.toString())), { minFractionDigits: 2, maxFractionDigits: 8 }),
+              percentFixed: lib.format_decimal_string(new Decimal(distribution.t_1_25.percent.toString()).add(new Decimal(distribution.t_26_50.percent.toString())).add(new Decimal(distribution.t_51_75.percent.toString())).add(new Decimal(distribution.t_76_100.percent.toString())), { minFractionDigits: 2, maxFractionDigits: 2 })
+            };
+
+            // add fixed total data for display
+            distribution.total = {
+              totalFixed: lib.format_decimal_string(new Decimal(distribution.t_1_25.total.toString()).add(new Decimal(distribution.t_26_50.total.toString())).add(new Decimal(distribution.t_51_75.total.toString())).add(new Decimal(distribution.t_76_100.total.toString())).add(new Decimal(distribution.t_101plus.total.toString())).add((settings.richlist_page.burned_coins.include_burned_coins_in_distribution == true && burned != null && burned.total.toNumber() > 0 ? burned.total : 0).toString()), { minFractionDigits: 2, maxFractionDigits: 8 }),
+              percentFixed: lib.format_decimal_string(new Decimal(distribution.t_1_25.percent.toString()).add(new Decimal(distribution.t_26_50.percent.toString())).add(new Decimal(distribution.t_51_75.percent.toString())).add(new Decimal(distribution.t_76_100.percent.toString())).add(new Decimal(distribution.t_101plus.percent.toString())).add((settings.richlist_page.burned_coins.include_burned_coins_in_distribution == true && burned != null && burned.total.toNumber() > 0 ? burned.percent : 0).toString()), { minFractionDigits: 2, maxFractionDigits: 2 })
+            };
+
             res.render(
               'richlist',
               {
                 active: 'richlist',
                 balance: richlist.balance,
                 received: richlist.received,
-                burned: richlist.burned,
+                burned: burned,
                 stats: stats,
+                address_count: (settings.richlist_page.wealth_distribution.show_address_count == true ? lib.format_decimal_string(new Decimal(stats.address_count.toString()), { minFractionDigits: 0, maxFractionDigits: 0 }) : 0),
                 dista: distribution.t_1_25,
                 distb: distribution.t_26_50,
                 distc: distribution.t_51_75,
                 distd: distribution.t_76_100,
                 diste: distribution.t_101plus,
+                distsubtotal: distribution.t_1_100total,
+                disttotal: distribution.total,
                 last_updated: (settings.richlist_page.page_header.show_last_updated == true ? stats.richlist_last_updated : null),
                 showSync: db.check_show_sync_message(),
                 customHash: get_custom_hash(),
@@ -649,6 +839,12 @@ router.get('/reward', function(req, res) {
             return 0;
         });
 
+        // add fixed values for display
+        heavy['supplyFixed'] = lib.format_decimal_string(new Decimal(heavy.supply.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+        heavy['capFixed'] = lib.format_decimal_string(new Decimal(heavy.cap.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+        heavy['rewardFixed'] = lib.format_decimal_string(new Decimal(heavy.reward.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+        heavy['estnextFixed'] = lib.format_decimal_string(new Decimal(heavy.estnext.toString()), { minFractionDigits: 2, maxFractionDigits: 8 });
+
         res.render(
           'reward',
           {
@@ -761,7 +957,7 @@ router.post('/search', function(req, res) {
       });
     }
   } else {
-    // Search is disabled so load the tx list page with an error msg
+    // search is disabled so load the tx list page with an error msg
     route_get_txlist(res, 'Search is disabled');
   }
 });
