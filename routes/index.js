@@ -651,7 +651,7 @@ router.get('/richlist', function(req, res) {
             // fix balance data for display
             richlist.balance.forEach((balance) => {
               balance.balanceFixed = lib.format_decimal_string(new Decimal(balance.balance.toString()).div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 });
-              balance.percentFixed = lib.format_decimal_string(new Decimal(balance.balance.toString()).div(100000000).div(stats.supply).mul(100), { minFractionDigits: 2, maxFractionDigits: 2 });
+              balance.percentFixed = lib.format_decimal_string(new Decimal(balance.balance.toString()).div(100000000).div(stats.supply.toString()).mul(100), { minFractionDigits: 2, maxFractionDigits: 2 });
             });
 
             // fix received data for display
@@ -685,9 +685,9 @@ router.get('/richlist', function(req, res) {
             if (richlist.burned != null && richlist.burned.length > 0) {
               burned = {
                 total: new Decimal(richlist.burned[0].toString()).div(100000000),
-                percent: new Decimal(richlist.burned[0].toString()).div(100000000).div(stats.supply).mul(100),
+                percent: new Decimal(richlist.burned[0].toString()).div(100000000).div(stats.supply.toString()).mul(100),
                 totalFixed: lib.format_decimal_string(new Decimal(richlist.burned[0].toString()).div(100000000), { minFractionDigits: 2, maxFractionDigits: 8 }),
-                percentFixed: lib.format_decimal_string(new Decimal(richlist.burned[0].toString()).div(100000000).div(stats.supply).mul(100), { minFractionDigits: 2, maxFractionDigits: 2 })
+                percentFixed: lib.format_decimal_string(new Decimal(richlist.burned[0].toString()).div(100000000).div(stats.supply.toString()).mul(100), { minFractionDigits: 2, maxFractionDigits: 2 })
               };
             }
 
