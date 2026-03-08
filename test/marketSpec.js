@@ -72,8 +72,12 @@ describe('market', function() {
         expect(obj.buys.length).toBeLessThanOrEqual(500);
         expect(obj.sells.length).toBeGreaterThan(0);
         expect(obj.sells.length).toBeLessThanOrEqual(500);
-        expect(obj.trades.length).toBeGreaterThan(0);
-        expect(obj.trades.length).toBeLessThanOrEqual(100);
+
+        // NOTE: Commenting out the trade data since the trades api seems to have been discontinued.
+        //       It will be reimplemented again later if the trades api ever returns.
+        //expect(obj.trades.length).toBeGreaterThan(0);
+        //expect(obj.trades.length).toBeLessThanOrEqual(100);
+        expect(obj.trades.length).toEqual(0);
         expect(Object.keys(obj.stats).length).toEqual(8);
         expect(obj.chartdata).toEqual(null);
         done();
