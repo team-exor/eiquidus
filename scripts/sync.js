@@ -1214,6 +1214,7 @@ if (lib.is_locked([database]) == false) {
     dbString = dbString + '/' + settings.dbsettings.database;
 
     mongoose.set('strictQuery', true);
+    mongoose.set('updatePipeline', true);
 
     mongoose.connect(dbString).then(() => {
       if (database == 'index') {

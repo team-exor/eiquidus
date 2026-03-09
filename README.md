@@ -80,7 +80,7 @@ Table of Contents
 ### Features
 
 - Built using the following scripts and technologies:
-  - Node.js (v20.9.0 or newer recommended)
+  - Node.js (v24.14.0 or newer recommended)
   - MongoDB (v7.0.2 or newer recommended)
   - jQuery v3.7.1
   - Bootstrap v5.1.3

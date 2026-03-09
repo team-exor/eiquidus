@@ -39,7 +39,7 @@
     "express": "^5.1.0",
     "intl": "^1.2.5",
     "jsonminify": "^0.4.2",
-    "mongoose": "^8.13.2",
+    "mongoose": "^9.2.4",
     "morgan": "^1.10.0",
     "postman-request": "^2.88.1-postman.42",
     "pug": "~3.0.3",
