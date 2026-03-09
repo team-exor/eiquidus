@@ -39,7 +39,6 @@
     "express": "^5.1.0",
     "intl": "^1.2.5",
     "jsonminify": "^0.4.2",
-    "mongodb": "^6.15.0",
     "mongoose": "^8.13.2",
     "morgan": "^1.10.0",
     "postman-request": "^2.88.1-postman.42",
