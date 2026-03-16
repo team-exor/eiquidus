@@ -5,9 +5,10 @@ var db = require('../lib/database');
 var app = require('../app');
 
 app.set('port', process.env.PORT || settings.webserver.port);
+app.set('address', process.env.ADDRESS || settings.webserver.address || '::');
 
 db.connect(null, function() {
-  var server = app.listen(app.get('port'), '::', function() {
+  var server = app.listen(app.get('port'), app.get('address'), function() {
     debug('Express server listening on port ' + server.address().port);
   });
 
