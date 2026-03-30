@@ -770,7 +770,6 @@ html(lang='en')
                   formatted: a.nethashFixed
                 }))
               ),
-              parsing: { xAxisKey: 'x', yAxisKey: 'y' },
               backgroundColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.fill_color}'],
               borderColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.line_color}'],
               fill: 'start'
@@ -834,11 +833,10 @@ html(lang='en')
           };
 
           if (nethashChart == null) {
-            const xSet = new Set((result || []).map(r => r.blockindex));
-
             nethashChart = new Chart(ctxNethash, {
               type: 'line',
               data: {
+                labels: (maxSavedRecords == 0 ? timeData.hourData.map(function(a) {return a.tick;}) : result.map(function(a) {return a.blockindex;})),
                 datasets: netHashDataSet
               },
               options: {
@@ -852,25 +850,6 @@ html(lang='en')
                   }
                 },
                 scales: {
-                  x: (maxSavedRecords == 0 ?
-                    timeData.xScale :
-                    {
-                      type: 'linear',
-                      bounds: 'data',
-                      offset: false,
-                      min: (result != null && result.length > 0 ? result[0].blockindex : 0),
-                      max: (result != null && result.length > 0 ? result[result.length - 1].blockindex : 0),
-                      title: { display: false },
-                      ticks: {
-                        precision: 0,
-                        format: { useGrouping: false },
-                        autoSkip: false
-                      },
-                      afterBuildTicks(scale) {
-                        scale.ticks = scale.ticks.filter(t => xSet.has(t.value));
-                      }
-                    }
-                  ),
                   y: {
                     title: {
                       display: true,
@@ -885,12 +864,19 @@ html(lang='en')
               }
             });
 
+            if (maxSavedRecords == 0)
+              nethashChart.options.scales.x = timeData.xScale;
+
             $('#nethashChartParent').fadeIn();
           } else {
+            nethashChart.data.labels = (maxSavedRecords == 0 ? timeData.hourData.map(function(a) {return a.tick;}) : result.map(function(a) {return a.blockindex;}));
             nethashChart.data.datasets = netHashDataSet;
             nethashChart.options.plugins = pluginData;
-            nethashChart.options.scales.x.min = (maxSavedRecords == 0 ? timeData.minTimestamp : (result != null && result.length > 0 ? result[0].blockindex : 0));
-            nethashChart.options.scales.x.max = (maxSavedRecords == 0 ? timeData.maxTimestamp : (result != null && result.length > 0 ? result[result.length - 1].blockindex : 0));
+
+            if (maxSavedRecords == 0) {
+              nethashChart.options.scales.x.min = timeData.minTimestamp;
+              nethashChart.options.scales.x.max = timeData.maxTimestamp;
+            }
 
             nethashChart.update('none');
           }
@@ -934,7 +920,6 @@ html(lang='en')
                   formatted: a.difficultyPosFixed
                 }))
               ),
-              parsing: { xAxisKey: 'x', yAxisKey: 'y' },
               backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pos_fill_color}'],
               borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pos_line_color}'],
               fill: 'start'
@@ -957,7 +942,6 @@ html(lang='en')
                   formatted: a.difficultyPowFixed
                 }))
               ),
-              parsing: { xAxisKey: 'x', yAxisKey: 'y' },
               backgroundColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pow_fill_color}'],
               borderColor: ['#{settings.shared_pages.page_header.network_charts.difficulty_chart.pow_line_color}'],
               fill: 'start'
@@ -1021,11 +1005,10 @@ html(lang='en')
           };
 
           if (difficultyChart == null) {
-            const xSet = new Set((result || []).map(r => r.blockindex));
-
             difficultyChart = new Chart(ctxDifficulty, {
               type: 'line',
               data: {
+                labels: (maxSavedRecords == 0 ? timeData.hourData.map(function(a) {return a.tick;}) : result.map(function(a) {return a.blockindex;})),
                 datasets: diffDataSets
               },
               options: {
@@ -1039,25 +1022,6 @@ html(lang='en')
                   }
                 },
                 scales: {
-                  x: (maxSavedRecords == 0 ?
-                    timeData.xScale :
-                    {
-                      type: 'linear',
-                      bounds: 'data',
-                      offset: false,
-                      min: (result != null && result.length > 0 ? result[0].blockindex : 0),
-                      max: (result != null && result.length > 0 ? result[result.length - 1].blockindex : 0),
-                      title: { display: false },
-                      ticks: {
-                        precision: 0,
-                        format: { useGrouping: false },
-                        autoSkip: false
-                      },
-                      afterBuildTicks(scale) {
-                        scale.ticks = scale.ticks.filter(t => xSet.has(t.value));
-                      }
-                    }
-                  ),
                   y: {
                     title: {
                       display: true,
@@ -1072,12 +1036,19 @@ html(lang='en')
               }
             });
 
+            if (maxSavedRecords == 0)
+              difficultyChart.options.scales.x = timeData.xScale;
+
             $('#difficultyChartParent').fadeIn();
           } else {
+            difficultyChart.data.labels = (maxSavedRecords == 0 ? timeData.hourData.map(function(a) {return a.tick;}) : result.map(function(a) {return a.blockindex;}));
             difficultyChart.data.datasets = diffDataSets;
             difficultyChart.options.plugins = pluginData;
-            difficultyChart.options.scales.x.min = (maxSavedRecords == 0 ? timeData.minTimestamp : (result != null && result.length > 0 ? result[0].blockindex : 0));
-            difficultyChart.options.scales.x.max = (maxSavedRecords == 0 ? timeData.maxTimestamp : (result != null && result.length > 0 ? result[result.length - 1].blockindex : 0));
+
+            if (maxSavedRecords == 0) {
+              difficultyChart.options.scales.x.min = timeData.minTimestamp;
+              difficultyChart.options.scales.x.max = timeData.maxTimestamp;
+            }
 
             difficultyChart.update('none');
           }
