@@ -611,6 +611,8 @@ A typical webserver binds to port 80 to serve webpages over the http protocol, b
 sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\``
 ```
 
+:warning: **WARNING:** The `setcap` cmd binds to the currently installed version of node.js. This means that anytime you update node.js to a newer version that you must remember to run this cmd again or you may receive a `bind EACCES ...` error msg which will prevent the web server from running correctly.
+
 2. Open the `settings.json` file and change the `webserver.port` setting to a value of 80. Save the change and restart the explorer.
 
 You should now be able to browse to the explorer by IP address or domain name without the need for specifying the 3001 port any longer.
@@ -997,7 +999,7 @@ You can support us via one of the following options:
 
 ### License
 
-Copyright (c) 2019-2025, The Exor Community<br />
+Copyright (c) 2019-2026, The Exor Community<br />
 Copyright (c) 2017, The Chaincoin Community<br />
 Copyright (c) 2015, Iquidus Technology<br />
 Copyright (c) 2015, Luke Williams<br />
