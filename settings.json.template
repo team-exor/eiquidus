@@ -1025,7 +1025,11 @@
       "show_distribution_chart": true,
       // colors: An array of html color codes to represent the top 100 groupings in the wealth distribution table and pie chart
       //         From left-to-right the 6 colors are represented as the following: "top 1-25", "top 26-50", "top 51-75", "top 76-100", "101+" and "burned coins" - which is used if the include_burned_coins_in_distribution setting is enabled
-      "colors": [ "#e73cbd", "#00bc8c", "#3498db", "#e3ce3e", "#adb5bd", "#e74c3c" ]
+      "colors": [ "#e73cbd", "#00bc8c", "#3498db", "#e3ce3e", "#adb5bd", "#e74c3c" ],
+      // show_address_count: Show/hide the total count of all unique addresses used in at least 1 transaction at the bottom of the wealth distribution table
+      //                     If set to true, the address count will be determined at the end of the richlist sync and displayed in the wealth distribution table
+      //                     If set to false, the richlist sync will finish faster because the address count will not be looked up and not displayed in the wealth distribution table
+      "show_address_count": true
     },
     // burned_coins: a collection of settings that pertain to the wallet addresses that should not appear in the richlist/top100 page
     //               NOTE: These settings won't take effect until after running (and completing) a normal index sync or reindex-rich
@@ -1079,19 +1083,8 @@
     "show_market_select": true,
     // exchanges: Enable/disable api integration with any of the available built-in exchanges
     //            Enabled exchanges display a number of exchange-related metrics including market summary, 24 hour chart, most recent buy/sell orders and latest trade history
-    //            Supported exchanges: altmarkets, dex-trade, dexomy, freiexchange/freixlite, nonkyc, poloniex, xeggex, yobit, nestex
+    //            Supported exchanges: dex-trade, dexomy, freiexchange/freixlite, nestex, nonkyc, poloniex, yobit
     "exchanges": {
-      // altmarkets: a collection of settings that pertain to the altmarkets exchange
-      "altmarkets": {
-        // enabled: Enable/disable the altmarkets exchange (true/false)
-        //          If set to false, the altmarkets page will be completely inaccessible and no market data will be downloaded for this exchange
-        "enabled": false,
-        // trading_pairs: An array of market trading pair symbols
-        //                You can add as many trading pairs as necessary
-        //                All entries must specify your coins symbol as it is displayed on the exchange, followed by a slash (/) and ending with the symbol of the market or asset that is being traded against
-        //                Ex: "LTC/BTC", "LTC/USDT", "LTC/ETH"
-        "trading_pairs": [ "LTC/BTC", "LTC/ETH" ]
-      },
       // dextrade: a collection of settings that pertain to the dex-trade exchange
       "dextrade": {
         // enabled: Enable/disable the dex-trade exchange (true/false)
@@ -1126,6 +1119,17 @@
         //                Ex: "LTC/BTC", "LTC/USDT", "LTC/ETH"
         "trading_pairs": [ "LTC/BTC" ]
       },
+      // nestex: a collection of settings that pertain to the nestex exchange
+      "nestex": {
+        // enabled: Enable/disable the nestex exchange (true/false)
+        //          If set to false, the nestex page will be completely inaccessible and no market data will be downloaded for this exchange
+        "enabled": false,
+        // trading_pairs: An array of market trading pair symbols
+        //                You can add as many trading pairs as necessary
+        //                All entries must specify your coins symbol as it is displayed on the exchange, followed by a slash (/) and ending with the symbol of the market or asset that is being traded against
+        //                Ex: "LTC/BTC", "LTC/USDT", "LTC/ETH"
+        "trading_pairs": [ "BTC/USDT" ]
+      },
       // nonkyc: a collection of settings that pertain to the nonkyc exchange
       "nonkyc": {
         // enabled: Enable/disable the nonkyc exchange (true/false)
@@ -1147,28 +1151,6 @@
         //                All entries must specify your coins symbol as it is displayed on the exchange, followed by a slash (/) and ending with the symbol of the market or asset that is being traded against
         //                Ex: "LTC/BTC", "LTC/USDT", "LTC/ETH"
         "trading_pairs": [ "LTC/BTC" ]
-      },
-      // nestex: a collection of settings that pertain to nestex
-      "nestex": {
-        // enabled: Enable/disable nestex (true/false)
-        //          If set to false, nestex page will be completely inaccessible and no market data will be downloaded for this exchange
-        "enabled": false,
-        // trading_pairs: An array of market trading pair symbols
-        //                You can add as many trading pairs as necessary
-        //                All entries must specify your coins symbol as it is displayed on the exchange, followed by a slash (/) and ending with the symbol of the market or asset that is being traded against
-        //                Ex: "LTC/BTC", "LTC/USDT", "LTC/ETH"
-        "trading_pairs": [ "LTC/USDT" ]
-      },
-      // xeggex: a collection of settings that pertain to the xeggex exchange
-      "xeggex": {
-        // enabled: Enable/disable the xeggex exchange (true/false)
-        //          If set to false, the xeggex page will be completely inaccessible and no market data will be downloaded for this exchange
-        "enabled": false,
-        // trading_pairs: An array of market trading pair symbols
-        //                You can add as many trading pairs as necessary
-        //                All entries must specify your coins symbol as it is displayed on the exchange, followed by a slash (/) and ending with the symbol of the market or asset that is being traded against
-        //                Ex: "LTC/BTC", "LTC/USDT", "LTC/ETH"
-        "trading_pairs": [ "LTC/USDT" ]
       },
       // yobit: a collection of settings that pertain to the yobit exchange
       //        NOTE: yobit does not display a 24-hour chart due to a lack of OHLCV api data

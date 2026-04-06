@@ -11,6 +11,7 @@ const Richlist = require('../models/richlist');
 const Stats = require('../models/stats');
 const settings = require('../lib/settings');
 const async = require('async');
+const Decimal = require('decimal.js');
 let mode = 'update';
 let database = 'index';
 let block_start = 1;
@@ -597,13 +598,15 @@ function update_network_history(height, network_history_enabled, cb) {
 }
 
 function check_show_sync_message(blocks_to_sync) {
-  var retVal = false;
-  var filePath = './tmp/show_sync_message.tmp';
-  // Check if the sync msg should be shown
+  let retVal = false;
+
+  // check if the sync msg should be shown
   if (blocks_to_sync > settings.sync.show_sync_msg_when_syncing_more_than_blocks) {
-    // Check if the show sync stub file already exists
+    const filePath = './tmp/show_sync_message.tmp';
+
+    // check if the show sync stub file already exists
     if (!db.fs.existsSync(filePath)) {
-      // File doesn't exist, so create it now
+      // file doesn't exist, so create it now
       db.fs.writeFileSync(filePath, '');
     }
 
@@ -633,8 +636,8 @@ function get_market_price(market_array) {
             Stats.findOne({coin: settings.coin.name}).then((stats) => {
               // update market stat prices
               Stats.updateOne({coin: settings.coin.name}, {
-                last_price: (last_price == null ? 0 : last_price),
-                last_usd_price: (last_usd_price == null ? 0 : last_usd_price)
+                last_price: mongoose.Types.Decimal128.fromString((last_price == null ? new Decimal('0') : last_price).toString()),
+                last_usd_price: mongoose.Types.Decimal128.fromString((last_usd_price == null ? new Decimal('0') : last_usd_price).toString())
               }).then(() => {
                 // market prices updated successfully
                 finish_market_sync();
@@ -691,13 +694,13 @@ function get_market_price(market_array) {
           const currency = lib.get_market_currency_code();
 
           // get the market price from coingecko api
-          coingecko.get_avg_market_prices(api_ids, currency, market_array, settings.markets_page.coingecko_api_key, function (mkt_err, last_price, last_usd) {   
+          coingecko.get_avg_market_prices(api_ids, currency, market_array, settings.markets_page.coingecko_api_key, function (mkt_err, last_price, last_usd) {
             // check for errors
             if (mkt_err == null) {
               // update the last usd price
               Stats.updateOne({coin: settings.coin.name}, {
-                last_price: last_price,
-                last_usd_price: last_usd
+                last_price: mongoose.Types.Decimal128.fromString(last_price == null ? '0' : last_price.toString()),
+                last_usd_price: mongoose.Types.Decimal128.fromString(last_usd == null ? '0' : last_usd.toString())
               }).then(() => {
                 // market price updated successfully
                 finish_market_sync();
@@ -729,13 +732,12 @@ function finish_market_sync() {
   // update markets_last_updated value
   db.update_last_updated_stats(settings.coin.name, { markets_last_updated: Math.floor(new Date() / 1000) }, function() {
     // check if the script stopped prematurely
-    if (stopSync) {
+    if (stopSync)
       console.log('Market sync was stopped prematurely');
-      exit(1);
-    } else {
+    else
       console.log('Market sync complete');
-      exit(0);
-    }
+
+    exit(stopSync ? 1 : 0);
   });
 }
 
@@ -776,17 +778,16 @@ function coingecko_coin_list_api(market_symbols, cb) {
     coingecko.get_coin_data(settings.markets_page.coingecko_api_key, function (err, coin_list) {
       // check if there was an error
       if (err == null) {
-          // initialize the rate limiter to wait 2 seconds between requests to prevent abusing external apis
-          const rateLimitLib = require('../lib/ratelimit');
-          const rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
+        // initialize the rate limiter to wait 2 seconds between requests to prevent abusing external apis
+        const rateLimitLib = require('../lib/ratelimit');
+        const rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
 
-          // automatically pause for 2 seconds in between requests
-          rateLimit.schedule(function() {
-            return cb(err, coin_list);
-          });
-      } else {
+        // automatically pause for 2 seconds in between requests
+        rateLimit.schedule(function() {
+          return cb(err, coin_list);
+        });
+      } else
         return cb(err, coin_list);
-      }
     });
   } else {
     // return the custom array of known symbols and ids
@@ -847,12 +848,12 @@ function occurrences(string, subString, allowOverlapping) {
 
 function block_sync(reindex, stats) {
   // get the last synced block index value
-  let last = (stats.last ? stats.last : 0);
+  const last = (stats.last ? stats.last : 0);
 
   // get the total number of blocks
-  let count = (stats.count ? stats.count : 0);
+  const count = (stats.count ? stats.count : 0);
 
-  // Check if the sync msg should be shown
+  // check if the sync msg should be shown
   check_show_sync_message(count - last);
 
   blkSync.update_tx_db(settings.coin.name, last, count, stats.txes, settings.sync.update_timeout, 0, function() {
@@ -872,18 +873,20 @@ function block_sync(reindex, stats) {
           } else {
             db.update_richlist('received', function() {
               db.update_richlist('balance', function() {
-                // update richlist_last_updated value
-                db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {                              
-                  db.get_stats(settings.coin.name, function(nstats) {
-                    // check for and update heavycoin data if applicable
-                    update_heavy(settings.coin.name, count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
-                      // check for and update network history data if applicable
-                      update_network_history(nstats.last, settings.network_history.enabled, function(network_hist) {
-                        // always check for and remove the sync msg if exists
-                        db.remove_sync_message();
+                update_address_count(function() {
+                  // update richlist_last_updated value
+                  db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {                              
+                    db.get_stats(settings.coin.name, function(nstats) {
+                      // check for and update heavycoin data if applicable
+                      update_heavy(settings.coin.name, count, 20, settings.blockchain_specific.heavycoin.enabled, function(heavy) {
+                        // check for and update network history data if applicable
+                        update_network_history(nstats.last, settings.network_history.enabled, function(network_hist) {
+                          // always check for and remove the sync msg if exists
+                          db.remove_sync_message();
 
-                        console.log(`${(reindex ? 'Reindex' : 'Block sync')} complete (block: %s)`, nstats.last);
-                        exit(0);
+                          console.log(`${(reindex ? 'Reindex' : 'Block sync')} complete (block: %s)`, nstats.last);
+                          exit(0);
+                        });
                       });
                     });
                   });
@@ -1034,6 +1037,101 @@ function bulkUpsertPeers(peerList, cb) {
   processNextBatch();
 }
 
+function removeDuplicatePeers(cb) {
+  // remove duplicate peers from the connections table_type
+  removeDuplicatePeersByType('C', settings.network_page.connections_table.enabled, settings.network_page.connections_table.port_filter, function() {
+    // remove duplicate peers from the addnodes table_type
+    removeDuplicatePeersByType('A', settings.network_page.addnodes_table.enabled, settings.network_page.addnodes_table.port_filter, function() {
+      // remove duplicate peers from the onetry table_type
+      removeDuplicatePeersByType('O', settings.network_page.onetry_table.enabled, settings.network_page.onetry_table.port_filter, function() {
+        return cb();
+      });
+    });
+  });
+}
+
+function removeDuplicatePeersByType(table_type, enabled, port_filter, cb) {
+  const normalized_port_filter = (parseInt(port_filter) || -1);
+
+  // check if this table_type is enabled and the port filter is set to -1 which indicates that duplicates should be removed
+  if (enabled && normalized_port_filter == -1) {
+    // find duplicate groups for this table_type
+    Peers.aggregate([
+      { $match: { table_type: table_type } },
+      { $sort: { createdAt: -1 } },
+      {
+        $group: {
+          _id: {
+            address: "$address",
+            protocol: "$protocol",
+            table_type: "$table_type"
+          },
+          ids: { $push: "$_id" },
+          count: { $sum: 1 }
+        }
+      },
+      { $match: { count: { $gt: 1 } } }
+    ]).then((groups) => {
+      if (!groups || !groups.length)
+        return cb();
+
+      // build delete ops: keep first id, delete the rest
+      let ops = [];
+
+      for (let i = 0; i < groups.length; i++) {
+        const ids = groups[i].ids || [];
+        const toDelete = ids.slice(1);
+
+        for (var j = 0; j < toDelete.length; j++)
+          ops.push({ deleteOne: { filter: { _id: toDelete[j] } } });
+      }
+
+      if (!ops.length)
+        return cb();
+
+      try {
+        // do one bulkWrite for this type
+        Peers.bulkWrite(ops, { ordered: false }).then((result) => {
+          return cb();
+        }).catch((err) => {
+          console.log(err);
+          return cb();
+        });
+      } catch(err) {
+        console.log(err);
+        return cb();
+      }
+    }).catch((err) => {
+      console.log(err);
+      return cb();
+    });
+  } else
+    return cb();
+}
+
+function update_address_count(cb) {
+  // check if the address count should be found
+  if (settings.richlist_page.wealth_distribution.show_address_count) {
+    // get the count of all addresses used in transactions
+    Address.find({}).countDocuments().then((count) => {
+      console.log(`Found ${count} addresses`);
+
+      Stats.updateOne({coin: settings.coin.name}, {
+        address_count: count
+      }).then(() => {
+        return cb();
+      }).catch((err) => {
+        console.log(err);
+        return cb();
+      });
+    }).catch((err) => {
+      console.log(err);
+      return cb();
+    });
+  } else
+    return cb();
+}
+
 // check options
 if (process.argv[2] == null || process.argv[2] == 'index' || process.argv[2] == 'update') {
   mode = null;
@@ -1083,8 +1181,10 @@ else
 if (lib.is_locked([database]) == false) {
   // create a new sync lock before checking the rest of the locks to minimize problems with running scripts at the same time
   lib.create_lock(database);
+
   // ensure the lock will be deleted on exit
   lockCreated = true;
+
   // check the backup, restore and delete locks since those functions would be problematic when updating data
   if (lib.is_locked(['backup', 'restore', 'delete']) == false) {
     // all tests passed. OK to run sync
@@ -1114,6 +1214,7 @@ if (lib.is_locked([database]) == false) {
     dbString = dbString + '/' + settings.dbsettings.database;
 
     mongoose.set('strictQuery', true);
+    mongoose.set('updatePipeline', true);
 
     mongoose.connect(dbString).then(() => {
       if (database == 'index') {
@@ -1199,10 +1300,12 @@ if (lib.is_locked([database]) == false) {
                           console.log('Richlist updated received');
 
                           db.update_richlist('balance', function() {
-                            // update richlist_last_updated value
-                            db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
-                              console.log('Richlist update complete');
-                              exit(0);
+                            update_address_count(function() {
+                              // update richlist_last_updated value
+                              db.update_last_updated_stats(settings.coin.name, { richlist_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
+                                console.log('Richlist update complete');
+                                exit(0);
+                              });
                             });
                           });
                         });
@@ -1220,9 +1323,10 @@ if (lib.is_locked([database]) == false) {
                 if (stats !== false) {
                   console.log(`${settings.localization.calculating_tx_count}.. ${settings.localization.please_wait}..`);
 
-                  // Resetting the transaction counter requires a single lookup on the txes collection to find all txes that have a positive or zero total and 1 or more vout
+                  // resetting the transaction counter requires a single lookup on the txes collection to find all txes that have a positive or zero total and 1 or more vout
                   Tx.find({'total': {$gte: 0}, 'vout': { $gte: { $size: 1 }}}).countDocuments().then((count) => {
                     console.log('Found tx count: ' + count.toString());
+
                     Stats.updateOne({coin: settings.coin.name}, {
                       txes: count
                     }).then(() => {
@@ -1247,7 +1351,7 @@ if (lib.is_locked([database]) == false) {
                 if (stats !== false) {
                   console.log(`${settings.localization.finding_last_blockindex}.. ${settings.localization.please_wait}..`);
 
-                  // Resetting the last blockindex counter requires a single lookup on the txes collection to find the last indexed blockindex
+                  // resetting the last blockindex counter requires a single lookup on the txes collection to find the last indexed blockindex
                   Tx.find({}, {blockindex:1, _id:0}).sort({blockindex: -1}).limit(1).exec().then((tx) => {
                     // check if any blocks exists
                     if (tx == null || tx.length == 0) {
@@ -1353,7 +1457,7 @@ if (lib.is_locked([database]) == false) {
                     version: body[i].subver.replace('/', '').replace('/', ''),
                     ipv6: (address && address.length > 15)
                   });
-                  
+
                   // check if any peers should be saved
                   if (newPeers != null && newPeers.length > 0) {
                     // set up the rate limit library to limit how fast external api calls are made
@@ -1410,16 +1514,18 @@ if (lib.is_locked([database]) == false) {
             }, function() {
               // save the sorted list of peers to the local database
               bulkUpsertPeers(peerList, function() {
-                // update network_last_updated value
-                db.update_last_updated_stats(settings.coin.name, { network_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
-                  // check if the script stopped prematurely
-                  if (stopSync) {
-                    console.log('Peer sync was stopped prematurely');
-                    exit(1);
-                  } else {
-                    console.log('Peer sync complete');
-                    exit(0);
-                  }
+                // remove duplicates if necessary
+                removeDuplicatePeers(function() {
+                  // update network_last_updated value
+                  db.update_last_updated_stats(settings.coin.name, { network_last_updated: Math.floor(new Date() / 1000) }, function(cb) {
+                    // check if the script stopped prematurely
+                    if (stopSync)
+                      console.log('Peer sync was stopped prematurely');
+                    else
+                      console.log('Peer sync complete');
+
+                    exit(stopSync ? 1 : 0);
+                  });
                 });
               });
             });
@@ -1461,13 +1567,12 @@ if (lib.is_locked([database]) == false) {
               db.remove_old_masternodes(function() {
                 db.update_last_updated_stats(settings.coin.name, { masternodes_last_updated: Math.floor(new Date() / 1000) }, function(update_success) {
                   // check if the script stopped prematurely
-                  if (stopSync) {
+                  if (stopSync)
                     console.log('Masternode sync was stopped prematurely');
-                    exit(1);
-                  } else {
+                  else
                     console.log('Masternode sync complete');
-                    exit(0);
-                  }
+
+                  exit(stopSync ? 1 : 0);
                 });
               });
             });
@@ -1480,8 +1585,8 @@ if (lib.is_locked([database]) == false) {
         // start market sync
         // check if market feature is enabled or the market_price option is set to COINGECKO
         if (settings.markets_page.enabled == true || settings.markets_page.market_price == 'COINGECKO') {
-          var total_pairs = 0;
-          var exchanges = Object.keys(settings.markets_page.exchanges);
+          const exchanges = Object.keys(settings.markets_page.exchanges);
+          let total_pairs = 0;
 
           // loop through all exchanges to determine how many trading pairs must be updated
           exchanges.forEach(function(key, index, map) {
@@ -1503,12 +1608,12 @@ if (lib.is_locked([database]) == false) {
 
           // check if there are any trading pairs to update
           if (total_pairs > 0) {
-            let market_array = [];
-
             // initialize the rate limiter to wait 2 seconds between requests to prevent abusing external apis
-            var rateLimitLib = require('../lib/ratelimit');
-            var rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
-            var complete = 0;
+            const rateLimitLib = require('../lib/ratelimit');
+            const rateLimit = new rateLimitLib.RateLimit(1, 2000, false);
+
+            let complete = 0;
+            let market_array = [];
 
             // loop through and test all exchanges defined in the settings.json file
             exchanges.forEach(function(key, index, map) {
@@ -1519,7 +1624,8 @@ if (lib.is_locked([database]) == false) {
                   // loop through all trading pairs
                   settings.markets_page.exchanges[key].trading_pairs.forEach(function(pair_key, pair_index, pair_map) {
                     // split the pair data
-                    var split_pair = pair_key.split('/');
+                    const split_pair = pair_key.split('/');
+
                     // check if this is a valid trading pair
                     if (split_pair.length == 2) {
                       // lookup the exchange in the market collection
@@ -1540,10 +1646,10 @@ if (lib.is_locked([database]) == false) {
 
                                   if (index != -1) {
                                     // update the last_price
-                                    market_array[index].last_price = (market_array[index].last_price + last_price) / 2;
+                                    market_array[index].last_price = market_array[index].last_price.add(last_price ?? 0).div(2);
                                   } else {
                                     // add new object to the array
-                                    market_array.push({currency: split_pair[1], last_price: last_price});
+                                    market_array.push({currency: split_pair[1], last_price: (last_price ? new Decimal(last_price.toString()) : new Decimal('0'))});
                                   }
                                 }
                               } else

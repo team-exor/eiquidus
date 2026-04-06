@@ -249,7 +249,7 @@ block content
               thead
                 tr(class=theadClasses)
                   th.text-center #{settings.localization.net_address}
-                  if settings.network_page.connections_table.port_filter != '' && settings.network_page.connections_table.port_filter != '-1'
+                  if settings.network_page.connections_table.port_filter != null && settings.network_page.connections_table.port_filter != -1
                     th.text-center='Port'
                   th.text-center #{settings.localization.net_protocol}
                   th.text-center #{settings.localization.net_subversion}

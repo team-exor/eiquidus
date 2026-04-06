@@ -80,7 +80,7 @@ Table of Contents
 ### Features
 
 - Built using the following scripts and technologies:
-  - Node.js (v20.9.0 or newer recommended)
+  - Node.js (v24.14.0 or newer recommended)
   - MongoDB (v7.0.2 or newer recommended)
   - jQuery v3.7.1
   - Bootstrap v5.1.3
@@ -107,14 +107,12 @@ Table of Contents
   - **Movement:** Displays latest blockchain transactions that are greater than a certain configurable amount
   - **Network:** Displays a list of peers that have connected to the coind wallet in the past 24 hours, along with useful addnode data that can be used to connect your own wallets to the network easier
   - **Top 100:** Displays the top 100 richest wallet addresses, the top 100 wallet addresses that have the highest total number of coins received based on adding up all received transactions, as well as a table and pie chart breakdown of wealth distribution. Additional support for omitting burned coins from top 100 lists
-  - **Markets:** Displays a number of exchange-related metrics including market summary, 24 hour chart, most recent buy/sell orders and latest trade history. Has the ability to integrate directly with exchange apis and/or the coingecko api from [https://www.coingecko.com/en/api](https://www.coingecko.com/en/api) to retrieve current market prices and convert to USD. The following 8 cryptocurrency exchanges are supported:
-    - [AltMarkets](https://altmarkets.io)
+  - **Markets:** Displays a number of exchange-related metrics including market summary, 24 hour chart, most recent buy/sell orders and latest trade history. Has the ability to integrate directly with exchange apis and/or the coingecko api from [https://www.coingecko.com/en/api](https://www.coingecko.com/en/api) to retrieve current market prices and convert to USD. The following 6 cryptocurrency exchanges are supported:
     - [Dex-Trade](https://dex-trade.com)
     - [Dexomy](https://dexomy.com)
     - [FreiExchange](https://freiexchange.com)/[FreiXLite](https://freixlite.com) *\*no chart support due to a lack of OHLCV api data*
     - [NonKyc](https://nonkyc.io)
     - [Poloniex](https://poloniex.com)
-    - [Xeggex](https://xeggex.com)
     - [Yobit](https://yobit.net) *\*no chart support due to a lack of OHLCV api data*
     - [NestEx](https://trade.nestex.one) *\*no chart support due to a lack of OHLCV api data*
   - **API:** A listing of available public API's that can be used to retrieve information from the network without the need for a local wallet. The following public API's are supported:
@@ -614,6 +612,8 @@ A typical webserver binds to port 80 to serve webpages over the http protocol, b
 sudo setcap cap_net_bind_service=+ep `readlink -f \`which node\``
 ```
 
+:warning: **WARNING:** The `setcap` cmd binds to the currently installed version of node.js. This means that anytime you update node.js to a newer version that you must remember to run this cmd again or you may receive a `bind EACCES ...` error msg which will prevent the web server from running correctly.
+
 2. Open the `settings.json` file and change the `webserver.port` setting to a value of 80. Save the change and restart the explorer.
 
 You should now be able to browse to the explorer by IP address or domain name without the need for specifying the 3001 port any longer.
@@ -978,10 +978,14 @@ The eIquidus block explorer is brought to you by the tireless efforts of the [Ex
 
 You can support us via one of the following options:
 
-1. [Buy and hodl EXOR](https://freixlite.com/market/EXOR/LTC). Buying and trading our EXOR coin helps stimulate the market price which allows us to hire more developers and continue to release high quality products in the future.
+1. Buy and hodl EXOR. Buying and trading our EXOR coin helps stimulate the market price which allows us to hire more developers and continue to release high quality products in the future. We are listed on the following exchanges:
+    - [FreiXLite](https://freixlite.com/market/EXOR/LTC)
+    - [Dexomy](https://dexomy.com/exchange/dashboard?coin_pair=EXOR_USDT)
 2. Participate in our [crowdfunding program](https://exor.io/tasklist/hide-completed/hide-funded/show-unfunded/) by either sending some cryptocurrency to help fund the tasks you are most eager to see brought to life or [submit a new custom task request](https://exor.io/add-new-task/) detailing a feature or improvement you would like to see developed for any Exor-related project.
 3. Consider a small donation by sending us some cryptocurrency:
     - **BTC:** [15zQAQFB9KR35nPWEJEKvmytUF6fg2zvdP](https://www.blockchain.com/btc/address/15zQAQFB9KR35nPWEJEKvmytUF6fg2zvdP)
+    - **ETH:** [0x1E4163EE9721bCA934D9e40C792360A901a59E02](https://etherscan.io/address/0x1E4163EE9721bCA934D9e40C792360A901a59E02) **NOTE:** Can be used for USDT or any other token on the ETH network
+    - **BNB:** [0x1E4163EE9721bCA934D9e40C792360A901a59E02](https://bscscan.com/address/0x1E4163EE9721bCA934D9e40C792360A901a59E02) **NOTE:** Can be used for USDT or any other token on the BNB network
     - **EXOR:** [EYYW8Nvz5aJz33M3JNHXG2FEHWUsntozrd](https://explorer.exor.io/address/EYYW8Nvz5aJz33M3JNHXG2FEHWUsntozrd)
 4. Are you a software developer? Consider taking advantage of our [crowdfunding program](https://exor.io/tasklist/hide-completed/) and get paid in EXOR to help make the block explorer and other Exor-related projects even better by submitting code improvements for open bounty tasks.
 
@@ -996,7 +1000,7 @@ You can support us via one of the following options:
 
 ### License
 
-Copyright (c) 2019-2025, The Exor Community<br />
+Copyright (c) 2019-2026, The Exor Community<br />
 Copyright (c) 2017, The Chaincoin Community<br />
 Copyright (c) 2015, Iquidus Technology<br />
 Copyright (c) 2015, Luke Williams<br />

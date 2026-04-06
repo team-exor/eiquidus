@@ -62,39 +62,19 @@ block content
           }
         },
         rowCallback: function (row, data, index) {
-          var timestamp = data[0]; //variables for better readability
-          var txhash = data[1]; //variables for better readability
-          var out = data[2]; //variables for better readability
-          var vin = data[3]; //variables for better readability
-          var balance = data[4].toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true}); //variables for better readability
-          var balanceParts = balance.split('.');
+          // variables for better readability
+          const timestamp = data[0];
+          const txhash = data[1];
+          const balance = data[2];
+          const amount = data[3];
+          const updown = data[4];
+          const rowclass = data[5];
+
+          const amountParts = amount.split('.');
+          const balanceParts = balance.split('.');
+
           $("td:eq(0)", row).html('<a href="/tx/' + txhash + '"><span class="fa-regular fa-eye" data-bs-toggle="tooltip" data-bs-placement="top" title="#{settings.localization.view_tx}"></span></a>').addClass('text-center d-table-cell d-md-none');
           $("td:eq(1)", row).html('<a href="/tx/' + txhash + '">' + txhash + '</a>').addClass('breakWord d-none d-md-table-cell');
-          var amount = 0;
-          var updown = '';
-          var rowclass = 'table-info';
-
-          if (out > 0 && vin > 0) {
-            amount = Number(out - vin);
-            if (amount < 0) {
-              amount = Number(amount * -1).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-              updown = '-';
-            } else if (amount > 0) {
-              amount = amount.toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-              updown = '+';
-            } else {
-              amount = amount.toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-            }
-          } else if (out > 0) {
-            amount = Number(out).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-            updown = '+';
-            rowclass = 'table-success';
-          } else {
-            amount = Number(vin).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
-            updown = '-';
-            rowclass = 'table-danger';
-          }
-          var amountParts = amount.split('.');
           $("td:eq(2)", row).html(updown + amountParts[0] + '.<span class="decimal">' + amountParts[1] + '</span>').addClass(rowclass + ' text-center');
           $("td:eq(3)", row).html(balanceParts[0] + '.<span class="decimal">' + balanceParts[1] + '</span>').addClass('text-center');
           $("td:eq(4)", row).html('<span' + (#{settings.shared_pages.date_time.enable_alt_timezone_tooltips} == true ? ' data-bs-toggle="tooltip" data-bs-placement="auto" title="' + format_unixtime(timestamp, true) + '"' : '') + '>' + format_unixtime(timestamp) + '</span>').addClass('text-center');
@@ -119,11 +99,8 @@ block content
       if (#{settings.shared_pages.page_header.page_title_image.enable_animation} == true && #{settings.address_page.page_header.show_img} == true)
         startRotateElement('img#header-img');
     });
-  - var balance = Number((address.received - address.sent) / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var balanceParts = balance.split('.');
-  - var sent = Number(address.sent /100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var sentParts = sent.split('.');
-  - var received = Number(address.received / 100000000).toLocaleString('en',{'minimumFractionDigits':2,'maximumFractionDigits':8,'useGrouping':true});
   - var receivedParts = received.split('.');
   - var theadClasses = [];
   if settings.shared_pages.table_header_bgcolor != null && settings.shared_pages.table_header_bgcolor != ''

@@ -1,11 +1,12 @@
-var mongoose = require('mongoose'),
-   Schema = mongoose.Schema;
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
+const D0 = () => mongoose.Types.Decimal128.fromString('0');
 
-var TxSchema = new Schema({
+const TxSchema = new Schema({
   txid: { type: String, lowercase: true, unique: true, index: true},
   vin: { type: Array, default: [] },
   vout: { type: Array, default: [] },
-  total: { type: Number, default: 0, index: true },
+  total: { type: Schema.Types.Decimal128, default: D0, index: true },
   timestamp: { type: Number, default: 0, index: true },
   blockhash: { type: String, index: true },
   blockindex: {type: Number, default: 0, index: true},

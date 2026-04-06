@@ -167,6 +167,7 @@ function delete_stats(cb) {
 console.log(`${settings.localization.script_launched}: ${process.pid}`);
 
 mongoose.set('strictQuery', true);
+mongoose.set('updatePipeline', true);
 
 // ensure the benchmark database user exists
 check_create_user(function() {
