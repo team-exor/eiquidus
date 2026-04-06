@@ -89,6 +89,33 @@ describe('market', function() {
     });
   });
 
+  describe('nestex', function() {
+    beforeEach(function() {
+      originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = 30000;
+    });
+
+    it('should return market data', function(done) {
+      const nestex = require('../lib/markets/nestex');
+
+      nestex.get_data({ coin: 'BTC', exchange: 'USDT' }, function(err, obj) {
+        expect(err).toEqual(null);
+        expect(obj.buys.length).toBeGreaterThan(0);
+        expect(obj.buys.length).toBeLessThanOrEqual(100);
+        expect(obj.sells.length).toBeGreaterThan(0);
+        expect(obj.sells.length).toBeLessThanOrEqual(100);
+        expect(obj.trades.length).toBeGreaterThan(0);
+        expect(obj.trades.length).toBeLessThanOrEqual(300);
+        expect(Object.keys(obj.stats).length).toEqual(7);
+        done();
+      });
+    });
+
+    afterEach(function() {
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
+    });
+  });
+
   describe('nonkyc', function() {
     beforeEach(function() {
       originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
