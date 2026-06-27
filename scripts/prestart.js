@@ -4,10 +4,10 @@ const minNodeVersionMinor = '19';
 const minNodeVersionRevision = '0';
 
 // get the nodejs version
-var nodeVersion = process.version;
-var nodeVersionMajor = '0';
-var nodeVersionMinor = '0';
-var nodeVersionRevision = '0';
+let nodeVersion = process.version;
+let nodeVersionMajor = '0';
+let nodeVersionMinor = '0';
+let nodeVersionRevision = '0';
 
 // check if the nodejs version # is blank or a very long string as that would usually indicate a problem
 if (nodeVersion != null && nodeVersion != '' && nodeVersion.length < 16) {
@@ -16,7 +16,7 @@ if (nodeVersion != null && nodeVersion != '' && nodeVersion.length < 16) {
     nodeVersion = nodeVersion.slice(1);
 
   // split node version string into major, minor and revision
-  var splitVersion = nodeVersion.split('.');
+  const splitVersion = nodeVersion.split('.');
 
   nodeVersionMajor = splitVersion[0];
 
@@ -36,7 +36,8 @@ if (!(nodeVersionMajor > minNodeVersionMajor || (nodeVersionMajor == minNodeVers
 function check_arguments_passed(cb) {
   const arguments = (process.argv[2] == null ? '' : process.argv[2]).split(' ');
   const pidName = (arguments != null && arguments.length > 0 && arguments[0] != null && arguments[0] != '' && (arguments[0] == 'pm2' || arguments[0] == 'forever') ? arguments[0] : 'node');
-  const node_env = (arguments != null && arguments.length > 0 && arguments[1] != null && arguments[1] != '' ? arguments[1] : 'development');
+  const node_env = (arguments != null && arguments.length > 1 && arguments[1] != null && arguments[1] != '' ? arguments[1] : 'development');
+  const reload = ((arguments != null && arguments.length > 2 && arguments[2] != null && arguments[2] != '' ? arguments[2] : '') == 'reload');
 
   // check 1st argument
   if (pidName != null) {
@@ -60,10 +61,10 @@ function check_arguments_passed(cb) {
             // install pm2
             exec(`npm install pm2@latest${(isWinOS ? ' -g' : '')}`, (err, stdout, stderr) => {
               // always return the pidName and node_env value for now without checking results
-              return cb(pidName, node_env);
+              return cb(pidName, node_env, reload);
             });
           } else
-            return cb(pidName, node_env);
+            return cb(pidName, node_env, reload);
         });
         break;
       case 'forever':
@@ -79,22 +80,22 @@ function check_arguments_passed(cb) {
             // install forever
             exec('npm install forever', (err, stdout, stderr) => {
               // always return the pidName and node_env value for now without checking results
-              return cb(pidName, node_env);
+              return cb(pidName, node_env, reload);
             });
           } else
-            return cb(pidName, node_env);
+            return cb(pidName, node_env, reload);
         });
         break;
       default:
         // argument not passed or unknown argument
-        return cb(pidName, node_env);
+        return cb(pidName, node_env, reload);
     }
   } else
-    return cb(pidName, node_env);
+    return cb(pidName, node_env, reload);
 }
 
 // check if arguments were passed into this script
-check_arguments_passed(function(pidName, node_env) {
+check_arguments_passed(function(pidName, node_env, reload) {
   const execSync = require('child_process').execSync;
 
   // compile scss to css
@@ -109,7 +110,7 @@ check_arguments_passed(function(pidName, node_env) {
       // check if the webserver should be started from here based on the pidName
       switch (pidName) {
         case 'pm2':
-          let startOrReload = 'start';
+          let startOrReloadPm2 = (reload ? 'reload' : 'start');
 
           // get a json list of pm2 processes
           let result = execSync(`pm2 jlist`);
@@ -125,7 +126,7 @@ check_arguments_passed(function(pidName, node_env) {
                 // check if this is an explorer process
                 if (result[i].name == 'explorer') {
                   // explorer process exists, so reload the process
-                  startOrReload = 'reload';
+                  startOrReloadPm2 = 'reload';
                   break;
                 }
               }
@@ -135,16 +136,17 @@ check_arguments_passed(function(pidName, node_env) {
           }
 
           // setting the NODE_ENV variable is more easily done from here seeing at the syntax changes slightly depending on operating system
-          execSync(`${(process.platform == 'win32' ? 'set' : 'export')} NODE_ENV=${node_env} && pm2 ${startOrReload} ./bin/instance -i 0 -n explorer -p "./tmp/pm2.pid" --node-args="--stack-size=10000" --update-env`, {stdio : 'inherit'});
+          execSync(`${(process.platform == 'win32' ? 'set' : 'export')} NODE_ENV=${node_env} && pm2 ${startOrReloadPm2} ./bin/instance -i 0 -n explorer -p "./tmp/pm2.pid" --node-args="--stack-size=10000" --update-env`, {stdio : 'inherit'});
           break;
         case 'forever':
           const path = require('path');
+          const startOrReloadForever = (reload ? 'restart' : 'start');
 
           // there is a long-time bug or shortcoming in forever that still exists in the latest version which requires the absolute path to the pid file option
           // more info: https://github.com/foreversd/forever/issues/421
           // forever is therefore started from here to be able to more easily resolve the absolute path
           // also, setting the NODE_ENV variable is more easily done from here as well seeing at the syntax changes slightly depending on operating system
-          execSync(`${(process.platform == 'win32' ? 'set' : 'export')} NODE_ENV=${node_env} && forever start --append --uid "explorer" --pidFile "${path.resolve('./tmp/forever.pid')}" ./bin/cluster`, {stdio : 'inherit'});    
+          execSync(`${(process.platform == 'win32' ? 'set' : 'export')} NODE_ENV=${node_env} && forever ${startOrReloadForever} --append --uid "explorer" --pidFile "${path.resolve('./tmp/forever.pid')}" ./bin/cluster`, {stdio : 'inherit'});    
           break;
       }
 
