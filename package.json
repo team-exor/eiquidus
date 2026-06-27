@@ -50,6 +50,6 @@
   "devDependencies": {
     "forever": "^4.0.3",
     "jasmine": "^6.1.0",
-    "pm2": "^6.0.5"
+    "pm2": "^7.0.1"
   }
 }
