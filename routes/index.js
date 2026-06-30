@@ -275,7 +275,7 @@ function route_get_tx(res, txid) {
               lib.prepare_vout(rtx.vout, rtx.txid, vin, ((!settings.blockchain_specific.zksnarks.enabled || typeof rtx.vjoinsplit === 'undefined' || rtx.vjoinsplit == null) ? [] : rtx.vjoinsplit), function(rvout, rvin, tx_type_vout) {
                 const total = lib.calculate_total(rvout);
 
-                if (!rtx.confirmations > 0) {
+                if (!(rtx.confirmations > 0)) {
                   lib.get_block(rtx.blockhash, function(block) {
                     if (block && block != `${settings.localization.ex_error}: ${settings.localization.check_console}`) {
                       var utx = {

@@ -504,7 +504,7 @@ app.use('/ext/gettx/:txid', function(req, res) {
               lib.prepare_vout(rtx.vout, rtx.txid, vin, ((typeof rtx.vjoinsplit === 'undefined' || rtx.vjoinsplit == null) ? [] : rtx.vjoinsplit), function(rvout, rvin, tx_type_vout) {
                 const total = lib.calculate_total(rvout);
 
-                if (!rtx.confirmations > 0) {
+                if (!(rtx.confirmations > 0)) {
                   var utx = {
                     txid: rtx.txid,
                     vin: rvin,
@@ -576,7 +576,9 @@ app.use('/ext/getcurrentprice', function(req, res) {
     db.get_stats(settings.coin.name, function (stats) {
       const currency = lib.get_market_currency_code();
 
-      eval('var p_ext = { "last_price_' + currency.toLowerCase() + '": new Decimal(stats.last_price.toString()).toFixed(), "last_price_usd": new Decimal(stats.last_usd_price.toString()).toFixed(), }');
+      var p_ext = {};
+      p_ext['last_price_' + currency.toLowerCase()] = new Decimal(stats.last_price.toString()).toFixed();
+      p_ext['last_price_usd'] = new Decimal(stats.last_usd_price.toString()).toFixed();
       res.send(p_ext);
     });
   } else
@@ -594,12 +596,21 @@ app.use('/ext/getbasicstats', function(req, res) {
       if (settings.api_page.public_apis.rpc.getmasternodecount.enabled == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') {
         // masternode count api is available
         lib.get_masternodecount(function(masternodestotal) {
-          eval('var p_ext = { "block_count": (stats.count ? stats.count : 0), "money_supply": new Decimal(stats.supply == null ? "0" : stats.supply.toString()).toFixed(), "last_price_' + currency.toLowerCase() + '": new Decimal(stats.last_price.toString()).toFixed(), "last_price_usd": new Decimal(stats.last_usd_price.toString()).toFixed(), "masternode_count": (masternodestotal == null ? 0 : masternodestotal.total) }');
+          var p_ext = {};
+          p_ext['block_count'] = (stats.count ? stats.count : 0);
+          p_ext['money_supply'] = new Decimal(stats.supply == null ? "0" : stats.supply.toString()).toFixed();
+          p_ext['last_price_' + currency.toLowerCase()] = new Decimal(stats.last_price.toString()).toFixed();
+          p_ext['last_price_usd'] = new Decimal(stats.last_usd_price.toString()).toFixed();
+          p_ext['masternode_count'] = (masternodestotal == null ? 0 : masternodestotal.total);
           res.send(p_ext);
         });
       } else {
         // masternode count api is not available
-        eval('var p_ext = { "block_count": (stats.count ? stats.count : 0), "money_supply": new Decimal(stats.supply == null ? "0" : stats.supply.toString()).toFixed(), "last_price_' + currency.toLowerCase() + '": new Decimal(stats.last_price.toString()).toFixed(), "last_price_usd": new Decimal(stats.last_usd_price.toString()).toFixed() }');
+        var p_ext = {};
+        p_ext['block_count'] = (stats.count ? stats.count : 0);
+        p_ext['money_supply'] = new Decimal(stats.supply == null ? "0" : stats.supply.toString()).toFixed();
+        p_ext['last_price_' + currency.toLowerCase()] = new Decimal(stats.last_price.toString()).toFixed();
+        p_ext['last_price_usd'] = new Decimal(stats.last_usd_price.toString()).toFixed();
         res.send(p_ext);
       }
     });
@@ -1043,7 +1054,14 @@ if (settings.markets_page.enabled == true) {
         // load market file
         var exMarket = require('./lib/markets/' + key);
         // save market_name and market_logo from market file to settings
-        eval('market_data.push({id: "' + key + '", name: "' + (exMarket.market_name == null ? '' : exMarket.market_name) + '", alt_name: "' + (exMarket.market_name_alt == null ? '' : exMarket.market_name_alt) + '", logo: "' + (exMarket.market_logo == null ? '' : exMarket.market_logo) + '", alt_logo: "' + (exMarket.market_logo_alt == null ? '' : exMarket.market_logo_alt) + '", trading_pairs: []});');
+        market_data.push({
+          id: key,
+          name: (exMarket.market_name == null ? '' : exMarket.market_name),
+          alt_name: (exMarket.market_name_alt == null ? '' : exMarket.market_name_alt),
+          logo: (exMarket.market_logo == null ? '' : exMarket.market_logo),
+          alt_logo: (exMarket.market_logo_alt == null ? '' : exMarket.market_logo_alt),
+          trading_pairs: []
+        });
         // loop through all trading pairs for this market
         for (var i = 0; i < settings.markets_page.exchanges[key].trading_pairs.length; i++) {
           var isAlt = false;
