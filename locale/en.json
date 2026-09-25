@@ -118,7 +118,7 @@
   "mn_masternode_list": "Masternode List",
 
   // movement view
-  "move_title": "{1} Coin Movements",
+  "move_title": "{1} Movements",
   "move_description": "A listing of larger movements where {1} or more {2} coins were sent in a single transaction",
 
   // richlist view

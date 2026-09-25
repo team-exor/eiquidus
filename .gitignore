@@ -1,6 +1,7 @@
 # CSS files generated on startup
 public/css/_theme-selector.scss
 public/css/style.min.css
+public/css/custom.min.css
 
 # Logs
 logs

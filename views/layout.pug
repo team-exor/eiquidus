@@ -5,7 +5,7 @@ html(lang='en')
     meta(name='viewport' content='width=device-width, initial-scale=1')
     meta(http-equiv='Content-Language', content='en')
     meta(name='version', content=settings.explorer_version + (settings.revision == null || settings.revision == '' ? '' : `-${settings.revision}`))
-    title=(page_title_prefix == null || page_title_prefix == '' ? settings.localization.error_title.replace('{1}', settings.coin.name) : page_title_prefix) + ' - ' + settings.shared_pages.page_title
+    title=(page_title_prefix == null || page_title_prefix == '' ? settings.localization.error_title.replace('{1}', settings.coin.name) : page_title_prefix) 
     if settings.shared_pages.favicons.favicon32 != ''
       link(rel='icon', href='/' + settings.shared_pages.favicons.favicon32, sizes='32x32')
     if settings.shared_pages.favicons.favicon128 != ''
@@ -350,7 +350,7 @@ html(lang='en')
           return '<div class="card-header"><strong>#{settings.localization.masternodecount}</strong></div><div class="card-body"><div id="masternodePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="masternodepanel" class="header-panel" style="display:none;"><span id="spnMasternodeCountOnline" class="fa-solid fa-circle-check" data-bs-toggle="tooltip" data-bs-placement="top"></span><label id="masternodeCountOnline" data-bs-toggle="tooltip" data-bs-placement="top"></label><label>&nbsp;/&nbsp;</label><label id="masternodeCountOffline" data-bs-toggle="tooltip" data-bs-placement="top"></label><span id="spnMasternodeCountOffline" class="fa-solid fa-triangle-exclamation" data-bs-toggle="tooltip" data-bs-placement="top"></span></div></div>';
         }
         function getCoinSupplyPanel() {
-          return `<div class="card-header"><strong>#{settings.localization.ex_supply} <span class="small fw-normal">(${"#{settings.coin.symbol}".replace(/"/g, '&quot;')})</span></strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-pie"></span><label id="supply"></label></div></div>`;
+          return `<div class="card-header"><strong>${"#{settings.coin.symbol}".replace(/"/g, '&quot;')} Supply</strong></div><div class="card-body"><div id="supplyPanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="supplypanel" class="header-panel" style="display:none;"><span class="fa-solid fa-chart-pie"></span><label id="supply"></label></div></div>`;
         }
         function getPricePanel() {
           return '<div class="card-header"><strong>Price <span class="small fw-normal">(#{market_currency})</span></strong></div><div class="card-body"><div id="pricePanelLoading" class="header-panel"><i class="fa-solid fa-spinner fa-spin-pulse"></i></div><div id="pricepanel" class="header-panel" style="display:none;"><span class="fa-solid fa-rocket"></span><label id="lastPrice">-</label></div></div>';
@@ -526,7 +526,7 @@ html(lang='en')
           });
 
           let normalizedData = Array.from(roundedDataMap.values()).sort((a, b) => a.tick - b.tick);
-          let lastKnownValue = { blockindex: 0, difficulty_pow: 0, difficulty_pos: 0, nethash: 0 };
+          let lastKnownValue = { blockindex: 0, difficulty_pow: 0, difficulty_pos: 0, nethash: 0, blocktime: 0, blocktimeFixed: '0 s' };
           let maxTimestamp = new Date().getTime();
           let hourData = [];
 
@@ -613,7 +613,7 @@ html(lang='en')
           let highestBlock = 0;
           let lowestBlock = -1;
           let pluginTitle = {};
-          const currentNethashFixed = (chartData.length > 0 && chartData[0].nethash != null ? chartData[chartData.length - 1].nethashFixed : '-');
+          const currentNethashFixed = (chartData.length > 0 && chartData[0].blocktime != null ? chartData[chartData.length - 1].blocktimeFixed : '-');
           const currentPowDifficultyFixed = (chartData.length > 0 && chartData[0].difficulty_pow != null ? chartData[chartData.length - 1].difficultyPowFixed : '-');
           const currentPosDifficultyFixed = (chartData.length > 0 && chartData[0].difficulty_pos != null ? chartData[chartData.length - 1].difficultyPosFixed : '-');
 
@@ -622,13 +622,13 @@ html(lang='en')
               showPOW = true;
             if (chartData[i].difficulty_pos != null && chartData[i].difficulty_pos != 0)
               showPOS = true;
-            if (chartData[i].nethash != null && chartData[i].nethash > highestNethash) {
-              highestNethash = chartData[i].nethash;
-              highestNethashFixed = chartData[i].nethashFixed;
+            if (chartData[i].blocktime != null && chartData[i].blocktime > highestNethash) {
+              highestNethash = chartData[i].blocktime;
+              highestNethashFixed = chartData[i].blocktimeFixed;
             }
-            if (chartData[i].nethash != null && (lowestNethash == -1 || chartData[i].nethash < lowestNethash)) {
-              lowestNethash = chartData[i].nethash;
-              lowestNethashFixed = chartData[i].nethashFixed;
+            if (chartData[i].blocktime != null && (lowestNethash == -1 || chartData[i].blocktime < lowestNethash)) {
+              lowestNethash = chartData[i].blocktime;
+              lowestNethashFixed = chartData[i].blocktimeFixed;
             }
             if (chartData[i].difficulty_pow != null && chartData[i].difficulty_pow > highestPowDifficulty) {
               highestPowDifficulty = chartData[i].difficulty_pow;
@@ -756,18 +756,18 @@ html(lang='en')
 
           const netHashDataSet = [
             {
-              label: 'Hashrate',
+              label: 'Block Time',
               data: (maxSavedRecords == 0 ?
                 timeData.hourData.map(a => ({
                   x: a.tick,
-                  y: a.nethash,
+                  y: a.blocktime,
                   blockindex: a.blockindex,
-                  formatted: a.nethashFixed
+                  formatted: a.blocktimeFixed
                 })) :
                 result.map(a => ({
                   x: a.blockindex,
-                  y: a.nethash,
-                  formatted: a.nethashFixed
+                  y: a.blocktime,
+                  formatted: a.blocktimeFixed
                 }))
               ),
               backgroundColor: ['#{settings.shared_pages.page_header.network_charts.nethash_chart.fill_color}'],
@@ -791,7 +791,7 @@ html(lang='en')
                   if (maxSavedRecords == 0)
                     return format_unixtime(Math.floor(context[0].parsed.x / 1000));
                   else
-                    return 'Block ' + context[0].label + ' Hashrate';
+                    return 'Block ' + context[0].label + ' Block Time';
                 },
                 label: function(context) {
                   return context.raw.formatted;
@@ -853,7 +853,7 @@ html(lang='en')
                   y: {
                     title: {
                       display: true,
-                      text: 'Hashrate ' + getNetHashUnits(),
+                      text: 'Block Time (seconds)',
                       font: {
                         weight: 'bold'
                       }
@@ -1088,9 +1088,9 @@ html(lang='en')
 
         function fixSidebarHeight() {
           if ('#{settings.shared_pages.page_footer.sticky_footer}' != 'true')
-            $('div#side-nav-bar').css('margin-bottom', -($('div#body-container > div#side-nav-bar').length ? ($('div#footer-container').offset().top - $('div#footer-container').position().top + 1) : 0).toString() + 'px');
+            $('div#side-nav-bar').css('margin-bottom', '');
           else if ($('div#footer-container').offset().top > ($('#main-container').position().top + $('#main-container').outerHeight(true)))
-            $('div#side-nav-bar').css('margin-bottom', -($('div#body-container > div#side-nav-bar').length ? ($('div#footer-container').offset().top - ($('#main-container').position().top + $('#main-container').outerHeight(true)) + $('div#footer-container').outerHeight(true)) : 0).toString() + 'px');
+            $('div#side-nav-bar').css('margin-bottom', '');
           else
             $('div#side-nav-bar').css('margin-bottom', '');
         }
@@ -1116,9 +1116,9 @@ html(lang='en')
             if ($(window).outerWidth() < 992)
               $('div#side-nav-bar').css('margin-top', '');
             else
-              $('div#side-nav-bar').css('margin-top', $('header#main-header-side').outerHeight(true).toString() + 'px');
+              $('div#side-nav-bar').css('margin-top', '');
           } else
-            $('div#side-nav-bar').css('margin-top', '0');
+            $('div#side-nav-bar').css('margin-top', '');
         }
         function fixSidebar() {
           if ($(window).outerWidth() < 992) {
@@ -1439,8 +1439,11 @@ html(lang='en')
             else if settings.shared_pages.page_header.home_link == 'coin'
               a.navbar-brand(href='/', style='order:-1;') #{settings.coin.name}
             else if settings.shared_pages.page_header.home_link == 'logo'
-              a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='order:-1;', data-bs-toggle='tooltip', data-bs-placement='bottom')
+              a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='display:flex;order:-1;color:#000;align-items:center;', data-bs-toggle='tooltip', data-bs-placement='bottom')
                 img.logo-main(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0;max-height:' + settings.shared_pages.page_header.home_link_logo_height + 'px;')
+                strong(style='font-size: 22px;')
+                  | #{settings.coin.name}&nbsp;
+                  span(style='font-size: 10px;') Explorer
             .collapse.navbar-collapse(id='navbar-collapse')
               ul.navbar-nav(style='width:100%;')
                 li#home.nav-item
@@ -1470,7 +1473,7 @@ html(lang='en')
                 if settings.richlist_page.enabled == true
                   li#richlist.nav-item
                     a.nav-link(href='/richlist')
-                      span.fa-brands.fa-btc
+                      span.fa-solid.fa-wallet
                       span.margin-left-5 #{settings.localization.menu_richlist}
                 if settings.markets_page.enabled == true
                   if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
@@ -1545,8 +1548,11 @@ html(lang='en')
             else if settings.shared_pages.page_header.home_link == 'coin'
               a.navbar-brand.nav-link(href='/', style='order:-1;') #{settings.coin.name}
             else if settings.shared_pages.page_header.home_link == 'logo'
-              a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='order:-1;', data-bs-toggle='tooltip', data-bs-placement='bottom')
+              a(href='/', alt=settings.coin.name + ' Home', title=settings.coin.name + ' Home', style='display:flex;order:-1;color:#000;align-items:center;', data-bs-toggle='tooltip', data-bs-placement='bottom')
                 img.logo-main(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0;max-height:' + settings.shared_pages.page_header.home_link_logo_height + 'px;')
+                strong(style='font-size: 22px;')
+                  | #{settings.coin.name}&nbsp;
+                  span(style='font-size: 10px;') Explorer
             a#side-header-toggle.side-header-toggle(href='#')
               span.fa-solid.fa-bars(alt='Expand Menu', title='Expand Menu', data-bs-toggle='tooltip', data-bs-placement='right', style='width: 24px;')
             if settings.shared_pages.page_header.search.enabled == true && settings.shared_pages.page_header.search.position.toString().toLowerCase() == 'inside-header'
@@ -1595,7 +1601,7 @@ html(lang='en')
               if settings.richlist_page.enabled == true
                 li#richlist.nav-item(alt=settings.localization.menu_richlist, title=settings.localization.menu_richlist, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/richlist')
-                    span.nav-icon.fa-brands.fa-btc
+                    span.nav-icon.fa-solid.fa-wallet
                     span.margin-left-5 #{settings.localization.menu_richlist}
               if settings.markets_page.enabled == true
                 if settings.markets_page.show_market_dropdown_menu == true && settings.market_count > 1
@@ -1650,7 +1656,7 @@ html(lang='en')
                         a.nav-link(href='/' + pg.route_suffix)
                           span.nav-icon(class=pg.menu_fontawesome_class)
                           span.margin-left-5=pg.menu_title
-        div#side-offcanvas.offcanvas.offcanvas-start(tabindex='-1')
+        div#side-offcanvas.offcanvas.offcanvas-end(tabindex='-1')
           div.offcanvas-body.navbar(class=sideBarClasses)
       div#main-container(class=mainContainerClasses)
         div#main-child-container(class=mainContainerChildClasses)

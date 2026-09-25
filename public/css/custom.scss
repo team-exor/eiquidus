@@ -1,1 +1,119 @@
 /* Add custom css rules here */
+
+/* ---- FreedomCoin theme overrides ---- */
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    background-color: #ffffff;
+}
+
+.bg-primary,
+#side-nav-bar.bg-primary {
+    background: #fff !important;
+}
+
+.side-header {
+    border: 0;
+}
+
+.side-nav {
+    align-self: flex-start;
+    max-height: 100vh;
+    overflow-y: auto;
+}
+
+#body-container {
+    flex: 1;
+}
+
+#main-container {
+    padding: 10px 0 30px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    background: var(--bs-body-bg);
+}
+#logo-panel {
+    padding: 25px;
+}
+#footer-container {
+    margin-top: 0 !important;
+    padding: 0 20px;
+}
+
+.nav-link.social-link {
+    font-size: 20px !important;
+}
+
+.nav-link.social-link img {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+.search-box-custom {
+    position: relative;
+    margin-left: auto;
+}
+
+#side-nav-bar li.nav-item > a.nav-link > span:last-child {
+    display: inline;
+}
+
+/* toggle sits to the right of the search bar (>=992px only; below that the
+   search bar is a collapsed panel behind the magnifier, not an inline bar) */
+@media (min-width: 992px) {
+#main-container {
+    border-bottom-right-radius: 0px;
+}
+.side-nav {
+    top: 70px;
+}
+}
+
+/* search submit button: override bootswatch "Exor" btn-success green */
+#search-navbar-collapse .search-for .btn-success,
+.search-for .btn-success,
+.search-for button.btn-success[type="submit"] {
+    --bs-btn-bg: #545454;
+    --bs-btn-border-color: #545454;
+    --bs-btn-hover-bg: #434343;
+    --bs-btn-hover-border-color: #434343;
+    --bs-btn-active-bg: #434343;
+    --bs-btn-active-border-color: #434343;
+    --bs-btn-disabled-bg: #545454;
+    --bs-btn-disabled-border-color: #545454;
+    background: #545454 !important;
+    border-color: #545454 !important;
+}
+#search-navbar-collapse .search-for .btn-success:hover,
+#search-navbar-collapse .search-for .btn-success:focus,
+#search-navbar-collapse .search-for .btn-success:active {
+    background: #434343 !important;
+   border-color: #434343;
+}
+
+
+/* toggle sits to the right of the search icon at every width */
+#inner-header-side > .container > #side-header-toggle { order: 1; }
+#inner-header-side > .container > #search-header-span { order: 0; }
+
+/* search box only constrained on large screens */
+@media (min-width: 992px) {
+    .search-box-custom { max-width: 400px; }
+}
+
+@media screen and (min-width: 992px) {
+    #side-nav-bar {
+        height: 80vh;
+        position: sticky;
+        top: 55px;
+    }
+}
+
+/* panel columns at half width; the logo column (3rd) keeps its size */
+#main-child-container > .col-lg-12 > .row > .col-lg-2:nth-child(1),
+#main-child-container > .col-lg-12 > .row > .col-lg-2:nth-child(2),
+#main-child-container > .col-lg-12 > .row > .col-lg-2:nth-child(4),
+#main-child-container > .col-lg-12 > .row > .col-lg-2:nth-child(5) {
+    max-width: 50%;
+}

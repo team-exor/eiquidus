@@ -811,6 +811,9 @@ app.use('/ext/getsummary', function(req, res) {
                 if (hashrate == `${settings.localization.ex_error}: ${settings.localization.check_console}`)
                   hashrate = 0;
 
+
+                if (hashrate == null || hashrate === '' || isNaN(Number(hashrate)))
+                  hashrate = 0;
                 let mn_total = 0;
                 let mn_enabled = 0;
 

@@ -754,7 +754,7 @@ router.get('/movement', function(req, res) {
           customHash: get_custom_hash(),
           styleHash: get_style_hash(),
           themeHash: get_theme_hash(),
-          page_title_prefix: settings.coin.name + ' ' + 'Coin Movements'
+          page_title_prefix: settings.coin.name + ' ' + 'Movements'
         }
       );
     });
