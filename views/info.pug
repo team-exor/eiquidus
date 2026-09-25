@@ -278,6 +278,127 @@ block content
                     em #{extApi.api_desc}
                   a(href=extApi.api_url_sample) #{address}#{extApi.api_url_sample}
           hr
+        h3 CryptoID-compatible API (GET)
+        p
+          em Drop-in replacement for the chainz.cryptoid.info/freed/api.dws API. Served at both /v2/api.dws and /freed/api.dws, so an existing CryptoID integration can be migrated by changing only the hostname. Response formats match CryptoID exactly: most values are returned as plain text rather than JSON.
+        p
+          em Three responses differ deliberately. masternodecount reports the real patriotnode count (CryptoID reports 1). summary returns the FREED entry only, not every coin. ticker.btc returns 0 because FREED has no BTC trading pair.
+        ul
+          li
+            p
+              div.fw-bold getblockcount (/v2/api.dws?q=getblockcount)
+              div
+                em Returns the current block height.
+              a(href='/v2/api.dws?q=getblockcount') #{address}/v2/api.dws?q=getblockcount
+          li
+            p
+              div.fw-bold getdifficulty (/v2/api.dws?q=getdifficulty)
+              div
+                em Returns the current proof-of-stake difficulty.
+              a(href='/v2/api.dws?q=getdifficulty') #{address}/v2/api.dws?q=getdifficulty
+          li
+            p
+              div.fw-bold getblockhash (/v2/api.dws?q=getblockhash&height=height)
+              div
+                em Returns the block hash at the given height.
+              a(href='/v2/api.dws?q=getblockhash&height=' + settings.api_page.sample_data.blockindex) #{address}/v2/api.dws?q=getblockhash&height=#{settings.api_page.sample_data.blockindex}
+          li
+            p
+              div.fw-bold totalcoins (/v2/api.dws?q=totalcoins)
+              div
+                em Returns the total coin supply.
+              a(href='/v2/api.dws?q=totalcoins') #{address}/v2/api.dws?q=totalcoins
+          li
+            p
+              div.fw-bold circulating (/v2/api.dws?q=circulating)
+              div
+                em Returns the circulating coin supply (same as totalcoins).
+              a(href='/v2/api.dws?q=circulating') #{address}/v2/api.dws?q=circulating
+          li
+            p
+              div.fw-bold noncirculating (/v2/api.dws?q=noncirculating)
+              div
+                em Returns the non-circulating supply. Always 0 for FreedomCoin.
+              a(href='/v2/api.dws?q=noncirculating') #{address}/v2/api.dws?q=noncirculating
+          li
+            p
+              div.fw-bold totalbc (/v2/api.dws?q=totalbc)
+              div
+                em Returns the total coin supply in satoshis, as a whole number.
+              a(href='/v2/api.dws?q=totalbc') #{address}/v2/api.dws?q=totalbc
+          li
+            p
+              div.fw-bold addresses (/v2/api.dws?q=addresses)
+              div
+                em Returns the count of known addresses and those holding a balance.
+              a(href='/v2/api.dws?q=addresses') #{address}/v2/api.dws?q=addresses
+          li
+            p
+              div.fw-bold masternodecount (/v2/api.dws?q=masternodecount)
+              div
+                em Returns the number of patriotnodes on the network.
+              a(href='/v2/api.dws?q=masternodecount') #{address}/v2/api.dws?q=masternodecount
+          li
+            p
+              div.fw-bold masternodeinfo (/v2/api.dws?q=masternodeinfo)
+              div
+                em Returns patriotnode counts as masterNodeCount and serverCount.
+              a(href='/v2/api.dws?q=masternodeinfo') #{address}/v2/api.dws?q=masternodeinfo
+          li
+            p
+              div.fw-bold nodes (/v2/api.dws?q=nodes)
+              div
+                em Returns connected peers grouped by client version and protocol.
+              a(href='/v2/api.dws?q=nodes') #{address}/v2/api.dws?q=nodes
+          li
+            p
+              div.fw-bold summary (/v2/api.dws?q=summary)
+              div
+                em Returns a summary of chain, supply and market data for FREED.
+              a(href='/v2/api.dws?q=summary') #{address}/v2/api.dws?q=summary
+          li
+            p
+              div.fw-bold ticker.usd (/v2/api.dws?q=ticker.usd)
+              div
+                em Returns the last USD price.
+              a(href='/v2/api.dws?q=ticker.usd') #{address}/v2/api.dws?q=ticker.usd
+          li
+            p
+              div.fw-bold ticker.btc (/v2/api.dws?q=ticker.btc)
+              div
+                em Returns the last BTC price. Always 0 - no BTC pair is tracked.
+              a(href='/v2/api.dws?q=ticker.btc') #{address}/v2/api.dws?q=ticker.btc
+          li
+            p
+              div.fw-bold getbalance (/v2/api.dws?q=getbalance&a=address)
+              div
+                em Returns the spendable balance of an address, in coins.
+              a(href='/v2/api.dws?q=getbalance&a=' + settings.api_page.sample_data.address) #{address}/v2/api.dws?q=getbalance&a=#{settings.api_page.sample_data.address}
+          li
+            p
+              div.fw-bold getreceivedbyaddress (/v2/api.dws?q=getreceivedbyaddress&a=address)
+              div
+                em Returns the total ever received by an address, in coins.
+              a(href='/v2/api.dws?q=getreceivedbyaddress&a=' + settings.api_page.sample_data.address) #{address}/v2/api.dws?q=getreceivedbyaddress&a=#{settings.api_page.sample_data.address}
+          li
+            p
+              div.fw-bold addressinfo (/v2/api.dws?q=addressinfo&a=address)
+              div
+                em Returns balance, first and last block, timestamps and transaction count.
+              a(href='/v2/api.dws?q=addressinfo&a=' + settings.api_page.sample_data.address) #{address}/v2/api.dws?q=addressinfo&a=#{settings.api_page.sample_data.address}
+          li
+            p
+              div.fw-bold addressfirstseen (/v2/api.dws?q=addressfirstseen&a=address)
+              div
+                em Returns the UTC datetime an address was first seen.
+              a(href='/v2/api.dws?q=addressfirstseen&a=' + settings.api_page.sample_data.address) #{address}/v2/api.dws?q=addressfirstseen&a=#{settings.api_page.sample_data.address}
+          li
+            p
+              div.fw-bold richrank (/v2/api.dws?q=richrank&a=address)
+              div
+                em Returns an address rank by balance, or null if the balance is zero.
+              a(href='/v2/api.dws?q=richrank&a=' + settings.api_page.sample_data.address) #{address}/v2/api.dws?q=richrank&a=#{settings.api_page.sample_data.address}
+        hr
         h3 Linking (GET)
         p
           em Linking to the block explorer

@@ -174,6 +174,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // routes
 app.use('/api', nodeapi.app);
+app.use('/', require('./routes/cryptoid'));
 app.use('/', routes);
 
 // loop through all plugin routes and add them to the app
