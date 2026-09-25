@@ -1459,7 +1459,7 @@ html(lang='en')
                   li#masternodes.nav-item
                     a.nav-link(href='/masternodes')
                       span.fa-solid.fa-share-nodes
-                      span.margin-left-5 Masternodes
+                      span.margin-left-5 Patriotnodes
                 if settings.movement_page.enabled == true
                   li#movement.nav-item
                     a.nav-link(href='/movement')
@@ -1584,14 +1584,14 @@ html(lang='en')
                     span.nav-icon.fa-solid.fa-star
                     span.margin-left-5 #{settings.localization.menu_reward}
               if settings.masternodes_page.enabled == true
-                li#masternodes.nav-item(alt="Masternodes", title="Masternodes", data-bs-toggle='tooltip', data-bs-placement='right')
+                li#masternodes.nav-item(alt="Patriotnodes", title="Patriotnodes", data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/masternodes')
-                    span.nav-icon.fa-solid.fa-share-nodes
-                    span.margin-left-5 Masternodes
+                    span.nav-icon.fa-solid.fa-server
+                    span.margin-left-5 Patriotnodes
               if settings.movement_page.enabled == true
                 li#movement.nav-item(alt=settings.localization.menu_movement, title=settings.localization.menu_movement, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/movement')
-                    span.nav-icon.fa-regular.fa-money-bill-1
+                    span.nav-icon.fa-solid.fa-right-left
                     span.margin-left-5 #{settings.localization.menu_movement}
               if settings.network_page.enabled == true && (settings.network_page.connections_table.enabled == true || settings.network_page.addnodes_table.enabled == true || settings.network_page.onetry_table.enabled == true)
                 li#network.nav-item(alt=settings.localization.menu_network, title=settings.localization.menu_network, data-bs-toggle='tooltip', data-bs-placement='right')
@@ -1636,7 +1636,7 @@ html(lang='en')
               if settings.api_page.enabled == true
                 li#info.nav-item(alt=settings.localization.menu_api, title=settings.localization.menu_api, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/info')
-                    span.nav-icon.fa-solid.fa-circle-info
+                    span.nav-icon.fa-solid.fa-code
                     span.margin-left-5 #{settings.localization.menu_api}
               if settings.claim_address_page.show_header_menu == true && settings.claim_address_page.enabled == true
                 li#claim-address.nav-item(alt=settings.localization.menu_claim_address, title=settings.localization.menu_claim_address, data-bs-toggle='tooltip', data-bs-placement='right')
@@ -1646,7 +1646,7 @@ html(lang='en')
               if settings.orphans_page.enabled == true
                 li#orphans.nav-item(alt=settings.localization.menu_orphans, title=settings.localization.menu_orphans, data-bs-toggle='tooltip', data-bs-placement='right')
                   a.nav-link(href='/orphans')
-                    span.nav-icon.fa-regular.fa-rectangle-xmark
+                    span.nav-icon.fa-solid.fa-link-slash
                     span.margin-left-5 #{settings.localization.menu_orphans}
               each plugin in settings.plugins.allowed_plugins
                 if plugin != null && plugin.enabled == true && plugin.pages != null && plugin.pages.length > 0

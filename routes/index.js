@@ -810,7 +810,7 @@ router.get('/masternodes', function(req, res) {
           customHash: get_custom_hash(),
           styleHash: get_style_hash(),
           themeHash: get_theme_hash(),
-          page_title_prefix: settings.coin.name + ' ' + 'Masternodes'
+          page_title_prefix: settings.coin.name + ' ' + 'Patriotnodes'
         }
       );
     });
