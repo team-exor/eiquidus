@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /tx/
+Disallow: /address/
+Disallow: /block/
+Disallow: /qr/
+Disallow: /api/
+Disallow: /ext/
+Disallow: /v2/
+Disallow: /freed/
+Allow: /
+Crawl-delay: 10

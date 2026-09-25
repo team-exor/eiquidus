@@ -117,3 +117,118 @@ body {
 #main-child-container > .col-lg-12 > .row > .col-lg-2:nth-child(5) {
     max-width: 50%;
 }
+
+/* ---- API documentation page (/info) ---- */
+.api-docs {
+    > .card-body {
+        padding: 30px 30px 50px;
+    }
+
+    .api-base {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin: 0 0 18px;
+    }
+    .api-base-label {
+        font-size: 11px;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        opacity: .6;
+    }
+    .api-base code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 14px;
+        background: rgba(128, 128, 128, .14);
+        border: 1px solid rgba(128, 128, 128, .22);
+        border-radius: 6px;
+        padding: 5px 10px;
+    }
+
+    .api-toc {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0 0 30px;
+    }
+    .api-toc a {
+        padding: 6px 15px;
+        border: 1px solid rgba(128, 128, 128, .28);
+        border-radius: 5px;
+        font-size: 13.5px;
+        text-decoration: none;
+        color: inherit;
+        opacity: .85;
+    }
+    .api-toc a:hover {
+        opacity: 1;
+        border-color: rgba(128, 128, 128, .55);
+    }
+
+    h3[id^="api-"] {
+        scroll-margin-top: 90px;
+        margin: 44px 0 6px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(128, 128, 128, .25);
+        font-size: 19px;
+    }
+    h3[id^="api-"] + p em {
+        font-style: normal;
+        opacity: .7;
+        font-size: 14px;
+    }
+
+    > .card-body > ul {
+        list-style: none;
+        padding-left: 0;
+        margin: 20px 0 0;
+    }
+    > .card-body > ul > li {
+        padding: 0 0 24px;
+        margin-bottom: 24px;
+        border-bottom: 1px solid rgba(128, 128, 128, .14);
+    }
+    > .card-body > ul > li:last-child {
+        padding-bottom: 0;
+        margin-bottom: 0;
+        border-bottom: 0;
+    }
+    > .card-body > ul > li > p {
+        margin: 0;
+    }
+    > .card-body > ul > li .fw-bold {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 15px;
+        margin-bottom: 8px;
+        word-break: break-word;
+    }
+    > .card-body > ul > li em {
+        display: block;
+        font-style: normal;
+        opacity: .72;
+        font-size: 14px;
+        line-height: 1.55;
+        max-width: 72ch;
+        margin-bottom: 4px;
+    }
+    > .card-body > ul > li a {
+        display: block;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 12.5px;
+        background: rgba(128, 128, 128, .14);
+        border: 1px solid rgba(128, 128, 128, .22);
+        border-radius: 6px;
+        padding: 9px 12px;
+        margin-top: 10px;
+        word-break: break-all;
+        text-decoration: none;
+    }
+    > .card-body > ul > li a:hover {
+        background: rgba(128, 128, 128, .24);
+    }
+
+    hr {
+        display: none;
+    }
+}
