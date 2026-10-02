@@ -1,3 +1,75 @@
+# FreedomCoin Explorer
+
+The block explorer for **FreedomCoin (FREED)** — live at <https://explorer.freedomcoin.global>
+
+This is FreedomCoin's fork of [eIquidus](https://github.com/team-exor/eiquidus) by Team Exor, with
+FreedomCoin branding, a CryptoID-compatible API, and several fixes for running an explorer against
+a PIVX-derived proof-of-stake chain. Everything below the
+[upstream documentation](#upstream-eiquidus-documentation) divider is eIquidus's own README and
+applies unchanged — use it for installation, configuration and sync setup.
+
+## What this fork changes
+
+### New
+
+- **CryptoID-compatible API** at `/v2/api.dws` and `/freed/api.dws` — 19 endpoints matching
+  CryptoID's response format, so existing integrations work without modification. Documented on the
+  explorer's `/info` page.
+- **Average block time chart** replacing the network hashrate chart. Hashrate is meaningless on a
+  proof-of-stake chain; block time measured against the 60-second target is not.
+- **`robots.txt`**, to keep crawlers out of the per-block and per-transaction pages.
+- **Configurable bind address** — `webserver.address` in `settings.json`, defaulting to `"::"`.
+  Set it to `"127.0.0.1"` when running behind a reverse proxy.
+
+### Fixes that are not FreedomCoin-specific
+
+- `/ext/getsummary` no longer crashes on coins whose daemon lacks the `getnetworkhashps` RPC. The
+  unhandled value reached a `Decimal` constructor and threw on every request, taking the four
+  homepage panels down with it.
+- CoinGecko market sync now sends a descriptive `User-Agent`. Keyless requests without one are
+  rejected.
+- A geolocation API outage no longer aborts the peer sync and leaves the network page empty. The
+  provider is also switched to `ip-api.com`, as `reallyfreegeoip.org` now sits behind a Cloudflare
+  challenge and returns HTML.
+
+### Branding and terminology
+
+- FreedomCoin logo, wordmark, colours and page titles.
+- Masternodes are called **Patriotnodes** throughout the interface. The `/masternodes` route is
+  unchanged, so existing links and bookmarks still work.
+- Redesigned API documentation page.
+
+## Keeping up with upstream
+
+`master` in this repository is an untouched mirror of `team-exor/eiquidus`. To pull in a new
+upstream release:
+
+```bash
+git remote add upstream https://github.com/team-exor/eiquidus
+git fetch upstream
+git checkout master && git merge --ff-only upstream/master
+git checkout freedomcoin && git rebase master
+```
+
+## Configuration
+
+`settings.json` is gitignored — copy `settings.json.template` and edit the copy. Two settings worth
+calling out:
+
+- `webserver.address` — `"127.0.0.1"` when nginx or another reverse proxy sits in front,
+  `"::"` to serve directly.
+- `markets` — FREED trades as `FREED/USDT` on NonKYC.
+
+## License
+
+BSD-3-Clause, unchanged from upstream. See [LICENSE](LICENSE).
+
+---
+
+# Upstream eIquidus documentation
+
+Everything below this line is the original eIquidus README, kept as-is.
+
 # eIquidus
 
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/team-exor/eiquidus?color=ffbd11&label=version)
