@@ -1468,19 +1468,26 @@ if (lib.is_locked([database]) == false) {
                     rateLimit.schedule(function() {
                       // call an external geo location api to determine which country the current peer is from
                       lib.get_geo_location(address, function(error, geo) {
-                        // check if an error was returned
-                        if (error) {
-                          console.log(error);
-                          exit(1);
-                        } else if (geo == null || typeof geo != 'object') {
-                          console.log(`Error: geolocation api returned unexpected results for ip address ${address}`);
-                          exit(1);
-                        } else {
-                          // add the geolocation data to the new peer record(s)
+                        // FreedomCoin: a geolocation failure must not abort the peer sync.
+                        // reallyfreegeoip.org now sits behind a Cloudflare challenge and
+                        // returns HTML, which used to exit(1) and leave the peer list empty
+                        // until the 24h TTL expired it.
+                        if (error || geo == null || typeof geo != 'object') {
+                          console.log(`Warning: geolocation unavailable for ${address} - storing peer without country`);
                           newPeers.forEach(function (newPeer) {
-                            newPeer.country = geo.country_name;
-                            newPeer.country_code = geo.country_code;
+                            newPeer.country = '';
+                            newPeer.country_code = '';
                           });
+                        }
+
+                        {
+                          // add the geolocation data to the new peer record(s)
+                          if (geo != null && typeof geo == 'object') {
+                            newPeers.forEach(function (newPeer) {
+                              newPeer.country = geo.country_name;
+                              newPeer.country_code = geo.country_code;
+                            });
+                          }
                           
                           // add peers to peer array
                           peerList = peerList.concat(newPeers);
