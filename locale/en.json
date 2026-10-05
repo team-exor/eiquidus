@@ -2,7 +2,7 @@
 {
   // global
   "difficulty": "Difficulty",
-  "masternodecount": "Masternodes",
+  "masternodecount": "Patriotnodes",
   "network": "Network",
   "height": "Height",
   "timestamp": "Timestamp",
@@ -113,12 +113,12 @@
   "a_qr": "QR Code",
 
   // masternode view
-  "mn_title": "{1} Masternodes",
-  "mn_description": "A listing of all masternodes known to be active on the {1} network",
-  "mn_masternode_list": "Masternode List",
+  "mn_title": "{1} Patriotnodes",
+  "mn_description": "A listing of all patriotnodes known to be active on the {1} network",
+  "mn_masternode_list": "Patriotnode List",
 
   // movement view
-  "move_title": "{1} Coin Movements",
+  "move_title": "{1} Movements",
   "move_description": "A listing of larger movements where {1} or more {2} coins were sent in a single transaction",
 
   // richlist view
@@ -153,8 +153,8 @@
   "api_getnetworkhashps": "Returns the current network hashrate. (hash/s)",
   "api_getdifficulty": "Returns the current difficulty.",
   "api_getconnectioncount": "Returns the number of connections the block explorer has to other nodes.",
-  "api_getmasternodelist": "Returns the complete list of masternodes on the network.",
-  "api_getmasternodecount": "Returns the total number of masternodes on the network.",
+  "api_getmasternodelist": "Returns the complete list of patriotnodes on the network.",
+  "api_getmasternodecount": "Returns the total number of patriotnodes on the network.",
   "api_getvotelist": "Returns the current vote list.",
   "api_getblockcount": "Returns the current block index.",
   "api_getblockhash": "Returns the hash of the block at [index]; index 0 is the genesis block.",
@@ -231,7 +231,7 @@
   "calculating_market_price": "Calculating market price",
   "syncing_blocks": "Syncing blocks",
   "syncing_peers": "Syncing peers",
-  "syncing_masternodes": "Syncing masternodes",
+  "syncing_masternodes": "Syncing patriotnodes",
   "syncing_markets": "Syncing markets",
   "checking_blocks": "Checking blocks",
   "calculating_tx_count": "Calculating tx count",

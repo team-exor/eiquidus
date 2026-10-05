@@ -22,18 +22,28 @@ block content
             else
               .sub-page-header.text-muted=settings.localization.api_description.replace('{1}', settings.coin.name)
       .cardSpacer.clearfix
-    .card.card-default.border-0
+    .card.card-default.border-0.api-docs
       .card-header
         strong #{settings.localization.api_documentation}
       .card-body
         if settings.api_page.show_logo == true
-          img(src=settings.shared_pages.logo, style='margin:0;height:128px;')
+          img(src=(settings.shared_pages.page_header.home_link_logo == null || settings.shared_pages.page_header.home_link_logo == '' ? settings.shared_pages.logo : settings.shared_pages.page_header.home_link_logo), style='margin:0 0 20px;height:100px;')
           hr
         - var hide_rpc_api_section = !(settings.api_page.public_apis.rpc.getdifficulty.enabled == true && settings.api_cmds['getdifficulty'] != null && settings.api_cmds['getdifficulty'] != '') && !(settings.api_page.public_apis.rpc.getconnectioncount.enabled == true && settings.api_cmds['getconnectioncount'] != null && settings.api_cmds['getconnectioncount'] != '') && !(settings.api_page.public_apis.rpc.getblockcount.enabled == true && settings.api_cmds['getblockcount'] != null && settings.api_cmds['getblockcount'] != '') && !(settings.api_page.public_apis.rpc.getblockhash.enabled == true && settings.api_cmds['getblockhash'] != null && settings.api_cmds['getblockhash'] != '') && !(settings.api_page.public_apis.rpc.getblock.enabled == true && settings.api_cmds['getblock'] != null && settings.api_cmds['getblock'] != '') && !(settings.api_page.public_apis.rpc.getrawtransaction.enabled == true && settings.api_cmds['getrawtransaction'] != null && settings.api_cmds['getrawtransaction'] != '') && !(settings.api_page.public_apis.rpc.getnetworkhashps.enabled == true && settings.shared_pages.show_hashrate == true && settings.api_cmds['getnetworkhashps'] != null && settings.api_cmds['getnetworkhashps'] != '') && !(settings.api_page.public_apis.rpc.getvotelist.enabled == true && settings.api_cmds['getvotelist'] != null && settings.api_cmds['getvotelist'] != '') && !(settings.api_page.public_apis.rpc.getmasternodecount.enabled == true && settings.api_cmds['getmasternodecount'] != null && settings.api_cmds['getmasternodecount'] != '') && (!settings.blockchain_specific.heavycoin.enabled || (!(settings.blockchain_specific.heavycoin.public_apis.getmaxmoney.enabled == true && settings.blockchain_specific.heavycoin.api_cmds['getmaxmoney'] != null && settings.blockchain_specific.heavycoin.api_cmds['getmaxmoney'] != '') && !(settings.blockchain_specific.heavycoin.public_apis.getmaxvote.enabled == true && settings.blockchain_specific.heavycoin.api_cmds['getmaxvote'] != null && settings.blockchain_specific.heavycoin.api_cmds['getmaxvote'] != '') && !(settings.blockchain_specific.heavycoin.public_apis.getvote.enabled == true && settings.blockchain_specific.heavycoin.api_cmds['getvote'] != null && settings.blockchain_specific.heavycoin.api_cmds['getvote'] != '') && !(settings.blockchain_specific.heavycoin.public_apis.getphase.enabled == true && settings.blockchain_specific.heavycoin.api_cmds['getphase'] != null && settings.blockchain_specific.heavycoin.api_cmds['getphase'] != '') && !(settings.blockchain_specific.heavycoin.public_apis.getreward.enabled == true && settings.blockchain_specific.heavycoin.api_cmds['getreward'] != null && settings.blockchain_specific.heavycoin.api_cmds['getreward'] != '') && !(settings.blockchain_specific.heavycoin.public_apis.getsupply.enabled == true && settings.blockchain_specific.heavycoin.api_cmds['getsupply'] != null && settings.blockchain_specific.heavycoin.api_cmds['getsupply'] != '') && !(settings.blockchain_specific.heavycoin.public_apis.getnextrewardestimate.enabled == true && settings.blockchain_specific.heavycoin.api_cmds['getnextrewardestimate'] != null && settings.blockchain_specific.heavycoin.api_cmds['getnextrewardestimate'] != '') && !(settings.blockchain_specific.heavycoin.public_apis.getnextrewardwhenstr.enabled == true && settings.blockchain_specific.heavycoin.api_cmds['getnextrewardwhenstr'] != null && settings.blockchain_specific.heavycoin.api_cmds['getnextrewardwhenstr'] != '')));
         - var hide_ext_api_section = !settings.api_page.public_apis.ext.getmoneysupply.enabled && !settings.api_page.public_apis.ext.getdistribution.enabled && !settings.api_page.public_apis.ext.getaddress.enabled && !settings.api_page.public_apis.ext.getaddresstxs.enabled && !settings.api_page.public_apis.ext.gettx.enabled && !settings.api_page.public_apis.ext.getbalance.enabled && !settings.api_page.public_apis.ext.getlasttxs.enabled && !settings.api_page.public_apis.ext.getcurrentprice.enabled && !settings.api_page.public_apis.ext.getnetworkpeers.enabled && !settings.api_page.public_apis.ext.getbasicstats.enabled && !settings.api_page.public_apis.ext.getsummary.enabled && !(settings.api_page.public_apis.ext.getmasternodelist.enabled && settings.api_cmds['getmasternodelist'] != null && settings.api_cmds['getmasternodelist'] != '') && !settings.api_page.public_apis.ext.getmasternoderewards.enabled && !settings.api_page.public_apis.ext.getmasternoderewardstotal.enabled && pluginApisExt.length == 0;
         - var market_currency = (settings.markets_page.market_price == 'COINGECKO' ? (settings.markets_page.coingecko_currency == null || settings.markets_page.coingecko_currency == '' ? '' : settings.markets_page.coingecko_currency) : (settings.markets_page.default_exchange.trading_pair != null && settings.markets_page.default_exchange.trading_pair.indexOf('/') > -1 ? settings.markets_page.default_exchange.trading_pair.split('/')[1] : '')).toUpperCase();
+        p.api-base
+          span.api-base-label Base URL
+          code https://#{address}
+        nav.api-toc
+          if !hide_rpc_api_section
+            a(href='#api-rpc') RPC API
+          if !hide_ext_api_section
+            a(href='#api-ext') Extended API
+          a(href='#api-v2') CryptoID API
+          a(href='#api-link') Linking
         if !hide_rpc_api_section
-          h3 #{settings.localization.api_calls}
+          h3#api-rpc #{settings.localization.api_calls}
           p
             em Return data from coind
           ul
@@ -162,7 +172,7 @@ block content
                     a(href='/api/getnextrewardwhenstr') #{address}/api/getnextrewardwhenstr
           hr
         if !hide_ext_api_section
-          h3 Extended API
+          h3#api-ext Extended API
           p
             em Return data from local indexes
           ul
@@ -278,7 +288,128 @@ block content
                     em #{extApi.api_desc}
                   a(href=extApi.api_url_sample) #{address}#{extApi.api_url_sample}
           hr
-        h3 Linking (GET)
+        h3#api-v2 CryptoID-compatible API (GET)
+        p
+          em Drop-in replacement for the chainz.cryptoid.info/freed/api.dws API. Served at both /v2/api.dws and /freed/api.dws, so an existing CryptoID integration can be migrated by changing only the hostname. Response formats match CryptoID exactly: most values are returned as plain text rather than JSON.
+        p
+          em Three responses differ deliberately. masternodecount reports the real patriotnode count (CryptoID reports 1). summary returns the FREED entry only, not every coin. ticker.btc returns 0 because FREED has no BTC trading pair.
+        ul
+          li
+            p
+              div.fw-bold getblockcount (/v2/api.dws?q=getblockcount)
+              div
+                em Returns the current block height.
+              a(href='/v2/api.dws?q=getblockcount') #{address}/v2/api.dws?q=getblockcount
+          li
+            p
+              div.fw-bold getdifficulty (/v2/api.dws?q=getdifficulty)
+              div
+                em Returns the current proof-of-stake difficulty.
+              a(href='/v2/api.dws?q=getdifficulty') #{address}/v2/api.dws?q=getdifficulty
+          li
+            p
+              div.fw-bold getblockhash (/v2/api.dws?q=getblockhash&height=height)
+              div
+                em Returns the block hash at the given height.
+              a(href='/v2/api.dws?q=getblockhash&height=' + settings.api_page.sample_data.blockindex) #{address}/v2/api.dws?q=getblockhash&height=#{settings.api_page.sample_data.blockindex}
+          li
+            p
+              div.fw-bold totalcoins (/v2/api.dws?q=totalcoins)
+              div
+                em Returns the total coin supply.
+              a(href='/v2/api.dws?q=totalcoins') #{address}/v2/api.dws?q=totalcoins
+          li
+            p
+              div.fw-bold circulating (/v2/api.dws?q=circulating)
+              div
+                em Returns the circulating coin supply (same as totalcoins).
+              a(href='/v2/api.dws?q=circulating') #{address}/v2/api.dws?q=circulating
+          li
+            p
+              div.fw-bold noncirculating (/v2/api.dws?q=noncirculating)
+              div
+                em Returns the non-circulating supply. Always 0 for FreedomCoin.
+              a(href='/v2/api.dws?q=noncirculating') #{address}/v2/api.dws?q=noncirculating
+          li
+            p
+              div.fw-bold totalbc (/v2/api.dws?q=totalbc)
+              div
+                em Returns the total coin supply in satoshis, as a whole number.
+              a(href='/v2/api.dws?q=totalbc') #{address}/v2/api.dws?q=totalbc
+          li
+            p
+              div.fw-bold addresses (/v2/api.dws?q=addresses)
+              div
+                em Returns the count of known addresses and those holding a balance.
+              a(href='/v2/api.dws?q=addresses') #{address}/v2/api.dws?q=addresses
+          li
+            p
+              div.fw-bold masternodecount (/v2/api.dws?q=masternodecount)
+              div
+                em Returns the number of patriotnodes on the network.
+              a(href='/v2/api.dws?q=masternodecount') #{address}/v2/api.dws?q=masternodecount
+          li
+            p
+              div.fw-bold masternodeinfo (/v2/api.dws?q=masternodeinfo)
+              div
+                em Returns patriotnode counts as masterNodeCount and serverCount.
+              a(href='/v2/api.dws?q=masternodeinfo') #{address}/v2/api.dws?q=masternodeinfo
+          li
+            p
+              div.fw-bold nodes (/v2/api.dws?q=nodes)
+              div
+                em Returns connected peers grouped by client version and protocol.
+              a(href='/v2/api.dws?q=nodes') #{address}/v2/api.dws?q=nodes
+          li
+            p
+              div.fw-bold summary (/v2/api.dws?q=summary)
+              div
+                em Returns a summary of chain, supply and market data for FREED.
+              a(href='/v2/api.dws?q=summary') #{address}/v2/api.dws?q=summary
+          li
+            p
+              div.fw-bold ticker.usd (/v2/api.dws?q=ticker.usd)
+              div
+                em Returns the last USD price.
+              a(href='/v2/api.dws?q=ticker.usd') #{address}/v2/api.dws?q=ticker.usd
+          li
+            p
+              div.fw-bold ticker.btc (/v2/api.dws?q=ticker.btc)
+              div
+                em Returns the last BTC price. Always 0 - no BTC pair is tracked.
+              a(href='/v2/api.dws?q=ticker.btc') #{address}/v2/api.dws?q=ticker.btc
+          li
+            p
+              div.fw-bold getbalance (/v2/api.dws?q=getbalance&a=address)
+              div
+                em Returns the spendable balance of an address, in coins.
+              a(href='/v2/api.dws?q=getbalance&a=' + settings.api_page.sample_data.address) #{address}/v2/api.dws?q=getbalance&a=#{settings.api_page.sample_data.address}
+          li
+            p
+              div.fw-bold getreceivedbyaddress (/v2/api.dws?q=getreceivedbyaddress&a=address)
+              div
+                em Returns the total ever received by an address, in coins.
+              a(href='/v2/api.dws?q=getreceivedbyaddress&a=' + settings.api_page.sample_data.address) #{address}/v2/api.dws?q=getreceivedbyaddress&a=#{settings.api_page.sample_data.address}
+          li
+            p
+              div.fw-bold addressinfo (/v2/api.dws?q=addressinfo&a=address)
+              div
+                em Returns balance, first and last block, timestamps and transaction count.
+              a(href='/v2/api.dws?q=addressinfo&a=' + settings.api_page.sample_data.address) #{address}/v2/api.dws?q=addressinfo&a=#{settings.api_page.sample_data.address}
+          li
+            p
+              div.fw-bold addressfirstseen (/v2/api.dws?q=addressfirstseen&a=address)
+              div
+                em Returns the UTC datetime an address was first seen.
+              a(href='/v2/api.dws?q=addressfirstseen&a=' + settings.api_page.sample_data.address) #{address}/v2/api.dws?q=addressfirstseen&a=#{settings.api_page.sample_data.address}
+          li
+            p
+              div.fw-bold richrank (/v2/api.dws?q=richrank&a=address)
+              div
+                em Returns an address rank by balance, or null if the balance is zero.
+              a(href='/v2/api.dws?q=richrank&a=' + settings.api_page.sample_data.address) #{address}/v2/api.dws?q=richrank&a=#{settings.api_page.sample_data.address}
+        hr
+        h3#api-link Linking (GET)
         p
           em Linking to the block explorer
         ul
