@@ -1476,8 +1476,8 @@ if (lib.is_locked([database]) == false) {
                         else {
                           // add the geolocation data to the new peer record(s)
                           newPeers.forEach(function (newPeer) {
-                            newPeer.country = geo.country;
-                            newPeer.country_code = geo.countryCode;
+                            newPeer.country = (geo.country ? geo.country : '');
+                            newPeer.country_code = (geo.countryCode ? geo.countryCode : '');
                           });
                         }
 
