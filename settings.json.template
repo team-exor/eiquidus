@@ -38,6 +38,8 @@
     // port: Port # to configure the express webserver to listen for http requests on
     //       NOTE: Be sure to configure firewalls to allow traffic through this port or the explorer website may not be accessible remotely
     "port": 3001,
+    // address: Interface address to configure the express webserver to listen for http requests on
+    //"address": "0.0.0.0",
     // tls: a collection of settings that pertain to the TLS (Transport Layer Security) protocol feature (aka: ssl or https)
     "tls": {
       // enabled: Enable/disable TLS
